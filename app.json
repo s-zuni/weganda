@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "우간다",
+    "slug": "weganda",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "weganda",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.weganda.app",
+      "usesAppleSignIn": true
+    },
+    "android": {
+      "package": "com.weganda.app"
+    },
+    "plugins": [
+      "expo-apple-authentication",
+      "expo-status-bar",
+      "expo-web-browser",
+      "expo-secure-store"
+    ]
+  }
+}
