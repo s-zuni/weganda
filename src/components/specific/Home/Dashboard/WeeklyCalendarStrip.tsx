@@ -1,0 +1,117 @@
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { COLORS } from '../../../../constants/theme';
+import { SHIFT_TYPES } from '../../../../constants/shiftTypes';
+import { ShiftCode } from '../../../../types/shift';
+
+export interface WeekDayItem {
+  day: string;
+  date: number;
+  dateKey: string;
+  shift: ShiftCode | null;
+  isToday: boolean;
+}
+
+interface WeeklyCalendarStripProps {
+  weekData: WeekDayItem[];
+}
+
+export const WeeklyCalendarStrip: React.FC<WeeklyCalendarStripProps> = ({ weekData }) => {
+  return (
+    <View style={styles.weekCard}>
+      <View style={styles.weekStrip}>
+        {weekData.map((item) => {
+          const shiftInfo = item.shift ? SHIFT_TYPES[item.shift] : null;
+          return (
+            <View key={item.dateKey} style={styles.dayColumn}>
+              <Text style={styles.dayLabel}>{item.day}</Text>
+
+              {item.isToday ? (
+                <View style={styles.todayCircle}>
+                  <Text style={styles.todaySubText}>오늘</Text>
+                  <Text style={styles.todayDateText}>{item.date}</Text>
+                </View>
+              ) : (
+                <Text style={styles.dateText}>{item.date}</Text>
+              )}
+
+              {item.shift && shiftInfo ? (
+                <Text style={[styles.shiftLabel, { color: shiftInfo.color }]}>
+                  {item.shift}
+                </Text>
+              ) : (
+                <View style={styles.emptyShiftSpace} />
+              )}
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  weekCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  weekStrip: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dayColumn: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  dayLabel: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  dateText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    marginBottom: 8,
+  },
+  todayCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  todaySubText: {
+    fontSize: 8,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    lineHeight: 9,
+  },
+  todayDateText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    lineHeight: 14,
+  },
+  shiftLabel: {
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  emptyShiftSpace: {
+    height: 18,
+  },
+});
+

@@ -1,26 +1,20 @@
 // ─── 오행 및 간호 사주 시각화 데이터 ─────────────────────
-
-export interface ElementRatio {
-  element: '목(木)' | '화(火)' | '토(土)' | '금(金)' | '수(水)';
-  percentage: number;
-  color: string;
-  desc: string;
-}
-
-export interface WardCompatibility {
-  rank: number;
-  ward: string;
-  score: number;
-  badge: string;
-  reason: string;
-}
-
-export interface NurseDutyDifficulty {
-  category: string;
-  score: number; // 0 ~ 100
-  status: '좋음' | '보통' | '주의' | '최고';
-  comment: string;
-}
+import {
+  ElementRatio,
+  WardCompatibility,
+  NurseDutyDifficulty,
+  LoveFortuneData,
+  CareerFortuneData,
+  WealthFortuneData,
+} from '../types/fortune';
+export type {
+  ElementRatio,
+  WardCompatibility,
+  NurseDutyDifficulty,
+  LoveFortuneData,
+  CareerFortuneData,
+  WealthFortuneData,
+};
 
 export const MOCK_FIVE_ELEMENTS: ElementRatio[] = [
   { element: '화(火)', percentage: 35, color: '#FF507C', desc: '열정과 순발력, 빠른 위기 대처' },
@@ -46,26 +40,6 @@ export const MOCK_DUTY_DIFFICULTY: NurseDutyDifficulty[] = [
 
 // ─── 애정운 목데이터 ────────────────────────────────────
 
-export interface LoveFortuneData {
-  coupleScore: number;
-  sajuCompatibility: string;
-  mbtiSolution: {
-    userMbti: string;
-    partnerMbti: string;
-    chemistry: string;
-    solution: string;
-  };
-  crushTimeline: {
-    timing: string;
-    action: string;
-    strategy: string;
-  }[];
-  marriageAdvice: {
-    pros: string[];
-    cautions: string[];
-    score: number;
-  };
-}
 
 export const MOCK_LOVE_FORTUNE: LoveFortuneData = {
   coupleScore: 94,
@@ -90,21 +64,6 @@ export const MOCK_LOVE_FORTUNE: LoveFortuneData = {
 
 // ─── 직업운 목데이터 ────────────────────────────────────
 
-export interface CareerFortuneData {
-  tenYearGreatFlow: { year: number; score: number; label: string }[];
-  transferHospitals: {
-    hospital: string;
-    matchScore: number;
-    timing: string;
-    advantage: string;
-  }[];
-  colleagueChemistry: {
-    name: string;
-    dutyRole: string;
-    chemistryScore: number;
-    comment: string;
-  }[];
-}
 
 export const MOCK_CAREER_FORTUNE: CareerFortuneData = {
   tenYearGreatFlow: [
@@ -128,25 +87,6 @@ export const MOCK_CAREER_FORTUNE: CareerFortuneData = {
 
 // ─── 금전운 목데이터 ────────────────────────────────────
 
-export interface WealthFortuneData {
-  wealthTendency: {
-    trait: string;
-    score: number;
-    description: string;
-  }[];
-  investmentPortfolio: {
-    asset: string;
-    ratio: number;
-    color: string;
-    recommendation: string;
-  }[];
-  wealthTimeline: {
-    period: string;
-    type: '유입(입금)' | '지출(유출)' | '성장';
-    amount: string;
-    guide: string;
-  }[];
-}
 
 export const MOCK_WEALTH_FORTUNE: WealthFortuneData = {
   wealthTendency: [

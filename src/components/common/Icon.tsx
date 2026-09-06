@@ -915,3 +915,58 @@ export const TrashIcon: React.FC<IconProps> = ({
     />
   </Svg>
 );
+
+// ── 45. 프리미엄 배지 (Crown / Premium) ──────────────────────
+export const CrownIcon: React.FC<IconProps> = ({
+  size = 20,
+  color = '#D4A853',
+  ...props
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
+    <Path
+      d="M2 20h20v2H2v-2zM4 10l4 4 4-6 4 6 4-4v8H4v-8z"
+      fill={color}
+    />
+  </Svg>
+);
+
+// ── 46. 구독 확인 (Shield Check / Verified) ──────────────────
+export const ShieldCheckIcon: React.FC<IconProps> = ({
+  size = 20,
+  color = '#10B981',
+  ...props
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
+    <Path
+      d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Path
+      d="M9 12l2 2 4-4"
+      stroke={color}
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
+
+// ── 47. 차트 / 연봉 예측 (Chart Bar / Salary) ─────────────────
+export const ChartBarIcon: React.FC<IconProps> = ({
+  size = 20,
+  color = '#FF507C',
+  ...props
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
+    <Path
+      d="M18 20V10M12 20V4M6 20v-6"
+      stroke={color}
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);

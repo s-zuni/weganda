@@ -40,13 +40,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
     }
   };
 
-  // 🟡 카카오 로그인 (디벨로퍼스 등록 전 안내 처리)
+  // 🟡 카카오 로그인
   const handleKakaoLogin = async () => {
-    Alert.alert(
-      '카카오 로그인 안내',
-      '카카오 로그인은 디벨로퍼스 심사 완료 후 오픈될 예정입니다.\n지금은 Google 또는 Apple 계정으로 편리하게 시작해주세요.',
-      [{ text: '확인', style: 'default' }]
-    );
+    setLoadingProvider('kakao');
+    try {
+      const result = await authService.signInWithKakao();
+      if (result?.session) {
+        await syncUserFromSession(result.session);
+      }
+    } catch (error: any) {
+      if (!error.message?.includes('취소') && !error.message?.includes('dismissed')) {
+        Alert.alert('카카오 로그인', error.message || '카카오 로그인 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setLoadingProvider(null);
+    }
   };
 
   // 🌐 Google 로그인

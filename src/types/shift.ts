@@ -1,0 +1,21 @@
+export type ShiftCode = 'D' | 'E' | 'N' | 'O' | 'V';
+
+export interface ShiftInfo {
+  code: ShiftCode;
+  name: string;
+  shortName: string;
+  color: string;
+  textColor: string;
+  defaultStartTime?: string;
+  defaultEndTime?: string;
+  description: string;
+}
+
+export interface CustomShiftCode {
+  code: string;
+  name: string;
+  color: string;
+  textColor: string;
+}
+
+export type ScheduleMap = Record<string, string>; // YYYY-MM-DD -> ShiftCode or custom code

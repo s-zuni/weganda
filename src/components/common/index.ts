@@ -5,4 +5,8 @@ export * from './Header';
 export * from './AppHeader';
 export * from './Icon';
 export * from './WegandaLogo';
+export * from './PremiumBadge';
+export * from './PremiumLockOverlay';
+export * from './PaywallBottomSheet';
+export * from './TossPaymentWebView';
 

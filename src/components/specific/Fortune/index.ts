@@ -5,4 +5,8 @@ export * from './NurseSajuDetailModal';
 export * from './LoveFortuneDetailModal';
 export * from './CareerFortuneDetailModal';
 export * from './WealthFortuneDetailModal';
-
+export * from './BirthInfoBanner';
+export * from './HeroFortuneCard';
+export * from './ThemeFortuneGrid';
+export * from './LuckyItemsSection';
+export * from './AdviceCard';

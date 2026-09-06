@@ -16,7 +16,11 @@ import { COLORS } from '../../../constants/theme';
 import { useUserStore } from '../../../store/useUserStore';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 import { BirthInfoModal } from '../Fortune/BirthInfoModal';
-import { UserIcon, SparklesIcon, CalendarIcon, BookmarkIcon } from '../../common/Icon';
+import { UserIcon, SparklesIcon, CalendarIcon, BookmarkIcon, CrownIcon, LockIcon, PaletteIcon } from '../../common/Icon';
+import { PremiumBadge } from '../../common/PremiumBadge';
+import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
+import { AdminScreen } from '../../../screens/Admin/AdminScreen';
+import { APP_THEME_COLORS, AppThemeColor } from '../../../constants/membership';
 
 interface MyPageModalProps {
   visible: boolean;
@@ -29,6 +33,10 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
     hospitalName: storeHospital,
     wardName: storeWard,
     experienceYears: storeExp,
+    isPremium,
+    role,
+    appThemeColor,
+    setAppThemeColor,
     setUser,
     clearUser,
   } = useUserStore();
@@ -42,6 +50,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
 
   const [notifPush, setNotifPush] = useState(true);
   const [birthModalVisible, setBirthModalVisible] = useState(false);
+  const [membershipVisible, setMembershipVisible] = useState(false);
+  const [adminModalVisible, setAdminModalVisible] = useState(false);
 
   const handleSaveProfile = () => {
     if (!name.trim() || !hospitalName.trim()) {
@@ -143,6 +153,32 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             )}
           </View>
 
+          {/* weganda+ 멤버십 배지 */}
+          <PremiumBadge
+            isPremium={isPremium}
+            onPress={() => setMembershipVisible(true)}
+          />
+
+          {/* 👑 관리자 전용 배너 */}
+          {role === 'admin' && (
+            <TouchableOpacity
+              style={styles.adminBannerCard}
+              onPress={() => setAdminModalVisible(true)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.adminBannerLeft}>
+                <View style={styles.adminPill}>
+                  <Text style={styles.adminPillText}>SUPER ADMIN</Text>
+                </View>
+                <Text style={styles.adminBannerTitle}>우간다 관리자 콘솔 바로가기</Text>
+                <Text style={styles.adminBannerSub}>
+                  회원 Role 변경 · 커뮤니티 신고/공지 · 실시간 지표 분석
+                </Text>
+              </View>
+              <Text style={styles.adminBannerArrow}>›</Text>
+            </TouchableOpacity>
+          )}
+
           {/* ── 사주 탄생 정보 연동 섹션 (운세 PRD 연계) ── */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeaderRow}>
@@ -232,6 +268,55 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             </View>
           </View>
 
+          {/* 앱 테마 컬러 설정 */}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionTitleGroup}>
+              <PaletteIcon size={18} color={COLORS.primary} />
+              <Text style={styles.sectionTitle}>앱 테마 컬러</Text>
+            </View>
+            <View style={styles.themeColorGrid}>
+              {APP_THEME_COLORS.map((theme) => {
+                const isSelected = appThemeColor === theme.key;
+                const isLocked = theme.isPremiumOnly && !isPremium;
+                return (
+                  <TouchableOpacity
+                    key={theme.key}
+                    style={[
+                      styles.themeColorItem,
+                      isSelected && styles.themeColorItemSelected,
+                    ]}
+                    onPress={() => {
+                      if (isLocked) {
+                        setMembershipVisible(true);
+                      } else {
+                        setAppThemeColor(theme.key);
+                      }
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.themeColorCircle, { backgroundColor: theme.hex }]}>
+                      {isLocked && (
+                        <View style={styles.themeColorLockOverlay}>
+                          <LockIcon size={12} color="#FFFFFF" />
+                        </View>
+                      )}
+                      {isSelected && !isLocked && (
+                        <Text style={styles.themeColorCheckmark}>✓</Text>
+                      )}
+                    </View>
+                    <Text style={[
+                      styles.themeColorLabel,
+                      isLocked && styles.themeColorLabelLocked,
+                    ]}>{theme.label}</Text>
+                    {isLocked && (
+                      <Text style={styles.themeColorPremiumTag}>PRO</Text>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
           {/* ── 앱 설정 & 알림 ── */}
           <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>앱 알림 설정</Text>
@@ -250,6 +335,17 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
           </View>
 
           {/* 로그아웃 버튼 */}
+          {/* 관리자 콘솔 바로가기 (관리자 계정 또는 개발 편의) */}
+          <TouchableOpacity
+            style={styles.adminConsoleFooterBtn}
+            onPress={() => setAdminModalVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.adminConsoleFooterText}>
+              {role === 'admin' ? '👑 관리자 콘솔 바로가기' : '⚙️ 관리자 콘솔 (Admin)'}
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.logoutBtn}
             onPress={() =>
@@ -274,6 +370,16 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
         <BirthInfoModal
           visible={birthModalVisible}
           onClose={() => setBirthModalVisible(false)}
+        />
+
+        <MembershipScreen
+          visible={membershipVisible}
+          onClose={() => setMembershipVisible(false)}
+        />
+
+        <AdminScreen
+          visible={adminModalVisible}
+          onClose={() => setAdminModalVisible(false)}
         />
       </KeyboardAvoidingView>
     </Modal>
@@ -528,6 +634,120 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: COLORS.textSecondary,
+  },
+  themeColorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 12,
+  },
+  themeColorItem: {
+    alignItems: 'center',
+    width: 64,
+    gap: 6,
+    padding: 4,
+    borderRadius: 12,
+  },
+  themeColorItemSelected: {
+    backgroundColor: '#F8F9FA',
+  },
+  themeColorCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  themeColorLockOverlay: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+  },
+  themeColorCheckmark: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  themeColorLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#1A1A1A',
+    textAlign: 'center',
+  },
+  themeColorLabelLocked: {
+    color: '#9CA3AF',
+  },
+  themeColorPremiumTag: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#B8922E',
+    backgroundColor: '#FFF8E7',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  adminBannerCard: {
+    backgroundColor: '#111827',
+    padding: 16,
+    borderRadius: 16,
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  adminBannerLeft: {
+    flex: 1,
+    marginRight: 10,
+  },
+  adminPill: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#374151',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginBottom: 6,
+  },
+  adminPillText: {
+    color: '#FBBF24',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  adminBannerTitle: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  adminBannerSub: {
+    color: '#9CA3AF',
+    fontSize: 11,
+  },
+  adminBannerArrow: {
+    color: '#FBBF24',
+    fontSize: 22,
+    fontWeight: '700',
+  },
+  adminConsoleFooterBtn: {
+    paddingVertical: 14,
+    borderRadius: 14,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  adminConsoleFooterText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#374151',
   },
 });
 

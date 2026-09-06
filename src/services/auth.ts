@@ -103,6 +103,17 @@ export const authService = {
 
   // 🌐 Google 소셜 로그인 (OAuth PKCE / WebBrowser 딥링크)
   async signInWithGoogle() {
+    return this.signInWithOAuth('google');
+  },
+
+  // 🟡 카카오 소셜 로그인 (OAuth PKCE / WebBrowser 딥링크)
+  async signInWithKakao() {
+    return this.signInWithOAuth('kakao');
+  },
+
+  // 소셜 로그인 공통 처리 (Google, Kakao)
+  async signInWithOAuth(provider: 'google' | 'kakao') {
+    const providerName = provider === 'kakao' ? '카카오' : 'Google';
     try {
       const redirectUrl = AuthSession.makeRedirectUri({
         scheme: 'weganda',
@@ -110,7 +121,7 @@ export const authService = {
       });
 
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider,
         options: {
           redirectTo: redirectUrl,
           skipBrowserRedirect: true,
@@ -119,7 +130,7 @@ export const authService = {
 
       if (error) throw error;
       if (!data?.url) {
-        throw new Error('Google 로그인 인증 주소를 생성하지 못했습니다.');
+        throw new Error(`${providerName} 로그인 인증 주소를 생성하지 못했습니다.`);
       }
 
       // 시스템 브라우저 인증 세션 실행
@@ -157,22 +168,9 @@ export const authService = {
       // 사용자가 브라우저를 닫은 경우
       return null;
     } catch (e: any) {
-      console.error('Google login error:', e);
+      console.error(`${providerName} login error:`, e);
       throw e;
     }
-  },
-
-  // 🟡 카카오 로그인 (디벨로퍼스 연동 준비 상태 안내)
-  async signInWithKakao() {
-    throw new Error('카카오 로그인은 카카오 디벨로퍼스 심사 완료 후 오픈될 예정입니다. Google 또는 Apple 로그인을 이용해주세요.');
-  },
-
-  // 일반 OAuth 범용 호출 (하위 호환)
-  async signInWithOAuth(provider: 'google' | 'kakao') {
-    if (provider === 'google') {
-      return this.signInWithGoogle();
-    }
-    return this.signInWithKakao();
   },
 
   // 로그아웃

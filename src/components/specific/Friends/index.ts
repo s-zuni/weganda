@@ -2,4 +2,7 @@ export * from './FriendProfileModal';
 export * from './ChatRoomModal';
 export * from './GroupChatDetailModal';
 export * from './SharedShiftModal';
-
+export * from './SharedShiftBanner';
+export * from './FriendCard';
+export * from './FriendsListTab';
+export * from './GroupsTab';

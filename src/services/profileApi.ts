@@ -9,7 +9,7 @@ export interface ProfileItem {
   hospitalName?: string;
   wardName?: string;
   experienceYears?: number;
-  role?: 'nurse' | 'head_nurse' | 'student';
+  role?: 'admin' | 'plus' | 'user' | 'nurse' | 'head_nurse' | 'student';
   avatarUrl?: string;
   birthDate?: string;
   birthTime?: string;

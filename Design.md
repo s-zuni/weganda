@@ -48,7 +48,19 @@
 | 휴무 (Off) | O | `#E84A5F` | 레드/코랄 — 휴일 |
 | 연차 (Vacation) | V | `#9B51E0` | 보라 — 연차/특별휴가 |
 
-> **🚫 NO GRADIENTS 원칙**: 신뢰성과 가독성을 위해 그라디언트는 일절 사용하지 않습니다. 모든 색상은 Solid Color로만 사용합니다.
+### weganda+ 프리미엄 컬러 팔레트 (Premium Palette)
+
+| 역할 | 이름 | HEX | 사용 용도 |
+|------|------|-----|-----------|
+| **Premium Hero** | Deep Green | `#1B4332` | Paywall 모달 Hero 배경 (솔리드), 구독 CTA 버튼 배경 |
+| Premium Hero Sub | Deep Forest | `#2D6A4F` | Paywall 보조 섹션 |
+| **Premium Accent** | Gold | `#D4A853` | 👑 CrownIcon, weganda+ 골드 로고/텍스트, CTA 텍스트 |
+| Premium Gold Light | Champagne | `#F5E6C8` | 골드 테두리, Pro 태그 배경 |
+| Premium Gold Dark | Deep Bronze | `#B8922E` | 골드 뱃지 텍스트 |
+| Premium Badge Tint | Warm Gold Tint | `#FFF8E7` | `👑 weganda+ 이용 중` 배지 배경 |
+| Toss Blue | Toss Brand Blue | `#0064FF` | 토스페이먼츠 결제창 인디케이터 및 브랜드 컬러 |
+
+> **🚫 NO GRADIENTS 원칙**: 신뢰성과 가독성을 위해 그라디언트는 일절 사용하지 않습니다. Paywall 및 프리미엄 영역을 포함한 모든 색상은 Solid Color로만 사용합니다.
 
 ---
 
@@ -191,6 +203,9 @@ Inactive 색상: #6B7280
 | 홈 — 특이사항 기록 | `PencilIcon` | Minimal Pencil (연필/작성 라인 벡터) | 특이사항 작성 | `#FF507C` |
 | 커뮤니티 — 반응 메트릭 | `EyeIcon`, `HeartIcon`, `CommentIcon` | Eye, Heart, Chat Bubble (조회/하트/댓글) | 게시글 반응 수치 | `#9CA3AF` |
 | 커뮤니티 — 글쓰기 FAB | `PencilIcon` | Minimal Pencil (연필/작성 라인 벡터) | 새 글 작성 | `#FFFFFF` |
+| 프리미엄 — 멤버십 배지 | `CrownIcon` | Minimal Crown (왕관 벡터) | weganda+ 구독자 배지 및 Paywall 심볼 | `#D4A853` (골드) |
+| 프리미엄 — 결제 완료 | `ShieldCheckIcon` | Shield + Checkmark (방패 체크 벡터) | 토스 결제 완료 및 구독 인증 | `#10B981` (그린) |
+| 프리미엄 — 월급 예측기 | `ChartBarIcon` | 3-Bar Chart (차트 바 라인 벡터) | D/E/N 수당 및 월급 예측 통계 | `#FF507C` / `#1A1A1A` |
 
 ### 6.1 운세 서비스 유료화 대비 비동기 생성 UX 원칙
 - **선택 즉시 노출 차단**: 사용자가 운세 카드를 눌렀을 때 결과를 즉시 보여주지 않고, 각 운세의 상세 가치와 분석 항목을 사전에 안내하는 **`FortuneUnlockView` (미리보기 화면)**를 노출합니다.
@@ -275,3 +290,38 @@ Inactive 색상: #6B7280
 #### ⑥ Micro-interaction & Haptic
 - 버튼 탭 시 `scale(0.97)` + Light Haptic 피드백.
 - 듀티 선택 시 즉각적인 시각적 피드백 제공.
+
+---
+
+## 11. weganda+ 프리미엄 멤버십 & Paywall 디자인 스펙
+
+### 11.1 Paywall 화면 레이아웃 (`MembershipScreen.tsx`)
+
+```
+[SafeAreaView: Deep Green (#1B4332)]
+  [← 닫기 버튼: 44x44px 터치 영역, 화이트 텍스트]
+  [ScrollView]
+    [Hero Section: 솔리드 딥 그린 (#1B4332)]
+      ├─ 👑 CrownIcon (48px, #D4A853 Gold)
+      ├─ "weganda+" 로고 타이틀 (28px ExtraBold, #D4A853)
+      └─ "당신의 간호 라이프를 한 단계 높여보세요" (16px, White 80%)
+    [Benefits Section: 화이트 (#FFFFFF) 배경]
+      ├─ 섹션 타이틀: "프리미엄 혜택" (18px Bold, #1A1A1A)
+      ├─ [구독 중 배지 (선택적)]: 연한 그린 배경 + ShieldCheckIcon
+      └─ [5대 혜택 카드 수직 리스트 (16px radius, #E5E7EB 테두리)]
+          1. 🎨 앱 커스텀 컬러 설정 (PRO 전용 테마 5종)
+          2. 🔮 사주 서비스 무제한 (무료: 월 5회 제한)
+          3. 💰 야간/휴일 수당 및 월급 자동 예측기 (D/E/N 패턴 계산)
+          4. 🤖 약물 계산기 & Ask AI 무제한 (임상 계산 프리셋)
+          5. 📅 무제한 교집합 캘린더 & AI 모임 날짜 추천 (오프 동기화)
+  [Sticky Bottom CTA Container: 화이트 배경, 상단 소프트 그림자]
+    ├─ 메인 CTA: "우간다+ 구독하기 (월 7,800원)" (56px Pill Button, #1B4332 배경, #D4A853 텍스트)
+    └─ 안심 문구: "언제든 해지 가능 • 첫 7일 무료 체험" (12px, #9CA3AF)
+```
+
+### 11.2 Feature Gating 컴포넌트 표준
+- **`PremiumBadge`**: 프로필 하단 16px radius 카드. 무료 회원은 핑크 틴트(`✨ 알아보기 ›`), 구독 회원은 골드 틴트(`👑 이용 중`).
+- **`PremiumLockOverlay`**: 잠긴 카드 상단 반투명 화이트(`rgba(255,255,255,0.92)`) 오버레이 + 자물쇠 아이콘 + 즉시 업그레이드 Pill CTA.
+- **`PaywallBottomSheet`**: 토스 스타일 24px 상단 곡률 바텀시트. 기능 설명 + 3대 핵심 혜택 + 즉시 구독 버튼.
+- **`TossPaymentWebView`**: 토스 블루(`#0064FF`) 인디케이터 기반 2초 로딩 후 완료 모달 전환.
+

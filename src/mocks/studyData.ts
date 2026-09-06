@@ -1,28 +1,5 @@
-export interface StudyGuideItem {
-  id: string;
-  title: string;
-  category: '약물계산/투약' | '응급/ACLS' | '간호술기' | '바이탈/중재';
-  summary: string;
-  iconType: 'flask' | 'zap' | 'activity' | 'book';
-  iconBg: string;
-  author: string;
-  meta: string;
-  views: number;
-  isBookmarked: boolean;
-  keyPoints: string[];
-  dangerAlert?: string;
-  fullContent: string[];
-}
-
-export interface DrugPreset {
-  id: string;
-  name: string;
-  defaultDose: number; // mcg/kg/min
-  unit: string;
-  drugTotalMg: number;
-  fluidTotalMl: number;
-  description: string;
-}
+import { StudyGuideItem, DrugPreset } from '../types/study';
+export type { StudyGuideItem, DrugPreset };
 
 export const MOCK_DRUG_PRESETS: DrugPreset[] = [
   {

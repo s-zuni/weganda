@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
+import { LandingScreen } from './src/screens/Landing/LandingScreen';
+import { AdminScreen } from './src/screens/Admin/AdminScreen';
 import { useUserStore } from './src/store/useUserStore';
 import { supabase } from './src/services/supabase';
 import { COLORS } from './src/constants/theme';
@@ -12,6 +14,14 @@ export default function App() {
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
   const clearUser = useUserStore((state) => state.clearUser);
   const isLoading = useUserStore((state) => state.isLoading);
+
+  // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs weganda.kr/admin)
+  const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin'>(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      return window.location.pathname.startsWith('/admin') ? 'admin' : 'landing';
+    }
+    return 'landing';
+  });
 
   useEffect(() => {
     // 1. 앱 기동 시 SecureStore에 저장된 세션 복원
@@ -28,11 +38,57 @@ export default function App() {
       }
     });
 
+    // 3. 웹 환경 브라우저 뒤로가기/앞으로가기 히스토리 이벤트 리스너
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const handlePopState = () => {
+        setCurrentWebRoute(window.location.pathname.startsWith('/admin') ? 'admin' : 'landing');
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => {
+        subscription.unsubscribe();
+        window.removeEventListener('popstate', handlePopState);
+      };
+    }
+
     return () => {
       subscription.unsubscribe();
     };
   }, [initializeAuth, syncUserFromSession, clearUser]);
 
+  // ── 웹(Browser) 환경 렌더링 ──
+  if (Platform.OS === 'web') {
+    if (currentWebRoute === 'admin') {
+      return (
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <AdminScreen
+            onClose={() => {
+              if (typeof window !== 'undefined') {
+                window.history.pushState({}, '', '/');
+              }
+              setCurrentWebRoute('landing');
+            }}
+          />
+        </SafeAreaProvider>
+      );
+    }
+
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <LandingScreen
+          onNavigateAdmin={() => {
+            if (typeof window !== 'undefined') {
+              window.history.pushState({}, '', '/admin');
+            }
+            setCurrentWebRoute('admin');
+          }}
+        />
+      </SafeAreaProvider>
+    );
+  }
+
+  // ── 모바일 앱(iOS / Android) 환경 렌더링 ──
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />

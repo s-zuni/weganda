@@ -81,6 +81,18 @@
 - **글쓰기 바텀 시트 모달**:
   - 우측 하단 ✏️ 플로팅 버튼 클릭 시 토스 스타일 바텀 시트로 안전한 익명 글 작성 및 목록 즉시 반영
 
+### 6) 👑 프리미엄 멤버십 (weganda+)
+- **멤버십 가격 정책**: 월 7,800원 (첫 7일 무료 체험)
+- **5대 유료 혜택 및 Feature Gating**:
+  1. 🎨 **앱 커스텀 컬러 테마**: 기본 핑크 외 딥 그린, 딥 블루, 옐로, 퍼플 등 5종 커스텀 컬러 선택
+  2. 🔮 **간호 사주/운세 무제한**: 무료 회원 월 5회 초과 시 잠금 오버레이(`PremiumLockOverlay`) 및 무제한 열람
+  3. 💰 **월급/수당 자동 예측기 (Killer Feature)**: D/E/N 패턴 기반 기본급, 야간/휴일/초과수당 자동 계산 및 월급 통계
+  4. 🤖 **임상 계산기 & Ask AI 무제한**: 복잡한 약물 용량/gtt 점적 계산 프리셋 및 AI 간호 어시스턴트 무제한 질의
+  5. 📅 **무제한 교집합 캘린더 & AI 모임 추천**: 3인 초과 동기 듀티 무제한 동기화 및 최적 공통 오프 자동 추천
+- **결제 게이트웨이 연동 (Toss Payments)**:
+  - Mock 웹뷰(`TossPaymentWebView.tsx`) 2초 로딩 후 구독 전환
+  - 추후 토스페이먼츠 MCP (`@tosspayments/integration-guide-mcp`) 기반 정식 결제 모듈 확장
+
 ---
 
 ## 3. 기술 스택 & 라이브러리 레퍼런스
@@ -90,8 +102,9 @@
 | **Core Framework** | React Native / Expo | Expo SDK 51, React Native 0.74, TypeScript 5.3 |
 | **Routing** | React Navigation | Bottom Tabs 6 + Native Stack 6 |
 | **Styling** | NativeWind / Tailwind | NativeWind v2 + Tailwind CSS 3 (Solid Color, No Gradient) |
-| **State Management** | Zustand | 클라이언트 전역 상태 및 목 데이터 스토어 (`src/store/`) |
+| **State Management** | Zustand | 클라이언트 전역 상태, 프로필/구독 상태 및 목 데이터 스토어 (`src/store/`) |
 | **Icons** | React Native SVG Vector Icons | `react-native-svg` 기반 단색 미니멀 벡터 컴포넌트 (`src/components/common/Icon.tsx`) |
+| **Payment Gateway** | Toss Payments (토스페이먼츠) | 토스 웹뷰 결제 연동 및 `@tosspayments/integration-guide-mcp` 표준 참조 |
 | **Future Backend** | Python / Supabase | FastAPI / Django (AI Scheduling/OCR) + Supabase Auth & DB |
 
 ---
@@ -101,11 +114,17 @@
 - `src/constants/`:
   - `theme.ts`: `#FF507C` Primary 토큰, Neutral, Typography 스케일 정의
   - `shiftTypes.ts`: D/E/N/O/V 표준 듀티 코드, 근무 시간, 고유 컬러 정의
+  - `membership.ts`: 5대 프리미엄 혜택, 무료 제한 상수, 테마 옵션, 멤버십 가격(7,800원) 정의
+  - `premiumTheme.ts`: 딥 그린(`#1B4332`), 골드(`#D4A853`), 토스 블루(`#0064FF`) 등 Paywall 토큰 정의
 - `src/components/common/`:
   - `AppHeader.tsx`: 전 화면 공통 밴드 로고 + 우간다 핑크 타이틀 + 알림/프로필 헤더
   - `Card.tsx`: 16px radius, 소프트 드롭 섀도우, 화이트 카드 컨테이너
   - `Button.tsx`: Primary Pill Button, Sub Muted, Outline 버튼
   - `Input.tsx`: 토스 스타일 `#F8F9FA` 오프화이트 입력 필드
+  - `PremiumBadge.tsx`: `👑 이용 중` / `✨ 알아보기 ›` 동적 구독 상태 배지
+  - `PremiumLockOverlay.tsx`: 무료 회원 초과 시 반투명 블러 잠금 및 Paywall 전환 오버레이
+  - `PaywallBottomSheet.tsx`: 인앱 기능 잠금 시 토스 스타일 업그레이드 바텀시트
+  - `TossPaymentWebView.tsx`: 토스페이먼츠 Mock 결제 처리 웹뷰 모달
 - `src/components/specific/`:
   - `DutyCalendar.tsx`: 교대근무 캘린더 그리드 컴포넌트
   - `FortuneCard.tsx`: `#FF507C` 테마 기반 운세 요약 카드
@@ -136,20 +155,22 @@
   - `Notification/`:
     - `NotificationModal.tsx`: 듀티 교환, 근무 리마인더, 댓글 알림 센터 모달
   - `MyPage/`:
-    - `MyPageModal.tsx`: 프로필 설정, 사주 탄생정보 연동, 3교대 통계 및 활동 내역 모달
+    - `MyPageModal.tsx`: 프로필 설정, 테마 컬러 5종 선택, 사주 탄생정보 연동, 3교대 통계 및 활동 내역 모달
 - `src/screens/`:
-  - `Home/DashboardScreen.tsx`: 홈 메인 대시보드 화면
-  - `Fortune/FortuneScreen.tsx`: 간호 운세 및 4대 정밀 세부 운세 화면
-  - `Friends/FriendsScreen.tsx`: 동기 듀티 현황, 즐겨찾기, 단체방 화면
+  - `Home/DashboardScreen.tsx`: 홈 메인 대시보드 화면 및 월급/수당 예측 카드(D/E/N 수당 통계)
+  - `Fortune/FortuneScreen.tsx`: 간호 운세 및 월 5회 횟수 제한 게이팅
+  - `Friends/FriendsScreen.tsx`: 동기 듀티 현황, 3인 공유 제한 및 AI 모임 날짜 추천 게이팅
   - `Study/StudyScreen.tsx`: 약물 계산기, 임상 프로토콜, AI Q&A 학습 화면
   - `Community/CommunityScreen.tsx`: HOT 토픽, 병원 인증 뱃지, 북마크 보관함 커뮤니티 화면
+  - `MyPage/MembershipScreen.tsx`: weganda+ 풀스크린 Paywall 모달 화면
 - `src/navigation/`:
   - `BottomTabNavigator.tsx`: 5개 탭 및 중앙 돌출 64px FAB(🩺, `#FF507C`) 렌더링
   - `RootNavigator.tsx`: 인증 및 메인 탭 전환 루트 네비게이터
 - `src/mocks/`:
+  - `membership.ts`: 월급 예측 D/E/N 수당 및 월별 히스토리 Mock 데이터
   - `shifts.ts`, `fortunes.ts`, `fortuneData.ts`, `friends.ts`, `friendsData.ts`, `study.ts`, `studyData.ts`, `community.ts`, `communityData.ts`, `notificationsData.ts`, `alarms.ts`, `dailyNotes.ts`: 현실적인 임상 데이터 모델
 - `src/store/`:
-  - `useUserStore.ts`: 사용자 프로필, 듀티 상태 관리
+  - `useUserStore.ts`: 사용자 프로필, weganda+ 프리미엄 상태(`isPremium`, `monthlyFortuneCount`, `appThemeColor`) 및 액션 관리
   - `useFriendsStore.ts`: 동기 목록, 즐겨찾기 고정, 대화방 상태 관리
   - `useCommunityStore.ts`: 게시글 CRUD, 댓글/대댓글, 추천, 북마크, 신고/차단 관리
   - `useStudyStore.ts`: 임상 족보 북마크, AI 질문 Q&A 관리
