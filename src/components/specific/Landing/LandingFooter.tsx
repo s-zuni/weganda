@@ -1,19 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { COLORS } from '../../../constants/theme';
+import { useResponsive } from '../../../utils/useResponsive';
 
 export const LandingFooter: React.FC = () => {
+  const { isMobile } = useResponsive();
+
   const handleLinkClick = (name: string) => {
     alert(`${name} 페이지는 현재 준비 중입니다. 문의사항은 contact@weganda.kr로 보내주세요.`);
   };
 
   return (
-    <View style={styles.footerContainer}>
+    <View style={[styles.footerContainer, isMobile && styles.footerContainerMobile]}>
       <View style={styles.innerFooter}>
         {/* Top Section */}
-        <View style={styles.topRow}>
+        <View style={[styles.topRow, isMobile && styles.topRowMobile]}>
           {/* Brand Info */}
-          <View style={styles.brandCol}>
+          <View style={[styles.brandCol, isMobile && styles.brandColMobile]}>
             <View style={styles.brandHeader}>
               <Image
                 source={require('../../../assets/images/logo.png')}
@@ -30,7 +33,7 @@ export const LandingFooter: React.FC = () => {
           </View>
 
           {/* Links Columns */}
-          <View style={styles.linksGrid}>
+          <View style={[styles.linksGrid, isMobile && styles.linksGridMobile]}>
             <View style={styles.linksCol}>
               <Text style={styles.linksHeader}>서비스</Text>
               <TouchableOpacity onPress={() => handleLinkClick('스마트 듀티 캘린더')}>
@@ -85,7 +88,7 @@ export const LandingFooter: React.FC = () => {
         <View style={styles.bottomRow}>
           <Text style={styles.legalInfo}>
             우간다 (Weganda) | 대표자: 이승준 | 문의 이메일: contact@weganda.kr{'\n'}
-            주소: 서울특별시 강남구 테헤란로 (출시 준비 중) | 통신판매업 신고: 심사 대기 중
+            통신판매업 신고: 심사 대기 중
           </Text>
           <Text style={styles.copyrightText}>
             © 2026 Weganda Inc. All rights reserved.
@@ -106,18 +109,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     alignItems: 'center',
   },
+  footerContainerMobile: {
+    paddingVertical: 44,
+    paddingHorizontal: 16,
+  },
   innerFooter: {
     maxWidth: 1140,
     width: '100%',
   },
   topRow: {
-    flexDirection: Platform.OS === 'web' ? 'row' : 'column',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 48,
     marginBottom: 48,
   },
+  topRowMobile: {
+    flexDirection: 'column',
+    gap: 32,
+    marginBottom: 32,
+  },
   brandCol: {
     maxWidth: 360,
+  },
+  brandColMobile: {
+    maxWidth: '100%',
   },
   brandHeader: {
     flexDirection: 'row',
@@ -150,9 +165,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 44,
   },
+  linksGridMobile: {
+    gap: 24,
+  },
   linksCol: {
-    minWidth: 120,
-    gap: 12,
+    minWidth: 100,
+    gap: 10,
   },
   linksHeader: {
     fontSize: 14,
@@ -169,7 +187,7 @@ const styles = StyleSheet.create({
     color: '#E2E8F0',
   },
   bottomRow: {
-    paddingTop: 32,
+    paddingTop: 28,
     borderTopWidth: 1,
     borderTopColor: '#1E293B',
     flexDirection: Platform.OS === 'web' ? 'row' : 'column',
@@ -188,4 +206,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

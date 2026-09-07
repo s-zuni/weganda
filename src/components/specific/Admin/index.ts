@@ -1,4 +1,4 @@
-﻿export * from './AdminSidebar';
+export * from './AdminSidebar';
 export * from './AdminContentHeader';
 export * from './AdminDashboardOverview';
 export * from './UserManagementTab';
@@ -6,3 +6,4 @@ export * from './CommunityManagementTab';
 export * from './ServiceMetricsTab';
 export * from './AdminPaymentsTab';
 export * from './AdminSettingsTab';
+export * from './AdminWaitlistTab';

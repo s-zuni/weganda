@@ -1,36 +1,24 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { COLORS } from '../../../constants/theme';
+import { useResponsive } from '../../../utils/useResponsive';
 
 interface LandingHeaderProps {
-  onScrollToSection?: (sectionId: string) => void;
-  onDownloadPress: (store: 'ios' | 'android') => void;
+  onScrollToWaitlist: () => void;
+  onScrollToFeatures: () => void;
 }
 
 export const LandingHeader: React.FC<LandingHeaderProps> = ({
-  onScrollToSection,
-  onDownloadPress,
+  onScrollToWaitlist,
+  onScrollToFeatures,
 }) => {
-  const handleNavClick = (sectionId: string) => {
-    if (onScrollToSection) {
-      onScrollToSection(sectionId);
-    } else if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      const el = document.getElementById(sectionId);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
+  const { isMobile } = useResponsive();
 
   return (
     <View style={styles.headerContainer}>
-      <View style={styles.innerHeader}>
-        {/* Brand Group */}
-        <TouchableOpacity
-          style={styles.brandGroup}
-          onPress={() => handleNavClick('hero')}
-          activeOpacity={0.8}
-        >
+      <View style={[styles.innerHeader, isMobile && styles.innerHeaderMobile]}>
+        {/* Brand Logo & Name */}
+        <View style={styles.brandGroup}>
           <Image
             source={require('../../../assets/images/logo.png')}
             style={styles.logoImage}
@@ -40,55 +28,38 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
             <Text style={styles.brandTitle}>우간다</Text>
             <Text style={styles.brandSubtitle}>Weganda</Text>
           </View>
-        </TouchableOpacity>
-
-        {/* Navigation Menu (User-focused) */}
-        <View style={styles.navMenu}>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => handleNavClick('screens')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navItemText}>화면 미리보기</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => handleNavClick('spotlight')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navItemText}>주요 기능</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => handleNavClick('how-it-works')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navItemText}>이용 방법</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => handleNavClick('testimonials')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navItemText}>간호사 후기</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => handleNavClick('pricing')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navItemText}>요금제</Text>
-          </TouchableOpacity>
         </View>
+
+        {/* Navigation Menu (Hidden on Mobile for clean UX) */}
+        {!isMobile && (
+          <View style={styles.navMenu}>
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={onScrollToFeatures}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.navItemText}>주요 기능</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={onScrollToWaitlist}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.navItemText}>사전예약 혜택</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* CTA Button */}
         <View style={styles.ctaGroup}>
           <TouchableOpacity
-            style={styles.headerDownloadBtn}
-            onPress={() => onDownloadPress('ios')}
+            style={[styles.ctaBtn, isMobile && styles.ctaBtnMobile]}
+            onPress={onScrollToWaitlist}
             activeOpacity={0.85}
           >
-            <Text style={styles.headerDownloadBtnText}>무료 다운로드</Text>
+            <Text style={[styles.ctaBtnText, isMobile && styles.ctaBtnTextMobile]}>
+              사전예약 신청
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -105,13 +76,9 @@ const styles = StyleSheet.create({
     position: Platform.OS === 'web' ? ('sticky' as any) : 'relative',
     top: 0,
     zIndex: 100,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
   },
   innerHeader: {
-    maxWidth: 1200,
+    maxWidth: 1160,
     width: '100%',
     alignSelf: 'center',
     paddingHorizontal: 24,
@@ -120,68 +87,76 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  innerHeaderMobile: {
+    paddingHorizontal: 16,
+    height: 64,
+  },
   brandGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   logoImage: {
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     borderRadius: 10,
   },
   brandTextGroup: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    gap: 6,
+    gap: 5,
   },
   brandTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '800',
     color: '#0F172A',
     letterSpacing: -0.5,
   },
   brandSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary, // Viva Coral Pink
+    color: COLORS.primary,
     letterSpacing: -0.2,
   },
   navMenu: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 28,
-    // Web only responsive check
+    gap: 32,
   },
   navItem: {
     paddingVertical: 8,
-    paddingHorizontal: 4,
   },
   navItemText: {
     fontSize: 15,
     fontWeight: '600',
     color: '#475569',
-    transitionDuration: '150ms',
-  } as any,
+  },
   ctaGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
   },
-  headerDownloadBtn: {
+  ctaBtn: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 9999,
+    borderRadius: 12,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
-  headerDownloadBtnText: {
+  ctaBtnMobile: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  ctaBtnText: {
     fontSize: 14,
     fontWeight: '700',
     color: '#FFFFFF',
   },
+  ctaBtnTextMobile: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
 });
-

@@ -1,8 +1,9 @@
-﻿import React from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 export type AdminMenuKey =
   | 'dashboard'
+  | 'waitlist'
   | 'users'
   | 'community'
   | 'analytics'
@@ -30,6 +31,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     isPending?: boolean;
   }[] = [
     { key: 'dashboard', label: '대시보드', icon: '⊞' },
+    { key: 'waitlist', label: '사전예약 대기자 (Waitlist)', icon: '📬' },
     { key: 'users', label: '회원 관리', icon: '👥' },
     {
       key: 'community',

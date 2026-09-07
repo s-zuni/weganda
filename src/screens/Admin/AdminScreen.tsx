@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -17,6 +17,7 @@ import {
   ServiceMetricsTab,
   AdminPaymentsTab,
   AdminSettingsTab,
+  AdminWaitlistTab,
 } from '../../components/specific/Admin';
 import { adminApi, DashboardStats } from '../../services/adminApi';
 import { AdminAnalytics } from '../../types/admin';
@@ -85,8 +86,13 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     switch (menu) {
       case 'dashboard':
         return {
-          title: '대시보드',
+          title: '운영 대시보드',
           subtitle: '서비스 운영 현황 및 핵심 지표를 한눈에 확인하세요.',
+        };
+      case 'waitlist':
+        return {
+          title: '사전예약 대기자 명단 (Waitlist)',
+          subtitle: '랜딩페이지에서 출시 알림 및 2개월 무료 혜택을 신청한 간호사 이메일 목록',
         };
       case 'users':
         return {
@@ -157,6 +163,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
                   onNavigateTab={setActiveMenu}
                 />
               )}
+              {activeMenu === 'waitlist' && <AdminWaitlistTab />}
               {activeMenu === 'users' && <UserManagementTab />}
               {activeMenu === 'community' && <CommunityManagementTab />}
               {activeMenu === 'analytics' && <ServiceMetricsTab />}

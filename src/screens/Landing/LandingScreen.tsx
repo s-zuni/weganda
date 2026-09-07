@@ -1,14 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
+import { StyleSheet, ScrollView, Platform } from 'react-native';
 import {
   LandingHeader,
   LandingHero,
-  LandingScreenShowcase,
   LandingFeatureSpotlights,
   LandingHowItWorks,
   LandingCoreFeatures,
-  LandingTestimonials,
-  LandingPricing,
   LandingDownloadCta,
   LandingFooter,
 } from '../../components/specific/Landing';
@@ -18,32 +15,18 @@ interface LandingScreenProps {
 }
 
 export const LandingScreen: React.FC<LandingScreenProps> = () => {
-  const handleDownloadPress = (store: 'ios' | 'android') => {
-    const storeName = store === 'ios' ? 'Apple App Store' : 'Google Play 스토어';
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      window.alert(
-        `우간다(Weganda) ${storeName} 앱 출시 심사 진행 중입니다!\n\n현재 웹 브라우저에서 모바일 앱 핵심 기능들을 모두 미리 확인하실 수 있습니다.`
-      );
-    } else {
-      alert(`우간다(Weganda) ${storeName} 앱 출시 준비 중입니다.`);
-    }
-  };
-
-  const handleSelectPlan = (plan: 'free' | 'plus') => {
-    if (plan === 'free') {
-      handleDownloadPress('ios');
-    } else {
-      if (Platform.OS === 'web' && typeof window !== 'undefined') {
-        window.alert(
-          'weganda+ 프리미엄 멤버십 7일 무료 체험 이벤트가 앱 출시와 함께 시작됩니다!\n지금 무료 다운로드 알림을 신청해보세요.'
-        );
+  const handleScrollToWaitlist = () => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      const el = document.getElementById('waitlist-input') || document.getElementById('waitlist-bottom');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
       }
     }
   };
 
-  const handleScrollToSection = (sectionId: string) => {
+  const handleScrollToFeatures = () => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      const el = document.getElementById(sectionId);
+      const el = document.getElementById('features');
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' });
       }
@@ -56,40 +39,28 @@ export const LandingScreen: React.FC<LandingScreenProps> = () => {
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
-      {/* 1. Global Navigation Bar (User-Focused, Official Logo, No Admin Link) */}
+      {/* 1. Global Navigation Bar (Official Logo & Pre-order CTA) */}
       <LandingHeader
-        onScrollToSection={handleScrollToSection}
-        onDownloadPress={handleDownloadPress}
+        onScrollToWaitlist={handleScrollToWaitlist}
+        onScrollToFeatures={handleScrollToFeatures}
       />
 
-      {/* 2. Hero Section with Trust Metrics */}
-      <LandingHero
-        onDownloadPress={handleDownloadPress}
-        onExploreScreens={() => handleScrollToSection('screens')}
-      />
+      {/* 2. Hero Section: Clean Copy + Early Access Email Input + Benefit Notice */}
+      <LandingHero />
 
-      {/* 3. Interactive Figma Screen Showcase (Home / 학습 / 커뮤니티 / 운세 / 친구) */}
-      <LandingScreenShowcase />
-
-      {/* 4. Feature Spotlights (Duty Calendar & AI Clinical Assistant) */}
+      {/* 3. Real Clinical & Duty Features Spotlight (동기 공유 / 캘린더 / AI 계산기) */}
       <LandingFeatureSpotlights />
 
-      {/* 5. How It Works (3 Steps to Start) */}
+      {/* 4. How It Works (3 Steps to Pre-register) */}
       <LandingHowItWorks />
 
-      {/* 6. Core 6-Grid Features */}
+      {/* 5. Dark Navy Problem-Solving Section (간호사의 고충을 해결하는 6가지) */}
       <LandingCoreFeatures />
 
-      {/* 7. Nurse Testimonials & Ratings */}
-      <LandingTestimonials />
+      {/* 6. Bottom Waitlist Email Conversion Box */}
+      <LandingDownloadCta />
 
-      {/* 8. Pricing Section (Free vs Plus) */}
-      <LandingPricing onSelectPlan={handleSelectPlan} />
-
-      {/* 9. Bottom Download Conversion Banner */}
-      <LandingDownloadCta onDownloadPress={handleDownloadPress} />
-
-      {/* 10. Professional Legal & Brand Footer */}
+      {/* 7. Understated Legal & Brand Footer */}
       <LandingFooter />
     </ScrollView>
   );
