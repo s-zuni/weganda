@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../services/supabase';
 import { profileApi, ProfileItem } from '../services/profileApi';
+import { useFortuneStore } from './useFortuneStore';
 
 export type AppThemeColor = 'pink' | 'deepGreen' | 'deepBlue' | 'yellow' | 'purple';
 
@@ -124,6 +125,17 @@ export const useUserStore = create<UserState>((set, get) => ({
           role: userRole,
           isPremium: userRole === 'plus' || userRole === 'admin' || get().isPremium,
         });
+
+        // 프로필에 사주 탄생 정보가 있으면 운세 스토어에도 자동 복원
+        if (profile.birthDate) {
+          useFortuneStore.getState().setBirthInfo({
+            birthDate: profile.birthDate,
+            birthTime: profile.birthTime || '미상',
+            calendarType: profile.calendarType || 'solar',
+            gender: profile.gender || 'female',
+            isRegistered: true,
+          });
+        }
       }
     } catch (e) {
       console.warn('Profile fetch after login (using fallback):', e);

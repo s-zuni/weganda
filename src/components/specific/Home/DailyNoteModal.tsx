@@ -14,6 +14,7 @@ import {
 import { COLORS } from '../../../constants/theme';
 import { PencilIcon } from '../../common/Icon';
 import { useDailyNoteStore } from '../../../store/useDailyNoteStore';
+import { useUserStore } from '../../../store/useUserStore';
 
 interface DailyNoteModalProps {
   visible: boolean;
@@ -24,7 +25,8 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
   visible,
   onClose,
 }) => {
-  const { notes, addNote, deleteNote } = useDailyNoteStore();
+  const userId = useUserStore((s) => s.id);
+  const { notes, fetchNotes, addNote, deleteNote } = useDailyNoteStore();
 
   const today = new Date();
   const defaultDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -32,6 +34,12 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
   const [patient, setPatient] = useState('');
   const [diagnosis, setDiagnosis] = useState('');
   const [noteContent, setNoteContent] = useState('');
+
+  React.useEffect(() => {
+    if (visible && userId) {
+      fetchNotes(userId, date);
+    }
+  }, [visible, userId, date, fetchNotes]);
 
   const handleSaveNote = () => {
     if (!patient.trim()) {
@@ -43,12 +51,15 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
       return;
     }
 
-    addNote({
-      date: date.trim(),
-      patient: patient.trim(),
-      diagnosis: diagnosis.trim() || '미지정',
-      note: noteContent.trim(),
-    });
+    addNote(
+      {
+        date: date.trim(),
+        patient: patient.trim(),
+        diagnosis: diagnosis.trim() || '미지정',
+        note: noteContent.trim(),
+      },
+      userId || undefined
+    );
 
     setPatient('');
     setDiagnosis('');

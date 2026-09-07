@@ -31,8 +31,14 @@
   3. **월급/수당 예측기**: 무료 회원은 잠금 카드 및 Paywall 바텀시트, 프리미엄 회원에게만 D/E/N 수당 통계 분석 노출.
   4. **약물 계산기 & Ask AI**: 무료 회원 횟수 제한, 프리미엄 회원 무제한.
   5. **공유 캘린더 & AI 모임 추천**: 무료 회원 최대 3명 연동 제한, AI 모임 날짜 추천 기능 잠금.
-- **토스페이먼츠(Toss Payments) 결제 연동 거버넌스**:
-  - 현재는 `src/components/common/TossPaymentWebView.tsx`의 2초 Mock 처리 플로우를 준수하며, 추후 실 결제 연동 시 토스페이먼츠 MCP (`@tosspayments/integration-guide-mcp`) 가이드에 따라 웹뷰 또는 SDK 브릿지 방식으로 점진 마이그레이션합니다.
+- **인앱 결제(In-App Purchase, IAP) 연동 거버넌스 (`react-native-iap`)**:
+  - Apple App Store(iOS StoreKit) 및 Google Play 결제 정책을 준수하기 위해 `react-native-iap` 기반의 인앱 결제 아키텍처(`src/services/inAppPurchaseService.ts`)를 표준으로 합니다.
+  - **결제 생명주기 및 5대 필수 원칙 준수**:
+    1. **조기 리스너 등록**: 앱 시작 시 `purchaseUpdatedListener` 및 `purchaseErrorListener`를 즉시 바인딩하여 미처리/보류 트랜잭션을 수신합니다.
+    2. **반드시 `finishTransaction` 완료**: 중복 결제 및 구글 3일 자동 환불/애플 재호출 문제를 방지하기 위해 트랜잭션 수신 시 영수증 검증 후 `finishTransaction({ purchase, isConsumable: false })`을 필히 호출합니다.
+    3. **구매 복원(Restore Purchases) 의무 제공**: 애플/구글 심사 통과를 위해 Paywall 및 마이페이지에 `getAvailablePurchases` 기반의 구매 복원 액션을 반드시 노출합니다.
+    4. **스토어 SKU 중앙화**: `src/constants/membership.ts`의 `IAP_SKUS` 상수로 단일 관리합니다.
+    5. **프론트엔드 우선 & 폴백(Fallback)**: 웹/에뮬레이터 및 모의 환경에서도 테스트 가능하도록 `InAppPurchaseModal.tsx`의 1.5초 시뮬레이션 및 복원 폴백 플로우를 완비합니다.
 
 ---
 

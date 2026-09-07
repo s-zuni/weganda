@@ -47,3 +47,17 @@ export const FREE_LIMITS = {
 export const PREMIUM_PRICE = '월 7,800원';
 export const PREMIUM_PRICE_NUMBER = 7800;
 export const PREMIUM_TRIAL_DAYS = 7;
+
+// In-App Purchase (IAP) SKUs & Product IDs for App Store & Google Play
+export const IAP_SKUS = {
+  SUBSCRIPTION_MONTHLY_IOS: 'com.weganda.app.premium.monthly',
+  SUBSCRIPTION_MONTHLY_ANDROID: 'com.weganda.app.premium.monthly',
+} as const;
+
+export const IAP_CONFIG = {
+  subscriptionSku: 'com.weganda.app.premium.monthly',
+  trialPeriodDays: 7,
+  storeTermsUrl: 'https://weganda.app/terms/membership',
+  privacyUrl: 'https://weganda.app/privacy',
+} as const;
+

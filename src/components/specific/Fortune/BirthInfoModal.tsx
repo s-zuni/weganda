@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { useFortuneStore } from '../../../store/useFortuneStore';
+import { useUserStore } from '../../../store/useUserStore';
+import { profileApi } from '../../../services/profileApi';
 import { CalendarIcon, ClockIcon } from '../../common/Icon';
 
 export interface BirthInfoModalProps {
@@ -156,6 +158,16 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
       calendarType,
       gender,
     });
+
+    const currentUserId = useUserStore.getState().id;
+    if (currentUserId) {
+      profileApi.updateProfile(currentUserId, {
+        birthDate: date.trim(),
+        birthTime: finalTime,
+        calendarType,
+        gender,
+      }).catch((err) => console.warn('Failed to sync birth info to Supabase profile:', err));
+    }
 
     Alert.alert('저장 완료', '사주 탄생 정보가 성공적으로 등록되었습니다. 운세가 정밀 분석됩니다!');
     onClose();

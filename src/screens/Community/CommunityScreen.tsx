@@ -13,6 +13,7 @@ import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { PencilIcon, SearchIcon } from '../../components/common/Icon';
 import { useCommunityStore } from '../../store/useCommunityStore';
+import { useUserStore } from '../../store/useUserStore';
 import { PostItem, HotTopic } from '../../types/community';
 
 // 분리된 서브 컴포넌트 및 모달
@@ -25,11 +26,12 @@ import {
 } from '../../components/specific/Community';
 
 export const CommunityScreen: React.FC = () => {
+  const userId = useUserStore((s) => s.id);
   const { posts, blockedUserIds, fetchPosts, toggleLikePost, toggleBookmarkPost } = useCommunityStore();
 
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    fetchPosts(undefined, userId || undefined);
+  }, [fetchPosts, userId]);
 
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchText, setSearchText] = useState('');
@@ -176,8 +178,8 @@ export const CommunityScreen: React.FC = () => {
                 key={post.id}
                 post={post}
                 onOpenDetail={handleOpenDetail}
-                onToggleLike={toggleLikePost}
-                onToggleBookmark={toggleBookmarkPost}
+                onToggleLike={(postId) => toggleLikePost(postId, userId || undefined)}
+                onToggleBookmark={(postId) => toggleBookmarkPost(postId, userId || undefined)}
               />
             ))
           )}

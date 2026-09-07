@@ -13,6 +13,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { COLORS } from '../../../constants/theme';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
+import { useUserStore } from '../../../store/useUserStore';
 import { ocrApi } from '../../../services/ocrApi';
 import { CustomShiftCode } from '../../../types/shift';
 import {
@@ -40,6 +41,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     updateCustomCode,
     applyUploadedSchedules,
   } = useShiftScheduleStore();
+  const userId = useUserStore((s) => s.id);
 
   const [activeTab, setActiveTab] = useState<TabType>('upload');
 
@@ -162,7 +164,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
 
   const handleApplyScanResult = () => {
     if (scanResult) {
-      applyUploadedSchedules(scanResult);
+      applyUploadedSchedules(scanResult, userId || undefined);
       Alert.alert('완료', `${month + 1}월 스케줄 31일치가 성공적으로 등록되었습니다!`);
       setScanResult(null);
       setUploadingFileType(null);
@@ -175,7 +177,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     const dStr = String(selectedDay).padStart(2, '0');
     const mStr = String(month + 1).padStart(2, '0');
     const dateKey = `${year}-${mStr}-${dStr}`;
-    setShiftForDate(dateKey, code);
+    setShiftForDate(dateKey, code, userId || undefined);
     // 다음 날로 자동 포커스 이동 (쾌속 입력 UX)
     if (selectedDay < daysInMonth) {
       setSelectedDay(selectedDay + 1);
@@ -188,7 +190,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
       Alert.alert('알림', '코드와 라벨명을 모두 입력해주세요.');
       return;
     }
-    updateCustomCode(editCode.trim().toUpperCase(), editName.trim(), editColor);
+    updateCustomCode(editCode.trim().toUpperCase(), editName.trim(), editColor, userId || undefined);
     Alert.alert('설정 완료', `[${editCode.toUpperCase()}] ${editName} 코드가 저장되었습니다.`);
   };
 

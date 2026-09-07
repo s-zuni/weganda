@@ -16,6 +16,7 @@ import {
 import { COLORS } from '../../../constants/theme';
 import { PostItem, CommentItem } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
+import { useUserStore } from '../../../store/useUserStore';
 import {
   HeartIcon,
   CommentIcon,
@@ -152,6 +153,8 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
   };
 
+  const userId = useUserStore((s) => s.id);
+
   // 댓글 / 대댓글 전송
   const handleSendComment = () => {
     if (!commentText.trim()) return;
@@ -163,12 +166,13 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
         replyingComment.commentId,
         replyingComment.targetName,
         commentText.trim(),
-        isAnonymousComment
+        isAnonymousComment,
+        userId || undefined
       );
       setReplyingComment(null);
     } else {
       // 원댓글 등록
-      addComment(currentPost.id, commentText.trim(), isAnonymousComment);
+      addComment(currentPost.id, commentText.trim(), isAnonymousComment, userId || undefined);
     }
 
     setCommentText('');
@@ -190,7 +194,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
             {/* 북마크 (보관함) */}
             <TouchableOpacity
               style={styles.headerIconBtn}
-              onPress={() => toggleBookmarkPost(currentPost.id)}
+              onPress={() => toggleBookmarkPost(currentPost.id, userId || undefined)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <BookmarkIcon
@@ -279,12 +283,13 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
               <View style={styles.reactionBar}>
                 <TouchableOpacity
                   style={[styles.likePillBtn, currentPost.isLiked && styles.likePillBtnActive]}
-                  onPress={() => toggleLikePost(currentPost.id)}
+                  onPress={() => toggleLikePost(currentPost.id, userId || undefined)}
                   activeOpacity={0.8}
                 >
                   <HeartIcon
                     size={18}
-                    color={currentPost.isLiked ? '#FFFFFF' : COLORS.primary}
+                    color={currentPost.isLiked ? COLORS.primary : COLORS.textMuted}
+                    filled={currentPost.isLiked}
                   />
                   <Text style={[styles.likePillText, currentPost.isLiked && styles.likePillTextActive]}>
                     추천 {currentPost.likes}
@@ -332,7 +337,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     {/* 댓글 좋아요 */}
                     <TouchableOpacity
                       style={styles.commentLikeBtn}
-                      onPress={() => toggleLikeComment(currentPost.id, comment.id)}
+                      onPress={() => toggleLikeComment(currentPost.id, comment.id, userId || undefined)}
                     >
                       <HeartIcon
                         size={13}

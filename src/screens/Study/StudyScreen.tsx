@@ -27,7 +27,11 @@ import {
 } from '../../components/specific/Study';
 
 export const StudyScreen: React.FC = () => {
-  const { studyGuides, toggleBookmarkGuide } = useStudyStore();
+  const { studyGuides, fetchStudyGuides, toggleBookmarkGuide } = useStudyStore();
+
+  React.useEffect(() => {
+    fetchStudyGuides();
+  }, [fetchStudyGuides]);
 
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchText, setSearchText] = useState('');
@@ -47,10 +51,23 @@ export const StudyScreen: React.FC = () => {
     '북마크 보관함',
   ];
 
-  // 필터링 로직
+  // 필터링 로직 (DB 카테고리와 UI 탭 유연 매칭)
   const filteredGuides = studyGuides.filter((guide) => {
     if (selectedCategory === '북마크 보관함') {
       if (!guide.isBookmarked) return false;
+    } else if (selectedCategory === '약물계산/투약') {
+      if (guide.category !== '약물계산/투약' && (guide.category as string) !== '약물 계산') return false;
+    } else if (selectedCategory === '응급/ACLS') {
+      if (guide.category !== '응급/ACLS' && (guide.category as string) !== '응급 간호') return false;
+    } else if (selectedCategory === '간호술기') {
+      if (guide.category !== '간호술기' && (guide.category as string) !== '임상 술기') return false;
+    } else if (selectedCategory === '바이탈/중재') {
+      if (
+        guide.category !== '바이탈/중재' &&
+        (guide.category as string) !== '검사/수치' &&
+        (guide.category as string) !== 'EKG'
+      )
+        return false;
     } else if (selectedCategory !== '전체') {
       if (guide.category !== selectedCategory) return false;
     }

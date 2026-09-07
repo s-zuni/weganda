@@ -15,6 +15,7 @@ import {
 import { COLORS } from '../../../constants/theme';
 import { PostItem } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
+import { useUserStore } from '../../../store/useUserStore';
 import { ImageIcon, LockIcon } from '../../common/Icon';
 
 interface PostWriteModalProps {
@@ -44,6 +45,7 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const userId = useUserStore((s) => s.id);
   const { createPost, updatePost } = useCommunityStore();
 
   const [title, setTitle] = useState('');
@@ -96,7 +98,7 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
       updatePost(editPost.id, title.trim(), content.trim(), category, isAnonymous, images);
       Alert.alert('수정 완료', '게시글이 성공적으로 수정되었습니다.');
     } else {
-      createPost(title.trim(), content.trim(), category, isAnonymous, images);
+      createPost(title.trim(), content.trim(), category, isAnonymous, images, userId || undefined);
       Alert.alert('등록 완료', '새 글이 커뮤니티에 등록되었습니다.');
     }
 

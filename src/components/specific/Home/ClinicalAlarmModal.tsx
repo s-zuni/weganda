@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
 import { COLORS } from '../../../constants/theme';
 import { ClockIcon, PencilIcon } from '../../common/Icon';
 import { useAlarmStore } from '../../../store/useAlarmStore';
+import { useUserStore } from '../../../store/useUserStore';
 import { localNotificationService } from '../../../services/localNotificationService';
 
 interface ClinicalAlarmModalProps {
@@ -33,7 +34,14 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
   visible,
   onClose,
 }) => {
-  const { alarms, addAlarm, toggleAlarm, deleteAlarm } = useAlarmStore();
+  const userId = useUserStore((s) => s.id);
+  const { alarms, fetchAlarms, addAlarm, toggleAlarm, deleteAlarm } = useAlarmStore();
+
+  useEffect(() => {
+    if (visible && userId) {
+      fetchAlarms(userId);
+    }
+  }, [visible, userId, fetchAlarms]);
 
   const [patient, setPatient] = useState('');
   const [content, setContent] = useState('');
@@ -74,12 +82,15 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
 
     const minutesToSchedule = isPresetMode ? selectedMinutes : 45;
 
-    addAlarm({
-      patient: patient.trim(),
-      content: content.trim(),
-      triggerTime: triggerTimeStr,
-      remainingMinutes: minutesToSchedule,
-    });
+    addAlarm(
+      {
+        patient: patient.trim(),
+        content: content.trim(),
+        triggerTime: triggerTimeStr,
+        remainingMinutes: minutesToSchedule,
+      },
+      userId || undefined
+    );
 
     // 실제 스마트폰 시스템 푸시 알림 스케줄링
     localNotificationService.scheduleClinicalAlarm({

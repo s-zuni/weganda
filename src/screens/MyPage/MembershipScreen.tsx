@@ -33,8 +33,10 @@ import {
 } from '../../components/common/Icon';
 
 import { useUserStore } from '../../store/useUserStore';
-import { TossPaymentWebView } from '../../components/common/TossPaymentWebView';
+import { InAppPurchaseModal } from '../../components/common/InAppPurchaseModal';
+import { inAppPurchaseService } from '../../services/inAppPurchaseService';
 import { COLORS } from '../../constants/theme';
+import { Alert } from 'react-native';
 
 const BENEFITS = [
   { key: 'theme', title: '앱 커스텀 컬러 설정', description: '딥 그린, 딥 블루, 옐로, 퍼플 등\n나만의 앱 테마 컬러를 설정하세요', freeLimit: '기본 핑크만 사용 가능', iconColor: '#9B51E0', Icon: PaletteIcon },
@@ -51,6 +53,7 @@ export interface MembershipScreenProps {
 
 export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onClose }) => {
   const [paymentVisible, setPaymentVisible] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
   const isPremium = useUserStore((state) => state.isPremium);
   const subscribeToPremium = useUserStore((state) => state.subscribeToPremium);
 
@@ -62,6 +65,24 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
     setPaymentVisible(false);
     subscribeToPremium();
     onClose();
+  };
+
+  // 구매 복원 (Apple / Google 스토어 필수 정책)
+  const handleRestorePurchases = async () => {
+    setIsRestoring(true);
+    try {
+      const res = await inAppPurchaseService.restorePurchases();
+      if (res.success) {
+        Alert.alert('구매 복원 완료', '이전 구독 내역이 성공적으로 복원되었습니다.');
+        onClose();
+      } else {
+        Alert.alert('복원 안내', res.errorMessage || '복원 가능한 이전 결제 내역이 없습니다.');
+      }
+    } catch (e: any) {
+      Alert.alert('오류', '구매 내역을 복원하는 도중 오류가 발생했습니다.');
+    } finally {
+      setIsRestoring(false);
+    }
   };
 
   return (
@@ -142,13 +163,21 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
           <View style={styles.stickyCTA}>
             {!isPremium ? (
               <>
-                <TouchableOpacity style={styles.subscribeButton} onPress={handleSubscribe}>
+                <TouchableOpacity style={styles.subscribeButton} onPress={handleSubscribe} activeOpacity={0.85}>
                   <Text style={styles.subscribeText}>우간다+ 구독하기 (월 7,800원)</Text>
                 </TouchableOpacity>
-                <Text style={styles.ctaCaption}>언제든 해지 가능 • 첫 7일 무료 체험</Text>
+                <View style={styles.captionRow}>
+                  <Text style={styles.ctaCaption}>첫 7일 무료 • 스토어 계정으로 결제</Text>
+                  <Text style={styles.captionDot}>•</Text>
+                  <TouchableOpacity onPress={handleRestorePurchases} disabled={isRestoring}>
+                    <Text style={styles.restoreText}>
+                      {isRestoring ? '복원 중...' : '구매 복원'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </>
             ) : (
-              <TouchableOpacity style={styles.manageButton}>
+              <TouchableOpacity style={styles.manageButton} activeOpacity={0.8}>
                 <Text style={styles.manageText}>구독 관리</Text>
               </TouchableOpacity>
             )}
@@ -156,7 +185,7 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
         </View>
 
         {paymentVisible && (
-          <TossPaymentWebView
+          <InAppPurchaseModal
             visible={paymentVisible}
             onClose={() => setPaymentVisible(false)}
             onPaymentSuccess={handlePaymentSuccess}
@@ -351,6 +380,22 @@ const styles = StyleSheet.create({
   ctaCaption: {
     fontSize: 12,
     color: '#9CA3AF',
+  },
+  captionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  captionDot: {
+    fontSize: 12,
+    color: '#D1D5DB',
+  },
+  restoreText: {
+    fontSize: 12,
+    color: '#4B5563',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
   manageButton: {
     width: '100%',

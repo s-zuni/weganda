@@ -323,5 +323,6 @@ Inactive 색상: #6B7280
 - **`PremiumBadge`**: 프로필 하단 16px radius 카드. 무료 회원은 핑크 틴트(`✨ 알아보기 ›`), 구독 회원은 골드 틴트(`👑 이용 중`).
 - **`PremiumLockOverlay`**: 잠긴 카드 상단 반투명 화이트(`rgba(255,255,255,0.92)`) 오버레이 + 자물쇠 아이콘 + 즉시 업그레이드 Pill CTA.
 - **`PaywallBottomSheet`**: 토스 스타일 24px 상단 곡률 바텀시트. 기능 설명 + 3대 핵심 혜택 + 즉시 구독 버튼.
-- **`TossPaymentWebView`**: 토스 블루(`#0064FF`) 인디케이터 기반 2초 로딩 후 완료 모달 전환.
+- **`InAppPurchaseModal`**: App Store(StoreKit) & Google Play 스토어 네이티브 인앱 결제 상태 모달. 결제 진행 중, 성공, 에러 상태 처리 및 폴백 시뮬레이션 지원.
+- **구매 복원(Restore Purchases)**: Apple/Google 스토어 필수 정책에 따른 구매 복원 액션 및 피드백 처리.
 

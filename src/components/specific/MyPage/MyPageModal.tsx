@@ -67,6 +67,16 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
       isAuthenticated: true,
     });
 
+    const storeUserId = useUserStore.getState().id;
+    if (storeUserId) {
+      useUserStore.getState().updateUserProfile({
+        name: name.trim(),
+        hospitalName: hospitalName.trim(),
+        wardName: wardName.trim(),
+        experienceYears: parseInt(experienceYears, 10) || 1,
+      }).catch((e) => console.warn('Failed to sync profile with Supabase:', e));
+    }
+
     setIsEditing(false);
     Alert.alert('저장 완료', '프로필 정보가 성공적으로 변경되었습니다.');
   };

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
+import { useUserStore } from '../../../store/useUserStore';
 import { nativeCalendarService } from '../../../services/nativeCalendarService';
 
 interface FullScheduleModalProps {
@@ -26,6 +27,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
   onOpenAddSchedule,
 }) => {
   const { currentDate, schedules, customCodes, changeMonth } = useShiftScheduleStore();
+  const userId = useUserStore((s) => s.id);
   const today = new Date();
   const defaultDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const [selectedDateStr, setSelectedDateStr] = useState<string | null>(defaultDateStr);
@@ -65,10 +67,10 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
     onPanResponderRelease: (_, gestureState) => {
       if (gestureState.dx > 50) {
         // 오른쪽 스와이프: 이전 달
-        changeMonth(-1);
+        changeMonth(-1, userId || undefined);
       } else if (gestureState.dx < -50) {
         // 왼쪽 스와이프: 다음 달
-        changeMonth(1);
+        changeMonth(1, userId || undefined);
       }
     },
   });
@@ -142,7 +144,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
             <View style={styles.monthNavRow}>
               <TouchableOpacity
                 style={styles.monthNavBtn}
-                onPress={() => changeMonth(-1)}
+                onPress={() => changeMonth(-1, userId || undefined)}
                 activeOpacity={0.7}
               >
                 <Text style={styles.monthNavArrow}>‹</Text>
@@ -157,7 +159,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
 
               <TouchableOpacity
                 style={styles.monthNavBtn}
-                onPress={() => changeMonth(1)}
+                onPress={() => changeMonth(1, userId || undefined)}
                 activeOpacity={0.7}
               >
                 <Text style={styles.monthNavArrow}>›</Text>

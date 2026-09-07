@@ -9,4 +9,5 @@ export * from './PremiumBadge';
 export * from './PremiumLockOverlay';
 export * from './PaywallBottomSheet';
 export * from './TossPaymentWebView';
+export * from './InAppPurchaseModal';
 

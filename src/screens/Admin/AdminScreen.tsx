@@ -2,23 +2,24 @@
 import {
   StyleSheet,
   View,
-  Text,
   SafeAreaView,
   StatusBar,
-  TouchableOpacity,
-  Modal,
+  ActivityIndicator,
+  Platform,
 } from 'react-native';
-import { COLORS } from '../../constants/theme';
-import { useUserStore } from '../../store/useUserStore';
 import {
-  AdminHeader,
-  AdminTabBar,
-  AdminTabKey,
+  AdminSidebar,
+  AdminMenuKey,
+  AdminContentHeader,
+  AdminDashboardOverview,
   UserManagementTab,
   CommunityManagementTab,
   ServiceMetricsTab,
+  AdminPaymentsTab,
+  AdminSettingsTab,
 } from '../../components/specific/Admin';
-import { adminApi } from '../../services/adminApi';
+import { adminApi, DashboardStats } from '../../services/adminApi';
+import { AdminAnalytics } from '../../types/admin';
 
 export interface AdminScreenProps {
   visible?: boolean;
@@ -27,180 +28,169 @@ export interface AdminScreenProps {
 }
 
 export const AdminScreen: React.FC<AdminScreenProps> = ({
-  visible = true,
   onClose,
   navigation,
 }) => {
-  const { role, setUserRole } = useUserStore();
-  const [activeTab, setActiveTab] = useState<AdminTabKey>('users');
-  const [refreshKey, setRefreshKey] = useState<number>(0);
+  const [activeMenu, setActiveMenu] = useState<AdminMenuKey>('dashboard');
+  const [stats, setStats] = useState<DashboardStats>({
+    today_visitors: 1,
+    total_users: 1,
+    total_revenue: 0,
+    pending_reports: 0,
+    today_users: 0,
+    total_posts: 1,
+    recent_users: [],
+  });
+  const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [pendingReportCount, setPendingReportCount] = useState<number>(0);
 
-  const isAdmin = role === 'admin';
+  const fetchData = async () => {
+    try {
+      const [dashStats, analyticsData] = await Promise.all([
+        adminApi.getDashboardStats(),
+        adminApi.getAnalytics().catch(() => null),
+      ]);
+      setStats(dashStats);
+      setAnalytics(analyticsData);
+    } catch (e) {
+      console.error('Error fetching admin data:', e);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
-  const handleClose = () => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    fetchData();
+  };
+
+  const handleGoMain = () => {
     if (onClose) {
       onClose();
+    } else if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
     } else if (navigation?.goBack) {
       navigation.goBack();
     }
   };
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    setRefreshKey((prev) => prev + 1);
-    try {
-      const reports = await adminApi.getReports('pending');
-      setPendingReportCount(reports.length);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setTimeout(() => setIsRefreshing(false), 500);
+  const getMenuInfo = (menu: AdminMenuKey): { title: string; subtitle: string } => {
+    switch (menu) {
+      case 'dashboard':
+        return {
+          title: '대시보드',
+          subtitle: '서비스 운영 현황 및 핵심 지표를 한눈에 확인하세요.',
+        };
+      case 'users':
+        return {
+          title: '회원 관리',
+          subtitle: 'Supabase profiles 실데이터 연동 · 유저 역할(Admin/User/Plus) 및 계정 상태 제어',
+        };
+      case 'community':
+        return {
+          title: '커뮤니티 관리',
+          subtitle: '신고 접수 내역 조치 · 게시글 숨김/복구 · 상단고정 공지사항 작성',
+        };
+      case 'analytics':
+        return {
+          title: '서비스 활성도 & 체류시간',
+          subtitle: '각 기능별 실시간 체류시간 및 간호사 이용 점유율 분석',
+        };
+      case 'payments':
+        return {
+          title: '결제/수익 관리',
+          subtitle: '토스페이먼츠 PG 정산 연동 및 구독 결제 파이프라인 관리',
+        };
+      case 'settings':
+        return {
+          title: '시스템 설정',
+          subtitle: 'Supabase 클라우드 인프라 및 서비스 상태 모니터링',
+        };
+      default:
+        return { title: '관리자 콘솔', subtitle: '우간다 서비스 운영 시스템' };
     }
   };
 
-  useEffect(() => {
-    adminApi.getReports('pending').then((reps) => {
-      setPendingReportCount(reps.length);
-    });
-  }, [refreshKey]);
+  const menuInfo = getMenuInfo(activeMenu);
 
-  // 권한 부족 시 안내 화면
-  if (!isAdmin) {
-    return (
-      <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
-        <SafeAreaView style={styles.safeArea}>
-          <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-          <View style={styles.deniedContainer}>
-            <Text style={styles.deniedIcon}>🔒</Text>
-            <Text style={styles.deniedTitle}>관리자 권한이 필요합니다</Text>
-            <Text style={styles.deniedDesc}>
-              이 화면은 우간다 서비스 운영진(Admin)만 접근할 수 있습니다.
-              현재 계정의 역할: <Text style={styles.boldText}>{role.toUpperCase()}</Text>
-            </Text>
-
-            {/* 개발/테스트용 원클릭 관리자 권한 부여 */}
-            <TouchableOpacity
-              style={styles.devAdminBtn}
-              onPress={() => {
-                setUserRole('admin');
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.devAdminBtnText}>👑 테스트용 관리자 권한 획득하기</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={handleClose}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.backBtnText}>이전 화면으로 돌아가기</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </Modal>
-    );
-  }
-
-  const content = (
+  return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
-      {/* 관리자 공통 상단 헤더 */}
-      <AdminHeader
-        onClose={handleClose}
-        onRefresh={handleRefresh}
-        isLoading={isRefreshing}
-      />
+      <View style={styles.container}>
+        {/* ── 좌측 다크 네이비 사이드바 ── */}
+        <AdminSidebar
+          activeMenu={activeMenu}
+          onSelectMenu={setActiveMenu}
+          pendingReportsCount={stats.pending_reports}
+          onGoMain={handleGoMain}
+        />
 
-      {/* 3대 탭바 (유저 관리 / 커뮤니티 관리 / 서비스 지표) */}
-      <AdminTabBar
-        activeTab={activeTab}
-        onSelectTab={setActiveTab}
-        reportCount={pendingReportCount}
-      />
+        {/* ── 우측 메인 콘텐츠 영역 ── */}
+        <View style={styles.mainContent}>
+          {/* 상단 통합 헤더 */}
+          <AdminContentHeader
+            title={menuInfo.title}
+            subtitle={menuInfo.subtitle}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing}
+          />
 
-      {/* 탭 콘텐츠 영역 */}
-      <View style={styles.tabContentContainer} key={refreshKey}>
-        {activeTab === 'users' && <UserManagementTab />}
-        {activeTab === 'community' && <CommunityManagementTab />}
-        {activeTab === 'analytics' && <ServiceMetricsTab />}
+          {/* 콘텐츠 뷰 분기 */}
+          {isLoading ? (
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="large" color="#FF507C" />
+            </View>
+          ) : (
+            <View style={styles.body}>
+              {activeMenu === 'dashboard' && (
+                <AdminDashboardOverview
+                  stats={stats}
+                  analytics={analytics}
+                  onNavigateTab={setActiveMenu}
+                />
+              )}
+              {activeMenu === 'users' && <UserManagementTab />}
+              {activeMenu === 'community' && <CommunityManagementTab />}
+              {activeMenu === 'analytics' && <ServiceMetricsTab />}
+              {activeMenu === 'payments' && <AdminPaymentsTab />}
+              {activeMenu === 'settings' && <AdminSettingsTab />}
+            </View>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
-
-  // Modal or direct screen render
-  if (onClose) {
-    return (
-      <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
-        {content}
-      </Modal>
-    );
-  }
-
-  return content;
 };
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#0F172A',
   },
-  tabContentContainer: {
+  container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    flexDirection: 'row',
+    backgroundColor: '#F8FAFC',
   },
-  deniedContainer: {
+  mainContent: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    flexDirection: 'column',
+  },
+  body: {
+    flex: 1,
+  },
+  loadingBox: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#FFFFFF',
-  },
-  deniedIcon: {
-    fontSize: 56,
-    marginBottom: 16,
-  },
-  deniedTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  deniedDesc: {
-    fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 24,
-  },
-  boldText: {
-    fontWeight: '700',
-    color: COLORS.primary,
-  },
-  devAdminBtn: {
-    backgroundColor: '#111827',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 14,
-    marginBottom: 12,
-  },
-  devAdminBtnText: {
-    color: '#FBBF24',
-    fontWeight: '800',
-    fontSize: 14,
-  },
-  backBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: '#F3F4F6',
-  },
-  backBtnText: {
-    color: '#4B5563',
-    fontWeight: '600',
-    fontSize: 14,
   },
 });

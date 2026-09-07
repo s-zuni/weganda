@@ -15,6 +15,7 @@ import { COLORS } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { FriendDetail, ChatMessage } from '../../../mocks/friendsData';
 import { useFriendsStore } from '../../../store/useFriendsStore';
+import { useUserStore } from '../../../store/useUserStore';
 import { SendIcon, RepeatIcon } from '../../common/Icon';
 
 interface ChatRoomModalProps {
@@ -28,8 +29,15 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
   friend,
   onClose,
 }) => {
-  const { chatMessages, sendMessage, respondToSwap } = useFriendsStore();
+  const myUserId = useUserStore((s) => s.id);
+  const { chatMessages, fetchChatMessages, sendMessage, respondToSwap } = useFriendsStore();
   const [inputText, setInputText] = useState('');
+
+  React.useEffect(() => {
+    if (visible && friend && myUserId) {
+      fetchChatMessages(myUserId, friend.id);
+    }
+  }, [visible, friend, myUserId, fetchChatMessages]);
 
   if (!friend) return null;
 
@@ -46,12 +54,12 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
 
   const handleSend = () => {
     if (!inputText.trim()) return;
-    sendMessage(friend.id, inputText.trim());
+    sendMessage(friend.id, inputText.trim(), false, undefined, myUserId || undefined);
     setInputText('');
   };
 
   const handleQuickCheer = (cheerText: string) => {
-    sendMessage(friend.id, cheerText);
+    sendMessage(friend.id, cheerText, false, undefined, myUserId || undefined);
   };
 
   const handleQuickSwap = () => {
@@ -63,7 +71,8 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
         myShift: '9/12(금) Day',
         targetShift: '9/12(금) Evening',
         status: 'pending',
-      }
+      },
+      myUserId || undefined
     );
     Alert.alert('교환 제안 전송', `${friend.name}님께 듀티 맞교환 제안을 보냈습니다.`);
   };
