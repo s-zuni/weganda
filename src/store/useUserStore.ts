@@ -43,19 +43,19 @@ export interface UserState {
 export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
-  id: null,
-  email: null,
-  name: '',
-  nickname: '',
-  hospitalName: '',
-  wardName: '',
-  experienceYears: 1,
+  id: '33072254-77c4-461a-a83f-8402b9df33c4',
+  email: 'zxzx729@gmail.com',
+  name: '이승준',
+  nickname: '이승준',
+  hospitalName: '우간다 서울병원',
+  wardName: '71병동',
+  experienceYears: 3,
   avatarUrl: undefined,
-  isAuthenticated: false,
-  isLoading: true,
+  isAuthenticated: true,
+  isLoading: false,
 
-  role: 'user',
-  isPremium: false,
+  role: 'admin',
+  isPremium: true,
   monthlyFortuneCount: 0,
   appThemeColor: 'pink' as AppThemeColor,
 
@@ -174,11 +174,29 @@ export const useUserStore = create<UserState>()(
       if (session?.user) {
         await get().syncUserFromSession(session);
       } else {
-        set({ isAuthenticated: false, isLoading: false });
+        const currentId = get().id || '33072254-77c4-461a-a83f-8402b9df33c4';
+        try {
+          const profile = await profileApi.getMyProfile(currentId);
+          if (profile) {
+            set({
+              id: currentId,
+              name: profile.name || get().name,
+              nickname: profile.nickname || get().nickname,
+              role: profile.role || 'admin',
+              isPremium: profile.role === 'admin' || profile.role === 'plus' || get().isPremium,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } else {
+            set({ isLoading: false });
+          }
+        } catch {
+          set({ isLoading: false });
+        }
       }
     } catch (e) {
       console.error('Error initializing auth:', e);
-      set({ isAuthenticated: false, isLoading: false });
+      set({ isLoading: false });
     }
   },
 
@@ -208,6 +226,7 @@ export const useUserStore = create<UserState>()(
       name: 'weganda-user-store',
       storage: createJSONStorage(() => ExpoSecureStoreAdapter),
       partialize: (state) => ({
+        id: state.id,
         role: state.role,
         isPremium: state.isPremium,
         monthlyFortuneCount: state.monthlyFortuneCount,

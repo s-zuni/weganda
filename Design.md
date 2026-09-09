@@ -21,10 +21,22 @@
 
 | 역할 | 이름 | HEX | 사용 용도 |
 |------|------|-----|-----------|
-| **Primary** | Viva Coral Pink | `#FF507C` | 브랜드 로고 텍스트, 메인 CTA 버튼, 오늘 근무 카드, 탭 Active, FAB 버튼 |
-| Primary Light | Coral Mid | `#FF6B8E` | 내일 근무 카드, Secondary 카드 배경 |
+| **Primary** | Viva Coral Pink | `#FF507C` | 브랜드 로고 텍스트, 메인 CTA 버튼, 오늘 근무 액센트/버튼, 탭 Active, FAB 버튼 |
+| Primary Light | Coral Mid | `#FF6B8E` | Secondary 카드/버튼 배경 |
 | Primary Muted | Soft Pink | `#FFAEC0` | 알람/운세 보조 버튼, 비활성 칩/배지 |
-| Primary Tint | Rose Tint | `#FFE8EE` | 배지 배경, Chip 배경, 강조 영역 Tint |
+| Primary Tint | Rose Tint | `#FFE8EE` | 오늘 근무 카드 틴트 배경, 배지 배경, Chip 배경, 강조 영역 Tint |
+
+### Sub Color Palette (웜 베이지톤 — 일상 안정감 & 내일 일정 구분)
+
+| 역할 | 이름 | HEX | 사용 용도 |
+|------|------|-----|-----------|
+| **Sub Beige** | Warm Cream Beige | `#F7F3EE` | 내일 근무 카드 메인 배경, 보조 섹션 카드 |
+| Sub Beige Light | Soft Cream Tint | `#FAF7F2` | 베이지 카드 내부 영역 틴트 |
+| Sub Beige Border | Oat Border | `#E5DCD1` | 내일 근무 카드 테두리 |
+| Sub Beige Text | Deep Mocha Brown | `#5A4A3E` | 베이지 카드 타이틀 및 본문 텍스트 |
+| Sub Beige Muted | Muted Latte | `#8C7B6F` | 베이지 카드 보조 설명 텍스트 |
+| Sub Beige Button | Warm Charcoal | `#6D5D50` | 내일 컬럼 보조 액션 버튼 배경 |
+| Sub Beige Badge | Sand Badge | `#EDE5DA` | 내일 근무 헤더 뱃지 배경 |
 
 ### Neutral Palette
 

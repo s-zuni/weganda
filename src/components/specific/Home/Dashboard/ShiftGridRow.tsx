@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS } from '../../../../constants/theme';
 import { ClockIcon, FortuneIcon } from '../../../common/Icon';
-import { ShiftCode, ShiftInfo } from '../../../../types/shift';
+import { ShiftInfo } from '../../../../types/shift';
 
 interface ShiftGridRowProps {
   today: Date;
@@ -31,65 +31,107 @@ export const ShiftGridRow: React.FC<ShiftGridRowProps> = ({
 }) => {
   return (
     <View style={styles.shiftGridRow}>
-      {/* 오늘 근무 컬럼 */}
+      {/* 1. 오늘 근무 컬럼 (코랄 핑크 톤) */}
       <View style={styles.shiftCol}>
         <View style={styles.todayCard}>
-          <Text style={styles.cardDateLabel}>
-            오늘 ({today.getMonth() + 1}/{today.getDate()}) 근무
-          </Text>
-          <View style={styles.codeRow}>
-            <Text
-              style={[
-                styles.cardShiftCode,
-                todayShiftInfo && { color: todayShiftInfo.color },
-                !todayShift && { color: COLORS.textMuted },
-              ]}
-            >
-              {todayShift || '-'}
+          <View style={styles.todayDateBadge}>
+            <Text style={styles.todayDateLabel}>
+              오늘 ({today.getMonth() + 1}/{today.getDate()}) 근무
             </Text>
-            <Text style={styles.cardTimeText}>
+          </View>
+          <View style={styles.codeRow}>
+            <View style={styles.shiftCodeHeaderRow}>
+              <Text
+                style={[
+                  styles.cardShiftCode,
+                  todayShiftInfo && { color: todayShiftInfo.color },
+                  !todayShift && { color: COLORS.textMuted },
+                ]}
+              >
+                {todayShift || '-'}
+              </Text>
+              {todayShiftInfo && (
+                <View
+                  style={[
+                    styles.shiftNamePill,
+                    { backgroundColor: todayShiftInfo.color + '18' },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.shiftNamePillText,
+                      { color: todayShiftInfo.color },
+                    ]}
+                  >
+                    {todayShiftInfo.shortName}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <Text style={styles.cardTimeText} numberOfLines={1}>
               {todayShiftInfo?.defaultStartTime && todayShiftInfo?.defaultEndTime
                 ? `${todayShiftInfo.defaultStartTime} - ${todayShiftInfo.defaultEndTime}`
                 : todayShift === 'O' || todayShift === 'V'
-                ? '휴무'
+                ? '오늘 편안한 휴무!'
                 : '스케줄 미등록'}
             </Text>
           </View>
         </View>
         <TouchableOpacity
-          style={styles.subActionBtn}
+          style={styles.todayActionBtn}
           onPress={onOpenAlarmModal}
           activeOpacity={0.8}
         >
           <View style={styles.subActionInner}>
             <ClockIcon size={14} color="#FFFFFF" />
-            <Text style={styles.subActionText}>알람 맞추기</Text>
+            <Text style={styles.todayActionText}>알람 맞추기</Text>
           </View>
         </TouchableOpacity>
       </View>
 
-      {/* 내일 근무 컬럼 */}
+      {/* 2. 내일 근무 컬럼 (웜 베이지 톤) */}
       <View style={styles.shiftCol}>
         <View style={styles.tomorrowCard}>
-          <Text style={styles.cardDateLabel}>
-            내일 ({tomorrow.getMonth() + 1}/{tomorrow.getDate()}) 근무
-          </Text>
-          <View style={styles.codeRow}>
-            <Text
-              style={[
-                styles.cardShiftCode,
-                tomorrowShiftInfo && { color: tomorrowShiftInfo.color },
-                !tomorrowShift && { color: COLORS.textMuted },
-              ]}
-            >
-              {tomorrowShift || '-'}
+          <View style={styles.tomorrowDateBadge}>
+            <Text style={styles.tomorrowDateLabel}>
+              내일 ({tomorrow.getMonth() + 1}/{tomorrow.getDate()}) 근무
             </Text>
+          </View>
+          <View style={styles.codeRow}>
+            <View style={styles.shiftCodeHeaderRow}>
+              <Text
+                style={[
+                  styles.cardShiftCode,
+                  tomorrowShiftInfo && { color: tomorrowShiftInfo.color },
+                  !tomorrowShift && { color: COLORS.subBeigeMuted },
+                ]}
+              >
+                {tomorrowShift || '-'}
+              </Text>
+              {tomorrowShiftInfo && (
+                <View
+                  style={[
+                    styles.shiftNamePill,
+                    { backgroundColor: tomorrowShiftInfo.color + '18' },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.shiftNamePillText,
+                      { color: tomorrowShiftInfo.color },
+                    ]}
+                  >
+                    {tomorrowShiftInfo.shortName}
+                  </Text>
+                </View>
+              )}
+            </View>
             <View style={styles.tomorrowTextGroup}>
-              <Text style={styles.tomorrowSubText}>
+              <Text style={styles.tomorrowSubText} numberOfLines={1}>
                 {tomorrowShift === 'O' || tomorrowShift === 'V'
-                  ? '내일은 쉬는 날!'
+                  ? '내일은 꿀휴무!'
                   : tomorrowShiftInfo
-                  ? `${tomorrowShiftInfo.shortName} 근무`
+                  ? `${tomorrowShiftInfo.shortName} 근무 예정`
                   : '일정 없음'}
               </Text>
               <TouchableOpacity
@@ -101,20 +143,20 @@ export const ShiftGridRow: React.FC<ShiftGridRowProps> = ({
                   {tomorrowCalendarEvent ||
                     (tomorrowShiftInfo?.defaultStartTime && tomorrowShiftInfo?.defaultEndTime
                       ? `🗓️ ${tomorrowShiftInfo.defaultStartTime} - ${tomorrowShiftInfo.defaultEndTime}`
-                      : '🗓️ 캘린더 동기화하기 +')}
+                      : '🗓️ 캘린더 동기화 +')}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
         <TouchableOpacity
-          style={styles.subActionBtn}
+          style={styles.tomorrowActionBtn}
           onPress={onNavigateFortune}
           activeOpacity={0.8}
         >
           <View style={styles.subActionInner}>
             <FortuneIcon size={14} color="#FFFFFF" />
-            <Text style={styles.subActionText}>오늘의 운세</Text>
+            <Text style={styles.tomorrowActionText}>오늘의 운세</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -132,63 +174,101 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 8,
   },
+  // ── 오늘 카드: 코랄 핑크 틴트 + 핑크 테두리 ──
   todayCard: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#FFF1F4',
     borderRadius: 18,
     padding: 16,
-    minHeight: 146,
+    minHeight: 156,
     justifyContent: 'space-between',
+    borderWidth: 1.5,
+    borderColor: '#FFCCD6',
     shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
   },
+  todayDateBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFE4EA',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  todayDateLabel: {
+    fontSize: 13,
+    color: COLORS.primary,
+    fontWeight: '800',
+  },
+  // ── 내일 카드: 웜 오트밀 베이지 + 베이지 테두리 ──
   tomorrowCard: {
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: COLORS.subBeige,
     borderRadius: 18,
     padding: 16,
-    minHeight: 146,
+    minHeight: 156,
     justifyContent: 'space-between',
-    shadowColor: COLORS.primaryLight,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 4,
+    borderWidth: 1.5,
+    borderColor: COLORS.subBeigeBorder,
+    shadowColor: '#5A4A3E',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  cardDateLabel: {
-    fontSize: 15,
-    color: '#FFFFFF',
+  tomorrowDateBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: COLORS.subBeigeBadge,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  tomorrowDateLabel: {
+    fontSize: 13,
+    color: COLORS.subBeigeText,
     fontWeight: '800',
   },
   codeRow: {
     alignItems: 'flex-start',
+    width: '100%',
+  },
+  shiftCodeHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+    marginBottom: 4,
   },
   cardShiftCode: {
     fontSize: 48,
     fontWeight: '900',
-    color: '#FFFFFF',
     lineHeight: 52,
     letterSpacing: -1,
   },
+  shiftNamePill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  shiftNamePillText: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
   cardTimeText: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.95)',
-    marginTop: 4,
-    fontWeight: '600',
+    color: '#374151',
+    fontWeight: '700',
   },
   tomorrowTextGroup: {
-    marginTop: 2,
     gap: 4,
     width: '100%',
   },
   tomorrowSubText: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: COLORS.subBeigeText,
     fontWeight: '700',
   },
   calendarSyncBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.28)',
+    backgroundColor: COLORS.subBeigeBadge,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -197,26 +277,49 @@ const styles = StyleSheet.create({
   },
   calendarSyncText: {
     fontSize: 12,
-    color: '#FFFFFF',
+    color: COLORS.subBeigeText,
     fontWeight: '700',
   },
-  subActionBtn: {
-    backgroundColor: COLORS.primaryMuted,
+  // ── 버튼 스타일 분리 ──
+  todayActionBtn: {
+    backgroundColor: COLORS.primary,
     borderRadius: 14,
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  todayActionText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  tomorrowActionBtn: {
+    backgroundColor: COLORS.subBeigeBtn,
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.subBeigeBtn,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  tomorrowActionText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
   },
   subActionInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-  },
-  subActionText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
   },
 });
 

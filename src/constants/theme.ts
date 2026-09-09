@@ -24,6 +24,14 @@ export const COLORS = {
     error: '#EF4444',
     info: '#3B82F6',
   },
+  // Sub Color Palette (웜 베이지톤)
+  subBeige: '#F7F3EE',
+  subBeigeLight: '#FAF7F2',
+  subBeigeBorder: '#E5DCD1',
+  subBeigeText: '#5A4A3E',
+  subBeigeMuted: '#8C7B6F',
+  subBeigeBtn: '#6D5D50',
+  subBeigeBadge: '#EDE5DA',
 };
 
 export const TYPOGRAPHY = {
