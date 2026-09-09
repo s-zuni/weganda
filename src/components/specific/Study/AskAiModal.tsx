@@ -17,6 +17,7 @@ import { BotIcon, SendIcon } from '../../common/Icon';
 interface AskAiModalProps {
   visible: boolean;
   onClose: () => void;
+  initialQuestion?: string;
 }
 
 const QUICK_QUESTIONS = [
@@ -26,9 +27,20 @@ const QUICK_QUESTIONS = [
   'SBAR 인수인계 작성 요령',
 ];
 
-export const AskAiModal: React.FC<AskAiModalProps> = ({ visible, onClose }) => {
+export const AskAiModal: React.FC<AskAiModalProps> = ({
+  visible,
+  onClose,
+  initialQuestion,
+}) => {
   const { aiMessages, askAi } = useStudyStore();
   const [inputText, setInputText] = useState('');
+
+  // 검색창에서 전달된 질문이 있을 경우 자동 질문 전송
+  React.useEffect(() => {
+    if (visible && initialQuestion && initialQuestion.trim()) {
+      askAi(initialQuestion.trim());
+    }
+  }, [visible, initialQuestion]);
 
   const handleSend = (textToSend?: string) => {
     const text = textToSend || inputText;
@@ -225,8 +237,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 15,
+    lineHeight: 23,
   },
   bubbleTextMe: {
     color: '#FFFFFF',
@@ -235,16 +247,16 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   timeText: {
-    fontSize: 10,
+    fontSize: 12,
     color: COLORS.textMuted,
-    marginTop: 3,
+    marginTop: 4,
     paddingHorizontal: 4,
   },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
@@ -255,8 +267,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontSize: 13,
+    paddingVertical: 11,
+    fontSize: 15,
     color: COLORS.textPrimary,
   },
   sendBtn: {

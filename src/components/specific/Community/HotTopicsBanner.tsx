@@ -99,12 +99,12 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   hotSectionTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
   hotSectionSub: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.primary,
     fontWeight: '600',
   },
@@ -113,10 +113,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   hotCard: {
-    width: 200,
+    width: 220,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 14,
+    padding: 15,
     marginRight: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     justifyContent: 'space-between',
-    minHeight: 110,
+    minHeight: 115,
   },
   hotCardTop: {
     flexDirection: 'row',
@@ -137,24 +137,24 @@ const styles = StyleSheet.create({
   rankBadge: {
     backgroundColor: COLORS.primary,
     borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
   },
   rankBadgeText: {
     color: '#FFFFFF',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '800',
   },
   hotCategoryText: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
     fontWeight: '500',
   },
   hotCardTitle: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
     color: COLORS.textPrimary,
-    lineHeight: 18,
+    lineHeight: 21,
     marginBottom: 8,
   },
   hotStatsRow: {
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   hotStatText: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
     fontWeight: '600',
   },
@@ -181,15 +181,16 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   hotEmptyTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.textPrimary,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   hotEmptySub: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.textMuted,
     textAlign: 'center',
+    lineHeight: 20,
   },
 });
 

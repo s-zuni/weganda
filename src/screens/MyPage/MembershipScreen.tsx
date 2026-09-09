@@ -235,15 +235,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   heroTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '800', // ExtraBold
     color: PREMIUM_THEME.gold,
     marginBottom: 12,
   },
   heroSubtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: PREMIUM_THEME.heroSubText,
-    lineHeight: 24,
+    lineHeight: 26,
   },
   benefitsSection: {
     backgroundColor: '#FFFFFF',
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     paddingTop: 28,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700', // Bold
     color: '#1A1A1A',
     marginBottom: 20,
@@ -273,13 +273,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   premiumSuccessTitle: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '700',
     color: '#065F46', // Dark emerald text
     marginBottom: 4,
   },
   premiumSuccessDesc: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#047857',
   },
   cardsContainer: {
@@ -316,15 +316,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: '600', // SemiBold
+    fontSize: 17,
+    fontWeight: '700', // Bold
     color: '#1A1A1A',
     marginBottom: 4,
   },
   cardDesc: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#6B7280',
-    lineHeight: 18,
+    lineHeight: 21,
   },
   badgeContainer: {
     alignSelf: 'flex-start',
@@ -335,9 +335,9 @@ const styles = StyleSheet.create({
     marginLeft: 56, // Align with text (44 icon + 12 margin)
   },
   badgeText: {
-    fontSize: 11,
+    fontSize: 13,
     color: '#FF507C', // Primary brand color
-    fontWeight: '500',
+    fontWeight: '600',
   },
   bottomSpacer: {
     height: 120,
@@ -374,11 +374,11 @@ const styles = StyleSheet.create({
   },
   subscribeText: {
     color: PREMIUM_THEME.gold,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700', // Bold
   },
   ctaCaption: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#9CA3AF',
   },
   captionRow: {
@@ -388,11 +388,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   captionDot: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#D1D5DB',
   },
   restoreText: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#4B5563',
     fontWeight: '600',
     textDecorationLine: 'underline',

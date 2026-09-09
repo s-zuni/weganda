@@ -5,7 +5,7 @@ import { ShiftCode, ShiftInfo } from '../../../../types/shift';
 
 interface GreetingBannerProps {
   displayName: string;
-  todayShift: ShiftCode | null;
+  todayShift: string | null;
   todayShiftInfo: ShiftInfo | null;
 }
 
@@ -42,19 +42,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   greetingText: {
-    fontSize: 16,
+    fontSize: 19,
     color: COLORS.textPrimary,
-    lineHeight: 24,
-    fontWeight: '500',
+    lineHeight: 28,
+    fontWeight: '600',
   },
   dutyHighlight: {
     color: '#4F98CA',
-    fontWeight: '700',
+    fontWeight: '800',
   },
   greetingSubText: {
-    fontSize: 14,
-    color: COLORS.textMuted,
-    marginTop: 2,
+    fontSize: 15,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+    lineHeight: 22,
   },
 });
 

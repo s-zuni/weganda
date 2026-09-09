@@ -117,12 +117,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
   sectionHint: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.textMuted,
   },
   fortuneLimitBanner: {
@@ -136,12 +136,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   fortuneLimitText: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600',
     color: '#B8922E',
   },
   fortuneUpgradeLink: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '700',
     color: '#B8922E',
   },
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 2,
-    minHeight: 110,
+    minHeight: 115,
   },
   fullWidthCard: {
     width: '100%',
@@ -187,18 +187,18 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   subBadgeText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '700',
   },
   subCardTitle: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: '700',
     color: COLORS.textPrimary,
     marginBottom: 4,
   },
   subCardDesc: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
-    lineHeight: 15,
+    lineHeight: 18,
   },
 });

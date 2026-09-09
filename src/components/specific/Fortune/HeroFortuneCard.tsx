@@ -30,7 +30,7 @@ export const HeroFortuneCard: React.FC<HeroFortuneCardProps> = ({
       <View style={styles.heroTopRow}>
         <View style={styles.heroDateCol}>
           <Text style={styles.heroDate}>{formattedToday}</Text>
-          <Text style={styles.heroHeading}>오늘의 행운 지수</Text>
+          <Text style={styles.heroHeading}>🍀 오늘의 행운 지수</Text>
         </View>
         <TouchableOpacity
           style={styles.scoreCircle}
@@ -83,19 +83,19 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   heroDate: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.textMuted,
     fontWeight: '600',
   },
   heroHeading: {
-    fontSize: 20,
+    fontSize: 23,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
   scoreCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: '#FFF1F4',
     alignItems: 'center',
     justifyContent: 'center',
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   scoreNumber: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '900',
     color: COLORS.primary,
   },
@@ -114,15 +114,15 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   heroQuote: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '700',
     color: COLORS.primary,
-    lineHeight: 22,
+    lineHeight: 24,
   },
   heroDescription: {
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textSecondary,
-    lineHeight: 20,
+    lineHeight: 23,
   },
 });
 

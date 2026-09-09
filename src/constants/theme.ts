@@ -27,11 +27,18 @@ export const COLORS = {
 };
 
 export const TYPOGRAPHY = {
+  // [대주제] 메인 헤딩, 히어로 수치/코드, 화면 최상단 타이틀
+  display: {
+    fontSize: 28,
+    fontWeight: '800' as const,
+    lineHeight: 36,
+  },
   h1: {
     fontSize: 24,
-    fontWeight: '700' as const,
+    fontWeight: '800' as const,
     lineHeight: 32,
   },
+  // [소주제] 섹션 제목, 주요 카드 타이틀, 모달 소제목
   h2: {
     fontSize: 20,
     fontWeight: '700' as const,
@@ -39,22 +46,34 @@ export const TYPOGRAPHY = {
   },
   h3: {
     fontSize: 18,
-    fontWeight: '600' as const,
-    lineHeight: 24,
+    fontWeight: '700' as const,
+    lineHeight: 26,
   },
+  // [내용] 본문, 주요 설명문, 아티클/채팅 본문 (가독성 상향: 15~16px)
   body1: {
     fontSize: 16,
+    fontWeight: '500' as const,
+    lineHeight: 24,
+  },
+  body2: {
+    fontSize: 15,
     fontWeight: '400' as const,
     lineHeight: 22,
   },
-  body2: {
+  // [보조내용] 라벨, 뱃지, 부가 정보 (가독성 상향: 13~14px)
+  label: {
     fontSize: 14,
-    fontWeight: '400' as const,
+    fontWeight: '600' as const,
     lineHeight: 20,
   },
   caption: {
+    fontSize: 13,
+    fontWeight: '500' as const,
+    lineHeight: 18,
+  },
+  micro: {
     fontSize: 12,
-    fontWeight: '400' as const,
+    fontWeight: '600' as const,
     lineHeight: 16,
   },
 };

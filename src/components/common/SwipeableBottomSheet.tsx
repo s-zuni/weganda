@@ -19,6 +19,7 @@ export interface SwipeableBottomSheetProps {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  height?: number | `${number}%`;
   maxHeight?: number | `${number}%`;
   containerStyle?: StyleProp<ViewStyle>;
   enableBackdropDismiss?: boolean;
@@ -28,6 +29,7 @@ export const SwipeableBottomSheet: React.FC<SwipeableBottomSheetProps> = ({
   visible,
   onClose,
   children,
+  height,
   maxHeight = '92%',
   containerStyle,
   enableBackdropDismiss = true,
@@ -139,6 +141,7 @@ export const SwipeableBottomSheet: React.FC<SwipeableBottomSheetProps> = ({
           style={[
             styles.sheetContainer,
             {
+              ...(height ? { height: height as any } : {}),
               maxHeight: maxHeight as any,
               transform: [{ translateY }],
             },
@@ -163,11 +166,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFill,
     backgroundColor: '#000000',
   },
   sheetContainer: {

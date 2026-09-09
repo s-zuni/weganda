@@ -17,7 +17,7 @@ export const LuckyItemsSection: React.FC<LuckyItemsSectionProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>오늘의 행운</Text>
+        <Text style={styles.sectionTitle}>🍀 오늘의 행운</Text>
       </View>
       <View style={styles.luckyCard}>
         {/* 행운 컬러 */}
@@ -26,7 +26,7 @@ export const LuckyItemsSection: React.FC<LuckyItemsSectionProps> = ({
             <View style={styles.luckyIconWrapper}>
               <PaletteIcon size={18} color={COLORS.primary} />
             </View>
-            <Text style={styles.luckyLabel}>행운의 컬러</Text>
+            <Text style={styles.luckyLabel}>🎨 행운의 컬러</Text>
           </View>
           <View style={styles.luckyRight}>
             <View style={styles.colorDot} />
@@ -42,7 +42,7 @@ export const LuckyItemsSection: React.FC<LuckyItemsSectionProps> = ({
             <View style={styles.luckyIconWrapper}>
               <HashIcon size={18} color={COLORS.primary} />
             </View>
-            <Text style={styles.luckyLabel}>행운의 숫자</Text>
+            <Text style={styles.luckyLabel}>🔢 행운의 숫자</Text>
           </View>
           <Text style={styles.luckyValueText}>{number}</Text>
         </View>
@@ -55,7 +55,7 @@ export const LuckyItemsSection: React.FC<LuckyItemsSectionProps> = ({
             <View style={styles.luckyIconWrapper}>
               <CompassIcon size={18} color={COLORS.primary} />
             </View>
-            <Text style={styles.luckyLabel}>행운의 방향</Text>
+            <Text style={styles.luckyLabel}>🧭 행운의 방향</Text>
           </View>
           <Text style={styles.luckyValueText}>{direction}</Text>
         </View>
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   luckyLeft: {
     flexDirection: 'row',
@@ -100,17 +100,17 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   luckyIconWrapper: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#FFF1F4',
     alignItems: 'center',
     justifyContent: 'center',
   },
   luckyLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: COLORS.textPrimary,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   luckyRight: {
     flexDirection: 'row',
@@ -118,18 +118,18 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   colorDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: COLORS.primary,
   },
   luckyValue: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.primary,
   },
   luckyValueText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.textPrimary,
   },

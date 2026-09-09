@@ -116,24 +116,25 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   miniCategoryText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
   guideMeta: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
   guideTitle: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: '700',
     color: COLORS.textPrimary,
-    marginBottom: 2,
+    marginBottom: 4,
+    lineHeight: 22,
   },
   guideSummary: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.textSecondary,
-    lineHeight: 16,
+    lineHeight: 20,
   },
   bookmarkBtn: {
     padding: 4,

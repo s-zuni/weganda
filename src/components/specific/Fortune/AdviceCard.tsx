@@ -16,7 +16,7 @@ export const AdviceCard: React.FC<AdviceCardProps> = ({
         <LeafIcon size={20} color={COLORS.primary} />
       </View>
       <View style={styles.adviceContent}>
-        <Text style={styles.adviceTitle}>오늘의 조언</Text>
+        <Text style={styles.adviceTitle}>🌿 오늘의 힐링 조언</Text>
         <Text style={styles.adviceDesc}>{advice}</Text>
       </View>
     </View>
@@ -48,14 +48,14 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   adviceTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '800',
     color: COLORS.primary,
   },
   adviceDesc: {
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textPrimary,
-    lineHeight: 18,
+    lineHeight: 22,
     fontWeight: '500',
   },
 });

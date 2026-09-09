@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   weekText: {
     width: '14.28%',
     textAlign: 'center',
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
@@ -125,32 +125,32 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     width: '14.28%',
-    height: 56,
+    height: 60,
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingTop: 4,
   },
   dayText: {
-    fontSize: 13,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
     color: COLORS.textPrimary,
   },
   shiftBadge: {
     marginTop: 4,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
   },
   emptyShiftBadge: {
     marginTop: 4,
-    width: 24,
-    height: 24,
+    width: 26,
+    height: 26,
   },
   shiftBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
   },
 });
 

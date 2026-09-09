@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textPrimary,
     paddingVertical: 0,
   },
@@ -241,17 +241,17 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   feedCountText: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '600',
     color: COLORS.textMuted,
   },
   writeButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
     borderRadius: 20,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   writeButtonText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '700',
   },
   postList: {
@@ -284,17 +284,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyFeedTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
     color: COLORS.textPrimary,
     marginBottom: 6,
     textAlign: 'center',
   },
   emptyFeedText: {
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textMuted,
     textAlign: 'center',
-    lineHeight: 19,
+    lineHeight: 22,
     marginBottom: 18,
   },
   emptyFeedBtn: {
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   emptyFeedBtnText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: '#FFFFFF',
   },

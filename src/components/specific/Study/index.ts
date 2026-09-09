@@ -2,6 +2,7 @@ export * from './DrugCalculatorModal';
 export * from './StudyDetailModal';
 export * from './AskAiModal';
 export * from './StudyAiBanner';
+export * from './StudyAiSearchBar';
 export * from './StudyDrugCalcBanner';
 export * from './StudyCategoryTabs';
 export * from './StudyFeaturedCard';

@@ -84,19 +84,23 @@ Font Family: 'Inter'
 Usage: 숫자(날짜, 시간), 영문 코드(D/E/N/O), 영문 레이블
 ```
 
-### 타이포그래피 스케일
+### 타이포그래피 스케일 ([대주제 / 소주제 / 내용] 3단계 계층 구조)
 
-| 스타일 | 폰트 | 크기 | 굵기 | Line Height | 사용 사례 |
-|--------|------|------|------|-------------|-----------|
-| Display | Pretendard / Inter | 52px | 800 (ExtraBold) | 56px | 오늘 근무 코드 D/E/N |
-| H1 | Pretendard | 22px | 800 (ExtraBold) | 28px | 브랜드 타이틀 "우간다" |
-| H2 | Pretendard | 18px | 700 (Bold) | 24px | 섹션 제목 "데일리 노트" |
-| H3 | Pretendard | 16px | 700 (Bold) | 22px | 카드 제목, 게시글 제목 |
-| Body1 | Pretendard | 15px | 400 (Regular) | 22px | 본문 텍스트 |
-| Body2 | Pretendard | 14px | 400 (Regular) | 20px | 설명 텍스트, 인사말 |
-| Label | Pretendard | 13px | 600 (SemiBold) | 18px | 날짜 레이블, 버튼 부제목 |
-| Caption | Pretendard | 12px | 500 (Medium) | 16px | 메모, 시간 정보 |
-| Micro | Pretendard | 11px | 600 (SemiBold) | 14px | 뱃지, 탭바 라벨 |
+| 계층 | 스타일 | 폰트 | 크기 (조정 전 → 개편) | 굵기 | Line Height | 주요 적용 대상 |
+|---|---|---|---|---|---|---|
+| **[대주제]** | Display | Pretendard / Inter | 44~52px → **48~54px** | 900 / 800 | 56px | 근무 코드(D/E/N), 히어로 대표 점수/타이틀 |
+| **[대주제]** | H1 | Pretendard | 22px → **24px** | 800 (ExtraBold) | 32px | 브랜드 타이틀 "우간다", 아티클 상세 제목 |
+| **[소주제]** | H2 | Pretendard | 18px → **20px** | 700 (Bold) | 28px | 메인 섹션 제목 ("임상 지침 & 술기 족보", "데일리 노트", "4대 정밀 운세") |
+| **[소주제]** | H3 | Pretendard | 15~16px → **18px** | 700 (Bold) | 26px | 카드 제목, 지침서/게시글 카드 타이틀, 모달 소제목 |
+| **[내용]** | Body1 | Pretendard | 14~15px → **16px** | 500 (Medium) | 24px | 본문 텍스트, AI 전문 답변 본문, 아티클 설명글 |
+| **[내용]** | Body2 | Pretendard | 13~14px → **15px** | 400 (Regular) | 22px | 카드 요약 프리뷰, 인사말 서브텍스트, 리스트 보조 설명 |
+| **[보조내용]** | Label | Pretendard | 12~13px → **14px** | 600 (SemiBold) | 20px | 날짜 레이블, 버튼 텍스트, 폼 입력 필드 |
+| **[보조내용]** | Caption | Pretendard | 11~12px → **13px** | 500 (Medium) | 18px | 타임스탬프, 부가 메모, 퀵 태그 칩 |
+| **[보조내용]** | Micro | Pretendard | 10~11px → **12px** | 600 (SemiBold) | 16px | 뱃지(병원인증, 카테고리), 탭바 라벨 |
+
+> **💡 모바일 가독성 최우선 원칙**:
+> - 간호사 임상 교대근무 환경에서 이동 중이나 베드사이드에서도 한눈에 읽힐 수 있도록, 작은 폰트(10~12px)를 지양하고 내용 본문은 **15~16px**, 소주제는 **18~20px**, 대주제는 **24px+**로 시원하게 배치합니다.
+> - 스크롤 부담을 줄이기보다, 충분한 여백(`Line Height 22~26px`, 패딩)을 두어 시각적 피로도를 낮춥니다.
 
 ---
 

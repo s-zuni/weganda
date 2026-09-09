@@ -57,25 +57,25 @@ const styles = StyleSheet.create({
   },
   newBadgeText: {
     color: '#FFFFFF',
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
   },
   featuredSub: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#94A3B8',
     fontWeight: '600',
   },
   featuredHeading: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 19,
+    fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 6,
-    lineHeight: 22,
+    marginBottom: 8,
+    lineHeight: 26,
   },
   featuredDesc: {
-    fontSize: 12,
+    fontSize: 15,
     color: '#CBD5E1',
-    lineHeight: 18,
+    lineHeight: 22,
   },
 });
 

@@ -120,7 +120,7 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
   const secPerDrop = gttPerMin > 0 ? 60 / gttPerMin : 0;
 
   return (
-    <SwipeableBottomSheet visible={visible} onClose={onClose}>
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height="92%">
       {/* 헤더 */}
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   sectionLabel: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: '700',
     color: COLORS.textPrimary,
     marginBottom: 10,
@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   presetChipText: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
@@ -534,13 +534,14 @@ const styles = StyleSheet.create({
   },
   presetDescBox: {
     backgroundColor: '#F9FAFB',
-    padding: 10,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 12,
     marginBottom: 16,
   },
   presetDescText: {
-    fontSize: 12,
-    color: COLORS.textMuted,
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
   },
   resultCard: {
     backgroundColor: COLORS.primary,
@@ -554,7 +555,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   resultCardLabel: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600',
     color: 'rgba(255, 255, 255, 0.85)',
     marginBottom: 6,
@@ -565,13 +566,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   mainRateValue: {
-    fontSize: 36,
+    fontSize: 40,
     fontWeight: '900',
     color: '#FFFFFF',
     letterSpacing: -1,
   },
   mainRateUnit: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
     color: 'rgba(255, 255, 255, 0.9)',
   },
@@ -588,12 +589,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subResultLabel: {
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginBottom: 2,
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.85)',
+    marginBottom: 4,
   },
   subResultValue: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '800',
     color: '#FFFFFF',
   },
@@ -609,8 +610,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputFieldLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '700',
     color: COLORS.textSecondary,
     marginBottom: 6,
   },
@@ -618,8 +619,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
     paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 15,
+    paddingVertical: 12,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.textPrimary,
     borderWidth: 1,
@@ -632,7 +633,7 @@ const styles = StyleSheet.create({
   },
   factorBtn: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 12,
     backgroundColor: '#F9FAFB',
     alignItems: 'center',
@@ -644,7 +645,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   factorBtnText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
@@ -660,15 +661,15 @@ const styles = StyleSheet.create({
     borderLeftColor: COLORS.primary,
   },
   cautionTitle: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '800',
     color: COLORS.primary,
     marginBottom: 4,
   },
   cautionText: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textSecondary,
-    lineHeight: 17,
+    lineHeight: 19,
   },
 });
 

@@ -49,8 +49,8 @@ export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
 
 const styles = StyleSheet.create({
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '800',
     color: COLORS.textPrimary,
     marginBottom: 14,
   },
@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   noteCardText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     color: COLORS.textPrimary,
     textAlign: 'center',
   },

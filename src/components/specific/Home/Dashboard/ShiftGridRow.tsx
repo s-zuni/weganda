@@ -7,8 +7,8 @@ import { ShiftCode, ShiftInfo } from '../../../../types/shift';
 interface ShiftGridRowProps {
   today: Date;
   tomorrow: Date;
-  todayShift: ShiftCode | null;
-  tomorrowShift: ShiftCode | null;
+  todayShift: string | null;
+  tomorrowShift: string | null;
   todayShiftInfo: ShiftInfo | null;
   tomorrowShiftInfo: ShiftInfo | null;
   tomorrowCalendarEvent: string;
@@ -157,46 +157,46 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   cardDateLabel: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#FFFFFF',
-    fontWeight: '700',
+    fontWeight: '800',
   },
   codeRow: {
     alignItems: 'flex-start',
   },
   cardShiftCode: {
-    fontSize: 44,
-    fontWeight: '800',
+    fontSize: 48,
+    fontWeight: '900',
     color: '#FFFFFF',
-    lineHeight: 48,
+    lineHeight: 52,
     letterSpacing: -1,
   },
   cardTimeText: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginTop: 2,
-    fontWeight: '500',
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.95)',
+    marginTop: 4,
+    fontWeight: '600',
   },
   tomorrowTextGroup: {
     marginTop: 2,
-    gap: 3,
+    gap: 4,
     width: '100%',
   },
   tomorrowSubText: {
-    fontSize: 12,
+    fontSize: 14,
     color: 'rgba(255, 255, 255, 0.95)',
     fontWeight: '700',
   },
   calendarSyncBadge: {
     backgroundColor: 'rgba(255, 255, 255, 0.28)',
     borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     alignSelf: 'flex-start',
     maxWidth: '100%',
   },
   calendarSyncText: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#FFFFFF',
     fontWeight: '700',
   },
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   },
   subActionText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
   },
 });

@@ -561,12 +561,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   categoryBadgeText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     color: COLORS.primary,
   },
   timeViewsText: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
   authorBar: {
@@ -576,15 +576,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   authorAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#FFF1F4',
     alignItems: 'center',
     justifyContent: 'center',
   },
   authorAvatarText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
     color: COLORS.primary,
   },
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   authorName: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.textPrimary,
   },
@@ -607,30 +607,30 @@ const styles = StyleSheet.create({
     gap: 2,
     backgroundColor: '#F0F9FF',
     paddingHorizontal: 5,
-    paddingVertical: 1,
+    paddingVertical: 2,
     borderRadius: 4,
   },
   verifiedBadgeText: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: '700',
     color: '#0284C7',
   },
   authorHospital: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
-    marginTop: 1,
+    marginTop: 2,
   },
   postTitle: {
-    fontSize: 19,
+    fontSize: 22,
     fontWeight: '800',
     color: COLORS.textPrimary,
-    lineHeight: 26,
+    lineHeight: 30,
     marginBottom: 14,
   },
   postContent: {
-    fontSize: 14,
+    fontSize: 16,
     color: COLORS.textPrimary,
-    lineHeight: 22,
+    lineHeight: 25,
     marginBottom: 16,
   },
   gallery: {
@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   likePillText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: COLORS.primary,
   },
@@ -682,7 +682,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   shareSubText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
@@ -696,7 +696,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   commentSectionTitle: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
@@ -708,7 +708,7 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   emptyCommentText: {
-    fontSize: 13,
+    fontSize: 14,
     color: COLORS.textMuted,
   },
   commentItem: {
@@ -728,7 +728,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   commentAuthorName: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
     color: COLORS.textPrimary,
   },
@@ -736,7 +736,7 @@ const styles = StyleSheet.create({
     padding: 1,
   },
   commentTime: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
   commentLikeBtn: {
@@ -746,7 +746,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   commentLikeCount: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
     color: COLORS.textMuted,
   },
@@ -755,9 +755,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   commentBodyText: {
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textPrimary,
-    lineHeight: 18,
+    lineHeight: 22,
     marginBottom: 6,
   },
   replyActionBtn: {
@@ -765,7 +765,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   replyActionText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
     color: COLORS.primary,
   },
@@ -794,9 +794,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   replyBodyText: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.textPrimary,
-    lineHeight: 17,
+    lineHeight: 20,
   },
   mentionTag: {
     color: COLORS.primary,
@@ -821,12 +821,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   replyingTargetText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     color: COLORS.primary,
   },
   replyingCancelText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
     color: COLORS.textMuted,
   },
@@ -850,7 +850,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primaryLight,
   },
   anonymousBtnText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
     color: COLORS.textMuted,
   },
@@ -864,7 +864,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 9,
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textPrimary,
   },
   sendCommentBtn: {

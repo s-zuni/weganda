@@ -6,11 +6,47 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
   Platform,
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { waitlistApi } from '../../../services/waitlistApi';
 import { useResponsive } from '../../../utils/useResponsive';
+
+type ScreenKey = 'home' | 'friends' | 'study' | 'fortune' | 'community';
+
+const SCREEN_META: { key: ScreenKey; label: string; icon: string; image: any }[] = [
+  {
+    key: 'home',
+    label: '스마트 듀티',
+    icon: '🏠',
+    image: require('../../../assets/images/screens/home.png'),
+  },
+  {
+    key: 'friends',
+    label: '동기 듀티',
+    icon: '👥',
+    image: require('../../../assets/images/screens/friends.png'),
+  },
+  {
+    key: 'study',
+    label: '임상 학습',
+    icon: '📚',
+    image: require('../../../assets/images/screens/study.png'),
+  },
+  {
+    key: 'fortune',
+    label: '듀티 운세',
+    icon: '🔮',
+    image: require('../../../assets/images/screens/fortune.png'),
+  },
+  {
+    key: 'community',
+    label: '커뮤니티',
+    icon: '💬',
+    image: require('../../../assets/images/screens/community.png'),
+  },
+];
 
 export const LandingHero: React.FC = () => {
   const { isMobile } = useResponsive();
@@ -18,6 +54,9 @@ export const LandingHero: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [activeScreen, setActiveScreen] = useState<ScreenKey>('home');
+
+  const currentMeta = SCREEN_META.find((s) => s.key === activeScreen) || SCREEN_META[0];
 
   const handleSubmit = async () => {
     if (!email.trim()) {
@@ -117,8 +156,29 @@ export const LandingHero: React.FC = () => {
           </View>
         </View>
 
-        {/* Right Column: Clean App Device Preview */}
+        {/* Right Column: Interactive Real App UI Showcase */}
         <View style={[styles.rightCol, isMobile && styles.rightColMobile]}>
+          {/* Quick Screen Switcher Tabs */}
+          <View style={styles.switcherBar}>
+            {SCREEN_META.map((tab) => {
+              const isActive = tab.key === activeScreen;
+              return (
+                <TouchableOpacity
+                  key={tab.key}
+                  style={[styles.switcherTab, isActive && styles.switcherTabActive]}
+                  onPress={() => setActiveScreen(tab.key)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.switcherIcon}>{tab.icon}</Text>
+                  <Text style={[styles.switcherLabel, isActive && styles.switcherLabelActive]}>
+                    {tab.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Phone Outer Frame with REAL UI Image */}
           <View style={[styles.phoneOuter, isMobile && styles.phoneOuterMobile]}>
             <View style={styles.phoneSpeakerBar}>
               <View style={styles.speakerDot} />
@@ -126,101 +186,21 @@ export const LandingHero: React.FC = () => {
             </View>
 
             <View style={styles.phoneScreen}>
-              {/* App Header */}
-              <View style={styles.mockHeader}>
-                <Text style={styles.mockLogo}>우간다</Text>
-                <View style={styles.mockIcons}>
-                  <Text style={styles.mockIconText}>🔔</Text>
-                  <Text style={styles.mockIconText}>👤</Text>
-                </View>
-              </View>
-
-              {/* Greeting */}
-              <View style={styles.mockGreeting}>
-                <Text style={styles.mockGreetingText}>
-                  <Text style={{ fontWeight: '800' }}>이수진</Text> 간호사님, 오늘{' '}
-                  <Text style={{ color: COLORS.primary, fontWeight: '800' }}>데이(D)</Text> 근무도 힘내세요!
-                </Text>
-              </View>
-
-              {/* Bento Shift Cards */}
-              <View style={styles.mockBentoRow}>
-                <View style={styles.mockTodayCard}>
-                  <Text style={styles.mockCardLabel}>오늘 근무</Text>
-                  <View style={styles.mockShiftBadgeCoral}>
-                    <Text style={styles.mockShiftText}>D</Text>
-                  </View>
-                  <Text style={styles.mockShiftTime}>07:30 - 15:30</Text>
-                </View>
-
-                <View style={styles.mockTomorrowCard}>
-                  <Text style={styles.mockCardLabel}>내일 근무</Text>
-                  <View style={styles.mockShiftBadgeGreen}>
-                    <Text style={styles.mockShiftText}>O</Text>
-                  </View>
-                  <Text style={styles.mockShiftTime}>내일은 오프! ☕</Text>
-                </View>
-              </View>
-
-              {/* Weekly Strip */}
-              <View style={styles.mockStripCard}>
-                <Text style={styles.mockStripTitle}>이번 주 스케줄</Text>
-                <View style={styles.mockStripRow}>
-                  {[
-                    { d: '월', c: 'D', a: true },
-                    { d: '화', c: 'D' },
-                    { d: '수', c: 'D' },
-                    { d: '목', c: 'O' },
-                    { d: '금', c: 'O' },
-                    { d: '토', c: 'E' },
-                    { d: '일', c: 'N' },
-                  ].map((item, idx) => (
-                    <View
-                      key={idx}
-                      style={[styles.mockDayItem, item.a && styles.mockDayItemActive]}
-                    >
-                      <Text style={[styles.mockDayName, item.a && { color: COLORS.primary }]}>
-                        {item.d}
-                      </Text>
-                      <View
-                        style={[
-                          styles.mockCodeDot,
-                          item.c === 'D' && { backgroundColor: '#FFE4E8' },
-                          item.c === 'E' && { backgroundColor: '#FEF3C7' },
-                          item.c === 'N' && { backgroundColor: '#EDE9FE' },
-                          item.c === 'O' && { backgroundColor: '#DCFCE7' },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.mockCodeDotText,
-                            item.c === 'D' && { color: COLORS.primary },
-                            item.c === 'E' && { color: '#D97706' },
-                            item.c === 'N' && { color: '#7C3AED' },
-                            item.c === 'O' && { color: '#16A34A' },
-                          ]}
-                        >
-                          {item.c}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </View>
-
-              {/* Quick Friend Match Alert */}
-              <View style={styles.mockMatchCard}>
-                <Text style={styles.mockMatchBadge}>🎉 오프 매칭</Text>
-                <Text style={styles.mockMatchText}>
-                  이번 주 목요일, 동기 2명과 함께 쉬는 날이에요!
-                </Text>
-              </View>
+              <Image
+                source={currentMeta.image}
+                style={styles.realAppImage}
+                resizeMode="cover"
+              />
             </View>
 
             <View style={styles.phoneHomeBar}>
               <View style={styles.homeBar} />
             </View>
           </View>
+
+          <Text style={styles.previewCaption}>
+            👆 탭을 눌러 우간다의 실제 앱 화면을 미리 확인하세요
+          </Text>
         </View>
       </View>
     </View>
@@ -254,7 +234,7 @@ const styles = StyleSheet.create({
   },
   leftCol: {
     flex: 1.1,
-    maxWidth: 620,
+    maxWidth: 600,
     alignItems: 'flex-start',
   },
   leftColMobile: {
@@ -398,24 +378,56 @@ const styles = StyleSheet.create({
   rightColMobile: {
     marginTop: 8,
   },
+  switcherBar: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: 16,
+    width: '100%',
+    maxWidth: 340,
+  },
+  switcherTab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 9999,
+  },
+  switcherTabActive: {
+    backgroundColor: COLORS.primary,
+  },
+  switcherIcon: {
+    fontSize: 12,
+  },
+  switcherLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#475569',
+  },
+  switcherLabelActive: {
+    color: '#FFFFFF',
+  },
   phoneOuter: {
-    width: 320,
-    height: 610,
-    backgroundColor: '#1E293B',
+    width: 310,
+    height: 640,
+    backgroundColor: '#0F172A',
     borderRadius: 44,
-    padding: 10,
+    padding: 8,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.16,
-    shadowRadius: 32,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.2,
+    shadowRadius: 36,
     borderWidth: 4,
-    borderColor: '#0F172A',
+    borderColor: '#1E293B',
   },
   phoneOuterMobile: {
     width: 290,
-    height: 560,
+    height: 590,
     borderRadius: 36,
-    padding: 8,
+    padding: 6,
   },
   phoneSpeakerBar: {
     height: 18,
@@ -440,8 +452,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FAFAFA',
     borderRadius: 32,
-    padding: 16,
     overflow: 'hidden',
+  },
+  realAppImage: {
+    width: '100%',
+    height: '100%',
   },
   phoneHomeBar: {
     height: 16,
@@ -454,155 +469,11 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: '#64748B',
   },
-  mockHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 14,
-    paddingTop: 4,
-  },
-  mockLogo: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#0F172A',
-  },
-  mockIcons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  mockIconText: {
-    fontSize: 16,
-  },
-  mockGreeting: {
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-  },
-  mockGreetingText: {
+  previewCaption: {
     fontSize: 12,
-    lineHeight: 18,
-    color: '#334155',
-  },
-  mockBentoRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
-  mockTodayCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#FFE4E8',
-    alignItems: 'center',
-  },
-  mockTomorrowCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-  },
-  mockCardLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#64748B',
-    marginBottom: 6,
-  },
-  mockShiftBadgeCoral: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  mockShiftBadgeGreen: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#22C55E',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  mockShiftText: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#FFFFFF',
-  },
-  mockShiftTime: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  mockStripCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    marginBottom: 12,
-  },
-  mockStripTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#475569',
-    marginBottom: 8,
-  },
-  mockStripRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  mockDayItem: {
-    alignItems: 'center',
-    padding: 2,
-    borderRadius: 6,
-  },
-  mockDayItemActive: {
-    backgroundColor: '#FFF0F3',
-  },
-  mockDayName: {
-    fontSize: 10,
-    fontWeight: '600',
     color: '#94A3B8',
-    marginBottom: 2,
-  },
-  mockCodeDot: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mockCodeDotText: {
-    fontSize: 11,
-    fontWeight: '800',
-  },
-  mockMatchCard: {
-    backgroundColor: '#EFF6FF',
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  mockMatchBadge: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#2563EB',
-    marginBottom: 2,
-  },
-  mockMatchText: {
-    fontSize: 11,
-    color: '#1E3A8A',
+    marginTop: 12,
     fontWeight: '600',
-    lineHeight: 16,
+    textAlign: 'center',
   },
 });

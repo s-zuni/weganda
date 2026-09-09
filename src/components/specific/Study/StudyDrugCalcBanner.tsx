@@ -19,8 +19,8 @@ export const StudyDrugCalcBanner: React.FC<StudyDrugCalcBannerProps> = ({ onPres
           <CalculatorIcon size={22} color="#FFFFFF" />
         </View>
         <View style={styles.calcTexts}>
-          <Text style={styles.calcTitle}>임상 약물 gtt / cc 점적 계산기</Text>
-          <Text style={styles.calcSub}>도파민, 승압제 처방 용량(mcg) ↔ 주입 속도 환산</Text>
+          <Text style={styles.calcTitle}>💊 🧮 임상 약물 gtt / cc 계산기</Text>
+          <Text style={styles.calcSub}>승압제 · 수액 처방 용량(mcg) ↔ 주입 속도 환산</Text>
         </View>
       </View>
       <View style={styles.calcGoBadge}>
@@ -65,14 +65,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   calcTitle: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
   calcSub: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
-    marginTop: 2,
+    marginTop: 3,
   },
   calcGoBadge: {
     backgroundColor: '#FFF1F4',
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   calcGoText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     color: COLORS.primary,
   },

@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sharedBannerTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
@@ -96,10 +96,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   sharedBannerSub: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.primary,
     fontWeight: '600',
-    marginTop: 2,
+    marginTop: 3,
   },
 });
 

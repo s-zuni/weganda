@@ -19,7 +19,7 @@ import {
   DrugCalculatorModal,
   StudyDetailModal,
   AskAiModal,
-  StudyAiBanner,
+  StudyAiSearchBar,
   StudyDrugCalcBanner,
   StudyCategoryTabs,
   StudyFeaturedCard,
@@ -41,6 +41,7 @@ export const StudyScreen: React.FC = () => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedGuide, setSelectedGuide] = useState<StudyGuideItem | null>(null);
   const [aiModalVisible, setAiModalVisible] = useState(false);
+  const [aiInitialQuestion, setAiInitialQuestion] = useState('');
 
   const categories = [
     '전체',
@@ -99,8 +100,13 @@ export const StudyScreen: React.FC = () => {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* 상단 AI 질문 배너 */}
-        <StudyAiBanner onPress={() => setAiModalVisible(true)} />
+        {/* 상단 AI 임상 검색창 (검색창 형식 AI 질문 인터페이스) */}
+        <StudyAiSearchBar
+          onSearch={(q) => {
+            setAiInitialQuestion(q);
+            setAiModalVisible(true);
+          }}
+        />
 
         {/* 임상 도구: 약물 gtt 계산기 퀵 진입 카드 */}
         <StudyDrugCalcBanner onPress={() => setCalcModalVisible(true)} />
@@ -177,7 +183,11 @@ export const StudyScreen: React.FC = () => {
 
       <AskAiModal
         visible={aiModalVisible}
-        onClose={() => setAiModalVisible(false)}
+        onClose={() => {
+          setAiModalVisible(false);
+          setAiInitialQuestion('');
+        }}
+        initialQuestion={aiInitialQuestion}
       />
     </SafeAreaView>
   );
@@ -211,15 +221,16 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textPrimary,
     paddingVertical: 0,
   },
   sectionHeaderRow: {
-    marginBottom: 12,
+    marginBottom: 14,
+    marginTop: 4,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },

@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   tabSegmentText: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },

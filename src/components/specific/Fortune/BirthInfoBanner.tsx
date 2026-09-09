@@ -26,13 +26,13 @@ export const BirthInfoBanner: React.FC<BirthInfoBannerProps> = ({
         <View style={styles.birthInfoTexts}>
           <Text style={styles.birthBannerTitle}>
             {birthInfo.isRegistered && birthInfo.birthDate
-              ? `${birthInfo.birthDate} (${birthInfo.calendarType === 'solar' ? '양력' : '음력'} ${birthInfo.birthTime || '시간 미상'})`
-              : '사주 탄생 정보를 입력해주세요'}
+              ? `🔮 ${birthInfo.birthDate} (${birthInfo.calendarType === 'solar' ? '양력' : '음력'} ${birthInfo.birthTime || '시간 미상'})`
+              : '🔮 사주 탄생 정보를 입력해주세요'}
           </Text>
           <Text style={styles.birthBannerSub}>
             {birthInfo.isRegistered
-              ? '사주 탄생 정보 등록됨 (오행·대운 정밀 분석 적용)'
-              : '생년월일시를 등록하면 정확한 AI 맞춤 운세를 분석해드려요'}
+              ? '✨ 사주 탄생 정보 등록됨 (오행·대운 정밀 분석 적용)'
+              : '생년월일시를 등록하면 정확한 AI 맞춤 운세를 분석해드려요 🍀'}
           </Text>
         </View>
       </View>
@@ -76,23 +76,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   birthBannerTitle: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
     color: COLORS.textPrimary,
   },
   birthBannerSub: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    marginTop: 2,
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 3,
   },
   editBadge: {
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: 8,
   },
   editBadgeText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     color: COLORS.primary,
   },

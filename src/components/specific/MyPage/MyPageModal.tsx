@@ -458,12 +458,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   userName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
   userRole: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.textSecondary,
     marginTop: 2,
   },
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   editBtnText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '700',
     color: COLORS.textSecondary,
   },
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   fieldLabel: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     color: COLORS.textMuted,
   },
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textPrimary,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
   },
   saveBtnText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
   },
   sectionCard: {
@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
@@ -551,23 +551,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   actionChipText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     color: COLORS.primary,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#F9FAFB',
   },
   infoLabel: {
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textSecondary,
   },
   infoValue: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
     color: COLORS.textPrimary,
   },
@@ -586,11 +586,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
   statValue: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
@@ -603,12 +603,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activityCount: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '900',
     color: COLORS.primary,
   },
   activityLabel: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
     marginTop: 2,
   },
@@ -625,12 +625,12 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   settingLabel: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
     color: COLORS.textPrimary,
   },
   settingSub: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
     marginTop: 2,
   },
@@ -641,7 +641,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   logoutBtnText: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
     color: COLORS.textSecondary,
   },
@@ -683,8 +683,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   themeColorLabel: {
-    fontSize: 11,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
     color: '#1A1A1A',
     textAlign: 'center',
   },
@@ -692,7 +692,7 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
   },
   themeColorPremiumTag: {
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: '800',
     color: '#B8922E',
     backgroundColor: '#FFF8E7',
@@ -728,19 +728,19 @@ const styles = StyleSheet.create({
   },
   adminPillText: {
     color: '#FBBF24',
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
   adminBannerTitle: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '800',
     marginBottom: 2,
   },
   adminBannerSub: {
     color: '#9CA3AF',
-    fontSize: 11,
+    fontSize: 13,
   },
   adminBannerArrow: {
     color: '#FBBF24',
@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   adminConsoleFooterText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: '#374151',
   },

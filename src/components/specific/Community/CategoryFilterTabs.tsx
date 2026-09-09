@@ -70,9 +70,9 @@ const styles = StyleSheet.create({
   categoryTab: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    gap: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
     borderRadius: 20,
     backgroundColor: '#F3F4F6',
   },
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFE4EA',
   },
   categoryTabText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },

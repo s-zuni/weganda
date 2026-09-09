@@ -116,13 +116,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   brandTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '900',
     color: COLORS.primary,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.textMuted,
     marginTop: 2,
   },

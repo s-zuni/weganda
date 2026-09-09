@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   unreadBadgeText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
     color: '#FFFFFF',
   },
@@ -176,12 +176,12 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   readAllText: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '700',
     color: COLORS.primary,
   },
   closeText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     color: COLORS.textMuted,
   },
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   emptyText: {
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textMuted,
   },
   notifItem: {
@@ -220,12 +220,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   typeBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
     borderRadius: 6,
   },
   typeBadgeText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '700',
   },
   timeDeleteRow: {
@@ -234,19 +234,19 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   timeText: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
   },
   notifTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.textPrimary,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   notifMessage: {
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.textSecondary,
-    lineHeight: 17,
+    lineHeight: 20,
   },
 });
 

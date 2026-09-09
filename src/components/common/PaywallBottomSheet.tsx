@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
     marginBottom: 16,
@@ -149,15 +149,16 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   featureTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     color: '#374151',
     marginBottom: 4,
   },
   featureDescription: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#6B7280',
     textAlign: 'center',
+    lineHeight: 21,
   },
   benefitsContainer: {
     alignSelf: 'flex-start',
@@ -165,10 +166,10 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   benefitText: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#4B5563',
     marginBottom: 12,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   primaryButton: {
     backgroundColor: COLORS.primary || '#FF507C',
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
   },
   secondaryButton: {
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#6B7280',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '500',
   },
 });

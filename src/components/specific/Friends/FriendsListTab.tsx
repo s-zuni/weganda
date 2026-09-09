@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textPrimary,
     paddingVertical: 0,
   },
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     gap: 4,
     backgroundColor: COLORS.primary,
     borderRadius: 14,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     height: 46,
     justifyContent: 'center',
     shadowColor: COLORS.primary,
@@ -168,11 +168,11 @@ const styles = StyleSheet.create({
   },
   addBtnText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
   },
   friendSection: {
-    marginBottom: 22,
+    marginBottom: 24,
   },
   sectionHeaderRow: {
     flexDirection: 'row',
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
@@ -210,17 +210,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyCardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
     color: COLORS.textPrimary,
     marginBottom: 6,
     textAlign: 'center',
   },
   emptyCardSub: {
-    fontSize: 13,
+    fontSize: 15,
     color: COLORS.textMuted,
     textAlign: 'center',
-    lineHeight: 19,
+    lineHeight: 22,
     marginBottom: 18,
   },
   emptyAddBtn: {
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   emptyAddBtnText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: '#FFFFFF',
   },

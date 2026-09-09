@@ -9,6 +9,15 @@ interface StudyCategoryTabsProps {
   onSelectCategory: (cat: string) => void;
 }
 
+const CATEGORY_EMOJI: Record<string, string> = {
+  '전체': '📚 전체',
+  '약물계산/투약': '💊 약물/투약',
+  '응급/ACLS': '⚡ 응급/ACLS',
+  '간호술기': '🩺 간호술기',
+  '바이탈/중재': '📊 바이탈/중재',
+  '북마크 보관함': '⭐️ 북마크 보관함',
+};
+
 export const StudyCategoryTabs: React.FC<StudyCategoryTabsProps> = ({
   categories,
   selectedCategory,
@@ -23,6 +32,7 @@ export const StudyCategoryTabs: React.FC<StudyCategoryTabsProps> = ({
       {categories.map((cat) => {
         const isSelected = selectedCategory === cat;
         const isBookmarkTab = cat === '북마크 보관함';
+        const displayLabel = CATEGORY_EMOJI[cat] || cat;
         return (
           <TouchableOpacity
             key={cat}
@@ -34,13 +44,6 @@ export const StudyCategoryTabs: React.FC<StudyCategoryTabsProps> = ({
             onPress={() => onSelectCategory(cat)}
             activeOpacity={0.8}
           >
-            {isBookmarkTab && (
-              <BookmarkIcon
-                size={13}
-                color={isSelected ? '#FFFFFF' : COLORS.primary}
-                filled={true}
-              />
-            )}
             <Text
               style={[
                 styles.categoryTabText,
@@ -48,7 +51,7 @@ export const StudyCategoryTabs: React.FC<StudyCategoryTabsProps> = ({
                 isBookmarkTab && !isSelected && { color: COLORS.primary },
               ]}
             >
-              {cat}
+              {displayLabel}
             </Text>
           </TouchableOpacity>
         );
@@ -80,7 +83,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFE4EA',
   },
   categoryTabText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
