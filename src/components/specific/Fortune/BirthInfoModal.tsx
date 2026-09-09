@@ -3,19 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   TextInput,
   ScrollView,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { profileApi } from '../../../services/profileApi';
-import { CalendarIcon, ClockIcon } from '../../common/Icon';
+import { CalendarIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
 export interface BirthInfoModalProps {
   visible: boolean;
@@ -174,59 +172,46 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.overlay}
+    <SwipeableBottomSheet visible={visible} onClose={onClose}>
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>🔮 사주 탄생 정보 등록 & 수정</Text>
+        <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Text style={styles.closeText}>닫기</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.modalContainer}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
+        <Text style={styles.bannerNotice}>
+          ✨ 태어난 날짜와 시각을 정확히 입력할수록 더욱 정밀한 간호 사주 및 오행 분석 결과를 받아보실 수 있습니다.
+        </Text>
 
-          {/* 헤더 */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>사주 탄생 정보 입력</Text>
-            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-              <Text style={styles.closeText}>닫기</Text>
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={styles.scrollContent}
+        {/* 양력 / 음력 선택 */}
+        <Text style={styles.inputLabel}>양력 / 음력</Text>
+        <View style={styles.segmentRow}>
+          <TouchableOpacity
+            style={[styles.segmentBtn, calendarType === 'solar' && styles.segmentBtnActive]}
+            onPress={() => setCalendarType('solar')}
           >
-            <Text style={styles.bannerNotice}>
-              ✨ 태어난 날짜와 시각을 정확히 입력할수록 더욱 정밀한 간호 사주 및 오행 분석 결과를 받아보실 수 있습니다.
+            <Text style={[styles.segmentText, calendarType === 'solar' && styles.segmentTextActive]}>
+              양력 (Solar)
             </Text>
+          </TouchableOpacity>
 
-            {/* 양력 / 음력 선택 */}
-            <Text style={styles.inputLabel}>양력 / 음력</Text>
-            <View style={styles.segmentRow}>
-              <TouchableOpacity
-                style={[styles.segmentBtn, calendarType === 'solar' && styles.segmentBtnActive]}
-                onPress={() => setCalendarType('solar')}
-              >
-                <Text style={[styles.segmentText, calendarType === 'solar' && styles.segmentTextActive]}>
-                  양력 (Solar)
-                </Text>
-              </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.segmentBtn, calendarType === 'lunar' && styles.segmentBtnActive]}
+            onPress={() => setCalendarType('lunar')}
+          >
+            <Text style={[styles.segmentText, calendarType === 'lunar' && styles.segmentTextActive]}>
+              음력 (Lunar)
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-              <TouchableOpacity
-                style={[styles.segmentBtn, calendarType === 'lunar' && styles.segmentBtnActive]}
-                onPress={() => setCalendarType('lunar')}
-              >
-                <Text style={[styles.segmentText, calendarType === 'lunar' && styles.segmentTextActive]}>
-                  음력 (Lunar)
-                </Text>
-              </TouchableOpacity>
-            </View>
 
             {/* ── 1. 생년월일 섹션 (달력 선택 & 직접 기입 지원) ── */}
             <View style={styles.sectionHeaderRow}>
@@ -495,9 +480,7 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
               <Text style={styles.saveBtnText}>사주 정보 저장 및 정밀 분석하기</Text>
             </TouchableOpacity>
           </ScrollView>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

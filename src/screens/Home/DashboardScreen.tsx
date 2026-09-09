@@ -32,7 +32,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const user = useUserStore((s) => ({ id: s.id, name: s.name, nickname: s.nickname }));
   const { isPremium } = useUserStore();
   const displayName = user.nickname || user.name || '간호사';
-  const { schedules, fetchMonthlySchedule } = useShiftScheduleStore();
+  const { schedules, customCodes, fetchMonthlySchedule } = useShiftScheduleStore();
 
   const [tomorrowCalendarEvent, setTomorrowCalendarEvent] = useState<string>('');
   const [isSyncingCalendar, setIsSyncingCalendar] = useState(false);
@@ -75,11 +75,27 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const todayKey = formatDateKey(today);
   const tomorrowKey = formatDateKey(tomorrow);
 
-  const todayShift = (schedules[todayKey] as ShiftCode) || null;
-  const tomorrowShift = (schedules[tomorrowKey] as ShiftCode) || null;
+  const todayShift = (schedules[todayKey] as any) || null;
+  const tomorrowShift = (schedules[tomorrowKey] as any) || null;
 
-  const todayShiftInfo = todayShift ? SHIFT_TYPES[todayShift] : null;
-  const tomorrowShiftInfo = tomorrowShift ? SHIFT_TYPES[tomorrowShift] : null;
+  const getShiftInfo = (code: string | null) => {
+    if (!code) return null;
+    if (customCodes[code]) {
+      return {
+        code: customCodes[code].code,
+        name: customCodes[code].name,
+        shortName: customCodes[code].name,
+        color: customCodes[code].color,
+        textColor: customCodes[code].textColor,
+        isOff: customCodes[code].isOff,
+        description: customCodes[code].name,
+      };
+    }
+    return (SHIFT_TYPES as any)[code] || null;
+  };
+
+  const todayShiftInfo = getShiftInfo(todayShift);
+  const tomorrowShiftInfo = getShiftInfo(tomorrowShift);
 
   // 일요일 시작 기준 이번 주 7일 계산
   const currentDayOfWeek = today.getDay();

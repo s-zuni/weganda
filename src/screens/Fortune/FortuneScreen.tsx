@@ -5,6 +5,7 @@ import {
   ScrollView,
   StatusBar,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { AppHeader } from '../../components/common/AppHeader';
 import { useFortuneStore } from '../../store/useFortuneStore';
 import { useUserStore } from '../../store/useUserStore';
@@ -25,9 +26,12 @@ import {
 
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
+import { SajuCategoryId } from '../../mocks/sajuCategories';
 
 export const FortuneScreen: React.FC = () => {
-  const { birthInfo, currentFortune, isLoading, fetchAiFortune } = useFortuneStore();
+  const navigation = useNavigation<any>();
+  const { birthInfo, currentFortune, isLoading, fetchAiFortune, setSelectedCategory } =
+    useFortuneStore();
   const { isPremium, monthlyFortuneCount, incrementFortuneCount } = useUserStore();
 
   // 오늘 날짜 동적 계산
@@ -77,25 +81,13 @@ export const FortuneScreen: React.FC = () => {
           onRefresh={() => fetchAiFortune('daily')}
         />
 
-        {/* 4대 세부 운세 섹션 */}
+        {/* 50년 명인 5대 사주 카테고리 섹션 */}
         <ThemeFortuneGrid
           isPremium={isPremium}
           monthlyFortuneCount={monthlyFortuneCount}
-          onOpenSaju={() => {
-            setNurseModalVisible(true);
-            incrementFortuneCount();
-          }}
-          onOpenLove={() => {
-            setLoveModalVisible(true);
-            incrementFortuneCount();
-          }}
-          onOpenCareer={() => {
-            setCareerModalVisible(true);
-            incrementFortuneCount();
-          }}
-          onOpenWealth={() => {
-            setWealthModalVisible(true);
-            incrementFortuneCount();
+          onSelectCategory={(categoryId: SajuCategoryId) => {
+            setSelectedCategory(categoryId);
+            navigation.navigate('SajuCategoryTopics', { categoryId });
           }}
           onOpenPaywall={() => setPaywallVisible(true)}
         />

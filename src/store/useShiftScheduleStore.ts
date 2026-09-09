@@ -1,20 +1,25 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { scheduleApi } from '../services/scheduleApi';
+import { ExpoSecureStoreAdapter } from '../services/supabase';
 
 export interface CustomShiftCode {
   code: string;
   name: string;
   color: string;
   textColor: string;
+  isOff?: boolean; // 병동별 오프/휴무 표기 여부 (복수 오프 기호 매핑)
 }
 
 export const DEFAULT_SHIFT_CODES: Record<string, CustomShiftCode> = {
   D: { code: 'D', name: '데이', color: '#4F98CA', textColor: '#FFFFFF' },
   E: { code: 'E', name: '이브닝', color: '#E2703A', textColor: '#FFFFFF' },
   N: { code: 'N', name: '나이트', color: '#272727', textColor: '#FFFFFF' },
-  O: { code: 'O', name: '오프', color: '#E84A5F', textColor: '#FFFFFF' },
-  V: { code: 'V', name: '휴가', color: '#9B51E0', textColor: '#FFFFFF' },
-  F: { code: 'F', name: '오프(F)', color: '#E84A5F', textColor: '#FFFFFF' },
+  O: { code: 'O', name: '오프', color: '#E84A5F', textColor: '#FFFFFF', isOff: true },
+  '/': { code: '/', name: '슬래시오프(/)', color: '#E84A5F', textColor: '#FFFFFF', isOff: true },
+  OFF: { code: 'OFF', name: '오프(OFF)', color: '#E84A5F', textColor: '#FFFFFF', isOff: true },
+  V: { code: 'V', name: '휴가/연차', color: '#9B51E0', textColor: '#FFFFFF', isOff: true },
+  F: { code: 'F', name: '오프(F)', color: '#E84A5F', textColor: '#FFFFFF', isOff: true },
   M: { code: 'M', name: '미드', color: '#10B981', textColor: '#FFFFFF' },
 };
 
@@ -41,15 +46,19 @@ interface ShiftScheduleState {
   setShiftForDate: (dateStr: string, code: string, userId?: string) => Promise<void>;
   changeMonth: (offset: number, userId?: string) => void;
   setCurrentDate: (date: Date) => void;
-  updateCustomCode: (code: string, name: string, color: string, userId?: string) => Promise<void>;
+  updateCustomCode: (code: string, name: string, color: string, isOff?: boolean, userId?: string) => Promise<void>;
+  deleteCustomCode: (code: string) => void;
+  getOffCodes: () => string[];
   applyUploadedSchedules: (newSchedules: Record<string, string>, userId?: string) => Promise<void>;
 }
 
-export const useShiftScheduleStore = create<ShiftScheduleState>((set, get) => ({
-  currentDate: new Date(),
-  schedules: {},
-  customCodes: DEFAULT_SHIFT_CODES,
-  isLoading: false,
+export const useShiftScheduleStore = create<ShiftScheduleState>()(
+  persist(
+    (set, get) => ({
+      currentDate: new Date(),
+      schedules: INITIAL_AUGUST_SCHEDULES,
+      customCodes: DEFAULT_SHIFT_CODES,
+      isLoading: false,
 
   // 특정 월의 스케줄 DB에서 불러오기
   fetchMonthlySchedule: async (userId: string, yearMonth?: string) => {
@@ -109,7 +118,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>((set, get) => ({
 
   setCurrentDate: (date) => set({ currentDate: date }),
 
-  updateCustomCode: async (code, name, color, userId) => {
+  updateCustomCode: async (code, name, color, isOff = false, userId) => {
     set((state) => ({
       customCodes: {
         ...state.customCodes,
@@ -118,6 +127,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>((set, get) => ({
           name,
           color,
           textColor: '#FFFFFF',
+          isOff,
         },
       },
     }));
@@ -135,6 +145,22 @@ export const useShiftScheduleStore = create<ShiftScheduleState>((set, get) => ({
         console.error('Failed to save custom shift code:', e);
       }
     }
+  },
+
+  deleteCustomCode: (code) => {
+    set((state) => {
+      const nextCodes = { ...state.customCodes };
+      delete nextCodes[code];
+      return { customCodes: nextCodes };
+    });
+  },
+
+  getOffCodes: () => {
+    const codes = get().customCodes;
+    const offList = Object.values(codes)
+      .filter((c) => c.isOff || c.code === 'O' || c.name.includes('오프') || c.name.includes('휴'))
+      .map((c) => c.code);
+    return offList.length > 0 ? offList : ['O', '/', 'OFF'];
   },
 
   // OCR 또는 일괄 업로드된 스케줄 적용 및 DB 일괄 동기화
@@ -160,5 +186,15 @@ export const useShiftScheduleStore = create<ShiftScheduleState>((set, get) => ({
       }
     }
   },
-}));
+}),
+    {
+      name: 'weganda-shift-schedule-store',
+      storage: createJSONStorage(() => ExpoSecureStoreAdapter),
+      partialize: (state) => ({
+        schedules: state.schedules,
+        customCodes: state.customCodes,
+      }),
+    }
+  )
+);
 

@@ -21,6 +21,7 @@ interface LoginScreenProps {
 export const LoginScreen: React.FC<LoginScreenProps> = () => {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
+  const setUser = useUserStore((state) => state.setUser);
 
   // 🍏 Apple 로그인
   const handleAppleLogin = async () => {
@@ -140,6 +141,25 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
                 <Text style={styles.googleButtonText}>Google로 시작하기</Text>
               </View>
             )}
+          </TouchableOpacity>
+
+          {/* 게스트 둘러보기 버튼 */}
+          <TouchableOpacity
+            style={styles.guestButton}
+            onPress={() => {
+              setUser({
+                id: 'guest_user_preview',
+                name: '간호사',
+                nickname: '나이팅게일',
+                hospitalName: '우간다 서울병원',
+                wardName: '71병동',
+                experienceYears: 3,
+                isAuthenticated: true,
+              });
+            }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.guestButtonText}>로그인 없이 앱 둘러보기 ›</Text>
           </TouchableOpacity>
 
           {/* 이용약관 안내 */}
@@ -272,5 +292,15 @@ const styles = StyleSheet.create({
   legalLink: {
     color: '#4E5968',
     textDecorationLine: 'underline',
+  },
+  guestButton: {
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  guestButtonText: {
+    color: '#6B7280',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

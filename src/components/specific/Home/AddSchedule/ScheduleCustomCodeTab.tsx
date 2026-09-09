@@ -14,10 +14,13 @@ interface ScheduleCustomCodeTabProps {
   editCode: string;
   editName: string;
   editColor: string;
+  editIsOff?: boolean;
   onChangeEditCode: (val: string) => void;
   onChangeEditName: (val: string) => void;
   onChangeEditColor: (val: string) => void;
+  onChangeEditIsOff?: (val: boolean) => void;
   onSelectCodeToEdit: (item: CustomShiftCode) => void;
+  onDeleteCustomCode?: (code: string) => void;
   onSaveCustomCode: () => void;
 }
 
@@ -26,10 +29,13 @@ export const ScheduleCustomCodeTab: React.FC<ScheduleCustomCodeTabProps> = ({
   editCode,
   editName,
   editColor,
+  editIsOff,
   onChangeEditCode,
   onChangeEditName,
   onChangeEditColor,
+  onChangeEditIsOff,
   onSelectCodeToEdit,
+  onDeleteCustomCode,
   onSaveCustomCode,
 }) => {
   const colorPalette = [
@@ -60,12 +66,22 @@ export const ScheduleCustomCodeTab: React.FC<ScheduleCustomCodeTabProps> = ({
               <Text style={styles.codeDetailName}>{item.name}</Text>
               <Text style={styles.codeDetailSub}>코드: {item.code}</Text>
             </View>
-            <TouchableOpacity
-              style={styles.codeEditSmallBtn}
-              onPress={() => onSelectCodeToEdit(item)}
-            >
-              <Text style={styles.codeEditSmallText}>불러오기</Text>
-            </TouchableOpacity>
+            <View style={styles.codeRowActions}>
+              <TouchableOpacity
+                style={styles.codeEditSmallBtn}
+                onPress={() => onSelectCodeToEdit(item)}
+              >
+                <Text style={styles.codeEditSmallText}>불러오기</Text>
+              </TouchableOpacity>
+              {onDeleteCustomCode && (
+                <TouchableOpacity
+                  style={styles.codeDeleteSmallBtn}
+                  onPress={() => onDeleteCustomCode(item.code)}
+                >
+                  <Text style={styles.codeDeleteSmallText}>삭제</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         ))}
       </View>
@@ -114,6 +130,22 @@ export const ScheduleCustomCodeTab: React.FC<ScheduleCustomCodeTabProps> = ({
             ))}
           </View>
         </View>
+
+        {onChangeEditIsOff && (
+          <TouchableOpacity
+            style={styles.isOffToggleRow}
+            onPress={() => onChangeEditIsOff(!editIsOff)}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.checkbox, editIsOff && styles.checkboxChecked]}>
+              {editIsOff && <Text style={styles.checkmark}>✓</Text>}
+            </View>
+            <View style={styles.isOffTextContainer}>
+              <Text style={styles.isOffLabel}>휴무(오프)로 분류</Text>
+              <Text style={styles.isOffSub}>선택 시 통계에서 휴일/오프 일수에 합산됩니다</Text>
+            </View>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           style={styles.saveCodeBtn}
@@ -252,5 +284,63 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '700',
+  },
+  codeRowActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  codeDeleteSmallBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: '#FEE2E2',
+  },
+  codeDeleteSmallText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#EF4444',
+  },
+  isOffToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 12,
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  checkmark: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  isOffTextContainer: {
+    marginLeft: 10,
+    flex: 1,
+  },
+  isOffLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  isOffSub: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    marginTop: 2,
   },
 });

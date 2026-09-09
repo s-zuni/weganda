@@ -9,6 +9,7 @@ export interface ShiftInfo {
   defaultStartTime?: string;
   defaultEndTime?: string;
   description: string;
+  isOff?: boolean;
 }
 
 export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
@@ -21,6 +22,7 @@ export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
     defaultStartTime: '07:00',
     defaultEndTime: '15:30',
     description: '주간 근무',
+    isOff: false,
   },
   E: {
     code: 'E',
@@ -31,6 +33,7 @@ export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
     defaultStartTime: '15:00',
     defaultEndTime: '23:00',
     description: '오후 근무',
+    isOff: false,
   },
   N: {
     code: 'N',
@@ -41,6 +44,7 @@ export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
     defaultStartTime: '22:30',
     defaultEndTime: '07:30',
     description: '야간 근무',
+    isOff: false,
   },
   O: {
     code: 'O',
@@ -49,6 +53,7 @@ export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
     color: '#E84A5F',
     textColor: '#FFFFFF',
     description: '휴무',
+    isOff: true,
   },
   V: {
     code: 'V',
@@ -57,6 +62,7 @@ export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
     color: '#9B51E0',
     textColor: '#FFFFFF',
     description: '연차 / 휴가',
+    isOff: true,
   },
 };
 

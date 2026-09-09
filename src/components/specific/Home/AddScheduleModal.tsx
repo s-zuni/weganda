@@ -16,6 +16,7 @@ import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { ocrApi } from '../../../services/ocrApi';
 import { CustomShiftCode } from '../../../types/shift';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 import {
   ScheduleUploadTab,
   ScheduleManualInputTab,
@@ -39,6 +40,8 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     customCodes,
     setShiftForDate,
     updateCustomCode,
+    deleteCustomCode,
+    getOffCodes,
     applyUploadedSchedules,
   } = useShiftScheduleStore();
   const userId = useUserStore((s) => s.id);
@@ -57,6 +60,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
   const [editCode, setEditCode] = useState('F');
   const [editName, setEditName] = useState('오프(휴무)');
   const [editColor, setEditColor] = useState('#E84A5F');
+  const [editIsOff, setEditIsOff] = useState(true);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -97,13 +101,16 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
         const targetYm = `${year}-${String(month + 1).padStart(2, '0')}`;
         try {
           if (asset.base64) {
+            const offCodes = getOffCodes();
             const ocrRes = await ocrApi.parseScheduleImage({
               imageBase64: asset.base64,
               mimeType: asset.mimeType || 'image/jpeg',
               yearMonth: targetYm,
+              customCodes,
+              offCodes,
             });
 
-            if (ocrRes.schedules && ocrRes.schedules.length > 0) {
+            if (ocrRes.success && ocrRes.schedules && ocrRes.schedules.length > 0) {
               const parsedMap: Record<string, string> = {};
               ocrRes.schedules.forEach((item) => {
                 parsedMap[item.date] = item.shiftCode;
@@ -111,22 +118,29 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
               setScanResult(parsedMap);
               setIsScanning(false);
               return;
+            } else {
+              // 🚫 가상 데이터 생성 금지 — 정직한 에러 알림
+              setIsScanning(false);
+              setScanResult(null);
+              Alert.alert(
+                '근무표 인식 실패',
+                ocrRes.error ||
+                  '근무표 이미지에서 스케줄을 인식하지 못했습니다.\n사진의 글자가 흐리거나 잘리지 않았는지 확인 후 다시 시도해 주세요.\n(상단의 [우리 병동 근무 표기 설정]에서 오프 기호가 맞게 등록되어 있는지도 확인해 보세요.)'
+              );
+              return;
             }
+          } else {
+            setIsScanning(false);
+            Alert.alert('오류', '이미지 데이터를 읽어오지 못했습니다. 다시 촬영하거나 선택해 주세요.');
           }
-        } catch (apiError) {
-          console.warn('OCR Edge function notice:', apiError);
+        } catch (apiError: any) {
+          setIsScanning(false);
+          setScanResult(null);
+          Alert.alert(
+            '근무표 분석 오류',
+            apiError?.message || '근무표 이미지를 분석하는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+          );
         }
-
-        // 스마트 폴백 (AI 분석 모의 추출)
-        const mockParsed: Record<string, string> = {};
-        const codes = ['D', 'D', 'E', 'E', 'O', 'N', 'N', 'O'];
-        for (let d = 1; d <= daysInMonth; d++) {
-          const dStr = String(d).padStart(2, '0');
-          const mStr = String(month + 1).padStart(2, '0');
-          mockParsed[`${year}-${mStr}-${dStr}`] = codes[(d - 1) % codes.length];
-        }
-        setScanResult(mockParsed);
-        setIsScanning(false);
       }
     } catch (e: any) {
       setIsScanning(false);
@@ -144,22 +158,15 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
       return;
     }
 
-    const fileLabels = { pdf: `${month + 1}월_병동근무표.pdf`, excel: `${year}_병동듀티표.xlsx` };
-    setUploadingFileType(fileLabels[type]);
-    setIsScanning(true);
-    setScanResult(null);
-
-    setTimeout(() => {
-      setIsScanning(false);
-      const mockParsed: Record<string, string> = {};
-      const codes = ['D', 'D', 'E', 'E', 'O', 'N', 'N', 'O'];
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dStr = String(d).padStart(2, '0');
-        const mStr = String(month + 1).padStart(2, '0');
-        mockParsed[`${year}-${mStr}-${dStr}`] = codes[(d - 1) % codes.length];
-      }
-      setScanResult(mockParsed);
-    }, 1500);
+    // 엑셀 및 PDF 선택 시 투명한 가이드 제공 (가짜 데이터 임의 생성 금지)
+    Alert.alert(
+      `${type === 'excel' ? '엑셀(.xlsx)' : 'PDF 문서'} 업로드 안내`,
+      '모바일 환경에서는 캡처/촬영된 선명한 이미지를 통해 AI가 표를 가장 정확하게 판독합니다.\n\n해당 근무표 파일을 화면에 띄운 후 캡처(스크린샷)하여 [사진 / 캡처]로 올려주시면 병동 규칙대로 정밀 분석됩니다!',
+      [
+        { text: '확인', style: 'cancel' },
+        { text: '🖼️ 캡처 사진 올리기', onPress: () => handlePickImage('library') },
+      ]
+    );
   };
 
   const handleApplyScanResult = () => {
@@ -190,7 +197,13 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
       Alert.alert('알림', '코드와 라벨명을 모두 입력해주세요.');
       return;
     }
-    updateCustomCode(editCode.trim().toUpperCase(), editName.trim(), editColor, userId || undefined);
+    updateCustomCode(
+      editCode.trim().toUpperCase(),
+      editName.trim(),
+      editColor,
+      editIsOff,
+      userId || undefined
+    );
     Alert.alert('설정 완료', `[${editCode.toUpperCase()}] ${editName} 코드가 저장되었습니다.`);
   };
 
@@ -198,31 +211,24 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     setEditCode(item.code);
     setEditName(item.name);
     setEditColor(item.color);
+    setEditIsOff(
+      item.isOff ?? (item.code === 'O' || item.name.includes('오프') || item.name.includes('휴'))
+    );
   };
 
   return (
-    <Modal
+    <SwipeableBottomSheet
       visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
+      onClose={onClose}
+      maxHeight="92%"
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.overlay}
-      >
-        <View style={styles.modalContainer}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
-
-          {/* 헤더 */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>스케줄 추가 및 설정</Text>
-            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-              <Text style={styles.closeText}>닫기</Text>
-            </TouchableOpacity>
-          </View>
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>스케줄 추가 및 설정</Text>
+        <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Text style={styles.closeText}>닫기</Text>
+        </TouchableOpacity>
+      </View>
 
           {/* 상단 3개 탭 네비게이션 */}
           <View style={styles.tabBar}>
@@ -269,6 +275,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                 scanResult={scanResult}
                 onStartUpload={handleStartUpload}
                 onApplyScanResult={handleApplyScanResult}
+                onGoToCustomCodeTab={() => setActiveTab('custom_code')}
               />
             )}
 
@@ -291,17 +298,18 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                 editCode={editCode}
                 editName={editName}
                 editColor={editColor}
+                editIsOff={editIsOff}
                 onChangeEditCode={setEditCode}
                 onChangeEditName={setEditName}
                 onChangeEditColor={setEditColor}
+                onChangeEditIsOff={setEditIsOff}
                 onSelectCodeToEdit={handleSelectCodeToEdit}
+                onDeleteCustomCode={deleteCustomCode}
                 onSaveCustomCode={handleSaveCustomCode}
               />
             )}
           </ScrollView>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

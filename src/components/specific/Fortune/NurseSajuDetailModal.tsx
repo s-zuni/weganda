@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
@@ -12,6 +11,7 @@ import { FiveElementsBar } from './FiveElementsBar';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { StethoscopeIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 import {
   MOCK_FIVE_ELEMENTS,
   MOCK_WARD_RANKINGS,
@@ -37,89 +37,84 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
   const isUnlocked = unlockedFortunes.saju;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
+    <SwipeableBottomSheet visible={visible} onClose={onClose}>
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <View style={styles.headerTitleRow}>
+          <StethoscopeIcon size={20} color={COLORS.primary} />
+          <View>
+            <Text style={styles.headerTitle}>🔮 간호 사주 & 직장 궁합</Text>
+            <Text style={styles.headerSubtitle}>
+              {birthInfo.birthDate || '1998-05-14'} ({birthInfo.birthTime || '오시'}) 기준
+            </Text>
+          </View>
+        </View>
 
-          {/* 헤더 */}
-          <View style={styles.header}>
-            <View style={styles.headerTitleRow}>
-              <StethoscopeIcon size={20} color={COLORS.primary} />
-              <View>
-                <Text style={styles.headerTitle}>간호 사주 & 직장 궁합</Text>
-                <Text style={styles.headerSubtitle}>
-                  {birthInfo.birthDate || '1998-05-14'} ({birthInfo.birthTime || '오시'}) 기준
-                </Text>
-              </View>
-            </View>
+        <View style={styles.headerActions}>
+          {isUnlocked && (
+            <TouchableOpacity
+              onPress={() => resetFortune('saju')}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.reanalyzeText}>재분석</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.closeText}>닫기</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-            <View style={styles.headerActions}>
-              {isUnlocked && (
-                <TouchableOpacity
-                  onPress={() => resetFortune('saju')}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <Text style={styles.reanalyzeText}>재분석</Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <Text style={styles.closeText}>닫기</Text>
-              </TouchableOpacity>
-            </View>
+      {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
+      {!isUnlocked ? (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <FortuneUnlockView
+            fortuneType="saju"
+            title="🔮 간호 사주 & 직장 궁합"
+            subtitle="내 사주 오행과 직장의 풍수지리적 궁합, 최적 병동 랭킹 및 오늘의 업무 난이도 정밀 분석"
+            icon={<StethoscopeIcon size={28} color={COLORS.primary} />}
+            previewItems={[
+              '🌳 내 사주 오행(목/화/토/금/수) 밸런스 및 부족 오행 분석',
+              '🏥 현재 병원 및 병동과의 풍수지리적 상생 궁합 지수',
+              '🏆 임상 5대 주요 병동 적합도 랭킹 TOP 5',
+              '⚡ 오늘의 3교대 업무 난이도 및 액땜 가이드',
+            ]}
+            onOpenBirthInfo={onOpenBirthInfo}
+          />
+        </ScrollView>
+      ) : (
+        <>
+          {/* 3단 탭 네비게이션 */}
+          <View style={styles.tabRow}>
+            <TouchableOpacity
+              style={[styles.tabBtn, activeTab === 'elements' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('elements')}
+            >
+              <Text style={[styles.tabText, activeTab === 'elements' && styles.tabTextActive]}>
+                🌿 직장 오행 궁합
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tabBtn, activeTab === 'suitability' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('suitability')}
+            >
+              <Text style={[styles.tabText, activeTab === 'suitability' && styles.tabTextActive]}>
+                🏥 간호 적합도
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tabBtn, activeTab === 'today_duty' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('today_duty')}
+            >
+              <Text style={[styles.tabText, activeTab === 'today_duty' && styles.tabTextActive]}>
+                ⭐ 오늘 업무 운세
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
-          {!isUnlocked ? (
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-              <FortuneUnlockView
-                fortuneType="saju"
-                title="간호 사주 & 직장 궁합"
-                subtitle="내 사주 오행과 직장의 풍수지리적 궁합, 최적 병동 랭킹 및 오늘의 업무 난이도 정밀 분석"
-                icon={<StethoscopeIcon size={28} color={COLORS.primary} />}
-                previewItems={[
-                  '내 사주 오행(목/화/토/금/수) 밸런스 및 부족 오행 분석',
-                  '현재 병원 및 병동과의 풍수지리적 상생 궁합 지수',
-                  '임상 5대 주요 병동 적합도 랭킹 TOP 5',
-                  '오늘의 3교대 업무 난이도 및 액땜 가이드',
-                ]}
-                onOpenBirthInfo={onOpenBirthInfo}
-              />
-            </ScrollView>
-          ) : (
-            <>
-              {/* 3단 탭 네비게이션 */}
-              <View style={styles.tabRow}>
-                <TouchableOpacity
-                  style={[styles.tabBtn, activeTab === 'elements' && styles.tabBtnActive]}
-                  onPress={() => setActiveTab('elements')}
-                >
-                  <Text style={[styles.tabText, activeTab === 'elements' && styles.tabTextActive]}>
-                    직장 오행 궁합
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.tabBtn, activeTab === 'suitability' && styles.tabBtnActive]}
-                  onPress={() => setActiveTab('suitability')}
-                >
-                  <Text style={[styles.tabText, activeTab === 'suitability' && styles.tabTextActive]}>
-                    간호 적합도 & 병동
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.tabBtn, activeTab === 'today_duty' && styles.tabBtnActive]}
-                  onPress={() => setActiveTab('today_duty')}
-                >
-                  <Text style={[styles.tabText, activeTab === 'today_duty' && styles.tabTextActive]}>
-                    오늘 업무 난이도
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {/* ══════════ TAB 1: 내 직장과 나의 사주 오행 궁합 ══════════ */}
             {activeTab === 'elements' && (
               <View>
@@ -261,9 +256,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
           </ScrollView>
         </>
       )}
-        </View>
-      </View>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

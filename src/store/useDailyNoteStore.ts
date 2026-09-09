@@ -1,6 +1,8 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { DailyPatientNote } from '../mocks/dailyNotes';
 import { dailyNoteApi } from '../services/dailyNoteApi';
+import { ExpoSecureStoreAdapter } from '../services/supabase';
 
 interface DailyNoteState {
   notes: DailyPatientNote[];
@@ -10,7 +12,9 @@ interface DailyNoteState {
   deleteNote: (id: string) => void;
 }
 
-export const useDailyNoteStore = create<DailyNoteState>((set) => ({
+export const useDailyNoteStore = create<DailyNoteState>()(
+  persist(
+    (set) => ({
   notes: [],
   isLoading: false,
 
@@ -88,4 +92,13 @@ export const useDailyNoteStore = create<DailyNoteState>((set) => ({
       );
     }
   },
-}));
+}),
+    {
+      name: 'weganda-daily-note-store',
+      storage: createJSONStorage(() => ExpoSecureStoreAdapter),
+      partialize: (state) => ({
+        notes: state.notes,
+      }),
+    }
+  )
+);

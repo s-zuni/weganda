@@ -73,8 +73,8 @@ const DEFAULT_FORTUNE_FALLBACK: FortuneResult = {
 export const fortuneApi = {
   // AI 간호 운세 & 바이오리듬 생성 (F1 ~ F5)
   async generateFortune(params?: FortuneGenerateParams): Promise<FortuneResult> {
-    return withClockSkewRetry(async () => {
-      try {
+    try {
+      return await withClockSkewRetry(async () => {
         const { data, error } = await supabase.functions.invoke('fortune-generate', {
           body: {
             fortune_type: params?.fortuneType || 'daily',
@@ -84,16 +84,15 @@ export const fortuneApi = {
           },
         });
 
-        if (error) {
-          console.warn('Notice from fortune-generate Edge Function:', error.message || error);
+        if (error || !data || !data.title) {
           return DEFAULT_FORTUNE_FALLBACK;
         }
 
-        return (data as FortuneResult) || DEFAULT_FORTUNE_FALLBACK;
-      } catch (e: any) {
-        console.warn('Fallback applied for fortune generation:', e?.message || e);
-        return DEFAULT_FORTUNE_FALLBACK;
-      }
-    });
+        return data as FortuneResult;
+      });
+    } catch (e) {
+      console.warn('Notice: using DEFAULT_FORTUNE_FALLBACK due to network or server state:', e);
+      return DEFAULT_FORTUNE_FALLBACK;
+    }
   },
 };

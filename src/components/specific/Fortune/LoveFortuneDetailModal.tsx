@@ -3,18 +3,16 @@ import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   ScrollView,
   TextInput,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { HeartIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 import { MOCK_LOVE_FORTUNE } from '../../../mocks/fortuneData';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 
@@ -58,74 +56,60 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.overlay}
-      >
-        <View style={styles.modalContainer}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
-
-          {/* 헤더 */}
-          <View style={styles.header}>
-            <View style={styles.headerTitleRow}>
-              <HeartIcon size={20} color="#E11D48" />
-              <View>
-                <Text style={styles.headerTitle}>애정운 & 사주·MBTI 궁합</Text>
-                <Text style={styles.headerSubtitle}>
-                  간호사 연애 및 교대 근무 배려 솔루션
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.headerActions}>
-              {isUnlocked && (
-                <TouchableOpacity
-                  onPress={() => resetFortune('love')}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <Text style={styles.reanalyzeText}>재분석</Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <Text style={styles.closeText}>닫기</Text>
-              </TouchableOpacity>
-            </View>
+    <SwipeableBottomSheet visible={visible} onClose={onClose}>
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <View style={styles.headerTitleRow}>
+          <HeartIcon size={20} color="#E11D48" />
+          <View>
+            <Text style={styles.headerTitle}>💖 💘 애정운 & 사주·MBTI 궁합</Text>
+            <Text style={styles.headerSubtitle}>
+              간호사 연애 및 교대 근무 배려 솔루션
+            </Text>
           </View>
+        </View>
 
-          {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
-          {!isUnlocked ? (
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-              <FortuneUnlockView
-                fortuneType="love"
-                title="애정운 & 사주·MBTI 궁합"
-                subtitle="연인·짝사랑 사주 궁합, MBTI 성격 케미스트리 및 3교대 데이트 가이드 정밀 분석"
-                icon={<HeartIcon size={28} color="#E11D48" />}
-                previewItems={[
-                  '상대방과의 사주 오행 상생 궁합 지수 및 인연도',
-                  '간호사 3교대 패턴을 배려하는 데이트 타이밍 가이드',
-                  'MBTI 성격 유형별 소통 노하우 및 갈등 완화 솔루션',
-                  '결혼 궁합 지수 및 현실적 주의점 체크리스트',
-                ]}
-              />
-            </ScrollView>
-          ) : (
-            <>
-              {/* 3단 탭 네비게이션 */}
-              <View style={styles.tabRow}>
+        <View style={styles.headerActions}>
+          {isUnlocked && (
+            <TouchableOpacity
+              onPress={() => resetFortune('love')}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.reanalyzeText}>재분석</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.closeText}>닫기</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
+      {!isUnlocked ? (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <FortuneUnlockView
+            fortuneType="love"
+            title="💖 💘 애정운 & 사주·MBTI 궁합"
+            subtitle="연인·짝사랑 사주 궁합, MBTI 성격 케미스트리 및 3교대 데이트 가이드 정밀 분석"
+            icon={<HeartIcon size={28} color="#E11D48" />}
+            previewItems={[
+              '💞 상대방과의 사주 오행 상생 궁합 지수 및 인연도',
+              '⏰ 간호사 3교대 패턴을 배려하는 데이트 타이밍 가이드',
+              '🧩 MBTI 성격 유형별 소통 노하우 및 갈등 완화 솔루션',
+              '💍 결혼 궁합 지수 및 현실적 주의점 체크리스트',
+            ]}
+          />
+        </ScrollView>
+      ) : (
+        <>
+          {/* 3단 탭 네비게이션 */}
+          <View style={styles.tabRow}>
             <TouchableOpacity
               style={[styles.tabBtn, activeTab === 'couple' && styles.tabBtnActive]}
               onPress={() => setActiveTab('couple')}
             >
               <Text style={[styles.tabText, activeTab === 'couple' && styles.tabTextActive]}>
-                애인 & MBTI 궁합
+                💑 애인 & MBTI 궁합
               </Text>
             </TouchableOpacity>
 
@@ -134,7 +118,7 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
               onPress={() => setActiveTab('crush')}
             >
               <Text style={[styles.tabText, activeTab === 'crush' && styles.tabTextActive]}>
-                짝사랑 공략
+                💌 짝사랑 공략
               </Text>
             </TouchableOpacity>
 
@@ -143,10 +127,11 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
               onPress={() => setActiveTab('marriage')}
             >
               <Text style={[styles.tabText, activeTab === 'marriage' && styles.tabTextActive]}>
-                결혼 궁합 분석
+                💍 결혼 궁합
               </Text>
             </TouchableOpacity>
           </View>
+
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {/* ══════════ TAB 1: 애인과의 사주 & MBTI 궁합 ══════════ */}
@@ -308,9 +293,7 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
           </ScrollView>
         </>
       )}
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

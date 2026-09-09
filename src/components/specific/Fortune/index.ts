@@ -10,3 +10,4 @@ export * from './HeroFortuneCard';
 export * from './ThemeFortuneGrid';
 export * from './LuckyItemsSection';
 export * from './AdviceCard';
+export * from './SajuTopicInputModal';

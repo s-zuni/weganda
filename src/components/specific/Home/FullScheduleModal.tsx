@@ -61,6 +61,15 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
     }
   }
 
+  // 복수 오프(isOff: true 또는 O, /, OFF 등) 통계 합산
+  const totalOffCount = Object.entries(dutyCounts).reduce((acc, [code, count]) => {
+    const shift = customCodes[code];
+    if (shift?.isOff || code === 'O' || shift?.name?.includes('오프') || shift?.name?.includes('휴')) {
+      return acc + count;
+    }
+    return acc;
+  }, 0);
+
   // 간단한 좌우 스와이프 감지 PanResponder
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dx) > 30,
@@ -237,7 +246,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
                 <View style={styles.statBox}>
                   <View style={[styles.statDot, { backgroundColor: customCodes.O?.color || '#E84A5F' }]} />
                   <Text style={styles.statLabel}>Off</Text>
-                  <Text style={styles.statValue}>{(dutyCounts.O || 0) + (dutyCounts.F || 0)}일</Text>
+                  <Text style={styles.statValue}>{totalOffCount}일</Text>
                 </View>
               </View>
             </View>

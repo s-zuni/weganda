@@ -3,16 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   ScrollView,
   TextInput,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { PencilIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 import { useDailyNoteStore } from '../../../store/useDailyNoteStore';
 import { useUserStore } from '../../../store/useUserStore';
 
@@ -79,31 +77,21 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
   };
 
   return (
-    <Modal
+    <SwipeableBottomSheet
       visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
+      onClose={onClose}
+      maxHeight="92%"
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.overlay}
-      >
-        <View style={styles.modalContainer}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
-
-          {/* 헤더 */}
-          <View style={styles.header}>
-            <View style={styles.headerTitleRow}>
-              <PencilIcon size={20} color={COLORS.primary} />
-              <Text style={styles.headerTitle}>특이사항 기록하기 (인수인계)</Text>
-            </View>
-            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-              <Text style={styles.closeText}>닫기</Text>
-            </TouchableOpacity>
-          </View>
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <View style={styles.headerTitleRow}>
+          <PencilIcon size={20} color={COLORS.primary} />
+          <Text style={styles.headerTitle}>특이사항 기록하기 (인수인계)</Text>
+        </View>
+        <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Text style={styles.closeText}>닫기</Text>
+        </TouchableOpacity>
+      </View>
 
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -210,9 +198,7 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
               ))
             )}
           </ScrollView>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

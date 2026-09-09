@@ -54,6 +54,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     toggleLikeReply,
     blockUser,
   } = useCommunityStore();
+  const userId = useUserStore((s) => s.id);
 
   // 최신 동기화된 post 가져오기
   const currentPost = posts.find((p) => p.id === post?.id) || post;
@@ -152,8 +153,6 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
       ]);
     }
   };
-
-  const userId = useUserStore((s) => s.id);
 
   // 댓글 / 대댓글 전송
   const handleSendComment = () => {

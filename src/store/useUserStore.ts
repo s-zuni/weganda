@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { supabase } from '../services/supabase';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { supabase, ExpoSecureStoreAdapter } from '../services/supabase';
 import { profileApi, ProfileItem } from '../services/profileApi';
 import { useFortuneStore } from './useFortuneStore';
 
@@ -39,7 +40,9 @@ export interface UserState {
   updateUserProfile: (updates: Partial<ProfileItem>) => Promise<boolean>;
 }
 
-export const useUserStore = create<UserState>((set, get) => ({
+export const useUserStore = create<UserState>()(
+  persist(
+    (set, get) => ({
   id: null,
   email: null,
   name: '',
@@ -200,4 +203,22 @@ export const useUserStore = create<UserState>((set, get) => ({
       return false;
     }
   },
-}));
+}),
+    {
+      name: 'weganda-user-store',
+      storage: createJSONStorage(() => ExpoSecureStoreAdapter),
+      partialize: (state) => ({
+        role: state.role,
+        isPremium: state.isPremium,
+        monthlyFortuneCount: state.monthlyFortuneCount,
+        appThemeColor: state.appThemeColor,
+        name: state.name,
+        nickname: state.nickname,
+        hospitalName: state.hospitalName,
+        wardName: state.wardName,
+        experienceYears: state.experienceYears,
+        avatarUrl: state.avatarUrl,
+      }),
+    }
+  )
+);

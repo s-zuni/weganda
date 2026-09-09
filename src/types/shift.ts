@@ -16,6 +16,7 @@ export interface CustomShiftCode {
   name: string;
   color: string;
   textColor: string;
+  isOff?: boolean;
 }
 
 export type ScheduleMap = Record<string, string>; // YYYY-MM-DD -> ShiftCode or custom code

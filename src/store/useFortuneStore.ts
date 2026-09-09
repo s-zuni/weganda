@@ -1,5 +1,11 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { Alert } from 'react-native';
 import { fortuneApi } from '../services/fortuneApi';
+import { manseryeokService, SajuAnalysisResult } from '../services/manseryeokService';
+import { sajuAnalysisGenerator, GeneratedSajuReport } from '../utils/sajuAnalysisGenerator';
+import { SajuCategoryId, SajuTopicItem } from '../mocks/sajuCategories';
+import { ExpoSecureStoreAdapter } from '../services/supabase';
 
 export interface BirthInfo {
   birthDate: string; // YYYY-MM-DD
@@ -30,7 +36,14 @@ interface FortuneState {
   currentFortune?: any;
   isLoading: boolean;
 
-  // 4대 세부 운세 확인(생성) 상태 — 추후 유료화 / 수익화 연계
+  // 만세력 정밀 사주 상태
+  selectedCategoryId: SajuCategoryId;
+  selectedTopic?: SajuTopicItem;
+  currentManseryeokAnalysis?: SajuAnalysisResult;
+  currentManseryeokReport?: GeneratedSajuReport;
+  isAnalyzingManseryeok: boolean;
+
+  // 4대 세부 운세 확인(생성) 상태
   unlockedFortunes: Record<SubFortuneType, boolean>;
   isGeneratingFortune: Record<SubFortuneType, boolean>;
 
@@ -38,18 +51,27 @@ interface FortuneState {
   setBirthInfo: (info: Partial<BirthInfo>) => void;
   setPartnerInfo: (info: Partial<PartnerInfo>) => void;
   setColleagueInfo: (info: Partial<ColleagueInfo>) => void;
+  setSelectedCategory: (categoryId: SajuCategoryId) => void;
+  setSelectedTopic: (topic: SajuTopicItem) => void;
+  runManseryeokAnalysis: (
+    topic: SajuTopicItem,
+    birthInfo: BirthInfo,
+    partnerData?: { name?: string; birthDate?: string; birthTime?: string }
+  ) => Promise<GeneratedSajuReport | null>;
   fetchAiFortune: (type?: 'daily' | 'saju' | 'love' | 'career' | 'wealth') => Promise<any>;
   unlockFortune: (type: SubFortuneType) => Promise<boolean>;
   resetFortune: (type: SubFortuneType) => void;
 }
 
-export const useFortuneStore = create<FortuneState>((set, get) => ({
+export const useFortuneStore = create<FortuneState>()(
+  persist(
+    (set, get) => ({
   birthInfo: {
-    birthDate: '',
-    birthTime: '',
+    birthDate: '1996-05-18', // 기본 모의 데이터
+    birthTime: '07:30',
     calendarType: 'solar',
     gender: 'female',
-    isRegistered: false,
+    isRegistered: true,
   },
   partnerInfo: {
     birthDate: '',
@@ -63,6 +85,12 @@ export const useFortuneStore = create<FortuneState>((set, get) => ({
   },
   currentFortune: undefined,
   isLoading: false,
+
+  selectedCategoryId: 'nurse',
+  selectedTopic: undefined,
+  currentManseryeokAnalysis: undefined,
+  currentManseryeokReport: undefined,
+  isAnalyzingManseryeok: false,
 
   unlockedFortunes: {
     saju: false,
@@ -92,6 +120,60 @@ export const useFortuneStore = create<FortuneState>((set, get) => ({
       colleagueInfo: { ...state.colleagueInfo, ...info },
     })),
 
+  setSelectedCategory: (categoryId: SajuCategoryId) => set({ selectedCategoryId: categoryId }),
+
+  setSelectedTopic: (topic: SajuTopicItem) => set({ selectedTopic: topic }),
+
+  // 만세력 정밀 계산 및 50년 명인 1,000자+ 리포트 생성
+  runManseryeokAnalysis: async (topic, birthInfo, partnerData) => {
+    try {
+      set({ isAnalyzingManseryeok: true });
+
+      // 만세력 사주팔자·오행·신살·대운 정밀 계산
+      const userSaju = manseryeokService.calculateSaju({
+        birthDate: birthInfo.birthDate,
+        birthTime: birthInfo.birthTime,
+        calendarType: birthInfo.calendarType,
+        gender: birthInfo.gender,
+      });
+
+      let partnerSaju: SajuAnalysisResult | undefined;
+      if (partnerData && partnerData.birthDate) {
+        partnerSaju = manseryeokService.calculateSaju({
+          birthDate: partnerData.birthDate,
+          birthTime: partnerData.birthTime || '12:00',
+          calendarType: 'solar',
+          gender: 'female',
+        });
+      }
+
+      // 인위적 대기 시간 (정밀 감정 느낌을 주는 1초 딜레이)
+      await new Promise((resolve) => setTimeout(resolve, 900));
+
+      // 1,000자+ 심층 리포트 생성
+      const report = sajuAnalysisGenerator.generateReport({
+        topic,
+        userSaju,
+        partnerSaju,
+        partnerName: partnerData?.name,
+      });
+
+      set({
+        currentManseryeokAnalysis: userSaju,
+        currentManseryeokReport: report,
+        selectedTopic: topic,
+        isAnalyzingManseryeok: false,
+      });
+
+      return report;
+    } catch (e: any) {
+      console.error('Error in runManseryeokAnalysis:', e);
+      set({ isAnalyzingManseryeok: false });
+      Alert.alert('만세력 분석 오류', '사주팔자 계산 중 오류가 발생했습니다. 생년월일을 다시 확인해 주세요.');
+      return null;
+    }
+  },
+
   // GPT 운세 & 바이오리듬 실시간 생성
   fetchAiFortune: async (type = 'daily') => {
     try {
@@ -109,11 +191,15 @@ export const useFortuneStore = create<FortuneState>((set, get) => ({
     } catch (e: any) {
       console.warn('Notice in fetchAiFortune:', e?.message || e);
       set({ isLoading: false });
+      Alert.alert(
+        '운세 분석 안내',
+        e?.message || 'AI 운세 생성 서버와 통신하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      );
       return null;
     }
   },
 
-  // 사용자가 '확인하기' 버튼을 눌렀을 때 비동기 API 호출 후 운세 생성 (추후 결제/광고 수익화 연동)
+  // 사용자가 '확인하기' 버튼을 눌렀을 때 비동기 API 호출 후 운세 생성
   unlockFortune: async (type: SubFortuneType) => {
     try {
       set((state) => ({
@@ -122,7 +208,6 @@ export const useFortuneStore = create<FortuneState>((set, get) => ({
 
       const { birthInfo, partnerInfo, colleagueInfo } = get();
 
-      // 실제 API 호출 및 현실적인 AI 분석 대기 시간 (1.2초)
       const [result] = await Promise.all([
         fortuneApi.generateFortune({
           fortuneType: type,
@@ -139,10 +224,14 @@ export const useFortuneStore = create<FortuneState>((set, get) => ({
       }));
 
       return true;
-    } catch (e) {
+    } catch (e: any) {
       set((state) => ({
         isGeneratingFortune: { ...state.isGeneratingFortune, [type]: false },
       }));
+      Alert.alert(
+        '운세 분석 오류',
+        e?.message || '세부 운세를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+      );
       return false;
     }
   },
@@ -152,4 +241,17 @@ export const useFortuneStore = create<FortuneState>((set, get) => ({
       unlockedFortunes: { ...state.unlockedFortunes, [type]: false },
     }));
   },
-}));
+}),
+    {
+      name: 'weganda-fortune-store',
+      storage: createJSONStorage(() => ExpoSecureStoreAdapter),
+      partialize: (state) => ({
+        birthInfo: state.birthInfo,
+        partnerInfo: state.partnerInfo,
+        colleagueInfo: state.colleagueInfo,
+        unlockedFortunes: state.unlockedFortunes,
+        currentManseryeokReport: state.currentManseryeokReport,
+      }),
+    }
+  )
+);

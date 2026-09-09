@@ -3,18 +3,16 @@ import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   ScrollView,
   TextInput,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { BriefcaseIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 import { MOCK_CAREER_FORTUNE } from '../../../mocks/fortuneData';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 
@@ -58,86 +56,73 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.overlay}
-      >
-        <View style={styles.modalContainer}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
+    <SwipeableBottomSheet visible={visible} onClose={onClose}>
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <View style={styles.headerTitleRow}>
+          <BriefcaseIcon size={20} color={COLORS.primary} />
+          <View>
+            <Text style={styles.headerTitle}>💼 📈 직업운 & 이직·동료 케미</Text>
+            <Text style={styles.headerSubtitle}>
+              10년 사주 대운 및 병원 이직 타이밍 분석
+            </Text>
+          </View>
+        </View>
 
-          {/* 헤더 */}
-          <View style={styles.header}>
-            <View style={styles.headerTitleRow}>
-              <BriefcaseIcon size={20} color={COLORS.primary} />
-              <View>
-                <Text style={styles.headerTitle}>직업운 & 이직·동료 케미</Text>
-                <Text style={styles.headerSubtitle}>
-                  10년 사주 대운 및 병원 이직 타이밍 분석
-                </Text>
-              </View>
-            </View>
+        <View style={styles.headerActions}>
+          {isUnlocked && (
+            <TouchableOpacity
+              onPress={() => resetFortune('career')}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.reanalyzeText}>재분석</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.closeText}>닫기</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-            <View style={styles.headerActions}>
-              {isUnlocked && (
-                <TouchableOpacity
-                  onPress={() => resetFortune('career')}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <Text style={styles.reanalyzeText}>재분석</Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <Text style={styles.closeText}>닫기</Text>
-              </TouchableOpacity>
-            </View>
+      {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
+      {!isUnlocked ? (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <FortuneUnlockView
+            fortuneType="career"
+            title="💼 📈 직업운 & 이직·동료 케미"
+            subtitle="10년 사주 커리어 대운 흐름 그래프, 사주 오행 매칭 병원 추천, 동료 간호사 듀티 케미 정밀 분석"
+            icon={<BriefcaseIcon size={28} color={COLORS.primary} />}
+            previewItems={[
+              '📈 10년 사주 커리어 대운 흐름 및 전성기 예측',
+              '🏥 사주 오행 매칭 상급종합·전문병원 추천 및 타이밍 표',
+              '🤝 직장 동료와의 3교대 업무 호흡 및 듀티 케미 지수',
+              '🛡️ 이직·부서 이동 시 대인관계 스트레스 예방 가이드',
+            ]}
+          />
+        </ScrollView>
+      ) : (
+        <>
+          {/* 2단 탭 네비게이션 */}
+          <View style={styles.tabRow}>
+            <TouchableOpacity
+              style={[styles.tabBtn, activeTab === 'transfer' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('transfer')}
+            >
+              <Text style={[styles.tabText, activeTab === 'transfer' && styles.tabTextActive]}>
+                🚀 이직운 & 10년 대운
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tabBtn, activeTab === 'colleague' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('colleague')}
+            >
+              <Text style={[styles.tabText, activeTab === 'colleague' && styles.tabTextActive]}>
+                🤝 직장 동료 듀티 케미
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
-          {!isUnlocked ? (
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-              <FortuneUnlockView
-                fortuneType="career"
-                title="직업운 & 이직·동료 케미"
-                subtitle="10년 사주 커리어 대운 흐름 그래프, 사주 오행 매칭 병원 추천, 동료 간호사 듀티 케미 정밀 분석"
-                icon={<BriefcaseIcon size={28} color={COLORS.primary} />}
-                previewItems={[
-                  '10년 사주 커리어 대운 흐름 및 전성기 예측',
-                  '사주 오행 매칭 상급종합·전문병원 추천 및 타이밍 표',
-                  '직장 동료와의 3교대 업무 호흡 및 듀티 케미 지수',
-                  '이직·부서 이동 시 대인관계 스트레스 예방 가이드',
-                ]}
-              />
-            </ScrollView>
-          ) : (
-            <>
-              {/* 2단 탭 네비게이션 */}
-              <View style={styles.tabRow}>
-                <TouchableOpacity
-                  style={[styles.tabBtn, activeTab === 'transfer' && styles.tabBtnActive]}
-                  onPress={() => setActiveTab('transfer')}
-                >
-                  <Text style={[styles.tabText, activeTab === 'transfer' && styles.tabTextActive]}>
-                    이직운 & 10년 대운
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.tabBtn, activeTab === 'colleague' && styles.tabBtnActive]}
-                  onPress={() => setActiveTab('colleague')}
-                >
-                  <Text style={[styles.tabText, activeTab === 'colleague' && styles.tabTextActive]}>
-                    직장 동료 듀티 케미
-                  </Text>
-                </TouchableOpacity>
-              </View>
 
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {/* ══════════ TAB 1: 이직운 & 10년 대운세 ══════════ */}
@@ -283,9 +268,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
           </ScrollView>
             </>
           )}
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

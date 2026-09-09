@@ -18,6 +18,7 @@ interface ScheduleUploadTabProps {
   scanResult: Record<string, string> | null;
   onStartUpload: (type: 'pdf' | 'excel' | 'image') => void;
   onApplyScanResult: () => void;
+  onGoToCustomCodeTab?: () => void;
 }
 
 export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
@@ -29,6 +30,7 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
   scanResult,
   onStartUpload,
   onApplyScanResult,
+  onGoToCustomCodeTab,
 }) => {
   return (
     <View>
@@ -79,6 +81,19 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
           </View>
         </TouchableOpacity>
       </View>
+
+      {onGoToCustomCodeTab && (
+        <TouchableOpacity
+          style={styles.customCodeShortcut}
+          onPress={onGoToCustomCodeTab}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.customCodeShortcutText}>
+            💡 특수 근무(슬립, F 등)를 인식시키려면?{' '}
+            <Text style={styles.customCodeShortcutLink}>커스텀 코드 관리 ›</Text>
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {/* AI 스캔 로딩 애니메이션 */}
       {isScanning && (
@@ -262,6 +277,24 @@ const styles = StyleSheet.create({
   applyBtnText: {
     color: '#FFFFFF',
     fontSize: 14,
+    fontWeight: '700',
+  },
+  customCodeShortcut: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    alignItems: 'center',
+  },
+  customCodeShortcutText: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+  },
+  customCodeShortcutLink: {
+    color: COLORS.primary,
     fontWeight: '700',
   },
 });

@@ -1,22 +1,19 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS } from '../../../constants/theme';
-import {
-  StethoscopeIcon,
-  HeartIcon,
-  BriefcaseIcon,
-  CoinsIcon,
-} from '../../common/Icon';
 import { PremiumLockOverlay } from '../../common/PremiumLockOverlay';
 import { FREE_LIMITS } from '../../../constants/membership';
+import { SAJU_CATEGORIES, SajuCategoryId } from '../../../mocks/sajuCategories';
 
-interface ThemeFortuneGridProps {
+export interface ThemeFortuneGridProps {
   isPremium: boolean;
   monthlyFortuneCount: number;
-  onOpenSaju: () => void;
-  onOpenLove: () => void;
-  onOpenCareer: () => void;
-  onOpenWealth: () => void;
+  onOpenSaju?: () => void;
+  onOpenLove?: () => void;
+  onOpenCareer?: () => void;
+  onOpenWealth?: () => void;
+  onSelectCategory?: (categoryId: SajuCategoryId) => void;
   onOpenPaywall: () => void;
 }
 
@@ -27,15 +24,27 @@ export const ThemeFortuneGrid: React.FC<ThemeFortuneGridProps> = ({
   onOpenLove,
   onOpenCareer,
   onOpenWealth,
+  onSelectCategory,
   onOpenPaywall,
 }) => {
   const isLocked = !isPremium && monthlyFortuneCount >= FREE_LIMITS.maxMonthlyFortune;
 
+  const handleCardPress = (catId: SajuCategoryId) => {
+    if (onSelectCategory) {
+      onSelectCategory(catId);
+      return;
+    }
+    if (catId === 'nurse') onOpenSaju?.();
+    else if (catId === 'love') onOpenLove?.();
+    else if (catId === 'career') onOpenCareer?.();
+    else if (catId === 'wealth') onOpenWealth?.();
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>4대 맞춤형 정밀 세부 운세</Text>
-        <Text style={styles.sectionHint}>터치하여 그래프·표 분석 확인</Text>
+        <Text style={styles.sectionTitle}>5대 정밀 맞춤 사주 & 케미</Text>
+        <Text style={styles.sectionHint}>터치하여 주제별 정밀 분석 확인</Text>
       </View>
 
       {/* weganda+ 운세 횟수 제한 배너 */}
@@ -54,87 +63,36 @@ export const ThemeFortuneGrid: React.FC<ThemeFortuneGridProps> = ({
 
       <View>
         <View style={styles.subFortuneGrid}>
-          {/* 1. 간호 사주 */}
-          <TouchableOpacity
-            style={styles.subCard}
-            onPress={onOpenSaju}
-            activeOpacity={0.8}
-          >
-            <View style={styles.subCardHeader}>
-              <View style={[styles.iconCircle, { backgroundColor: '#FFF1F4' }]}>
-                <StethoscopeIcon size={20} color={COLORS.primary} />
+          {SAJU_CATEGORIES.map((cat) => (
+            <TouchableOpacity
+              key={cat.id}
+              style={[
+                styles.subCard,
+                cat.id === 'wealth' && styles.fullWidthCard,
+              ]}
+              onPress={() => handleCardPress(cat.id)}
+              activeOpacity={0.8}
+            >
+              <View style={styles.subCardHeader}>
+                <View style={[styles.iconCircle, { backgroundColor: cat.bgLightColor }]}>
+                  <MaterialCommunityIcons
+                    name={cat.icon as any}
+                    size={20}
+                    color={cat.themeColor}
+                  />
+                </View>
+                <View style={[styles.subBadge, { backgroundColor: cat.bgLightColor }]}>
+                  <Text style={[styles.subBadgeText, { color: cat.themeColor }]}>
+                    {cat.highlightTag}
+                  </Text>
+                </View>
               </View>
-              <View style={[styles.subBadge, { backgroundColor: '#FFF1F4' }]}>
-                <Text style={[styles.subBadgeText, { color: COLORS.primary }]}>
-                  궁합 94점
-                </Text>
-              </View>
-            </View>
-            <Text style={styles.subCardTitle}>간호 사주</Text>
-            <Text style={styles.subCardDesc}>
-              내 직장 오행 궁합 · 간호 적합도 · 병동 랭킹
-            </Text>
-          </TouchableOpacity>
-
-          {/* 2. 애정운 */}
-          <TouchableOpacity
-            style={styles.subCard}
-            onPress={onOpenLove}
-            activeOpacity={0.8}
-          >
-            <View style={styles.subCardHeader}>
-              <View style={[styles.iconCircle, { backgroundColor: '#FEE2E2' }]}>
-                <HeartIcon size={18} color="#E11D48" />
-              </View>
-              <View style={[styles.subBadge, { backgroundColor: '#FEE2E2' }]}>
-                <Text style={[styles.subBadgeText, { color: '#E11D48' }]}>MBTI 케미</Text>
-              </View>
-            </View>
-            <Text style={styles.subCardTitle}>애정운</Text>
-            <Text style={styles.subCardDesc}>
-              애인 사주 궁합 · MBTI 성격 솔루션 · 짝사랑
-            </Text>
-          </TouchableOpacity>
-
-          {/* 3. 직업운 */}
-          <TouchableOpacity
-            style={styles.subCard}
-            onPress={onOpenCareer}
-            activeOpacity={0.8}
-          >
-            <View style={styles.subCardHeader}>
-              <View style={[styles.iconCircle, { backgroundColor: '#EFF6FF' }]}>
-                <BriefcaseIcon size={18} color="#2563EB" />
-              </View>
-              <View style={[styles.subBadge, { backgroundColor: '#EFF6FF' }]}>
-                <Text style={[styles.subBadgeText, { color: '#2563EB' }]}>대운 상승</Text>
-              </View>
-            </View>
-            <Text style={styles.subCardTitle}>직업운</Text>
-            <Text style={styles.subCardDesc}>
-              10년 대운세 그래프 · 추천 이직 병원 · 동료 케미
-            </Text>
-          </TouchableOpacity>
-
-          {/* 4. 금전운 */}
-          <TouchableOpacity
-            style={styles.subCard}
-            onPress={onOpenWealth}
-            activeOpacity={0.8}
-          >
-            <View style={styles.subCardHeader}>
-              <View style={[styles.iconCircle, { backgroundColor: '#FEF3C7' }]}>
-                <CoinsIcon size={18} color="#D97706" />
-              </View>
-              <View style={[styles.subBadge, { backgroundColor: '#FEF3C7' }]}>
-                <Text style={[styles.subBadgeText, { color: '#D97706' }]}>재물 유입</Text>
-              </View>
-            </View>
-            <Text style={styles.subCardTitle}>금전운</Text>
-            <Text style={styles.subCardDesc}>
-              사주 재테크 전략 · 자산 배분 표 · 재물 타임라인
-            </Text>
-          </TouchableOpacity>
+              <Text style={styles.subCardTitle}>{cat.title}</Text>
+              <Text style={styles.subCardDesc} numberOfLines={2}>
+                {cat.subtitle}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {isLocked && (
@@ -190,10 +148,11 @@ const styles = StyleSheet.create({
   subFortuneGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
+    rowGap: 12,
   },
   subCard: {
-    width: '48%',
+    width: '48.5%',
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 14,
@@ -204,7 +163,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 2,
-    minHeight: 120,
+    minHeight: 110,
+  },
+  fullWidthCard: {
+    width: '100%',
   },
   subCardHeader: {
     flexDirection: 'row',
@@ -240,4 +202,3 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
 });
-

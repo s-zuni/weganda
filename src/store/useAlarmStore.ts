@@ -1,9 +1,28 @@
 import { create } from 'zustand';
-import { ClinicalAlarm } from '../mocks/alarms';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { ClinicalAlarm } from '../types/alarm';
 import { clinicalAlarmApi } from '../services/clinicalAlarmApi';
+import { ExpoSecureStoreAdapter } from '../services/supabase';
+
+export interface CustomAlarmPreset {
+  id: string;
+  label: string;
+  minutes: number;
+  hint: string;
+  isPinned: boolean;
+}
+
+const DEFAULT_PRESETS: CustomAlarmPreset[] = [
+  { id: 'preset_ast', label: '+15분', minutes: 15, hint: '💉 항생제 AST 알러지 확인', isPinned: true },
+  { id: 'preset_transfusion', label: '+15분', minutes: 15, hint: '🩸 수혈 1차 바이탈 모니터링', isPinned: true },
+  { id: 'preset_bst', label: '+30분', minutes: 30, hint: '🩺 식후 혈당(BST) 재측정', isPinned: true },
+  { id: 'preset_fluid', label: '+60분', minutes: 60, hint: '💧 수액 잔여량 & 주입속도 점검', isPinned: false },
+  { id: 'preset_drain', label: '+120분', minutes: 120, hint: '🧪 배액관(H/V) 배액량 체크', isPinned: false },
+];
 
 interface AlarmState {
   alarms: ClinicalAlarm[];
+  customPresets: CustomAlarmPreset[];
   isLoading: boolean;
   fetchAlarms: (userId: string) => Promise<void>;
   addAlarm: (
@@ -12,11 +31,18 @@ interface AlarmState {
   ) => void;
   toggleAlarm: (id: string) => void;
   deleteAlarm: (id: string) => void;
+  addCustomPreset: (preset: Omit<CustomAlarmPreset, 'id'>) => void;
+  deleteCustomPreset: (id: string) => void;
+  togglePinPreset: (id: string) => void;
 }
 
-export const useAlarmStore = create<AlarmState>((set, get) => ({
+export const useAlarmStore = create<AlarmState>()(
+  persist(
+    (set, get) => ({
   alarms: [],
+  customPresets: DEFAULT_PRESETS,
   isLoading: false,
+
 
   // Supabase DB에서 알람 목록 조회
   fetchAlarms: async (userId: string) => {
@@ -131,4 +157,39 @@ export const useAlarmStore = create<AlarmState>((set, get) => ({
       });
     }
   },
-}));
+
+  addCustomPreset: (preset) => {
+    const newPreset: CustomAlarmPreset = {
+      ...preset,
+      id: `preset_${Date.now()}`,
+    };
+    set((state) => ({
+      customPresets: [newPreset, ...state.customPresets],
+    }));
+  },
+
+  deleteCustomPreset: (id) => {
+    set((state) => ({
+      customPresets: state.customPresets.filter((p) => p.id !== id),
+    }));
+  },
+
+  togglePinPreset: (id) => {
+    set((state) => ({
+      customPresets: state.customPresets.map((p) =>
+        p.id === id ? { ...p, isPinned: !p.isPinned } : p
+      ),
+    }));
+  },
+}),
+    {
+      name: 'weganda-alarm-store',
+      storage: createJSONStorage(() => ExpoSecureStoreAdapter),
+      partialize: (state) => ({
+        alarms: state.alarms,
+        customPresets: state.customPresets,
+      }),
+    }
+  )
+);
+

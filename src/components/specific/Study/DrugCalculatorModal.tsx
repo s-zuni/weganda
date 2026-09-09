@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   ScrollView,
   TextInput,
-  KeyboardAvoidingView,
-  Platform,
+  Alert,
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
-import { MOCK_DRUG_PRESETS, DrugPreset } from '../../../mocks/studyData';
+import { useDrugStore, CustomDrugPreset } from '../../../store/useDrugStore';
 import { CalculatorIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
 interface DrugCalculatorModalProps {
   visible: boolean;
@@ -23,18 +22,80 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
   visible,
   onClose,
 }) => {
-  const [selectedPreset, setSelectedPreset] = useState<DrugPreset>(MOCK_DRUG_PRESETS[0]);
-  const [weight, setWeight] = useState('60'); // kg
-  const [dose, setDose] = useState('5'); // mcg/kg/min
-  const [drugMg, setDrugMg] = useState('400'); // mg
-  const [fluidMl, setFluidMl] = useState('200'); // mL
-  const [dropFactor, setDropFactor] = useState<20 | 60>(20); // 20gtt or 60gtt
+  const { presets, addPreset, deletePreset, togglePinPreset } = useDrugStore();
 
-  const handleSelectPreset = (preset: DrugPreset) => {
+  // 핀 고정된 프리셋을 앞으로 정렬
+  const sortedPresets = useMemo(() => {
+    return [...presets].sort((a, b) => {
+      if (a.isPinned === b.isPinned) return 0;
+      return a.isPinned ? -1 : 1;
+    });
+  }, [presets]);
+
+  const [selectedPreset, setSelectedPreset] = useState<CustomDrugPreset>(sortedPresets[0] || {
+    id: 'default',
+    name: '커스텀 약물',
+    drugTotalMg: 400,
+    fluidTotalMl: 200,
+    defaultDose: 5,
+    unit: 'mcg/kg/min',
+    dropFactor: 20,
+    description: '수동 입력 모드',
+    isPinned: false,
+  });
+
+  const [weight, setWeight] = useState('60'); // kg
+  const [dose, setDose] = useState(String(selectedPreset.defaultDose)); // mcg/kg/min
+  const [drugMg, setDrugMg] = useState(String(selectedPreset.drugTotalMg)); // mg
+  const [fluidMl, setFluidMl] = useState(String(selectedPreset.fluidTotalMl)); // mL
+  const [dropFactor, setDropFactor] = useState<20 | 60>(selectedPreset.dropFactor || 20);
+
+  // 병동 커스텀 약물 추가 모드
+  const [isAddingDrug, setIsAddingDrug] = useState(false);
+  const [newDrugName, setNewDrugName] = useState('');
+  const [newDrugMg, setNewDrugMg] = useState('');
+  const [newFluidMl, setNewFluidMl] = useState('');
+  const [newDefaultDose, setNewDefaultDose] = useState('');
+  const [newUnit, setNewUnit] = useState('mcg/kg/min');
+  const [newDescription, setNewDescription] = useState('');
+  const [newDrugPinned, setNewDrugPinned] = useState(true);
+
+  const handleSelectPreset = (preset: CustomDrugPreset) => {
     setSelectedPreset(preset);
     setDose(String(preset.defaultDose));
     setDrugMg(String(preset.drugTotalMg));
     setFluidMl(String(preset.fluidTotalMl));
+    setDropFactor(preset.dropFactor);
+  };
+
+  const handleSaveCustomDrug = () => {
+    const mg = parseFloat(newDrugMg);
+    const ml = parseFloat(newFluidMl);
+    const d = parseFloat(newDefaultDose);
+
+    if (!newDrugName.trim() || isNaN(mg) || isNaN(ml) || ml <= 0) {
+      Alert.alert('알림', '약물명과 올바른 희석 용량(mg 및 mL)을 입력해주세요.');
+      return;
+    }
+
+    addPreset({
+      name: newDrugName.trim(),
+      drugTotalMg: mg,
+      fluidTotalMl: ml,
+      defaultDose: isNaN(d) ? 5 : d,
+      unit: newUnit.trim() || 'mcg/kg/min',
+      dropFactor: 20,
+      description: newDescription.trim() || '내 병동 커스텀 지침 희석법',
+      isPinned: newDrugPinned,
+    });
+
+    setIsAddingDrug(false);
+    setNewDrugName('');
+    setNewDrugMg('');
+    setNewFluidMl('');
+    setNewDefaultDose('');
+    setNewDescription('');
+    Alert.alert('등록 완료', '내 병동 맞춤 약물 프로토콜이 저장되었습니다.');
   };
 
   // 실시간 계산 로직
@@ -59,64 +120,162 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
   const secPerDrop = gttPerMin > 0 ? 60 / gttPerMin : 0;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        {/* 헤더 */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={styles.backText}>‹ 닫기</Text>
-          </TouchableOpacity>
-
-          <View style={styles.headerTitleRow}>
-            <CalculatorIcon size={18} color={COLORS.primary} />
-            <Text style={styles.headerTitle}>임상 약물 gtt/cc 계산기</Text>
-          </View>
-
-          <View style={{ width: 40 }} />
+    <SwipeableBottomSheet visible={visible} onClose={onClose}>
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <View style={styles.headerTitleRow}>
+          <CalculatorIcon size={20} color={COLORS.primary} />
+          <Text style={styles.headerTitle}>💊 🧮 임상 약물 gtt/cc 계산기</Text>
         </View>
 
-        <ScrollView
-          style={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* 프리셋 선택 칩 */}
-          <Text style={styles.sectionLabel}>주요 승압제 / 혈관작용제 퀵 프리셋</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-            {MOCK_DRUG_PRESETS.map((p) => {
-              const isSelected = selectedPreset.id === p.id;
-              return (
-                <TouchableOpacity
-                  key={p.id}
-                  style={[styles.presetChip, isSelected && styles.presetChipActive]}
-                  onPress={() => handleSelectPreset(p)}
-                  activeOpacity={0.8}
-                >
+        <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Text style={styles.closeText}>닫기</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        style={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* 병동 맞춤 약물 프로토콜 헤더 */}
+        <View style={styles.presetHeaderRow}>
+          <Text style={styles.sectionLabel}>🏥 내 병동 맞춤 약물 프로토콜 📌</Text>
+          <TouchableOpacity
+            style={styles.addDrugToggleBtn}
+            onPress={() => setIsAddingDrug((p) => !p)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.addDrugToggleText}>
+              {isAddingDrug ? '닫기' : '+ 병원 약물 추가'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* 직접 약물 등록 폼 */}
+        {isAddingDrug && (
+          <View style={styles.addDrugCard}>
+            <Text style={styles.addDrugCardTitle}>새 병원 희석 프로토콜 등록</Text>
+            <TextInput
+              style={styles.addDrugInput}
+              placeholder="약물명 (예: 노르에피네프린 8mg/50mL D5W)"
+              placeholderTextColor={COLORS.textMuted}
+              value={newDrugName}
+              onChangeText={setNewDrugName}
+            />
+            <View style={styles.addDrugRow}>
+              <TextInput
+                style={[styles.addDrugInput, { flex: 1 }]}
+                placeholder="약물 총량 (mg)"
+                placeholderTextColor={COLORS.textMuted}
+                keyboardType="numeric"
+                value={newDrugMg}
+                onChangeText={setNewDrugMg}
+              />
+              <TextInput
+                style={[styles.addDrugInput, { flex: 1 }]}
+                placeholder="수액량 (mL)"
+                placeholderTextColor={COLORS.textMuted}
+                keyboardType="numeric"
+                value={newFluidMl}
+                onChangeText={setNewFluidMl}
+              />
+              <TextInput
+                style={[styles.addDrugInput, { flex: 1 }]}
+                placeholder="기준 처방량"
+                placeholderTextColor={COLORS.textMuted}
+                keyboardType="numeric"
+                value={newDefaultDose}
+                onChangeText={setNewDefaultDose}
+              />
+            </View>
+            <TextInput
+              style={[styles.addDrugInput, { marginTop: 8 }]}
+              placeholder="병원별 희석 지침 메모 (예: D5W 50mL 믹스, C-line 전용)"
+              placeholderTextColor={COLORS.textMuted}
+              value={newDescription}
+              onChangeText={setNewDescription}
+            />
+            <View style={styles.pinToggleRow}>
+              <TouchableOpacity
+                style={styles.pinCheckBtn}
+                onPress={() => setNewDrugPinned((p) => !p)}
+              >
+                <Text style={styles.pinCheckIcon}>{newDrugPinned ? '📌' : '▫️'}</Text>
+                <Text style={styles.pinCheckLabel}>상단에 고정하기 (Pin)</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.saveDrugBtn}
+                onPress={handleSaveCustomDrug}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.saveDrugBtnText}>약물 저장</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* 프리셋 선택 칩 */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
+          {sortedPresets.map((p) => {
+            const isSelected = selectedPreset.id === p.id;
+            return (
+              <TouchableOpacity
+                key={p.id}
+                style={[styles.presetChip, isSelected && styles.presetChipActive]}
+                onPress={() => handleSelectPreset(p)}
+                onLongPress={() => {
+                  Alert.alert(
+                    `${p.name}`,
+                    '이 약물 프로토콜을 관리하시겠습니까?',
+                    [
+                      {
+                        text: p.isPinned ? '📌 고정 해제' : '📌 상단 고정',
+                        onPress: () => togglePinPreset(p.id),
+                      },
+                      {
+                        text: '삭제',
+                        style: 'destructive',
+                        onPress: () => deletePreset(p.id),
+                      },
+                      { text: '취소', style: 'cancel' },
+                    ]
+                  );
+                }}
+                activeOpacity={0.8}
+              >
+                <View style={styles.presetChipHeader}>
                   <Text style={[styles.presetChipText, isSelected && styles.presetChipTextActive]}>
                     {p.name}
                   </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+                  {p.isPinned && <Text style={styles.pinBadge}>📌</Text>}
+                </View>
+                <Text style={[styles.presetChipDose, isSelected && styles.presetChipDoseActive]}>
+                  {p.drugTotalMg}mg / {p.fluidTotalMl}mL
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
 
-          {/* 프리셋 설명 */}
-          <View style={styles.presetDescBox}>
-            <Text style={styles.presetDescText}>{selectedPreset.description}</Text>
+        {/* 프리셋 설명 */}
+        <View style={styles.presetDescBox}>
+          <Text style={styles.presetDescText}>
+            💡 {selectedPreset.description || '병원 지침에 맞춰 용량과 수액량을 조정하세요.'}
+          </Text>
+        </View>
+
+        {/* 실시간 계산 결과 카드 (Primary Highlight) */}
+        <View style={styles.resultCard}>
+          <Text style={styles.resultCardLabel}>⚡ 인퓨전 펌프 설정 주입 속도</Text>
+          <View style={styles.mainRateRow}>
+            <Text style={styles.mainRateValue}>{ccPerHour.toFixed(1)}</Text>
+            <Text style={styles.mainRateUnit}>cc / hr (mL/h)</Text>
           </View>
 
-          {/* 실시간 계산 결과 카드 (Primary Highlight) */}
-          <View style={styles.resultCard}>
-            <Text style={styles.resultCardLabel}>인퓨전 펌프 설정 주입 속도</Text>
-            <View style={styles.mainRateRow}>
-              <Text style={styles.mainRateValue}>{ccPerHour.toFixed(1)}</Text>
-              <Text style={styles.mainRateUnit}>cc / hr (mL/h)</Text>
-            </View>
+          <View style={styles.resultDivider} />
 
-            <View style={styles.resultDivider} />
 
             <View style={styles.subResultGrid}>
               <View style={styles.subResultItem}>
@@ -214,40 +373,125 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
             </Text>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 54,
-    paddingBottom: 14,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
   },
-  backText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.primary,
+  closeText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.textMuted,
   },
   headerTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   headerTitle: {
     fontSize: 17,
     fontWeight: '800',
     color: COLORS.textPrimary,
+  },
+  presetHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  addDrugToggleBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  addDrugToggleText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  addDrugCard: {
+    backgroundColor: '#FFF1F4',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#FFE4EA',
+  },
+  addDrugCardTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.primary,
+    marginBottom: 8,
+  },
+  addDrugRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  addDrugInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    color: COLORS.textPrimary,
+  },
+  pinToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  pinCheckBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  pinCheckIcon: {
+    fontSize: 14,
+  },
+  pinCheckLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+  },
+  saveDrugBtn: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  saveDrugBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  presetChipHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
+  },
+  pinBadge: {
+    fontSize: 11,
+  },
+  presetChipDose: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  presetChipDoseActive: {
+    color: COLORS.primary,
   },
   scroll: {
     flex: 1,

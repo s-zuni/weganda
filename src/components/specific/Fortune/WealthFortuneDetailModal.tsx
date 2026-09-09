@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
@@ -11,6 +10,7 @@ import { COLORS } from '../../../constants/theme';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { CoinsIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 import { MOCK_WEALTH_FORTUNE } from '../../../mocks/fortuneData';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 
@@ -30,77 +30,73 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
   const isUnlocked = unlockedFortunes.wealth;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
+    <SwipeableBottomSheet visible={visible} onClose={onClose}>
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <View style={styles.headerTitleRow}>
+          <CoinsIcon size={20} color="#F59E0B" />
+          <View>
+            <Text style={styles.headerTitle}>💰 🪙 금전운 & 사주 재테크 전략</Text>
+            <Text style={styles.headerSubtitle}>
+              간호사 수당 관리 및 재물 대운세 분석
+            </Text>
+          </View>
+        </View>
 
-          {/* 헤더 */}
-          <View style={styles.header}>
-            <View style={styles.headerTitleRow}>
-              <CoinsIcon size={20} color="#F59E0B" />
-              <View>
-                <Text style={styles.headerTitle}>금전운 & 사주 재테크 전략</Text>
-                <Text style={styles.headerSubtitle}>
-                  간호사 수당 관리 및 재물 대운세 분석
-                </Text>
-              </View>
-            </View>
+        <View style={styles.headerActions}>
+          {isUnlocked && (
+            <TouchableOpacity
+              onPress={() => resetFortune('wealth')}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.reanalyzeText}>재분석</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.closeText}>닫기</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-            <View style={styles.headerActions}>
-              {isUnlocked && (
-                <TouchableOpacity
-                  onPress={() => resetFortune('wealth')}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <Text style={styles.reanalyzeText}>재분석</Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <Text style={styles.closeText}>닫기</Text>
-              </TouchableOpacity>
-            </View>
+      {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
+      {!isUnlocked ? (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <FortuneUnlockView
+            fortuneType="wealth"
+            title="💰 🪙 금전운 & 사주 재테크 전략"
+            subtitle="사주 풀이 기반 4대 소비 성향, 간호사 맞춤형 자산 배분 포트폴리오, 재물 대운 타임라인 정밀 분석"
+            icon={<CoinsIcon size={28} color="#F59E0B" />}
+            previewItems={[
+              '💳 사주 오행으로 분석한 나의 소비 및 저축 성향 지수',
+              '🏦 3교대 야간/위험 수당 관리 최적화 자산 배분 포트폴리오',
+              '📈 월별·분기별 재물 유입 및 지출 주의 타임라인',
+              '💎 부동산/금융 투자 시기 및 손실 방지 풍수 솔루션',
+            ]}
+          />
+        </ScrollView>
+      ) : (
+        <>
+          {/* 2단 탭 네비게이션 */}
+          <View style={styles.tabRow}>
+            <TouchableOpacity
+              style={[styles.tabBtn, activeTab === 'strategy' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('strategy')}
+            >
+              <Text style={[styles.tabText, activeTab === 'strategy' && styles.tabTextActive]}>
+                📊 소비 성향 & 포트폴리오
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tabBtn, activeTab === 'timeline' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('timeline')}
+            >
+              <Text style={[styles.tabText, activeTab === 'timeline' && styles.tabTextActive]}>
+                ⏳ 재물 대운 타임라인
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
-          {!isUnlocked ? (
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-              <FortuneUnlockView
-                fortuneType="wealth"
-                title="금전운 & 사주 재테크 전략"
-                subtitle="사주 풀이 기반 4대 소비 성향, 간호사 맞춤형 자산 배분 포트폴리오, 재물 대운 타임라인 정밀 분석"
-                icon={<CoinsIcon size={28} color="#F59E0B" />}
-                previewItems={[
-                  '사주 오행으로 분석한 나의 소비 및 저축 성향 지수',
-                  '3교대 야간/위험 수당 관리 최적화 자산 배분 포트폴리오',
-                  '월별·분기별 재물 유입 및 지출 주의 타임라인',
-                  '부동산/금융 투자 시기 및 손실 방지 풍수 솔루션',
-                ]}
-              />
-            </ScrollView>
-          ) : (
-            <>
-              {/* 2단 탭 네비게이션 */}
-              <View style={styles.tabRow}>
-                <TouchableOpacity
-                  style={[styles.tabBtn, activeTab === 'strategy' && styles.tabBtnActive]}
-                  onPress={() => setActiveTab('strategy')}
-                >
-                  <Text style={[styles.tabText, activeTab === 'strategy' && styles.tabTextActive]}>
-                    소비 성향 & 포트폴리오
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.tabBtn, activeTab === 'timeline' && styles.tabBtnActive]}
-                  onPress={() => setActiveTab('timeline')}
-                >
-                  <Text style={[styles.tabText, activeTab === 'timeline' && styles.tabTextActive]}>
-                    재물 대운 타임라인
-                  </Text>
-                </TouchableOpacity>
-              </View>
 
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
@@ -216,9 +212,7 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
           </ScrollView>
             </>
           )}
-        </View>
-      </View>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

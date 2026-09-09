@@ -13,7 +13,7 @@ import {
 
 // 화면 컴포넌트
 import { DashboardScreen } from '../screens/Home/DashboardScreen';
-import { FortuneScreen } from '../screens/Fortune/FortuneScreen';
+import { FortuneStackNavigator } from './FortuneStackNavigator';
 import { FriendsScreen } from '../screens/Friends/FriendsScreen';
 import { StudyScreen } from '../screens/Study/StudyScreen';
 import { CommunityScreen } from '../screens/Community/CommunityScreen';
@@ -64,7 +64,7 @@ export const BottomTabNavigator: React.FC = () => {
       {/* Tab 1: 운세 */}
       <Tab.Screen
         name="FortuneTab"
-        component={FortuneScreen}
+        component={FortuneStackNavigator}
         options={{
           tabBarLabel: '운세',
           tabBarIcon: ({ focused }) => (

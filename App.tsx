@@ -17,8 +17,13 @@ export default function App() {
 
   // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs weganda.kr/admin)
   const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin'>(() => {
+  // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs weganda.kr/admin vs weganda.kr/app)
+  const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin' | 'app'>(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       return window.location.pathname.startsWith('/admin') ? 'admin' : 'landing';
+      if (window.location.pathname.startsWith('/admin')) return 'admin';
+      if (window.location.pathname.startsWith('/app') || window.location.search.includes('app=true')) return 'app';
+      return 'landing';
     }
     return 'landing';
   });
@@ -42,6 +47,13 @@ export default function App() {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       const handlePopState = () => {
         setCurrentWebRoute(window.location.pathname.startsWith('/admin') ? 'admin' : 'landing');
+        if (window.location.pathname.startsWith('/admin')) {
+          setCurrentWebRoute('admin');
+        } else if (window.location.pathname.startsWith('/app') || window.location.search.includes('app=true')) {
+          setCurrentWebRoute('app');
+        } else {
+          setCurrentWebRoute('landing');
+        }
       };
       window.addEventListener('popstate', handlePopState);
       return () => {
@@ -86,6 +98,21 @@ export default function App() {
         />
       </SafeAreaProvider>
     );
+    if (currentWebRoute === 'landing') {
+      return (
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <LandingScreen
+            onNavigateAdmin={() => {
+              if (typeof window !== 'undefined') {
+                window.history.pushState({}, '', '/admin');
+              }
+              setCurrentWebRoute('admin');
+            }}
+          />
+        </SafeAreaProvider>
+      );
+    }
   }
 
   // ── 모바일 앱(iOS / Android) 환경 렌더링 ──
