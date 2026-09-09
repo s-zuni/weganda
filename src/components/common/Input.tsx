@@ -34,6 +34,8 @@ export const Input: React.FC<InputProps> = ({
           inputStyle,
         ]}
         placeholderTextColor={COLORS.textMuted}
+        accessibilityLabel={props.accessibilityLabel || label || props.placeholder}
+        accessibilityHint={props.accessibilityHint || (error ? `오류: ${error}` : undefined)}
         {...props}
       />
       {error && <Text style={styles.errorText}>{error}</Text>}

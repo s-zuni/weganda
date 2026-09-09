@@ -23,6 +23,7 @@ export interface CustomShiftCodeItem {
   name: string;
   color: string;
   textColor?: string;
+  isOff?: boolean;
 }
 
 export const scheduleApi = {
@@ -167,6 +168,7 @@ export const scheduleApi = {
         name: row.name,
         color: row.color,
         textColor: row.text_color || undefined,
+        isOff: row.is_off || false,
       }));
     });
   },
@@ -181,6 +183,7 @@ export const scheduleApi = {
           name: item.name,
           color: item.color,
           text_color: item.textColor || null,
+          is_off: item.isOff ?? false,
         },
         { onConflict: 'user_id, code' }
       );

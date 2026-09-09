@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
@@ -98,6 +99,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
             onPress={handleAppleLogin}
             disabled={loadingProvider !== null}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Apple로 계속하기"
           >
             {loadingProvider === 'apple' ? (
               <ActivityIndicator color="#FFFFFF" />
@@ -115,6 +118,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
             onPress={handleKakaoLogin}
             disabled={loadingProvider !== null}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="카카오로 시작하기"
           >
             {loadingProvider === 'kakao' ? (
               <ActivityIndicator color="#191919" />
@@ -132,6 +137,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
             onPress={handleGoogleLogin}
             disabled={loadingProvider !== null}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Google로 시작하기"
           >
             {loadingProvider === 'google' ? (
               <ActivityIndicator color="#1F1F1F" />
@@ -155,9 +162,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
                 wardName: '71병동',
                 experienceYears: 3,
                 isAuthenticated: true,
+                isGuest: true,
               });
             }}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="로그인 없이 앱 둘러보기"
           >
             <Text style={styles.guestButtonText}>로그인 없이 앱 둘러보기 ›</Text>
           </TouchableOpacity>
@@ -165,8 +175,24 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
           {/* 이용약관 안내 */}
           <Text style={styles.legalNotice}>
             계속 진행함으로써 우간다의{' '}
-            <Text style={styles.legalLink}>서비스 이용약관</Text> 및{' '}
-            <Text style={styles.legalLink}>개인정보 처리방침</Text>에 동의합니다.
+            <Text
+              style={styles.legalLink}
+              onPress={() => Linking.openURL('https://weganda.app/terms')}
+              accessibilityRole="link"
+              accessibilityLabel="서비스 이용약관"
+            >
+              서비스 이용약관
+            </Text>{' '}
+            및{' '}
+            <Text
+              style={styles.legalLink}
+              onPress={() => Linking.openURL('https://weganda.app/privacy')}
+              accessibilityRole="link"
+              accessibilityLabel="개인정보 처리방침"
+            >
+              개인정보 처리방침
+            </Text>
+            에 동의합니다.
           </Text>
         </View>
       </View>

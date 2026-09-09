@@ -16,6 +16,7 @@ export interface UserState {
   experienceYears: number;
   avatarUrl?: string;
   isAuthenticated: boolean;
+  isGuest: boolean;
   isLoading: boolean;
 
   // weganda+ 프리미엄 멤버십 & 유저 역할
@@ -43,19 +44,20 @@ export interface UserState {
 export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
-  id: '33072254-77c4-461a-a83f-8402b9df33c4',
-  email: 'zxzx729@gmail.com',
-  name: '이승준',
-  nickname: '이승준',
-  hospitalName: '우간다 서울병원',
-  wardName: '71병동',
-  experienceYears: 3,
+  id: null,
+  email: null,
+  name: '',
+  nickname: '',
+  hospitalName: '',
+  wardName: '',
+  experienceYears: 1,
   avatarUrl: undefined,
-  isAuthenticated: true,
+  isAuthenticated: false,
+  isGuest: false,
   isLoading: false,
 
-  role: 'admin',
-  isPremium: true,
+  role: 'user',
+  isPremium: false,
   monthlyFortuneCount: 0,
   appThemeColor: 'pink' as AppThemeColor,
 
@@ -109,6 +111,7 @@ export const useUserStore = create<UserState>()(
       nickname: fallbackName,
       avatarUrl: fallbackAvatar,
       isAuthenticated: true,
+      isGuest: false,
       isLoading: false,
     });
 
@@ -156,6 +159,7 @@ export const useUserStore = create<UserState>()(
       experienceYears: 1,
       avatarUrl: undefined,
       isAuthenticated: false,
+      isGuest: false,
       isLoading: false,
       role: 'user',
       isPremium: false,
@@ -174,25 +178,8 @@ export const useUserStore = create<UserState>()(
       if (session?.user) {
         await get().syncUserFromSession(session);
       } else {
-        const currentId = get().id || '33072254-77c4-461a-a83f-8402b9df33c4';
-        try {
-          const profile = await profileApi.getMyProfile(currentId);
-          if (profile) {
-            set({
-              id: currentId,
-              name: profile.name || get().name,
-              nickname: profile.nickname || get().nickname,
-              role: profile.role || 'admin',
-              isPremium: profile.role === 'admin' || profile.role === 'plus' || get().isPremium,
-              isAuthenticated: true,
-              isLoading: false,
-            });
-          } else {
-            set({ isLoading: false });
-          }
-        } catch {
-          set({ isLoading: false });
-        }
+        // 세션 없음 → 로그인 화면으로 이동 (isAuthenticated: false 유지)
+        set({ isLoading: false });
       }
     } catch (e) {
       console.error('Error initializing auth:', e);

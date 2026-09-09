@@ -278,6 +278,7 @@ export type Database = {
           color: string
           created_at: string | null
           id: string
+          is_off: boolean | null
           name: string
           text_color: string | null
           user_id: string
@@ -287,6 +288,7 @@ export type Database = {
           color: string
           created_at?: string | null
           id?: string
+          is_off?: boolean | null
           name: string
           text_color?: string | null
           user_id: string
@@ -296,6 +298,7 @@ export type Database = {
           color?: string
           created_at?: string | null
           id?: string
+          is_off?: boolean | null
           name?: string
           text_color?: string | null
           user_id?: string

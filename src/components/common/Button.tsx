@@ -9,6 +9,7 @@ interface ButtonProps {
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   disabled?: boolean;
+  accessibilityLabel?: string;
   style?: ViewStyle;
   textStyle?: TextStyle;
 }
@@ -20,6 +21,7 @@ export const Button: React.FC<ButtonProps> = ({
   size = 'md',
   loading = false,
   disabled = false,
+  accessibilityLabel,
   style,
   textStyle,
 }) => {
@@ -63,6 +65,9 @@ export const Button: React.FC<ButtonProps> = ({
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityState={{ disabled: disabled || loading, busy: loading }}
     >
       {loading ? (
         <ActivityIndicator color={variant === 'primary' ? '#FFF' : COLORS.primary} />

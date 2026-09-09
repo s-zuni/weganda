@@ -8,6 +8,7 @@ import { AdminScreen } from './src/screens/Admin/AdminScreen';
 import { useUserStore } from './src/store/useUserStore';
 import { supabase } from './src/services/supabase';
 import { COLORS } from './src/constants/theme';
+import ErrorBoundary from './src/components/common/ErrorBoundary';
 
 export default function App() {
   const initializeAuth = useUserStore((state) => state.initializeAuth);
@@ -69,14 +70,16 @@ export default function App() {
       return (
         <SafeAreaProvider>
           <StatusBar style="dark" />
-          <AdminScreen
-            onClose={() => {
-              if (typeof window !== 'undefined') {
-                window.history.pushState({}, '', '/');
-              }
-              setCurrentWebRoute('landing');
-            }}
-          />
+          <ErrorBoundary>
+            <AdminScreen
+              onClose={() => {
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({}, '', '/');
+                }
+                setCurrentWebRoute('landing');
+              }}
+            />
+          </ErrorBoundary>
         </SafeAreaProvider>
       );
     }
@@ -85,14 +88,16 @@ export default function App() {
       return (
         <SafeAreaProvider>
           <StatusBar style="dark" />
-          <LandingScreen
-            onNavigateAdmin={() => {
-              if (typeof window !== 'undefined') {
-                window.history.pushState({}, '', '/admin');
-              }
-              setCurrentWebRoute('admin');
-            }}
-          />
+          <ErrorBoundary>
+            <LandingScreen
+              onNavigateAdmin={() => {
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({}, '', '/admin');
+                }
+                setCurrentWebRoute('admin');
+              }}
+            />
+          </ErrorBoundary>
         </SafeAreaProvider>
       );
     }
@@ -102,13 +107,15 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      ) : (
-        <RootNavigator />
-      )}
+      <ErrorBoundary>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+          </View>
+        ) : (
+          <RootNavigator />
+        )}
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }

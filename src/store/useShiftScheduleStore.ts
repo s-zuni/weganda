@@ -72,10 +72,30 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
         items.forEach((item) => {
           scheduleMap[item.date] = item.shiftCode;
         });
-        set({ schedules: scheduleMap, isLoading: false });
-      } else {
-        set({ isLoading: false });
+        set({ schedules: scheduleMap });
       }
+
+      // 커스텀 근무 코드도 백엔드에서 동기화
+      try {
+        const remoteCustomCodes = await scheduleApi.getCustomShiftCodes(userId);
+        if (remoteCustomCodes && remoteCustomCodes.length > 0) {
+          const merged = { ...get().customCodes };
+          remoteCustomCodes.forEach((c) => {
+            merged[c.code] = {
+              code: c.code,
+              name: c.name,
+              color: c.color,
+              textColor: c.textColor || '#FFFFFF',
+              isOff: c.isOff || false,
+            };
+          });
+          set({ customCodes: merged });
+        }
+      } catch (err) {
+        console.warn('Notice syncing custom codes:', err);
+      }
+
+      set({ isLoading: false });
     } catch (e: any) {
       console.warn('Notice in fetchMonthlySchedule:', e?.message || e);
       set({ isLoading: false });
@@ -91,6 +111,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
       },
     }));
 
+    // userId가 있으면 Supabase DB에도 저장
     if (userId) {
       try {
         await scheduleApi.saveSchedule({
@@ -140,6 +161,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
           name,
           color,
           textColor: '#FFFFFF',
+          isOff,
         });
       } catch (e) {
         console.error('Failed to save custom shift code:', e);
