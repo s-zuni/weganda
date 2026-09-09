@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
@@ -165,8 +166,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
           {/* 이용약관 안내 */}
           <Text style={styles.legalNotice}>
             계속 진행함으로써 우간다의{' '}
-            <Text style={styles.legalLink}>서비스 이용약관</Text> 및{' '}
-            <Text style={styles.legalLink}>개인정보 처리방침</Text>에 동의합니다.
+            <Text
+              style={styles.legalLink}
+              onPress={() => Linking.openURL('https://weganda.kr/terms?tab=service')}
+            >
+              서비스 이용약관
+            </Text>{' '}
+            및{' '}
+            <Text
+              style={styles.legalLink}
+              onPress={() => Linking.openURL('https://weganda.kr/terms?tab=privacy')}
+            >
+              개인정보 처리방침
+            </Text>
+            에 동의합니다.
           </Text>
         </View>
       </View>

@@ -5,6 +5,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { LandingScreen } from './src/screens/Landing/LandingScreen';
 import { AdminScreen } from './src/screens/Admin/AdminScreen';
+import { LegalScreen } from './src/screens/Legal/LegalScreen';
+import { LegalTabKey } from './src/constants/legal/types';
 import { useUserStore } from './src/store/useUserStore';
 import { supabase } from './src/services/supabase';
 import { COLORS } from './src/constants/theme';
@@ -15,14 +17,38 @@ export default function App() {
   const clearUser = useUserStore((state) => state.clearUser);
   const isLoading = useUserStore((state) => state.isLoading);
 
-  // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs weganda.kr/admin vs weganda.kr/app)
-  const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin' | 'app'>(() => {
+  // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs /admin vs /terms /privacy vs /app)
+  const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin' | 'app' | 'legal'>(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      if (window.location.pathname.startsWith('/admin')) return 'admin';
-      if (window.location.pathname.startsWith('/app') || window.location.search.includes('app=true')) return 'app';
+      const p = window.location.pathname;
+      if (p.startsWith('/admin')) return 'admin';
+      if (
+        p.startsWith('/terms') ||
+        p.startsWith('/privacy') ||
+        p.startsWith('/paid-terms') ||
+        p.startsWith('/refund') ||
+        p.startsWith('/community-terms')
+      ) {
+        return 'legal';
+      }
+      if (p.startsWith('/app') || window.location.search.includes('app=true')) return 'app';
       return 'landing';
     }
     return 'landing';
+  });
+
+  const [legalInitialTab, setLegalInitialTab] = useState<LegalTabKey>(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const p = window.location.pathname;
+      const search = new URLSearchParams(window.location.search);
+      const tab = search.get('tab') as LegalTabKey;
+      if (tab && ['service', 'privacy', 'paid', 'community'].includes(tab)) return tab;
+      if (p.startsWith('/privacy')) return 'privacy';
+      if (p.startsWith('/paid-terms') || p.startsWith('/refund')) return 'paid';
+      if (p.startsWith('/community-terms')) return 'community';
+      return 'service';
+    }
+    return 'service';
   });
 
   useEffect(() => {
@@ -43,9 +69,31 @@ export default function App() {
     // 3. 웹 환경 브라우저 뒤로가기/앞으로가기 히스토리 이벤트 리스너
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       const handlePopState = () => {
-        if (window.location.pathname.startsWith('/admin')) {
+        const p = window.location.pathname;
+        if (p.startsWith('/admin')) {
           setCurrentWebRoute('admin');
-        } else if (window.location.pathname.startsWith('/app') || window.location.search.includes('app=true')) {
+        } else if (
+          p.startsWith('/terms') ||
+          p.startsWith('/privacy') ||
+          p.startsWith('/paid-terms') ||
+          p.startsWith('/refund') ||
+          p.startsWith('/community-terms')
+        ) {
+          const search = new URLSearchParams(window.location.search);
+          const tab = search.get('tab') as LegalTabKey;
+          if (tab && ['service', 'privacy', 'paid', 'community'].includes(tab)) {
+            setLegalInitialTab(tab);
+          } else if (p.startsWith('/privacy')) {
+            setLegalInitialTab('privacy');
+          } else if (p.startsWith('/paid-terms') || p.startsWith('/refund')) {
+            setLegalInitialTab('paid');
+          } else if (p.startsWith('/community-terms')) {
+            setLegalInitialTab('community');
+          } else {
+            setLegalInitialTab('service');
+          }
+          setCurrentWebRoute('legal');
+        } else if (p.startsWith('/app') || window.location.search.includes('app=true')) {
           setCurrentWebRoute('app');
         } else {
           setCurrentWebRoute('landing');
@@ -81,6 +129,23 @@ export default function App() {
       );
     }
 
+    if (currentWebRoute === 'legal') {
+      return (
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <LegalScreen
+            initialTab={legalInitialTab}
+            onNavigateHome={() => {
+              if (typeof window !== 'undefined') {
+                window.history.pushState({}, '', '/');
+              }
+              setCurrentWebRoute('landing');
+            }}
+          />
+        </SafeAreaProvider>
+      );
+    }
+
     if (currentWebRoute === 'landing') {
       return (
         <SafeAreaProvider>
@@ -91,6 +156,14 @@ export default function App() {
                 window.history.pushState({}, '', '/admin');
               }
               setCurrentWebRoute('admin');
+            }}
+            onNavigateLegal={(tab) => {
+              if (typeof window !== 'undefined') {
+                const targetUrl = tab ? `/terms?tab=${tab}` : '/terms';
+                window.history.pushState({}, '', targetUrl);
+              }
+              if (tab) setLegalInitialTab(tab);
+              setCurrentWebRoute('legal');
             }}
           />
         </SafeAreaProvider>

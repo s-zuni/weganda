@@ -74,14 +74,14 @@ export const SAJU_CATEGORIES: SajuCategoryItem[] = [
   },
   {
     id: 'wealth',
-    title: '재물 & 수당 재테크',
-    subtitle: '나이트 수당 불리기 · 부동산 문서운',
+    title: '재물 & 맞춤 재테크',
+    subtitle: '사주 기반 재테크 전략 · 부동산 문서운',
     icon: 'cash-multiple',
     themeColor: '#F59E0B', // Amber
     bgLightColor: '#FFFBEB',
-    description: '사주 내 정재(正財)와 편재(偏財)를 분석하여 야간 수당을 목돈으로 불리는 맞춤 재테크 방향을 조언합니다.',
+    description: '사주 내 정재(正財)와 편재(偏財)를 분석하여 타고난 재물 그릇과 최적의 맞춤 자산 증식 로드맵을 설계합니다.',
     topicsCount: 2,
-    highlightTag: '수당 자산 관리',
+    highlightTag: '맞춤 자산 설계',
   },
 ];
 
@@ -237,15 +237,15 @@ export const SAJU_TOPICS: Record<SajuCategoryId, SajuTopicItem[]> = {
   ],
   wealth: [
     {
-      id: 'night_allowance_wealth',
+      id: 'custom_wealth_strategy',
       categoryId: 'wealth',
-      title: '나이트 수당 & 월급 재테크 사주',
-      subtitle: '정재(안정 저축) vs 편재(공격 투자) 맞춤 포트폴리오',
-      badge: '재물 증식',
+      title: '내 사주 기반 맞춤 재테크 전략',
+      subtitle: '타고난 재물 그릇(정재·편재)과 자산 증식 로드맵',
+      badge: '재물 그릇',
       badgeColor: '#F59E0B',
-      tags: ['#재성강약', '#수당재테크', '#목돈만들기'],
-      description: '몸으로 번 소중한 나이트 수당과 상여금이 흩어지지 않고 단단한 자산으로 굳어지는 자산 배분법을 조언합니다.',
-      estimatedReadTime: '약 3분 읽기 (1,300자+)',
+      tags: ['#재물선천성', '#소비성향진단', '#자산증식전략'],
+      description: '사주 내 재성(財星)과 식상(食傷)의 흐름을 분석하여, 내가 돈을 모으는 체질인지 불리는 체질인지 진단하고 맞춤 투자/저축 포트폴리오를 설계합니다.',
+      estimatedReadTime: '약 4분 읽기 (1,500자+)',
     },
     {
       id: 'real_estate_luck',

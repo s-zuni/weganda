@@ -57,7 +57,7 @@ export const IAP_SKUS = {
 export const IAP_CONFIG = {
   subscriptionSku: 'com.weganda.app.premium.monthly',
   trialPeriodDays: 7,
-  storeTermsUrl: 'https://weganda.app/terms/membership',
-  privacyUrl: 'https://weganda.app/privacy',
+  storeTermsUrl: 'https://weganda.kr/terms?tab=paid',
+  privacyUrl: 'https://weganda.kr/terms?tab=privacy',
 } as const;
 

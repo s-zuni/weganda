@@ -16,8 +16,7 @@ import { ELEMENT_COLORS, PillarData } from '../../services/manseryeokService';
 
 export const SajuDetailResultScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { currentManseryeokAnalysis, currentManseryeokReport, selectedTopic } =
-    useFortuneStore();
+  const { currentManseryeokAnalysis, currentManseryeokReport } = useFortuneStore();
 
   if (!currentManseryeokAnalysis || !currentManseryeokReport) {
     return (
@@ -40,6 +39,20 @@ export const SajuDetailResultScreen: React.FC = () => {
   const { pillars, dayMaster, fiveElements, detectedShinsals, daewoon, birthInfo } =
     currentManseryeokAnalysis;
   const report = currentManseryeokReport;
+
+  // 음양(陰陽) 비율 계산
+  const yangCount = [
+    pillars.year.stemYinYang,
+    pillars.year.branchYinYang,
+    pillars.month.stemYinYang,
+    pillars.month.branchYinYang,
+    pillars.day.stemYinYang,
+    pillars.day.branchYinYang,
+    pillars.hour.stemYinYang,
+    pillars.hour.branchYinYang,
+  ].filter((v) => v === '양').length;
+  const yangRatio = Math.round((yangCount / 8) * 100);
+  const yinRatio = 100 - yangRatio;
 
   const handleShare = async () => {
     try {
@@ -131,7 +144,7 @@ export const SajuDetailResultScreen: React.FC = () => {
         <View style={styles.masterBanner}>
           <View style={styles.masterBadgeRow}>
             <View style={styles.masterBadge}>
-              <Ionicons name="medal" size={14} color="#D4A853" />
+              <Ionicons name="medal" size={15} color="#D4A853" />
               <Text style={styles.masterBadgeText}>50년 명인 정밀 사주 감정서</Text>
             </View>
             <Text style={styles.wordCountBadge}>
@@ -154,7 +167,7 @@ export const SajuDetailResultScreen: React.FC = () => {
         {/* 1. 만세력 사주 원국표 (四柱原局) */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionTitleRow}>
-            <Ionicons name="grid" size={18} color="#FF507C" />
+            <Ionicons name="grid" size={20} color="#FF507C" />
             <Text style={styles.sectionHeaderTitle}>만세력 사주 원국표 (四柱原局)</Text>
           </View>
           <Text style={styles.sectionHeaderDesc}>
@@ -170,11 +183,29 @@ export const SajuDetailResultScreen: React.FC = () => {
             </View>
 
             <View style={styles.dayMasterCallout}>
-              <Ionicons name="star" size={16} color="#FF507C" />
+              <Ionicons name="star" size={18} color="#FF507C" />
               <Text style={styles.dayMasterCalloutText}>
                 나를 상징하는 일간(본원):{' '}
                 <Text style={styles.dayMasterHighlight}>{dayMaster.natureTitle}</Text>
               </Text>
+            </View>
+
+            {/* 인포그래픽: 음양 밸런스 듀얼 바 */}
+            <View style={styles.yinYangSection}>
+              <View style={styles.yinYangHeader}>
+                <Text style={styles.yinYangLabel}>음양(陰陽) 에너지 밸런스</Text>
+                <Text style={styles.yinYangRatioText}>
+                  양(陽) {yangRatio}% : 음(陰) {yinRatio}%
+                </Text>
+              </View>
+              <View style={styles.yinYangTrack}>
+                <View
+                  style={[styles.yinYangFillYang, { width: `${yangRatio}%` }]}
+                />
+                <View
+                  style={[styles.yinYangFillYin, { width: `${yinRatio}%` }]}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -182,9 +213,12 @@ export const SajuDetailResultScreen: React.FC = () => {
         {/* 2. 오행 분포 분석 (五行) */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionTitleRow}>
-            <Ionicons name="pie-chart" size={18} color="#10B981" />
+            <Ionicons name="pie-chart" size={20} color="#10B981" />
             <Text style={styles.sectionHeaderTitle}>오행(五行) 에너지 밸런스</Text>
           </View>
+          <Text style={styles.sectionHeaderDesc}>
+            목·화·토·금·수 5가지 기운의 분포율과 과다/결핍 진단
+          </Text>
 
           <View style={styles.fiveElementsCard}>
             {fiveElements.map((el) => (
@@ -223,7 +257,7 @@ export const SajuDetailResultScreen: React.FC = () => {
         {/* 3. 검출된 기운 및 신살 (神煞) */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionTitleRow}>
-            <Ionicons name="flash" size={18} color="#8B5CF6" />
+            <Ionicons name="flash" size={20} color="#8B5CF6" />
             <Text style={styles.sectionHeaderTitle}>사주에 잠재된 특수 기운 & 신살 (神煞)</Text>
           </View>
           <Text style={styles.sectionHeaderDesc}>
@@ -252,13 +286,13 @@ export const SajuDetailResultScreen: React.FC = () => {
                   <Text style={styles.shinsalSummary}>{shinsal.oneLineSummary}</Text>
 
                   <View style={styles.shinsalDetailBox}>
-                    <Text style={styles.shinsalDetailLabel}>병원 임상 발현:</Text>
+                    <Text style={styles.shinsalDetailLabel}>🏥 병원 임상 발현:</Text>
                     <Text style={styles.shinsalDetailText}>{shinsal.hospitalImpact}</Text>
                   </View>
 
-                  <View style={[styles.shinsalDetailBox, { marginTop: 6 }]}>
+                  <View style={[styles.shinsalDetailBox, { marginTop: 8, backgroundColor: '#FFF5F7' }]}>
                     <Text style={[styles.shinsalDetailLabel, { color: '#FF507C' }]}>
-                      처방 조언:
+                      💡 50년 명인 처방 조언:
                     </Text>
                     <Text style={styles.shinsalDetailText}>{shinsal.clinicalAdvice}</Text>
                   </View>
@@ -277,7 +311,7 @@ export const SajuDetailResultScreen: React.FC = () => {
         {/* 4. 10년 대운 흐름표 (大運) */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionTitleRow}>
-            <Ionicons name="calendar" size={18} color="#3B82F6" />
+            <Ionicons name="calendar" size={20} color="#3B82F6" />
             <Text style={styles.sectionHeaderTitle}>10년 대운(大運)의 인생 운로</Text>
           </View>
           <Text style={styles.sectionHeaderDesc}>
@@ -319,10 +353,74 @@ export const SajuDetailResultScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* 5. 50년 명인의 1,000자+ 심층 분석 리포트 본문 */}
+        {/* 5. 주제별 특화 인포그래픽 모듈 */}
+        {(report.topicId === 'custom_wealth_strategy' || report.topicId === 'night_allowance_wealth') && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="wallet" size={20} color="#F59E0B" />
+              <Text style={styles.sectionHeaderTitle}>📊 맞춤 자산 포트폴리오 3분할 인포그래픽</Text>
+            </View>
+            <View style={styles.infographicBox}>
+              <View style={styles.portfolioRatioBar}>
+                <View style={[styles.portfolioSegment, { width: '45%', backgroundColor: '#10B981' }]}>
+                  <Text style={styles.portfolioSegText}>안전자산 45%</Text>
+                </View>
+                <View style={[styles.portfolioSegment, { width: '35%', backgroundColor: '#3B82F6' }]}>
+                  <Text style={styles.portfolioSegText}>배당 ETF 35%</Text>
+                </View>
+                <View style={[styles.portfolioSegment, { width: '20%', backgroundColor: '#FF507C' }]}>
+                  <Text style={styles.portfolioSegText}>건강 20%</Text>
+                </View>
+              </View>
+
+              <View style={styles.portfolioLegendRow}>
+                <View style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
+                  <Text style={styles.legendText}>청약 & 비상금 파킹 (45%)</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: '#3B82F6' }]} />
+                  <Text style={styles.legendText}>미국 S&P 500 배당주 (35%)</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: '#FF507C' }]} />
+                  <Text style={styles.legendText}>체력 & 전문자격 자본 (20%)</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {report.topicId === 'ward_fit' && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="medkit" size={20} color="#FF507C" />
+              <Text style={styles.sectionHeaderTitle}>🏥 병동별 적합도 랭킹 인포그래픽</Text>
+            </View>
+            <View style={styles.infographicBox}>
+              {[
+                { rank: '1위', ward: '응급실 (ER) & 중환자실 (ICU)', score: 98, color: '#FF507C' },
+                { rank: '2위', ward: '일반 병동 (Ward)', score: 86, color: '#3B82F6' },
+                { rank: '3위', ward: '수술실 (OR)', score: 79, color: '#10B981' },
+                { rank: '4위', ward: '외래 / 건강검진센터', score: 65, color: '#9CA3AF' },
+              ].map((item) => (
+                <View key={item.rank} style={styles.wardRankRow}>
+                  <Text style={styles.wardRankText}>{item.rank}</Text>
+                  <Text style={styles.wardNameText}>{item.ward}</Text>
+                  <View style={styles.wardBarTrack}>
+                    <View style={[styles.wardBarFill, { width: `${item.score}%`, backgroundColor: item.color }]} />
+                  </View>
+                  <Text style={[styles.wardScoreText, { color: item.color }]}>{item.score}점</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* 6. 50년 명인의 1,000자+ 심층 분석 리포트 본문 */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionTitleRow}>
-            <Ionicons name="book" size={18} color="#111827" />
+            <Ionicons name="book" size={20} color="#111827" />
             <Text style={styles.sectionHeaderTitle}>50년 명인의 심층 명리학·심리 리포트</Text>
           </View>
 
@@ -348,7 +446,7 @@ export const SajuDetailResultScreen: React.FC = () => {
                 <View style={styles.keyPointsBox}>
                   {section.keyPoints.map((point) => (
                     <View key={point} style={styles.keyPointRow}>
-                      <Ionicons name="checkmark-circle" size={15} color={section.badgeColor} />
+                      <Ionicons name="checkmark-circle" size={17} color={section.badgeColor} />
                       <Text style={styles.keyPointText}>{point}</Text>
                     </View>
                   ))}
@@ -358,20 +456,26 @@ export const SajuDetailResultScreen: React.FC = () => {
           ))}
         </View>
 
-        {/* 6. 명인의 최종 직언 및 행동 수칙 */}
+        {/* 7. 명인의 최종 직언 및 행동 수칙 (시각적 대비 카드) */}
         <View style={styles.directAdviceCard}>
           <View style={styles.directAdviceHeader}>
-            <Ionicons name="alert-circle" size={20} color="#FF507C" />
+            <Ionicons name="alert-circle" size={22} color="#FF507C" />
             <Text style={styles.directAdviceTitle}>{report.directAdvice.title}</Text>
           </View>
 
-          <View style={styles.adviceRow}>
-            <Text style={styles.adviceLabel}>경고(禁忌):</Text>
+          <View style={styles.adviceBlockWarn}>
+            <View style={styles.adviceBlockHeader}>
+              <Ionicons name="close-circle" size={16} color="#EF4444" />
+              <Text style={styles.adviceWarnLabel}>명인의 절대 금기(禁忌)</Text>
+            </View>
             <Text style={styles.adviceWarnText}>{report.directAdvice.warning}</Text>
           </View>
 
-          <View style={[styles.adviceRow, { marginTop: 8 }]}>
-            <Text style={[styles.adviceLabel, { color: '#10B981' }]}>처방(行動):</Text>
+          <View style={styles.adviceBlockAction}>
+            <View style={styles.adviceBlockHeader}>
+              <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+              <Text style={styles.adviceActionLabel}>명인의 즉각 실천(行動)</Text>
+            </View>
             <Text style={styles.adviceActionText}>{report.directAdvice.actionRule}</Text>
           </View>
         </View>
@@ -383,7 +487,7 @@ export const SajuDetailResultScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
             activeOpacity={0.8}
           >
-            <Text style={styles.reselectBtnText}>다른 주제 둘러보기</Text>
+            <Text style={styles.reselectBtnText}>다른 사주 주제 둘러보기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -403,30 +507,30 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   errorTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '800',
     color: '#111827',
     marginTop: 12,
   },
   errorSub: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#6B7280',
     marginTop: 4,
     marginBottom: 20,
   },
   backHomeBtn: {
     backgroundColor: '#FF507C',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingHorizontal: 22,
+    paddingVertical: 14,
+    borderRadius: 14,
   },
   backHomeBtnText: {
     color: '#FFFFFF',
     fontWeight: '700',
-    fontSize: 14,
+    fontSize: 15,
   },
   navHeader: {
-    height: 52,
+    height: 54,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -435,14 +539,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F3F4F6',
   },
   navBtn: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 17,
+    fontWeight: '800',
     color: '#111827',
     flex: 1,
     textAlign: 'center',
@@ -453,97 +557,98 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 50,
+    paddingTop: 18,
+    paddingBottom: 60,
   },
   masterBanner: {
     backgroundColor: '#1B4332', // Deep Green for Master Certificate
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 24,
+    borderRadius: 22,
+    padding: 22,
+    marginBottom: 26,
   },
   masterBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   masterBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(212, 168, 83, 0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    gap: 5,
+    backgroundColor: 'rgba(212, 168, 83, 0.22)',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 7,
   },
   masterBadgeText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
     color: '#D4A853',
   },
   wordCountBadge: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: '#A7F3D0',
   },
   bannerTitle: {
-    fontSize: 22,
-    fontWeight: '800',
+    fontSize: 25,
+    fontWeight: '900',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 10,
+    lineHeight: 33,
   },
   summaryQuote: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#D1FAE5',
-    lineHeight: 19,
+    lineHeight: 22,
     fontStyle: 'italic',
-    marginBottom: 14,
+    marginBottom: 16,
   },
   birthInfoTagRow: {
     flexDirection: 'row',
     gap: 8,
   },
   birthInfoTag: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 8,
-    fontSize: 11,
+    fontSize: 12,
     color: '#FFFFFF',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   sectionContainer: {
-    marginBottom: 24,
+    marginBottom: 26,
   },
   sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     marginBottom: 4,
   },
   sectionHeaderTitle: {
-    fontSize: 17,
+    fontSize: 19,
     fontWeight: '800',
     color: '#111827',
   },
   sectionHeaderDesc: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#6B7280',
-    marginBottom: 12,
-    marginLeft: 24,
+    marginBottom: 14,
+    marginLeft: 28,
   },
   pillarsCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1,
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1.5,
     borderColor: '#E5E7EB',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 3,
   },
   pillarsRow: {
     flexDirection: 'row',
@@ -552,24 +657,24 @@ const styles = StyleSheet.create({
   pillarColumn: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 2,
-    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 3,
+    borderRadius: 14,
   },
   dayMasterColumn: {
     backgroundColor: '#FFF1F4',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#FF507C',
   },
   pillarHeaderTitle: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
     color: '#1F2937',
   },
   pillarHeaderSub: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#9CA3AF',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   stemBox: {
     alignItems: 'center',
@@ -578,91 +683,129 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tenGodText: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: '#4B5563',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   charCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 2,
+    marginBottom: 3,
   },
   hanjaChar: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 20,
+    fontWeight: '900',
     color: '#FFFFFF',
   },
   koreanChar: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
     color: '#111827',
   },
   elementTag: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#6B7280',
-    marginTop: 1,
+    marginTop: 2,
   },
   pillarDivider: {
-    width: '70%',
+    width: '75%',
     height: 1,
     backgroundColor: '#E5E7EB',
-    marginVertical: 10,
+    marginVertical: 12,
   },
   dayMasterCallout: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     backgroundColor: '#FFF1F4',
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 12,
+    padding: 12,
+    borderRadius: 12,
+    marginTop: 14,
   },
   dayMasterCalloutText: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#1F2937',
+    flex: 1,
   },
   dayMasterHighlight: {
     fontWeight: '800',
     color: '#FF507C',
   },
+  yinYangSection: {
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  yinYangHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  yinYangLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#374151',
+  },
+  yinYangRatioText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#1F2937',
+  },
+  yinYangTrack: {
+    height: 10,
+    flexDirection: 'row',
+    borderRadius: 5,
+    overflow: 'hidden',
+    backgroundColor: '#E5E7EB',
+  },
+  yinYangFillYang: {
+    backgroundColor: '#EF4444',
+    height: '100%',
+  },
+  yinYangFillYin: {
+    backgroundColor: '#3B82F6',
+    height: '100%',
+  },
   fiveElementsCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1,
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1.5,
     borderColor: '#E5E7EB',
-    gap: 12,
+    gap: 14,
   },
   elementRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   elementNameWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: 86,
-    gap: 4,
+    width: 96,
+    gap: 6,
   },
   elementDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   elementNameText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     color: '#1F2937',
   },
   elementStatusBadge: {
     backgroundColor: '#F3F4F6',
-    paddingHorizontal: 4,
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: 5,
   },
   statusOver: {
     backgroundColor: '#FEE2E2',
@@ -671,101 +814,101 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E7FF',
   },
   elementStatusText: {
-    fontSize: 9,
-    fontWeight: '700',
+    fontSize: 10,
+    fontWeight: '800',
     color: '#4B5563',
   },
   barTrack: {
     flex: 1,
-    height: 8,
+    height: 10,
     backgroundColor: '#F3F4F6',
-    borderRadius: 4,
+    borderRadius: 5,
     overflow: 'hidden',
   },
   barFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 5,
   },
   percentageText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
     color: '#4B5563',
-    width: 32,
+    width: 40,
     textAlign: 'right',
   },
   shinsalList: {
-    gap: 12,
+    gap: 14,
   },
   shinsalCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
+    borderRadius: 20,
+    padding: 18,
+    borderWidth: 1.5,
     borderColor: '#E5E7EB',
   },
   shinsalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
+    gap: 8,
+    marginBottom: 10,
   },
   shinsalBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 7,
   },
   shinsalBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
   shinsalHanja: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
     color: '#6B7280',
   },
   shinsalTypeTag: {
     marginLeft: 'auto',
     backgroundColor: '#F3F4F6',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
   shinsalTypeTagText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-  shinsalSummary: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 10,
-  },
-  shinsalDetailBox: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 10,
-    padding: 10,
-  },
-  shinsalDetailLabel: {
     fontSize: 11,
     fontWeight: '700',
     color: '#4B5563',
-    marginBottom: 2,
+  },
+  shinsalSummary: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#111827',
+    marginBottom: 12,
+  },
+  shinsalDetailBox: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 12,
+  },
+  shinsalDetailLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#4B5563',
+    marginBottom: 3,
   },
   shinsalDetailText: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#374151',
-    lineHeight: 17,
+    lineHeight: 20,
   },
   emptyShinsalCard: {
     backgroundColor: '#F9FAFB',
-    padding: 16,
-    borderRadius: 14,
+    padding: 18,
+    borderRadius: 16,
     alignItems: 'center',
   },
   emptyShinsalText: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#6B7280',
     textAlign: 'center',
   },
@@ -773,13 +916,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   daewoonItem: {
-    width: 68,
+    width: 74,
     backgroundColor: '#F9FAFB',
-    borderRadius: 14,
-    padding: 12,
+    borderRadius: 16,
+    padding: 14,
     alignItems: 'center',
-    marginRight: 10,
-    borderWidth: 1,
+    marginRight: 12,
+    borderWidth: 1.5,
     borderColor: '#E5E7EB',
   },
   daewoonItemCurrent: {
@@ -788,141 +931,236 @@ const styles = StyleSheet.create({
   },
   currentIndicatorBadge: {
     backgroundColor: '#3B82F6',
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 5,
     marginBottom: 4,
   },
   currentIndicatorText: {
-    fontSize: 8,
-    fontWeight: '700',
+    fontSize: 9,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
   daewoonAge: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#6B7280',
-    fontWeight: '600',
+    fontWeight: '700',
   },
   daewoonAgeCurrent: {
     color: '#1D4ED8',
   },
   daewoonPillar: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '900',
     color: '#111827',
     marginTop: 4,
   },
   daewoonPillarCurrent: {
     color: '#1D4ED8',
   },
+  infographicBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+  },
+  portfolioRatioBar: {
+    flexDirection: 'row',
+    height: 38,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 14,
+  },
+  portfolioSegment: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  portfolioSegText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  portfolioLegendRow: {
+    gap: 8,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  legendText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#374151',
+  },
+  wardRankRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+  },
+  wardRankText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FF507C',
+    width: 28,
+  },
+  wardNameText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1F2937',
+    width: 140,
+  },
+  wardBarTrack: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  wardBarFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  wardScoreText: {
+    fontSize: 13,
+    fontWeight: '800',
+    width: 32,
+    textAlign: 'right',
+  },
   reportSectionCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
+    borderRadius: 22,
+    padding: 20,
+    borderWidth: 1.5,
     borderColor: '#E5E7EB',
-    marginBottom: 16,
+    marginBottom: 18,
   },
   reportSectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
+    gap: 10,
+    marginBottom: 14,
   },
   reportSectionBadge: {
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 7,
   },
   reportSectionBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
   reportSectionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 17,
+    fontWeight: '900',
     color: '#111827',
     flex: 1,
   },
   reportSectionContent: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#374151',
-    lineHeight: 22,
+    lineHeight: 26,
+    fontWeight: '400',
   },
   keyPointsBox: {
     backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    padding: 12,
-    marginTop: 12,
-    gap: 6,
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 14,
+    gap: 8,
   },
   keyPointRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   keyPointText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '700',
     color: '#1F2937',
   },
   directAdviceCard: {
     backgroundColor: '#FFF1F4',
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1.5,
+    borderRadius: 22,
+    padding: 20,
+    borderWidth: 2,
     borderColor: '#FF507C',
-    marginBottom: 24,
+    marginBottom: 26,
   },
   directAdviceHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 12,
+    gap: 8,
+    marginBottom: 14,
   },
   directAdviceTitle: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '900',
     color: '#B91C1C',
   },
-  adviceRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 6,
+  adviceBlockWarn: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
   },
-  adviceLabel: {
-    fontSize: 12,
+  adviceBlockAction: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 14,
+    borderLeftWidth: 4,
+    borderLeftColor: '#10B981',
+  },
+  adviceBlockHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  adviceWarnLabel: {
+    fontSize: 13,
     fontWeight: '800',
     color: '#EF4444',
-    width: 64,
+  },
+  adviceActionLabel: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#10B981',
   },
   adviceWarnText: {
-    flex: 1,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
     color: '#374151',
-    lineHeight: 18,
+    lineHeight: 21,
   },
   adviceActionText: {
-    flex: 1,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
     color: '#065F46',
-    lineHeight: 18,
+    lineHeight: 21,
   },
   footerActions: {
     gap: 12,
   },
   reselectBtn: {
     backgroundColor: '#111827',
-    borderRadius: 16,
-    paddingVertical: 16,
+    borderRadius: 18,
+    paddingVertical: 18,
     alignItems: 'center',
   },
   reselectBtnText: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
 });

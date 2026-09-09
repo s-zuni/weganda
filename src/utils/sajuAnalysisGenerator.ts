@@ -1,4 +1,5 @@
-import { SajuAnalysisResult, ShinsalDetected, FiveElementsRatio } from '../services/manseryeokService';
+import { calculateFourPillars } from 'manseryeok';
+import { SajuAnalysisResult, ShinsalDetected, FiveElementsRatio, HANJA_STEM, HANJA_BRANCH } from '../services/manseryeokService';
 import { SajuTopicItem } from '../mocks/sajuCategories';
 
 export interface AnalysisSection {
@@ -110,9 +111,52 @@ ${primaryShinsal.hospitalImpact}
 
 당신은 반복적이고 정적인 외래 업무나 서류 위주의 부서에 머물면 오히려 기운이 정체되어 우울감과 무기력증을 겪기 쉽습니다. 몸은 고되고 긴박하지만 처치 결과가 즉각적으로 나타나고 위기 대처 역량을 발휘할 수 있는 환경에서 당신의 ${dominantElement.element} 에너지가 꽃을 피웁니다. 만약 현재 일반 병동에 계시다면 액티브한 환자군을 담당하거나 팀의 중간 브릿지 역할을 맡으실 때 직무 만족도가 극대화됩니다.`;
     } else if (topic.id === 'duty_difficulty') {
-      section4Content = `오늘의 일진과 당신의 원국을 대조하면, 오전 듀티와 오후 인수인계 시점에 기운의 교차가 발생합니다.
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      const currentDay = now.getDate();
+      let todayIljinText = '오늘의 일진';
+      try {
+        const todayDetail = calculateFourPillars({
+          year: currentYear,
+          month: currentMonth,
+          day: currentDay,
+          hour: 12,
+          minute: 0,
+          gender: 'female',
+        });
+        const stem = todayDetail.day.heavenlyStem;
+        const branch = todayDetail.day.earthlyBranch;
+        const stemH = HANJA_STEM[stem] || stem;
+        const branchH = HANJA_BRANCH[branch] || branch;
+        todayIljinText = `${stem}${branch}일(${stemH}${branchH}日)`;
+      } catch (e) {
+        todayIljinText = '오늘의 일진';
+      }
 
-특히 인수인계 30분 전 환자 컴플레인이나 돌발 바이탈 변동 이벤트가 발생할 소지가 있으므로, 평소보다 15분 일찍 차팅을 정리하고 주요 오더와 투약 기록을 3중 점검하십시오. 동료 간의 케미 지수는 상위 85%로 매우 양호하니, 혼자 모든 짐을 짊어지려 하지 말고 동기나 차지 간호사에게 적극적으로 업무를 분담(Share)할 때 칼퇴의 문이 열립니다.`;
+      section4Content = `오늘(${currentYear}년 ${currentMonth}월 ${currentDay}일) 우주에 흐르는 기운은 [${todayIljinText}]로, 당신의 원국과 맞물려 생체 리듬과 업무 집중도에 직접적인 파동을 일으킵니다.
+
+1. 오늘의 3대 임상 바이탈 지수:
+• 주사(IV) 및 정밀 처치 집중도: 94점 (손끝 감각이 예리하게 살아나 정맥 확보 성공률 최상)
+• 동료 및 인차지 소통 케미: 88점 (환자 인수인계 시 불필요한 마찰 없이 매끄럽게 전달됨)
+• 칼퇴 및 오버타임 방어 지수: 82점 (오후 인수인계 전 돌발 오더 점검만 주의하면 정시 퇴근 유력)
+
+2. 오늘의 골든 아워 & 주의 시각:
+• 골든 아워: 오전 09:30 ~ 11:30 (두뇌 회전과 투약 처치가 가장 무결점으로 진행되는 시간대)
+• 주의 시각: 인수인계 직전 30분 (차팅 누락 및 보호자 돌발 컴플레인 주의, 더블체크 필수)`;
+    } else if (topic.id === 'custom_wealth_strategy' || topic.id === 'night_allowance_wealth') {
+      section4Content = `당신의 명조에서 재물운을 관장하는 재성(財星)과 식상(食傷)의 흐름을 심층 진단한 맞춤 재테크 전략입니다.
+
+1. 타고난 재물 그릇 (정재 vs 편재 성향):
+당신의 일간 ${dayMaster.natureTitle}은 일확천금이나 무리한 테마 투자를 쫓기보다, 자신의 전문 지식과 임상 노하우를 바탕으로 자산을 차곡차곡 쌓아 올리는 '식신생재(食神生財)' 및 '정재(正財)'형 자산 축적에 훨씬 최적화되어 있습니다. 단기 급등주나 고위험 코인 투자는 원국의 균형을 깨뜨려 수면 장애와 업무 집중도 저하로 직결됩니다.
+
+2. 간호사 특유의 스트레스성 소비 누수 차단:
+3교대 근무와 격무 후 찾아오는 보상 심리로 인해, 배달 음식이나 홧김 쇼핑으로 자금이 새어 나가기 쉬운 취약점이 있습니다. 이를 명리학적으로 '겁재(劫財)의 누수'라 부르는데, 이를 막기 위해서는 급여일 익일 자동으로 분리되는 '강제 적립식 저축 통장' 시스템을 구축해야 합니다.
+
+3. 50년 명리학자의 맞춤 자산 포트폴리오 로드맵:
+• 원금 보존 & 청약 자금 (45%): 주택청약 및 비상금 파킹통장, 안정적 적금으로 심리적 안전판 확보
+• 글로벌 우량 배당 ETF (35%): 미국 S&P 500 및 배당 성장형 자산에 매월 기계식 적립 투자
+• 건강 & 임상 전문성 자본 (20%): 간호 전문 자격(NCLEX/BLS/전문간호사) 및 체력 관리(필라테스/영양제). 내 몸 자체가 가장 강력한 평생 현금 흐름 창출기입니다.`;
     } else if (topic.id === 'colleague_chemistry' || topic.id === 'preceptor_chemistry') {
       const targetName = partnerName || '상대방';
       section4Content = `${targetName}님과의 명조 배합은 겉으로는 무뚝뚝해 보일 수 있으나 속으로는 서로의 부족한 오행을 채워주는 상호보완적 콤비입니다.
