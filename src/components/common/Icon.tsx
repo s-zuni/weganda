@@ -14,7 +14,7 @@ export const FortuneIcon: React.FC<IconProps> = ({
   focused = false,
   ...props
 }) => {
-  const activeColor = focused ? '#FF507C' : color;
+  const activeColor = focused ? (color !== '#6B7280' ? color : '#FF507C') : color;
   return (
     <Svg
       width={size}
@@ -38,7 +38,7 @@ export const FriendsIcon: React.FC<IconProps> = ({
   focused = false,
   ...props
 }) => {
-  const activeColor = focused ? '#FF507C' : color;
+  const activeColor = focused ? (color !== '#6B7280' ? color : '#FF507C') : color;
   return (
     <Svg
       width={size}
@@ -87,7 +87,7 @@ export const StudyIcon: React.FC<IconProps> = ({
   focused = false,
   ...props
 }) => {
-  const activeColor = focused ? '#FF507C' : color;
+  const activeColor = focused ? (color !== '#6B7280' ? color : '#FF507C') : color;
   return (
     <Svg
       width={size}
@@ -111,7 +111,7 @@ export const CommunityIcon: React.FC<IconProps> = ({
   focused = false,
   ...props
 }) => {
-  const activeColor = focused ? '#FF507C' : color;
+  const activeColor = focused ? (color !== '#6B7280' ? color : '#FF507C') : color;
   return (
     <Svg
       width={size}

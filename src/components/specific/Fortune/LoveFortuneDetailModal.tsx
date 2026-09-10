@@ -13,6 +13,7 @@ import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { HeartIcon } from '../../common/Icon';
 import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SajuBirthPicker } from './SajuBirthPicker';
 import { MOCK_LOVE_FORTUNE } from '../../../mocks/fortuneData';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 
@@ -34,6 +35,9 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
   const [partnerDate, setPartnerDate] = useState(partnerInfo.birthDate || '1996-11-20');
   const [partnerTime, setPartnerTime] = useState(partnerInfo.birthTime || '08:15');
   const [partnerMbti, setPartnerMbti] = useState(partnerInfo.mbti || 'ISTJ');
+  const [showDetailPicker, setShowDetailPicker] = useState(false);
+  const [partnerCalendarType, setPartnerCalendarType] = useState<'solar' | 'lunar'>('solar');
+  const [partnerGender, setPartnerGender] = useState<'female' | 'male'>('male');
 
   const handleDateChange = (text: string) => {
     const digits = text.replace(/\D/g, '').slice(0, 8);
@@ -139,46 +143,86 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
               <View>
                 {/* 상대방 정보 입력 폼 */}
                 <View style={styles.inputCard}>
-                  <Text style={styles.inputCardTitle}>상대방 사주 & MBTI 입력</Text>
-                  
-                  <View style={styles.rowInputs}>
-                    <View style={[styles.inputGroup, { flex: 1.2 }]}>
-                      <Text style={styles.inputLabel}>생년월일</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={partnerDate}
-                        onChangeText={handleDateChange}
-                        placeholder="YYYY-MM-DD"
-                        placeholderTextColor={COLORS.textMuted}
-                        keyboardType="numeric"
-                        maxLength={10}
-                      />
-                    </View>
-
-                    <View style={[styles.inputGroup, { flex: 1 }]}>
-                      <Text style={styles.inputLabel}>태어난 시간</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={partnerTime}
-                        onChangeText={setPartnerTime}
-                        placeholder="HH:mm"
-                        placeholderTextColor={COLORS.textMuted}
-                      />
-                    </View>
-
-                    <View style={[styles.inputGroup, { flex: 0.8 }]}>
-                      <Text style={styles.inputLabel}>MBTI</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={partnerMbti}
-                        onChangeText={setPartnerMbti}
-                        placeholder="ISTJ"
-                        placeholderTextColor={COLORS.textMuted}
-                        maxLength={4}
-                        autoCapitalize="characters"
-                      />
-                    </View>
+                  <View style={styles.inputCardHeader}>
+                    <Text style={styles.inputCardTitle}>상대방 사주 & MBTI 입력</Text>
+                    <TouchableOpacity
+                      style={styles.pickerToggleBtn}
+                      onPress={() => setShowDetailPicker(!showDetailPicker)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.pickerToggleText}>
+                        {showDetailPicker ? '간편 입력' : '📅 달력·12시진 선택'}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
+
+                  {showDetailPicker ? (
+                    <View style={{ marginBottom: 12 }}>
+                      <SajuBirthPicker
+                        title="상대방 탄생일시 (달력/시진)"
+                        birthDate={partnerDate}
+                        birthTime={partnerTime}
+                        calendarType={partnerCalendarType}
+                        gender={partnerGender}
+                        onDateChange={setPartnerDate}
+                        onTimeChange={setPartnerTime}
+                        onCalendarTypeChange={setPartnerCalendarType}
+                        onGenderChange={setPartnerGender}
+                        accentColor="#E11D48"
+                      />
+                      <View style={[styles.inputGroup, { marginTop: 12 }]}>
+                        <Text style={styles.inputLabel}>상대방 MBTI (4글자)</Text>
+                        <TextInput
+                          style={styles.input}
+                          value={partnerMbti}
+                          onChangeText={setPartnerMbti}
+                          placeholder="ISTJ"
+                          placeholderTextColor={COLORS.textMuted}
+                          maxLength={4}
+                          autoCapitalize="characters"
+                        />
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={styles.rowInputs}>
+                      <View style={[styles.inputGroup, { flex: 1.2 }]}>
+                        <Text style={styles.inputLabel}>생년월일</Text>
+                        <TextInput
+                          style={styles.input}
+                          value={partnerDate}
+                          onChangeText={handleDateChange}
+                          placeholder="YYYY-MM-DD"
+                          placeholderTextColor={COLORS.textMuted}
+                          keyboardType="numeric"
+                          maxLength={10}
+                        />
+                      </View>
+
+                      <View style={[styles.inputGroup, { flex: 1 }]}>
+                        <Text style={styles.inputLabel}>태어난 시간</Text>
+                        <TextInput
+                          style={styles.input}
+                          value={partnerTime}
+                          onChangeText={setPartnerTime}
+                          placeholder="HH:mm"
+                          placeholderTextColor={COLORS.textMuted}
+                        />
+                      </View>
+
+                      <View style={[styles.inputGroup, { flex: 0.8 }]}>
+                        <Text style={styles.inputLabel}>MBTI</Text>
+                        <TextInput
+                          style={styles.input}
+                          value={partnerMbti}
+                          onChangeText={setPartnerMbti}
+                          placeholder="ISTJ"
+                          placeholderTextColor={COLORS.textMuted}
+                          maxLength={4}
+                          autoCapitalize="characters"
+                        />
+                      </View>
+                    </View>
+                  )}
 
                   <TouchableOpacity style={styles.calcBtn} onPress={handleUpdatePartner} activeOpacity={0.85}>
                     <Text style={styles.calcBtnText}>궁합 다시 분석하기</Text>
@@ -413,7 +457,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: COLORS.textPrimary,
+  },
+  inputCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 10,
+  },
+  pickerToggleBtn: {
+    backgroundColor: '#FFE4E6',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  pickerToggleText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#E11D48',
   },
   rowInputs: {
     flexDirection: 'row',

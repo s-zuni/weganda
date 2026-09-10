@@ -15,6 +15,7 @@ export interface WegandaLogoProps extends SvgProps {
   size?: number;
   variant?: 'full' | 'symbol';
   symbolColor?: string;
+  primaryColor?: string;
   style?: ViewStyle;
 }
 
@@ -27,6 +28,7 @@ export const WegandaLogo: React.FC<WegandaLogoProps> = ({
   size = 32,
   variant = 'full',
   symbolColor,
+  primaryColor,
   style,
   ...props
 }) => {
@@ -43,7 +45,7 @@ export const WegandaLogo: React.FC<WegandaLogoProps> = ({
       >
         <Path
           d="M32.4956 101.15L48.9395 93.829L46.173 55.6538L92.8154 113.701L79.9742 40.6046L125.703 99.0586L122.023 61.2901L127.504 58.8497"
-          stroke={symbolColor || '#FF507C'}
+          stroke={symbolColor || primaryColor || '#FF507C'}
           strokeWidth="14"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -63,10 +65,10 @@ export const WegandaLogo: React.FC<WegandaLogoProps> = ({
       {...props}
     >
       <G clipPath="url(#weganda_clip)">
-        {/* 베이스 비바 코랄 핑크 그라디언트 */}
+        {/* 베이스 비바 코랄 핑크 그라디언트 또는 동적 테마 컬러 */}
         <Path
           d="M124 0H36C16.1177 0 0 16.1177 0 36V124C0 143.882 16.1177 160 36 160H124C143.882 160 160 143.882 160 124V36C160 16.1177 143.882 0 124 0Z"
-          fill="url(#weganda_paint0)"
+          fill={primaryColor || "url(#weganda_paint0)"}
         />
         {/* 소프트 하이라이트 오버레이 */}
         <Path

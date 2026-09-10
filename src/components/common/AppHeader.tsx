@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { COLORS } from '../../constants/theme';
+import { COLORS, useAppTheme } from '../../constants/theme';
 import { BellIcon, UserIcon } from './Icon';
 import { WegandaLogo } from './WegandaLogo';
 import { useHeaderModalStore } from '../../store/useHeaderModalStore';
@@ -27,6 +27,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onPressProfile,
   style,
 }) => {
+  const theme = useAppTheme();
   const {
     notificationModalVisible,
     myPageModalVisible,
@@ -48,8 +49,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           {leftElement || (
             <View>
               <View style={styles.brandRow}>
-                <WegandaLogo size={26} variant="full" />
-                <Text style={styles.brandTitle}>{title}</Text>
+                <WegandaLogo size={26} variant="full" primaryColor={theme.primary} />
+                <Text style={[styles.brandTitle, { color: theme.primary }]}>{title}</Text>
               </View>
               {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
             </View>
@@ -66,7 +67,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <BellIcon size={20} color={COLORS.textPrimary} />
-                {unreadCount > 0 && <View style={styles.unreadDot} />}
+                {unreadCount > 0 && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
               </TouchableOpacity>
 
               {/* 마이페이지 프로필 아이콘 */}

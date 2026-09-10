@@ -21,6 +21,14 @@ export interface PartnerInfo {
   mbti: string;
 }
 
+export interface PartnerBirthData {
+  name?: string;
+  birthDate: string;
+  birthTime: string;
+  calendarType?: 'solar' | 'lunar';
+  gender?: 'female' | 'male';
+}
+
 export interface ColleagueInfo {
   name: string;
   birthDate: string;
@@ -40,6 +48,7 @@ interface FortuneState {
   selectedCategoryId: SajuCategoryId;
   selectedTopic?: SajuTopicItem;
   currentManseryeokAnalysis?: SajuAnalysisResult;
+  currentPartnerAnalysis?: SajuAnalysisResult;
   currentManseryeokReport?: GeneratedSajuReport;
   isAnalyzingManseryeok: boolean;
 
@@ -56,7 +65,7 @@ interface FortuneState {
   runManseryeokAnalysis: (
     topic: SajuTopicItem,
     birthInfo: BirthInfo,
-    partnerData?: { name?: string; birthDate?: string; birthTime?: string }
+    partnerData?: PartnerBirthData
   ) => Promise<GeneratedSajuReport | null>;
   fetchAiFortune: (type?: 'daily' | 'saju' | 'love' | 'career' | 'wealth') => Promise<any>;
   unlockFortune: (type: SubFortuneType) => Promise<boolean>;
@@ -142,8 +151,8 @@ export const useFortuneStore = create<FortuneState>()(
         partnerSaju = manseryeokService.calculateSaju({
           birthDate: partnerData.birthDate,
           birthTime: partnerData.birthTime || '12:00',
-          calendarType: 'solar',
-          gender: 'female',
+          calendarType: partnerData.calendarType || 'solar',
+          gender: partnerData.gender || 'female',
         });
       }
 
@@ -160,6 +169,7 @@ export const useFortuneStore = create<FortuneState>()(
 
       set({
         currentManseryeokAnalysis: userSaju,
+        currentPartnerAnalysis: partnerSaju,
         currentManseryeokReport: report,
         selectedTopic: topic,
         isAnalyzingManseryeok: false,

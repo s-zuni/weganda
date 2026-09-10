@@ -13,11 +13,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useFortuneStore } from '../../store/useFortuneStore';
 import { ELEMENT_COLORS, PillarData } from '../../services/manseryeokService';
+import { SajuTopicInfographic } from '../../components/specific/Fortune';
 
 export const SajuDetailResultScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { currentManseryeokAnalysis, currentManseryeokReport, selectedTopic } =
-    useFortuneStore();
+  const {
+    currentManseryeokAnalysis,
+    currentPartnerAnalysis,
+    currentManseryeokReport,
+    selectedTopic,
+  } = useFortuneStore();
 
   if (!currentManseryeokAnalysis || !currentManseryeokReport) {
     return (
@@ -150,6 +155,13 @@ export const SajuDetailResultScreen: React.FC = () => {
             </Text>
           </View>
         </View>
+
+        {/* 0. 주제별 맞춤 인포그래픽 시각화 */}
+        <SajuTopicInfographic
+          report={report}
+          userSaju={currentManseryeokAnalysis}
+          partnerSaju={currentPartnerAnalysis}
+        />
 
         {/* 1. 만세력 사주 원국표 (四柱原局) */}
         <View style={styles.sectionContainer}>
@@ -840,15 +852,15 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   reportSectionTitle: {
-    fontSize: 15,
+    fontSize: 16.5,
     fontWeight: '800',
     color: '#111827',
     flex: 1,
   },
   reportSectionContent: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#374151',
-    lineHeight: 22,
+    lineHeight: 24,
   },
   keyPointsBox: {
     backgroundColor: '#F9FAFB',
@@ -863,9 +875,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   keyPointText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     color: '#1F2937',
+    lineHeight: 18,
+    flex: 1,
   },
   directAdviceCard: {
     backgroundColor: '#FFF1F4',

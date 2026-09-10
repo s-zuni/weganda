@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { COLORS } from '../../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../../constants/theme';
 import { PencilIcon, BriefcaseIcon } from '../../../common/Icon';
 
 interface DailyNoteSectionProps {
@@ -10,6 +10,7 @@ interface DailyNoteSectionProps {
 export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
   onOpenDailyNoteModal,
 }) => {
+  const theme = useAppTheme();
   return (
     <>
       <Text style={styles.sectionTitle}>데일리 노트</Text>
@@ -20,8 +21,8 @@ export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
           onPress={onOpenDailyNoteModal}
           activeOpacity={0.8}
         >
-          <View style={styles.noteIconWrapper}>
-            <PencilIcon size={24} color="#FFFFFF" />
+          <View style={[styles.noteIconWrapper, { backgroundColor: theme.primary }]}>
+            <PencilIcon size={24} color={theme.onPrimaryText} />
           </View>
           <Text style={styles.noteCardText}>특이사항 기록하기</Text>
         </TouchableOpacity>
@@ -37,8 +38,8 @@ export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
           }
           activeOpacity={0.8}
         >
-          <View style={styles.noteIconWrapper}>
-            <BriefcaseIcon size={24} color="#FFFFFF" />
+          <View style={[styles.noteIconWrapper, { backgroundColor: theme.primary }]}>
+            <BriefcaseIcon size={24} color={theme.onPrimaryText} />
           </View>
           <Text style={styles.noteCardText}>업무 가이드</Text>
         </TouchableOpacity>

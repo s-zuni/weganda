@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useAppTheme } from '../../../../constants/theme';
 import { ChartBarIcon, LockIcon } from '../../../common/Icon';
 import { MOCK_SALARY_PREDICTION } from '../../../../mocks/membership';
 
@@ -12,6 +13,7 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
   isPremium,
   onOpenPaywall,
 }) => {
+  const theme = useAppTheme();
   return (
     <>
       <Text style={styles.sectionTitle}>월급/수당 예측</Text>
@@ -23,8 +25,8 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
         {isPremium ? (
           <>
             <View style={styles.salaryCardHeader}>
-              <View style={styles.salaryIconCircle}>
-                <ChartBarIcon size={22} color="#FFFFFF" />
+              <View style={[styles.salaryIconCircle, { backgroundColor: theme.primary }]}>
+                <ChartBarIcon size={22} color={theme.onPrimaryText} />
               </View>
               <View style={styles.salaryCardTexts}>
                 <Text style={styles.salaryCardTitle}>{MOCK_SALARY_PREDICTION.month}</Text>

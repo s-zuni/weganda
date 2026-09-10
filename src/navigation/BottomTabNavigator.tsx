@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../constants/theme';
+import { COLORS, useAppTheme, ThemeColors } from '../constants/theme';
 import {
   FortuneIcon,
   FriendsIcon,
@@ -29,7 +29,7 @@ export type BottomTabParamList = {
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 // ─── 중앙 FAB 버튼 (Floating Action Button) ────────────────
-const CenterFAB = ({ onPress }: { onPress: () => void }) => (
+const CenterFAB = ({ onPress, theme }: { onPress: () => void; theme: ThemeColors }) => (
   <TouchableOpacity
     style={styles.fabContainer}
     onPress={onPress}
@@ -37,13 +37,14 @@ const CenterFAB = ({ onPress }: { onPress: () => void }) => (
     accessibilityRole="button"
     accessibilityLabel="홈 근무표 대시보드"
   >
-    <View style={styles.fabButton}>
-      <StethoscopeIcon size={28} color="#FFFFFF" />
+    <View style={[styles.fabButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]}>
+      <StethoscopeIcon size={28} color={theme.onPrimaryText} />
     </View>
   </TouchableOpacity>
 );
 
 export const BottomTabNavigator: React.FC = () => {
+  const theme = useAppTheme();
   const insets = useSafeAreaInsets();
   // Safe area bottom inset 고려 + 미존재 기기에서도 Figma 원본 높이(84px) 수준의 쾌적한 높이 확보
   const bottomInset = insets.bottom > 0 ? insets.bottom : 16;
@@ -54,7 +55,7 @@ export const BottomTabNavigator: React.FC = () => {
       initialRouteName="HomeTab"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
+        tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: '#6B7280',
         tabBarStyle: [
           styles.tabBar,
@@ -75,7 +76,7 @@ export const BottomTabNavigator: React.FC = () => {
           tabBarLabel: '운세',
           tabBarAccessibilityLabel: '임상 운세 및 사주',
           tabBarIcon: ({ focused }) => (
-            <FortuneIcon size={24} focused={focused} />
+            <FortuneIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
           ),
         }}
       />
@@ -88,7 +89,7 @@ export const BottomTabNavigator: React.FC = () => {
           tabBarLabel: '친구',
           tabBarAccessibilityLabel: '동기 및 듀티 공유',
           tabBarIcon: ({ focused }) => (
-            <FriendsIcon size={24} focused={focused} />
+            <FriendsIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
           ),
         }}
       />
@@ -101,7 +102,7 @@ export const BottomTabNavigator: React.FC = () => {
           tabBarLabel: '',
           tabBarAccessibilityLabel: '홈 대시보드',
           tabBarButton: (props) => (
-            <CenterFAB onPress={props.onPress as () => void} />
+            <CenterFAB onPress={props.onPress as () => void} theme={theme} />
           ),
         }}
       />
@@ -114,7 +115,7 @@ export const BottomTabNavigator: React.FC = () => {
           tabBarLabel: '학습',
           tabBarAccessibilityLabel: '간호 학습 및 약물 계산',
           tabBarIcon: ({ focused }) => (
-            <StudyIcon size={24} focused={focused} />
+            <StudyIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
           ),
         }}
       />
@@ -127,7 +128,7 @@ export const BottomTabNavigator: React.FC = () => {
           tabBarLabel: '커뮤니티',
           tabBarAccessibilityLabel: '간호사 커뮤니티',
           tabBarIcon: ({ focused }) => (
-            <CommunityIcon size={22} focused={focused} />
+            <CommunityIcon size={22} focused={focused} color={focused ? theme.primary : '#6B7280'} />
           ),
         }}
       />

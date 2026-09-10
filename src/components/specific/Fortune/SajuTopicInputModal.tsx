@@ -12,8 +12,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFortuneStore, BirthInfo } from '../../../store/useFortuneStore';
+import { useFortuneStore, BirthInfo, PartnerBirthData } from '../../../store/useFortuneStore';
 import { SajuTopicItem } from '../../../mocks/sajuCategories';
+import { SajuBirthPicker } from './SajuBirthPicker';
 
 interface SajuTopicInputModalProps {
   visible: boolean;
@@ -21,26 +22,10 @@ interface SajuTopicInputModalProps {
   onClose: () => void;
   onSubmit: (data: {
     birthInfo: BirthInfo;
-    partnerData?: { name?: string; birthDate?: string; birthTime?: string };
+    partnerData?: PartnerBirthData;
   }) => void;
   isLoading?: boolean;
 }
-
-const TIME_SLOTS = [
-  '미상 (시간 모름)',
-  '자시 (23:30 ~ 01:29)',
-  '축시 (01:30 ~ 03:29)',
-  '인시 (03:30 ~ 05:29)',
-  '묘시 (05:30 ~ 07:29)',
-  '진시 (07:30 ~ 09:29)',
-  '사시 (09:30 ~ 11:29)',
-  '오시 (11:30 ~ 13:29)',
-  '미시 (13:30 ~ 15:29)',
-  '신시 (15:30 ~ 17:29)',
-  '유시 (17:30 ~ 19:29)',
-  '술시 (19:30 ~ 21:29)',
-  '해시 (21:30 ~ 23:29)',
-];
 
 export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
   visible,
@@ -62,9 +47,11 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
   // 상대방 정보 (동료 / 프리셉터 / 연인)
   const [partnerName, setPartnerName] = useState('');
   const [partnerBirthDate, setPartnerBirthDate] = useState('1995-10-24');
-  const [partnerBirthTime, setPartnerBirthTime] = useState('미상');
-
-  const [showTimeSlotPicker, setShowTimeSlotPicker] = useState(false);
+  const [partnerBirthTime, setPartnerBirthTime] = useState('12:00');
+  const [partnerCalendarType, setPartnerCalendarType] = useState<'solar' | 'lunar'>('solar');
+  const [partnerGender, setPartnerGender] = useState<'female' | 'male'>(
+    topic?.partnerType === 'partner' ? 'male' : 'female'
+  );
 
   useEffect(() => {
     if (storeBirthInfo.birthDate) {
@@ -86,11 +73,13 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
       isRegistered: true,
     };
 
-    const partnerData = topic.requiresPartner
+    const partnerData: PartnerBirthData | undefined = topic.requiresPartner
       ? {
           name: partnerName.trim() || (topic.partnerType === 'preceptor' ? '프리셉터' : '동료 간호사'),
           birthDate: partnerBirthDate.trim() || '1995-10-24',
           birthTime: partnerBirthTime.trim() || '12:00',
+          calendarType: partnerCalendarType,
+          gender: partnerGender,
         }
       : undefined;
 
@@ -147,191 +136,55 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* 섹션 1: 본인 탄생 정보 */}
-            <View style={styles.sectionCard}>
-              <View style={styles.sectionHeaderRow}>
-                <Ionicons name="person-circle" size={18} color="#FF507C" />
-                <Text style={styles.sectionTitle}>본인 사주 정보</Text>
-                <View style={styles.autoFilledBadge}>
-                  <Text style={styles.autoFilledText}>자동 연동됨</Text>
-                </View>
-              </View>
+            {/* 섹션 1: 본인 탄생 정보 (인터랙티브 캘린더 + 12시진 선택기) */}
+            <SajuBirthPicker
+              title="본인 사주 정보"
+              birthDate={birthDate}
+              birthTime={birthTime}
+              calendarType={calendarType}
+              gender={gender}
+              onDateChange={setBirthDate}
+              onTimeChange={setBirthTime}
+              onCalendarTypeChange={setCalendarType}
+              onGenderChange={setGender}
+              accentColor="#FF507C"
+              isRegistered={storeBirthInfo.isRegistered}
+            />
 
-              {/* 양력 / 음력 선택 */}
-              <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>양력/음력</Text>
-                <View style={styles.toggleGroup}>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleBtn,
-                      calendarType === 'solar' && styles.toggleBtnActive,
-                    ]}
-                    onPress={() => setCalendarType('solar')}
-                  >
-                    <Text
-                      style={[
-                        styles.toggleBtnText,
-                        calendarType === 'solar' && styles.toggleBtnTextActive,
-                      ]}
-                    >
-                      양력 (Solar)
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleBtn,
-                      calendarType === 'lunar' && styles.toggleBtnActive,
-                    ]}
-                    onPress={() => setCalendarType('lunar')}
-                  >
-                    <Text
-                      style={[
-                        styles.toggleBtnText,
-                        calendarType === 'lunar' && styles.toggleBtnTextActive,
-                      ]}
-                    >
-                      음력 (Lunar)
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* 생년월일 */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>생년월일 (YYYY-MM-DD)</Text>
-                <TextInput
-                  style={styles.input}
-                  value={birthDate}
-                  onChangeText={setBirthDate}
-                  placeholder="예: 1996-05-18"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="numbers-and-punctuation"
-                />
-              </View>
-
-              {/* 태어난 시간 */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>태어난 시간 (시:분 또는 지시)</Text>
-                <TouchableOpacity
-                  style={styles.timeSelectBtn}
-                  onPress={() => setShowTimeSlotPicker(!showTimeSlotPicker)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.timeSelectBtnText}>
-                    {birthTime || '시간을 선택하세요'}
-                  </Text>
-                  <Ionicons
-                    name={showTimeSlotPicker ? 'chevron-up' : 'chevron-down'}
-                    size={18}
-                    color="#6B7280"
-                  />
-                </TouchableOpacity>
-
-                {showTimeSlotPicker && (
-                  <View style={styles.slotPickerContainer}>
-                    <ScrollView style={styles.slotPickerScroll} nestedScrollEnabled>
-                      {TIME_SLOTS.map((slot) => (
-                        <TouchableOpacity
-                          key={slot}
-                          style={[
-                            styles.slotItem,
-                            birthTime === slot && styles.slotItemActive,
-                          ]}
-                          onPress={() => {
-                            setBirthTime(slot);
-                            setShowTimeSlotPicker(false);
-                          }}
-                        >
-                          <Text
-                            style={[
-                              styles.slotItemText,
-                              birthTime === slot && styles.slotItemTextActive,
-                            ]}
-                          >
-                            {slot}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-                )}
-              </View>
-
-              {/* 성별 */}
-              <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>성별 (대운 산출 기준)</Text>
-                <View style={styles.toggleGroup}>
-                  <TouchableOpacity
-                    style={[styles.toggleBtn, gender === 'female' && styles.toggleBtnActive]}
-                    onPress={() => setGender('female')}
-                  >
-                    <Text
-                      style={[
-                        styles.toggleBtnText,
-                        gender === 'female' && styles.toggleBtnTextActive,
-                      ]}
-                    >
-                      여성
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.toggleBtn, gender === 'male' && styles.toggleBtnActive]}
-                    onPress={() => setGender('male')}
-                  >
-                    <Text
-                      style={[
-                        styles.toggleBtnText,
-                        gender === 'male' && styles.toggleBtnTextActive,
-                      ]}
-                    >
-                      남성
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-
-            {/* 섹션 2: 상대방 정보 (궁합 관련 주제일 때만) */}
+            {/* 섹션 2: 상대방 정보 (궁합 관련 주제 — 호칭 입력 + 인터랙티브 캘린더 + 12시진 선택기) */}
             {topic.requiresPartner && (
-              <View style={[styles.sectionCard, { marginTop: 14 }]}>
-                <View style={styles.sectionHeaderRow}>
-                  <Ionicons name="people" size={18} color="#10B981" />
-                  <Text style={styles.sectionTitle}>
-                    {topic.partnerLabel || '상대방 정보 입력'}
-                  </Text>
+              <View style={{ marginTop: 16 }}>
+                <View style={styles.partnerNameCard}>
+                  <View style={styles.sectionHeaderRow}>
+                    <Ionicons name="people" size={18} color="#10B981" />
+                    <Text style={styles.sectionTitle}>
+                      {topic.partnerLabel || '상대방 정보 입력'}
+                    </Text>
+                  </View>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>이름 또는 호칭</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={partnerName}
+                      onChangeText={setPartnerName}
+                      placeholder="예: 김민지 선생님, 3년차 차지, 연인"
+                      placeholderTextColor="#9CA3AF"
+                    />
+                  </View>
                 </View>
 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>이름 또는 호칭</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={partnerName}
-                    onChangeText={setPartnerName}
-                    placeholder="예: 김민지 선생님, 3년차 차지"
-                    placeholderTextColor="#9CA3AF"
-                  />
-                </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>생년월일 (YYYY-MM-DD)</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={partnerBirthDate}
-                    onChangeText={setPartnerBirthDate}
-                    placeholder="예: 1995-10-24"
-                    placeholderTextColor="#9CA3AF"
-                    keyboardType="numbers-and-punctuation"
-                  />
-                </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>태어난 시간 (모를 경우 미상)</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={partnerBirthTime}
-                    onChangeText={setPartnerBirthTime}
-                    placeholder="예: 미상 또는 14:00"
-                    placeholderTextColor="#9CA3AF"
+                <View style={{ marginTop: 12 }}>
+                  <SajuBirthPicker
+                    title={`${partnerName ? `${partnerName}님의` : '상대방'} 탄생일시 (달력/시진)`}
+                    birthDate={partnerBirthDate}
+                    birthTime={partnerBirthTime}
+                    calendarType={partnerCalendarType}
+                    gender={partnerGender}
+                    onDateChange={setPartnerBirthDate}
+                    onTimeChange={setPartnerBirthTime}
+                    onCalendarTypeChange={setPartnerCalendarType}
+                    onGenderChange={setPartnerGender}
+                    accentColor="#10B981"
                   />
                 </View>
               </View>
@@ -449,6 +302,13 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 22,
     paddingTop: 16,
+  },
+  partnerNameCard: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   sectionCard: {
     backgroundColor: '#F9FAFB',

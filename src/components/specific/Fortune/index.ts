@@ -11,3 +11,5 @@ export * from './ThemeFortuneGrid';
 export * from './LuckyItemsSection';
 export * from './AdviceCard';
 export * from './SajuTopicInputModal';
+export * from './SajuBirthPicker';
+export * from './SajuTopicInfographic';

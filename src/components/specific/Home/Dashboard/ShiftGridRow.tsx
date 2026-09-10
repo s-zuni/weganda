@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../../constants/theme';
 import { ClockIcon, FortuneIcon } from '../../../common/Icon';
 import { ShiftInfo } from '../../../../types/shift';
 
@@ -29,13 +29,21 @@ export const ShiftGridRow: React.FC<ShiftGridRowProps> = ({
   onQuickSyncCalendar,
   onNavigateFortune,
 }) => {
+  const theme = useAppTheme();
   return (
     <View style={styles.shiftGridRow}>
-      {/* 1. 오늘 근무 컬럼 (코랄 핑크 톤) */}
+      {/* 1. 오늘 근무 컬럼 (테마 톤) */}
       <View style={styles.shiftCol}>
-        <View style={styles.todayCard}>
-          <View style={styles.todayDateBadge}>
-            <Text style={styles.todayDateLabel}>
+        <View style={[
+          styles.todayCard,
+          {
+            backgroundColor: theme.primaryTint,
+            borderColor: theme.primaryMuted,
+            shadowColor: theme.primary,
+          },
+        ]}>
+          <View style={[styles.todayDateBadge, { backgroundColor: theme.primaryLight + '25' }]}>
+            <Text style={[styles.todayDateLabel, { color: theme.primary }]}>
               오늘 ({today.getMonth() + 1}/{today.getDate()}) 근무
             </Text>
           </View>
@@ -78,13 +86,13 @@ export const ShiftGridRow: React.FC<ShiftGridRowProps> = ({
           </View>
         </View>
         <TouchableOpacity
-          style={styles.todayActionBtn}
+          style={[styles.todayActionBtn, { backgroundColor: theme.primary, shadowColor: theme.primary }]}
           onPress={onOpenAlarmModal}
           activeOpacity={0.8}
         >
           <View style={styles.subActionInner}>
-            <ClockIcon size={14} color="#FFFFFF" />
-            <Text style={styles.todayActionText}>알람 맞추기</Text>
+            <ClockIcon size={14} color={theme.onPrimaryText} />
+            <Text style={[styles.todayActionText, { color: theme.onPrimaryText }]}>알람 맞추기</Text>
           </View>
         </TouchableOpacity>
       </View>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../../constants/theme';
 import { SHIFT_TYPES } from '../../../../constants/shiftTypes';
 import { ShiftCode } from '../../../../types/shift';
 
@@ -17,6 +17,7 @@ interface WeeklyCalendarStripProps {
 }
 
 export const WeeklyCalendarStrip: React.FC<WeeklyCalendarStripProps> = ({ weekData }) => {
+  const theme = useAppTheme();
   return (
     <View style={styles.weekCard}>
       <View style={styles.weekStrip}>
@@ -27,9 +28,9 @@ export const WeeklyCalendarStrip: React.FC<WeeklyCalendarStripProps> = ({ weekDa
               <Text style={styles.dayLabel}>{item.day}</Text>
 
               {item.isToday ? (
-                <View style={styles.todayCircle}>
-                  <Text style={styles.todaySubText}>오늘</Text>
-                  <Text style={styles.todayDateText}>{item.date}</Text>
+                <View style={[styles.todayCircle, { backgroundColor: theme.primary }]}>
+                  <Text style={[styles.todaySubText, { color: theme.onPrimaryText }]}>오늘</Text>
+                  <Text style={[styles.todayDateText, { color: theme.onPrimaryText }]}>{item.date}</Text>
                 </View>
               ) : (
                 <Text style={styles.dateText}>{item.date}</Text>

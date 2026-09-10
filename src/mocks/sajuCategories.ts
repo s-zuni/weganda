@@ -239,7 +239,7 @@ export const SAJU_TOPICS: Record<SajuCategoryId, SajuTopicItem[]> = {
     {
       id: 'night_allowance_wealth',
       categoryId: 'wealth',
-      title: '나이트 수당 & 월급 재테크 사주',
+      title: '내 사주 기반 맞춤 재테크 전략',
       subtitle: '정재(안정 저축) vs 편재(공격 투자) 맞춤 포트폴리오',
       badge: '재물 증식',
       badgeColor: '#F59E0B',

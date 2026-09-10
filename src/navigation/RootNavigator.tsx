@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useUserStore } from '../store/useUserStore';
 import AuthNavigator from './AuthNavigator';
 import BottomTabNavigator from './BottomTabNavigator';
-import { AdminScreen } from '../screens/Admin/AdminScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,10 +14,7 @@ export const RootNavigator: React.FC = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
-          <>
-            <Stack.Screen name="Main" component={BottomTabNavigator} />
-            <Stack.Screen name="Admin" component={AdminScreen} />
-          </>
+          <Stack.Screen name="Main" component={BottomTabNavigator} />
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />
         )}
