@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Platform,
+  Linking,
+  Alert,
 } from 'react-native';
 
 // Fallback to inline definitions if imports fail
@@ -36,7 +38,6 @@ import { useUserStore } from '../../store/useUserStore';
 import { InAppPurchaseModal } from '../../components/common/InAppPurchaseModal';
 import { inAppPurchaseService } from '../../services/inAppPurchaseService';
 import { COLORS } from '../../constants/theme';
-import { Alert } from 'react-native';
 
 const BENEFITS = [
   { key: 'theme', title: '앱 커스텀 컬러 설정', description: '딥 그린, 딥 블루, 옐로, 퍼플 등\n나만의 앱 테마 컬러를 설정하세요', freeLimit: '기본 핑크만 사용 가능', iconColor: '#9B51E0', Icon: PaletteIcon },
@@ -95,7 +96,12 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           {/* Header - Absolute position */}
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.closeButton}
+            accessibilityRole="button"
+            accessibilityLabel="닫기"
+          >
             <Text style={styles.closeButtonText}>← 닫기</Text>
           </TouchableOpacity>
 
@@ -163,21 +169,54 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
           <View style={styles.stickyCTA}>
             {!isPremium ? (
               <>
-                <TouchableOpacity style={styles.subscribeButton} onPress={handleSubscribe} activeOpacity={0.85}>
+                <TouchableOpacity
+                  style={styles.subscribeButton}
+                  onPress={handleSubscribe}
+                  activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel="우간다+ 구독하기 (월 7,800원)"
+                >
                   <Text style={styles.subscribeText}>우간다+ 구독하기 (월 7,800원)</Text>
                 </TouchableOpacity>
                 <View style={styles.captionRow}>
                   <Text style={styles.ctaCaption}>첫 7일 무료 • 스토어 계정으로 결제</Text>
                   <Text style={styles.captionDot}>•</Text>
-                  <TouchableOpacity onPress={handleRestorePurchases} disabled={isRestoring}>
+                  <TouchableOpacity
+                    onPress={handleRestorePurchases}
+                    disabled={isRestoring}
+                    accessibilityRole="button"
+                    accessibilityLabel="구매 복원"
+                  >
                     <Text style={styles.restoreText}>
                       {isRestoring ? '복원 중...' : '구매 복원'}
                     </Text>
                   </TouchableOpacity>
                 </View>
+                <View style={styles.legalRow}>
+                  <TouchableOpacity
+                    onPress={() => Linking.openURL('https://weganda.app/terms/membership')}
+                    accessibilityRole="link"
+                    accessibilityLabel="이용약관"
+                  >
+                    <Text style={styles.legalLinkText}>이용약관</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.legalDot}>•</Text>
+                  <TouchableOpacity
+                    onPress={() => Linking.openURL('https://weganda.app/privacy')}
+                    accessibilityRole="link"
+                    accessibilityLabel="개인정보 처리방침"
+                  >
+                    <Text style={styles.legalLinkText}>개인정보 처리방침</Text>
+                  </TouchableOpacity>
+                </View>
               </>
             ) : (
-              <TouchableOpacity style={styles.manageButton} activeOpacity={0.8}>
+              <TouchableOpacity
+                style={styles.manageButton}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="구독 관리"
+              >
                 <Text style={styles.manageText}>구독 관리</Text>
               </TouchableOpacity>
             )}
@@ -340,7 +379,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   bottomSpacer: {
-    height: 120,
+    height: 140,
   },
   stickyCTA: {
     position: 'absolute',
@@ -396,6 +435,22 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  legalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  legalLinkText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    textDecorationLine: 'underline',
+  },
+  legalDot: {
+    fontSize: 12,
+    color: '#D1D5DB',
   },
   manageButton: {
     width: '100%',

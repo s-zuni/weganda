@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   TouchableWithoutFeedback,
+  Linking,
 } from 'react-native';
 import { COLORS } from '../../constants/theme';
 import { CrownIcon } from './Icon';
@@ -38,6 +39,8 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
         style={styles.backdrop}
         activeOpacity={1}
         onPressOut={onClose}
+        accessibilityRole="button"
+        accessibilityLabel="닫기"
       >
         <TouchableWithoutFeedback>
           <View style={styles.sheetContainer}>
@@ -75,6 +78,8 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
                 style={styles.primaryButton}
                 onPress={onSubscribe}
                 activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="우간다+ 구독하기 (월 7,800원)"
               >
                 <Text style={styles.primaryButtonText}>
                   우간다+ 구독하기 (월 7,800원)
@@ -85,11 +90,31 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
                 style={styles.secondaryButton}
                 onPress={onLearnMore}
                 activeOpacity={0.6}
+                accessibilityRole="button"
+                accessibilityLabel="자세히 알아보기"
               >
                 <Text style={styles.secondaryButtonText}>
                   자세히 알아보기 {'>'}
                 </Text>
               </TouchableOpacity>
+
+              <View style={styles.legalRow}>
+                <TouchableOpacity
+                  onPress={() => Linking.openURL('https://weganda.app/terms/membership')}
+                  accessibilityRole="link"
+                  accessibilityLabel="이용약관"
+                >
+                  <Text style={styles.legalLinkText}>이용약관</Text>
+                </TouchableOpacity>
+                <Text style={styles.legalDot}>•</Text>
+                <TouchableOpacity
+                  onPress={() => Linking.openURL('https://weganda.app/privacy')}
+                  accessibilityRole="link"
+                  accessibilityLabel="개인정보 처리방침"
+                >
+                  <Text style={styles.legalLinkText}>개인정보 처리방침</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -196,6 +221,22 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontSize: 15,
     fontWeight: '500',
+  },
+  legalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+  },
+  legalLinkText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    textDecorationLine: 'underline',
+  },
+  legalDot: {
+    fontSize: 12,
+    color: '#D1D5DB',
   },
 });
 

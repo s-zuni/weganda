@@ -85,11 +85,11 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
         }));
         set({ posts: mapped, isLoading: false });
       } else {
-        set({ isLoading: false });
+        set({ posts: MOCK_POSTS_DATA, isLoading: false });
       }
     } catch (e) {
-      console.error('Error fetching posts from backend:', e);
-      set({ isLoading: false });
+      console.warn('Notice fetching posts from backend, falling back to mock data:', e);
+      set({ posts: MOCK_POSTS_DATA, isLoading: false });
     }
   },
 

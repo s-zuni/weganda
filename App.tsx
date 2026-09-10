@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { LandingScreen } from './src/screens/Landing/LandingScreen';
 import { AdminScreen } from './src/screens/Admin/AdminScreen';
 import { useUserStore } from './src/store/useUserStore';
 import { supabase } from './src/services/supabase';
-import { COLORS } from './src/constants/theme';
 import ErrorBoundary from './src/components/common/ErrorBoundary';
+import SplashScreenView from './src/components/common/SplashScreenView';
+import { crashLogger } from './src/services/crashLogger';
 
 export default function App() {
   const initializeAuth = useUserStore((state) => state.initializeAuth);
@@ -35,8 +36,10 @@ export default function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
+        crashLogger.setUserId(session.user.id);
         await syncUserFromSession(session);
       } else if (event === 'SIGNED_OUT') {
+        crashLogger.setUserId(null);
         clearUser();
       }
     });
@@ -109,9 +112,7 @@ export default function App() {
       <StatusBar style="dark" />
       <ErrorBoundary>
         {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={COLORS.primary} />
-          </View>
+          <SplashScreenView />
         ) : (
           <RootNavigator />
         )}
@@ -120,11 +121,3 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

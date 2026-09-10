@@ -30,7 +30,13 @@ const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 // ─── 중앙 FAB 버튼 (Floating Action Button) ────────────────
 const CenterFAB = ({ onPress }: { onPress: () => void }) => (
-  <TouchableOpacity style={styles.fabContainer} onPress={onPress} activeOpacity={0.85}>
+  <TouchableOpacity
+    style={styles.fabContainer}
+    onPress={onPress}
+    activeOpacity={0.85}
+    accessibilityRole="button"
+    accessibilityLabel="홈 근무표 대시보드"
+  >
     <View style={styles.fabButton}>
       <StethoscopeIcon size={28} color="#FFFFFF" />
     </View>
@@ -67,6 +73,7 @@ export const BottomTabNavigator: React.FC = () => {
         component={FortuneStackNavigator}
         options={{
           tabBarLabel: '운세',
+          tabBarAccessibilityLabel: '임상 운세 및 사주',
           tabBarIcon: ({ focused }) => (
             <FortuneIcon size={24} focused={focused} />
           ),
@@ -79,6 +86,7 @@ export const BottomTabNavigator: React.FC = () => {
         component={FriendsScreen}
         options={{
           tabBarLabel: '친구',
+          tabBarAccessibilityLabel: '동기 및 듀티 공유',
           tabBarIcon: ({ focused }) => (
             <FriendsIcon size={24} focused={focused} />
           ),
@@ -91,6 +99,7 @@ export const BottomTabNavigator: React.FC = () => {
         component={DashboardScreen}
         options={{
           tabBarLabel: '',
+          tabBarAccessibilityLabel: '홈 대시보드',
           tabBarButton: (props) => (
             <CenterFAB onPress={props.onPress as () => void} />
           ),
@@ -103,6 +112,7 @@ export const BottomTabNavigator: React.FC = () => {
         component={StudyScreen}
         options={{
           tabBarLabel: '학습',
+          tabBarAccessibilityLabel: '간호 학습 및 약물 계산',
           tabBarIcon: ({ focused }) => (
             <StudyIcon size={24} focused={focused} />
           ),
@@ -115,6 +125,7 @@ export const BottomTabNavigator: React.FC = () => {
         component={CommunityScreen}
         options={{
           tabBarLabel: '커뮤니티',
+          tabBarAccessibilityLabel: '간호사 커뮤니티',
           tabBarIcon: ({ focused }) => (
             <CommunityIcon size={22} focused={focused} />
           ),

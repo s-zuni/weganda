@@ -35,7 +35,8 @@
         "android.permission.WRITE_CALENDAR",
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.POST_NOTIFICATIONS"
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "plugins": [
@@ -62,6 +63,12 @@
           "photosPermission": "근무표 이미지 업로드 및 커뮤니티 사진 첨부를 위해 사진 라이브러리 접근 권한이 필요합니다."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5ac5c519-0cdd-4ba7-9f05-27d7bf82a317"
+      }
+    },
+    "owner": "szuni"
   }
 }

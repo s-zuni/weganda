@@ -1,5 +1,7 @@
 import { supabase } from './supabase';
 import { ShiftCode } from '../constants/shiftTypes';
+import { useUserStore } from '../store/useUserStore';
+import { MOCK_FRIENDS_DETAILS } from '../mocks/friendsData';
 
 export interface FriendItem {
   id: string; // friendship id
@@ -24,6 +26,21 @@ export interface MatchingOffDay {
 export const friendsApi = {
   // 내 친구 목록 조회 (FR1)
   async getFriends(userId: string): Promise<FriendItem[]> {
+    if (userId === 'guest_user_preview' || useUserStore.getState().isGuest) {
+      return MOCK_FRIENDS_DETAILS.map((f) => ({
+        id: f.id,
+        friendUserId: f.id,
+        name: f.name,
+        nickname: f.name,
+        hospital: f.hospital,
+        ward: f.ward,
+        experienceYears: 3,
+        isFavorite: f.isFavorite,
+        todayShift: f.todayShift,
+        matchingOffDaysCount: f.matchingOffDaysCount,
+      }));
+    }
+
     // 1. 내가 requester이거나 addressee인 수락된(accepted) 관계 조회
     const { data: friendships, error } = await supabase
       .from('friendships')

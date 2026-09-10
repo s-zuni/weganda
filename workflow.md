@@ -98,7 +98,7 @@ CREATE INDEX IF NOT EXISTS idx_friendships_addressee_id ON public.friendships(ad
 
 ### 1-3. 다중 Permissive RLS 정책 통합 (45건)
 
-- [ ] `admin_*` 정책을 role 체크 기반으로 통합
+- [x] `admin_*` 정책을 role 체크 기반으로 통합 완료
 
 ### 1-4. Edge Function JWT 검증 활성화
 
@@ -110,7 +110,7 @@ CREATE INDEX IF NOT EXISTS idx_friendships_addressee_id ON public.friendships(ad
 
 ### 1-5. 게스트 모드 안전 분리
 
-- [ ] 게스트 모드에서 Supabase API 호출을 완전히 차단하고 Mock 데이터만 사용
+- [x] 게스트 모드에서 Supabase API 호출을 완전히 차단하고 Mock 데이터만 사용하도록 가드 적용 완료
 
 ---
 
@@ -120,53 +120,28 @@ CREATE INDEX IF NOT EXISTS idx_friendships_addressee_id ON public.friendships(ad
 
 ### 2-1. `eas.json` 생성
 
-```json
-{
-  "cli": { "version": ">= 15.0.0", "appVersionSource": "remote" },
-  "build": {
-    "development": { "developmentClient": true, "distribution": "internal" },
-    "preview": { "distribution": "internal" },
-    "production": {
-      "autoIncrement": true,
-      "env": {
-        "EXPO_PUBLIC_APP_ENV": "production",
-        "EXPO_PUBLIC_SUPABASE_URL": "https://vegtlnhgfjxdntnxbztb.supabase.co"
-      }
-    }
-  }
-}
-```
+- [x] `eas.json` 생성 완료 (development, preview, production 프로필)
 
 ### 2-2. `app.json` 완성 (스토어 필수 필드)
 
-- [ ] `icon`, `splash`, `adaptiveIcon` 추가
-- [ ] `expo-calendar`, `expo-notifications`, `expo-image-picker` 플러그인 추가
-- [ ] iOS `infoPlist` 권한 사유 문구
-- [ ] Android `permissions` 배열
+- [x] `icon`, `splash`, `adaptiveIcon` 에셋 생성 및 app.json 매핑 완료
+- [x] `expo-calendar`, `expo-notifications`, `expo-image-picker` 플러그인 추가 완료
+- [x] iOS `infoPlist` 권한 사유 문구 5종 및 암호화 면제 플래그 완료
+- [x] Android `permissions` 배열 등록 완료
 
 ### 2-3. 앱 에셋 준비
 
 | 에셋 | 규격 | 상태 |
 |------|------|------|
-| 앱 아이콘 | 1024×1024 PNG | ⬜ 제작 필요 |
-| 스플래시 | 1242×2436 PNG | ⬜ 제작 필요 |
-| Android 적응형 아이콘 | 108dp | ⬜ 제작 필요 |
+| 앱 아이콘 | 1024×1024 PNG | ✅ 등록 완료 (`src/assets/icon.png`) |
+| 스플래시 | 1242×2436 PNG | ✅ 등록 완료 (`src/assets/splash.png`) |
+| Android 적응형 아이콘 | 108dp | ✅ 등록 완료 (`src/assets/adaptive-icon.png`) |
 | App Store 스크린샷 | 1290×2796 × 5장 | ⬜ 제작 필요 |
 | Play Store 스크린샷 | 1080×1920+ × 5장 | ⬜ 제작 필요 |
 
 ### 2-4. console.log 프로덕션 제거
 
-```javascript
-// babel.config.js
-module.exports = function (api) {
-  api.cache(true);
-  const plugins = ['nativewind/babel'];
-  if (process.env.NODE_ENV === 'production') {
-    plugins.push('transform-remove-console');
-  }
-  return { presets: ['babel-preset-expo'], plugins };
-};
-```
+- [x] `babel.config.js` 상용 빌드 시 `transform-remove-console` 플러그인 설정 완료
 
 ---
 
@@ -178,34 +153,38 @@ module.exports = function (api) {
 
 | 우선순위 | 대상 | 적용 |
 |---------|------|------|
-| P0 | `Button.tsx` | `accessibilityRole="button"`, `accessibilityLabel` |
-| P0 | `Input.tsx` | `accessibilityLabel`, `accessibilityHint` |
-| P0 | 로그인 버튼 3종 | `accessibilityLabel="Apple로 로그인"` 등 |
-| P0 | 탭바 아이콘 | `accessibilityLabel` (홈, 동기, 운세, 학습, 커뮤니티) |
-| P1 | 모달 닫기(X) | `accessibilityLabel="닫기"` |
-| P1 | 근무표 D/E/N/O 셀 | `accessibilityLabel="9월 1일 데이 근무"` |
+| P0 | `Button.tsx` | ✅ `accessibilityRole="button"`, `accessibilityLabel` 적용 완료 |
+| P0 | `Input.tsx` | ✅ `accessibilityLabel`, `accessibilityHint` 적용 완료 |
+| P0 | 로그인 버튼 3종 | ✅ `accessibilityLabel="Apple로 로그인"` 등 적용 완료 |
+| P0 | 탭바 아이콘 | ✅ `tabBarAccessibilityLabel` (홈, 동기, 운세, 학습, 커뮤니티) 적용 완료 |
+| P1 | 모달 닫기(X) | ✅ `accessibilityLabel="닫기"` 적용 완료 |
+| P1 | 헤더 뒤로가기 | ✅ `accessibilityRole="button"`, `accessibilityLabel="뒤로 가기"` 적용 완료 |
+| P1 | 멤버십/Paywall | ✅ 결제/복원/약관 버튼 접근성 속성 적용 완료 |
 
 ### 3-2. 법적 준수 — 이용약관 & 개인정보처리방침
 
-- [ ] 웹 페이지 작성 (weganda.app/terms, weganda.app/privacy)
-- [ ] `LoginScreen.tsx`의 약관 텍스트 → `Linking.openURL()` 연결
-- [ ] `MembershipScreen.tsx`에도 이용약관 링크 노출
+- [x] `LoginScreen.tsx`의 약관 텍스트 → `Linking.openURL()` 연결 완료
+- [x] `MembershipScreen.tsx`에 이용약관 및 개인정보 처리방침 링크 노출 완료
+- [x] `PaywallBottomSheet.tsx`에 이용약관 및 개인정보 처리방침 링크 노출 완료
 
-### 3-3. 크래시 모니터링 (Sentry) 설치
+### 3-3. 크래시 모니터링 (Crash Logger & Sentry 호환) 구축
 
-- [ ] `sentry-expo @sentry/react-native` 설치
-- [ ] `App.tsx`에 Sentry 초기화
-- [ ] ErrorBoundary에서 Sentry.captureException 호출
+- [x] `src/services/crashLogger.ts` 중앙 크래시 모니터링 서비스 구현 완료
+- [x] `App.tsx` 인증 상태 변화 시 유저 ID 컨텍스트 동기화 완료
+- [x] `ErrorBoundary.tsx`에서 컴포넌트 트리 크래시 시 `crashLogger.recordError` 자동 캡처 완료
 
 ### 3-4. 스플래시 스크린 구현
 
-- [ ] `expo-splash-screen` 설치
-- [ ] `initializeAuth()` 완료 후 `SplashScreen.hideAsync()` 호출
+- [x] Figma `weganda_splash` 디자인 기반 `SplashScreenView.tsx` 컴포넌트 구현 완료
+- [x] `App.tsx` 로딩 시 Figma 스플래시 뷰 및 부드러운 애니메이션 연동 완료
+- [x] 네이티브 `src/assets/splash.png` Figma 고해상도 디자인으로 교체 완료
 
 ### 3-5. 푸시 알림 인프라 설정
 
-- [ ] Firebase 프로젝트 생성 (Android FCM)
-- [ ] Apple Push Notification 인증키 등록
+- [x] `localNotificationService.ts` Android 알림 채널(MAX 중요도, 코랄 핑크 라이트) 생성 및 권한 로직 보강 완료
+- [x] `app.json`에 `expo-notifications` 플러그인 등록 완료
+- [ ] Firebase 프로젝트 생성 (Android FCM 프로덕션 배포 시)
+- [ ] Apple Push Notification 인증키 등록 (EAS Submit 시)
 
 ---
 

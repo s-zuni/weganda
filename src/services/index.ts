@@ -10,4 +10,5 @@ export * from './fortuneApi';
 export * from './ocrApi';
 export * from './aiChatApi';
 export * from './chatApi';
-
+export * from './localNotificationService';
+export * from './crashLogger';

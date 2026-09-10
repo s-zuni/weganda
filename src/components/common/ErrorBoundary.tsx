@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { crashLogger } from '../../services/crashLogger';
 
 export interface Props {
   children: ReactNode;
@@ -30,7 +31,9 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('[ErrorBoundary] Unhandled error caught in component tree:', error, errorInfo);
+    crashLogger.recordError(error, {
+      componentStack: errorInfo.componentStack || undefined,
+    });
   }
 
   handleRestart = (): void => {

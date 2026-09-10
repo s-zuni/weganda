@@ -12,3 +12,4 @@ export * from './TossPaymentWebView';
 export * from './InAppPurchaseModal';
 export * from './SwipeableBottomSheet';
 export * from './ErrorBoundary';
+export * from './SplashScreenView';

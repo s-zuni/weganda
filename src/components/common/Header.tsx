@@ -21,7 +21,12 @@ export const Header: React.FC<HeaderProps> = ({
     <View style={[styles.container, style]}>
       <View style={styles.sideContainer}>
         {onBack ? (
-          <TouchableOpacity onPress={onBack} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <TouchableOpacity
+            onPress={onBack}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="뒤로 가기"
+          >
             <Text style={styles.backText}>‹</Text>
           </TouchableOpacity>
         ) : (
