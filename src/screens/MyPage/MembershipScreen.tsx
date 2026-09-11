@@ -46,7 +46,7 @@ const BENEFITS = [
   { key: 'fortune', title: '사주 서비스 무제한 제공', description: '매달 횟수 제한 없이\n간호 운세와 정밀 사주를 확인하세요', freeLimit: '월 5회 제한', iconColor: '#FF507C', Icon: FortuneIcon },
   { key: 'salary', title: '야간/휴일 수당 및 월급 예측기', description: 'D/E/N 근무 패턴 기반으로\n다음 달 예상 월급을 자동 계산해요', freeLimit: 'weganda+ 전용', iconColor: '#F59E0B', Icon: ChartBarIcon },
   { key: 'ai', title: '약물 계산기 & Ask AI 무제한', description: '복잡한 약물 용량 계산 프리셋과\nAI 임상 어시스턴트를 무제한 사용', freeLimit: '일일 3회 제한', iconColor: '#3B82F6', Icon: BotIcon },
-  { key: 'calendar', title: '무제한 교집합 캘린더 & AI 모임 추천', description: '친구 수 제한 없이 듀티를 공유하고\nAI가 최적의 모임 날짜를 추천해드려요', freeLimit: '최대 3명 동기화', iconColor: '#10B981', Icon: CalendarIcon },
+  { key: 'burnout', title: '스마트 듀티 건강 & 번아웃 위험도 AI 분석', description: 'N-O-D 패턴, 수면 부채, 연속 근무 피로도를\nAI가 분석하여 회복 골든타임을 알려드려요', freeLimit: 'weganda+ 전용', iconColor: '#10B981', Icon: ShieldCheckIcon },
 ];
 
 export interface MembershipScreenProps {
@@ -306,15 +306,29 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
                 </View>
                 <View style={[styles.legalRow, { marginTop: 4 }]}>
                   <TouchableOpacity
-                    onPress={() => Linking.openURL('https://weganda.app/terms/membership')}
+                    onPress={() => {
+                      const url = 'https://weganda.kr/membership';
+                      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                        window.open(url, '_blank');
+                      } else {
+                        Linking.openURL(url).catch((err) => console.warn(err));
+                      }
+                    }}
                     accessibilityRole="link"
-                    accessibilityLabel="이용약관"
+                    accessibilityLabel="멤버십 이용약관"
                   >
-                    <Text style={styles.legalLinkText}>이용약관</Text>
+                    <Text style={styles.legalLinkText}>멤버십 이용약관</Text>
                   </TouchableOpacity>
                   <Text style={styles.legalDot}>•</Text>
                   <TouchableOpacity
-                    onPress={() => Linking.openURL('https://weganda.app/privacy')}
+                    onPress={() => {
+                      const url = 'https://weganda.kr/privacy';
+                      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                        window.open(url, '_blank');
+                      } else {
+                        Linking.openURL(url).catch((err) => console.warn(err));
+                      }
+                    }}
                     accessibilityRole="link"
                     accessibilityLabel="개인정보 처리방침"
                   >

@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   Linking,
+  Platform,
 } from 'react-native';
 import { COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
@@ -206,7 +207,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             계속 진행함으로써 우간다의{' '}
             <Text
               style={styles.legalLink}
-              onPress={() => Linking.openURL('https://weganda.app/terms')}
+              onPress={() => {
+                const url = 'https://weganda.kr/terms';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
               accessibilityRole="link"
               accessibilityLabel="서비스 이용약관"
             >
@@ -215,7 +223,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             및{' '}
             <Text
               style={styles.legalLink}
-              onPress={() => Linking.openURL('https://weganda.app/privacy')}
+              onPress={() => {
+                const url = 'https://weganda.kr/privacy';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
               accessibilityRole="link"
               accessibilityLabel="개인정보 처리방침"
             >

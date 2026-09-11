@@ -559,7 +559,14 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
 
             <TouchableOpacity
               style={styles.policyRow}
-              onPress={() => Linking.openURL('https://weganda.app/terms')}
+              onPress={() => {
+                const url = 'https://weganda.kr/terms';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
               activeOpacity={0.7}
               accessibilityRole="link"
               accessibilityLabel="서비스 이용약관"
@@ -572,7 +579,14 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
 
             <TouchableOpacity
               style={styles.policyRow}
-              onPress={() => Linking.openURL('https://weganda.app/privacy')}
+              onPress={() => {
+                const url = 'https://weganda.kr/privacy';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
               activeOpacity={0.7}
               accessibilityRole="link"
               accessibilityLabel="개인정보 처리방침"
@@ -585,12 +599,39 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
 
             <TouchableOpacity
               style={styles.policyRow}
-              onPress={() => Linking.openURL('https://weganda.app/terms/membership')}
+              onPress={() => {
+                const url = 'https://weganda.kr/membership';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
               activeOpacity={0.7}
               accessibilityRole="link"
               accessibilityLabel="우간다+ 멤버십 이용약관"
             >
               <Text style={styles.policyLabel}>우간다+ 멤버십 이용약관</Text>
+              <Text style={styles.policyArrow}>›</Text>
+            </TouchableOpacity>
+
+            <View style={styles.policyDivider} />
+
+            <TouchableOpacity
+              style={styles.policyRow}
+              onPress={() => {
+                const url = 'https://weganda.kr/community';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
+              activeOpacity={0.7}
+              accessibilityRole="link"
+              accessibilityLabel="커뮤니티 이용약관"
+            >
+              <Text style={styles.policyLabel}>커뮤니티 이용약관</Text>
               <Text style={styles.policyArrow}>›</Text>
             </TouchableOpacity>
           </View>

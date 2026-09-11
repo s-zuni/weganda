@@ -18,6 +18,7 @@ import {
   CalendarIcon,
   CommentIcon,
 } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
 interface FriendProfileModalProps {
   visible: boolean;
@@ -52,14 +53,9 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
-
-          {/* 헤더 */}
-          <View style={styles.header}>
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height="90%" maxHeight="92%">
+      {/* 헤더 */}
+      <View style={styles.header}>
             <View style={styles.headerTitleRow}>
               <Text style={styles.headerTitle}>동기 프로필</Text>
               <TouchableOpacity
@@ -244,9 +240,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
               </TouchableOpacity>
             </View>
           </ScrollView>
-        </View>
-      </View>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

@@ -99,17 +99,42 @@ function generateLocalClinicalAnswer(question: string): string {
 
 ⚠️ 구두/전화 처방(V.O) 수령 시 반드시 복창(Read-back)하여 투약 오류를 예방하세요.`;
   }
-  return `대학병원 20년 경력 임상 간호 슈퍼바이저 AI 멘토입니다. 🩺
-질문하신 "${question}"에 대한 핵심 임상 가이드입니다:
+  if (
+    q.includes('가기 싫') ||
+    q.includes('힘들') ||
+    q.includes('지쳐') ||
+    q.includes('퇴근') ||
+    q.includes('혼났') ||
+    q.includes('실수') ||
+    q.includes('우울') ||
+    q.includes('슬퍼') ||
+    q.includes('배고파') ||
+    q.includes('놀고') ||
+    q.includes('안녕')
+  ) {
+    return `우리 선생님, 오늘 마음이 많이 무겁고 지치셨군요. ☕
 
-1. 투약 5대 원칙(5 Rights) 준수:
-   - 정확한 환자(Right Patient), 약물(Right Drug), 용량(Right Dose), 경로(Right Route), 시간(Right Time)
-2. 활력징후(V/S) 및 의식 사정:
-   - 처치 전후 환자의 기본 생체 징후와 통증, 부작용 징후를 면밀히 모니터링하세요.
-3. 원내 프로토콜 교차 확인:
-   - 고위험 약물 및 침습적 처치는 프리셉터 또는 동료 간호사와 2인 더블 체크를 진행하세요.
+3교대 근무와 숨 가쁜 병동 환경에서 늘 최선을 다하고 계시는 것만으로도 정말 대단하고 귀한 일을 해내고 계신 겁니다. 저도 임상에 있을 때 출근길 발걸음이 떨어지지 않던 수많은 날들이 생생하게 기억나네요.
 
-⚠️ 본 답변은 임상 실무 참고용이며, 최종 처치는 주치의 처방과 원내 임상 지침을 준수해야 합니다.`;
+잠시 깊게 심호흡 한번 하시고 따뜻한 차 한 잔으로 마음을 달래보세요.
+
+혹시 오늘 근무 중 처치가 까다로운 환자나 인수인계에서 마음에 걸리는 부분이 있으신가요? 투약 계산이나 처치 프로토콜 등 도움이 필요한 임상 질문이 있다면 언제든 편하게 물어보세요. 제가 든든하게 도와드릴게요. 🩺`;
+  }
+
+  return `선생님, 질문해 주신 내용에 대해 안내해 드릴게요. 🩺
+
+임상 현장에서 환자 케어를 진행하실 때는 항상 다음 3가지 핵심 원칙을 기본으로 점검하시는 것이 가장 안전합니다:
+
+1. 투약 5대 원칙(5 Rights):
+   - 정확한 환자, 약물, 용량, 경로, 시간 확인
+2. 처치 전후 활력징후(V/S) 및 환자 반응 사정:
+   - 통증, 호흡 양상, 급성 부작용 징후 면밀 관찰
+3. 고위험 처치 시 동료와의 2인 교차 확인:
+   - 인슐린, 고위험 수액, 마약류 등은 더블 체크 필수
+
+더 구체적인 약물, 처치 프로토콜, 의무기록(SBAR) 등에 대해 궁금하신 점이 있다면 언제든 편하게 질문해 주세요!
+
+💡 본 답변은 표준 임상 참고용이며, 실제 처치는 주치의 처방과 원내 표준 지침을 준수해 주세요.`;
 }
 
 export const aiChatApi = {
@@ -135,7 +160,10 @@ export const aiChatApi = {
           };
         }
 
-        return data as { answer: string; createdAt: string };
+        return {
+          answer: data.answer.replace(/\*\*/g, ''),
+          createdAt: data.createdAt || new Date().toISOString(),
+        };
       });
     } catch (e) {
       console.warn('Network exception in askClinicalQuestion, using local clinical engine:', e);

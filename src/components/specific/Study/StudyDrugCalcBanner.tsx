@@ -19,7 +19,7 @@ export const StudyDrugCalcBanner: React.FC<StudyDrugCalcBannerProps> = ({ onPres
           <CalculatorIcon size={22} color="#FFFFFF" />
         </View>
         <View style={styles.calcTexts}>
-          <Text style={styles.calcTitle}>💊 🧮 임상 약물 gtt / cc 계산기</Text>
+          <Text style={styles.calcTitle}>🧮 임상 약물 gtt / cc 계산기</Text>
           <Text style={styles.calcSub}>승압제 · 수액 처방 용량(mcg) ↔ 주입 속도 환산</Text>
         </View>
       </View>

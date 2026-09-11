@@ -17,16 +17,14 @@ import { GroupChat } from '../../../types/friends';
 
 interface GroupsTabProps {
   groupChats: GroupChat[];
-  isPremium: boolean;
+  isPremium?: boolean;
   onOpenGroup: (group: GroupChat) => void;
-  onOpenPaywall: () => void;
+  onOpenPaywall?: () => void;
 }
 
 export const GroupsTab: React.FC<GroupsTabProps> = ({
   groupChats,
-  isPremium,
   onOpenGroup,
-  onOpenPaywall,
 }) => {
   return (
     <View style={styles.groupContainer}>
@@ -108,33 +106,20 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
         </View>
       )}
 
-      {/* AI 모임 날짜 추천 (weganda+ 전용) */}
+      {/* AI 모임 날짜 추천 (전면 무료) */}
       <TouchableOpacity
-        style={[
-          styles.aiRecommendBtn,
-          !isPremium && styles.aiRecommendBtnLocked,
-        ]}
+        style={styles.aiRecommendBtn}
         onPress={() => {
-          if (isPremium) {
-            Alert.alert(
-              'AI 모임 날짜 추천',
-              '최적의 공통 오프 날짜를 분석 중입니다...\n\n추천 날짜: 9월 15일 (목) 휴무'
-            );
-          } else {
-            onOpenPaywall();
-          }
+          Alert.alert(
+            'AI 모임 날짜 추천',
+            '단원들의 듀티를 분석하여 최적의 공통 오프 날짜를 찾았습니다!\n\n✨ 추천 날짜: 9월 14일 (일) 전원 휴무 (Golden Off)'
+          );
         }}
         activeOpacity={0.8}
       >
         <View style={styles.aiRecommendContent}>
-          {!isPremium && <LockIcon size={14} color="#9CA3AF" />}
-          <Text
-            style={[
-              styles.aiRecommendText,
-              !isPremium && styles.aiRecommendTextLocked,
-            ]}
-          >
-            {isPremium ? '✨ AI 모임 날짜 추천하기' : '🔒 AI 모임 날짜 추천 (weganda+)'}
+          <Text style={styles.aiRecommendText}>
+            ✨ AI 모임 날짜 추천하기
           </Text>
         </View>
       </TouchableOpacity>

@@ -10,6 +10,7 @@ import {
 import { COLORS } from '../../../constants/theme';
 import { useNotificationStore } from '../../../store/useNotificationStore';
 import { BellIcon, TrashIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
 interface NotificationModalProps {
   visible: boolean;
@@ -42,14 +43,9 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
-
-          {/* 헤더 */}
-          <View style={styles.header}>
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height="80%" maxHeight="85%">
+      {/* 헤더 */}
+      <View style={styles.header}>
             <View style={styles.headerTitleRow}>
               <BellIcon size={20} color={COLORS.textPrimary} />
               <Text style={styles.headerTitle}>알림 센터</Text>
@@ -112,9 +108,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
               })
             )}
           </ScrollView>
-        </View>
-      </View>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

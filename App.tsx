@@ -5,6 +5,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { LandingScreen } from './src/screens/Landing/LandingScreen';
 import { AdminScreen } from './src/screens/Admin/AdminScreen';
+import { LegalScreen } from './src/screens/Legal/LegalScreen';
+import { LegalTabKey } from './src/constants/legal/types';
 import { useUserStore } from './src/store/useUserStore';
 import { supabase } from './src/services/supabase';
 import ErrorBoundary from './src/components/common/ErrorBoundary';
@@ -19,14 +21,39 @@ export default function App() {
   const isAuthenticated = useUserStore((state) => state.isAuthenticated);
   const role = useUserStore((state) => state.role);
 
-  // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs weganda.kr/admin vs weganda.kr/app)
-  const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin' | 'app'>(() => {
+  // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs /admin vs /terms /privacy /membership /community vs /app)
+  const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin' | 'app' | 'legal'>(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      if (window.location.pathname.startsWith('/admin')) return 'admin';
-      if (window.location.pathname.startsWith('/app') || window.location.search.includes('app=true')) return 'app';
+      const p = window.location.pathname;
+      if (p.startsWith('/admin')) return 'admin';
+      if (
+        p.startsWith('/terms') ||
+        p.startsWith('/privacy') ||
+        p.startsWith('/membership') ||
+        p.startsWith('/community') ||
+        p.startsWith('/paid-terms') ||
+        p.startsWith('/refund')
+      ) {
+        return 'legal';
+      }
+      if (p.startsWith('/app') || window.location.search.includes('app=true')) return 'app';
       return 'landing';
     }
     return 'landing';
+  });
+
+  const [legalInitialTab, setLegalInitialTab] = useState<LegalTabKey>(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const p = window.location.pathname;
+      const search = new URLSearchParams(window.location.search);
+      const tab = search.get('tab') as LegalTabKey;
+      if (tab && ['terms', 'privacy', 'membership', 'community'].includes(tab)) return tab;
+      if (p.startsWith('/privacy')) return 'privacy';
+      if (p.startsWith('/membership') || p.startsWith('/paid') || p.startsWith('/refund')) return 'membership';
+      if (p.startsWith('/community')) return 'community';
+      return 'terms';
+    }
+    return 'terms';
   });
 
   useEffect(() => {
@@ -60,9 +87,32 @@ export default function App() {
     let handlePopState: (() => void) | undefined;
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       handlePopState = () => {
-        if (window.location.pathname.startsWith('/admin')) {
+        const p = window.location.pathname;
+        if (p.startsWith('/admin')) {
           setCurrentWebRoute('admin');
-        } else if (window.location.pathname.startsWith('/app') || window.location.search.includes('app=true')) {
+        } else if (
+          p.startsWith('/terms') ||
+          p.startsWith('/privacy') ||
+          p.startsWith('/membership') ||
+          p.startsWith('/community') ||
+          p.startsWith('/paid-terms') ||
+          p.startsWith('/refund')
+        ) {
+          const search = new URLSearchParams(window.location.search);
+          const tab = search.get('tab') as LegalTabKey;
+          if (tab && ['terms', 'privacy', 'membership', 'community'].includes(tab)) {
+            setLegalInitialTab(tab);
+          } else if (p.startsWith('/privacy')) {
+            setLegalInitialTab('privacy');
+          } else if (p.startsWith('/membership') || p.startsWith('/paid') || p.startsWith('/refund')) {
+            setLegalInitialTab('membership');
+          } else if (p.startsWith('/community')) {
+            setLegalInitialTab('community');
+          } else {
+            setLegalInitialTab('terms');
+          }
+          setCurrentWebRoute('legal');
+        } else if (p.startsWith('/app') || window.location.search.includes('app=true')) {
           setCurrentWebRoute('app');
         } else {
           setCurrentWebRoute('landing');
@@ -128,6 +178,25 @@ export default function App() {
       );
     }
 
+    if (currentWebRoute === 'legal') {
+      return (
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <ErrorBoundary>
+            <LegalScreen
+              initialTab={legalInitialTab}
+              onNavigateHome={() => {
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({}, '', '/');
+                }
+                setCurrentWebRoute('landing');
+              }}
+            />
+          </ErrorBoundary>
+        </SafeAreaProvider>
+      );
+    }
+
     if (currentWebRoute === 'landing') {
       return (
         <SafeAreaProvider>
@@ -139,6 +208,14 @@ export default function App() {
                   window.history.pushState({}, '', '/admin');
                 }
                 setCurrentWebRoute('admin');
+              }}
+              onNavigateLegal={(tab) => {
+                if (typeof window !== 'undefined') {
+                  const path = tab === 'terms' ? '/terms' : tab === 'privacy' ? '/privacy' : tab === 'membership' ? '/membership' : '/community';
+                  window.history.pushState({}, '', path);
+                }
+                if (tab) setLegalInitialTab(tab);
+                setCurrentWebRoute('legal');
               }}
             />
           </ErrorBoundary>

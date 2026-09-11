@@ -34,13 +34,12 @@ export const PREMIUM_BENEFITS: PremiumBenefit[] = [
   { key: 'salary', icon: 'ChartBarIcon', title: '야간/휴일 수당 및 월급 자동 예측기', description: 'D/E/N 근무 패턴 기반으로\n다음 달 예상 월급을 자동 계산해요', freeLimit: 'weganda+ 전용 기능' },
   // 4. Unlimited AI & Drug Calculator
   { key: 'ai', icon: 'BotIcon', title: '약물 계산기 & Ask AI 무제한', description: '복잡한 약물 용량 계산 프리셋과\nAI 임상 어시스턴트를 무제한 사용하세요', freeLimit: '일일 3회 제한' },
-  // 5. Unlimited shared calendar + AI date picker
-  { key: 'calendar', icon: 'CalendarIcon', title: '무제한 교집합 캘린더 & AI 모임 추천', description: '친구 수 제한 없이 듀티를 공유하고\nAI가 최적의 모임 날짜를 추천해드려요', freeLimit: '최대 3명 동기화' },
+  // 5. Smart duty health & burnout analysis
+  { key: 'burnout', icon: 'SparklesIcon', title: '스마트 듀티 건강 & 번아웃 위험도 AI 분석', description: 'N-O-D 패턴, 수면 부채, 연속 근무 피로도를\nAI가 분석하여 회복 골든타임을 알려드려요', freeLimit: 'weganda+ 전용 기능' },
 ];
 
 export const FREE_LIMITS = {
   maxMonthlyFortune: 5,
-  maxSharedCalendarFriends: 3,
   maxDailyAiQueries: 3,
   maxDailyDrugCalculations: 3,
 } as const;
@@ -80,14 +79,14 @@ export const IAP_SKUS = {
 export const STORE_SUBSCRIPTION_URLS = {
   ios: 'https://apps.apple.com/account/subscriptions',
   android: 'https://play.google.com/store/account/subscriptions',
-  web: 'https://weganda.app/mypage/subscription',
+  web: 'https://weganda.kr/membership',
 } as const;
 
 export const IAP_CONFIG = {
   subscriptionSku: IAP_SKUS.MONTHLY_EARLYBIRD,
   trialPeriodDays: 30,
-  storeTermsUrl: 'https://weganda.app/terms/membership',
-  privacyUrl: 'https://weganda.app/privacy',
+  storeTermsUrl: 'https://weganda.kr/membership',
+  privacyUrl: 'https://weganda.kr/privacy',
 } as const;
 
 // 출시일 기준 기본 이벤트 일정 계산 함수 (2026-09-11 기준)

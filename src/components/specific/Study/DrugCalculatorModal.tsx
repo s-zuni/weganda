@@ -139,7 +139,7 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
           <CalculatorIcon size={20} color={COLORS.primary} />
-          <Text style={styles.headerTitle}>💊 🧮 임상 약물 gtt/cc 계산기</Text>
+          <Text style={styles.headerTitle}>🧮 임상 약물 gtt/cc 계산기</Text>
           {!isPremium && (
             <View style={styles.limitBadge}>
               <Text style={styles.limitBadgeText}>{dailyDrugCalcCount}/3회</Text>
@@ -159,7 +159,7 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
       >
         {/* 병동 맞춤 약물 프로토콜 헤더 */}
         <View style={styles.presetHeaderRow}>
-          <Text style={styles.sectionLabel}>🏥 내 병동 맞춤 약물 프로토콜 📌</Text>
+          <Text style={styles.sectionLabel}>🏥 내 병동 맞춤 약물 프로토콜</Text>
           <TouchableOpacity
             style={styles.addDrugToggleBtn}
             onPress={() => setIsAddingDrug((p) => !p)}

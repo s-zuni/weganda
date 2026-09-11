@@ -19,7 +19,7 @@ export const StudyAiBanner: React.FC<StudyAiBannerProps> = ({ onPress }) => {
           <BotIcon size={20} color={COLORS.primary} />
         </View>
         <View>
-          <Text style={styles.askAiTitle}>🤖 💡 임상 지식을 AI에게 물어보세요</Text>
+          <Text style={styles.askAiTitle}>🤖 임상 지식을 AI에게 물어보세요</Text>
           <Text style={styles.askAiSub}>💊 약물 투약법 · ⚡ ACLS 프로토콜 · 📋 SBAR 실시간 답변 ›</Text>
         </View>
       </View>

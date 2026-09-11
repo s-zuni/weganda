@@ -90,7 +90,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `[우간다 간호 커뮤니티] ${currentPost.title}\nhttps://weganda.app/post/${currentPost.id}`,
+        message: `[우간다 간호 커뮤니티] ${currentPost.title}\nhttps://weganda.kr/post/${currentPost.id}`,
       });
     } catch {
       Alert.alert('공유 완료', '게시글 링크가 클립보드에 복사되었습니다.');

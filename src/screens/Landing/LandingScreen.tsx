@@ -9,12 +9,14 @@ import {
   LandingDownloadCta,
   LandingFooter,
 } from '../../components/specific/Landing';
+import { LegalTabKey } from '../../constants/legal';
 
 interface LandingScreenProps {
   onNavigateAdmin?: () => void;
+  onNavigateLegal?: (tab?: LegalTabKey) => void;
 }
 
-export const LandingScreen: React.FC<LandingScreenProps> = () => {
+export const LandingScreen: React.FC<LandingScreenProps> = ({ onNavigateLegal }) => {
   const handleScrollToWaitlist = () => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       const el = document.getElementById('waitlist-input') || document.getElementById('waitlist-bottom');
@@ -61,7 +63,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = () => {
       <LandingDownloadCta />
 
       {/* 7. Understated Legal & Brand Footer */}
-      <LandingFooter />
+      <LandingFooter onNavigateLegal={onNavigateLegal} />
     </ScrollView>
   );
 };

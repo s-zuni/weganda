@@ -38,7 +38,7 @@ export const Step1ProfileSetup: React.FC<Step1ProfileSetupProps> = ({
   const [hospitalName, setHospitalName] = useState(initialData?.hospitalName || '');
   const [wardName, setWardName] = useState(initialData?.wardName || '');
   const [experienceYears, setExperienceYears] = useState(
-    initialData?.experienceYears !== undefined ? String(initialData.experienceYears) : ''
+    initialData?.experienceYears ? String(initialData.experienceYears) : ''
   );
   const [schoolName, setSchoolName] = useState(initialData?.schoolName || '');
   const [schoolGrade, setSchoolGrade] = useState<number>(initialData?.schoolGrade || 1);
@@ -59,7 +59,7 @@ export const Step1ProfileSetup: React.FC<Step1ProfileSetupProps> = ({
         nickname: nickname.trim(),
         hospitalName: hospitalName.trim(),
         wardName: wardName.trim() || '일반병동',
-        experienceYears: experienceYears === '' ? 1 : Math.max(0, parseInt(experienceYears, 10)),
+        experienceYears: Number(experienceYears) || 1,
       });
     } else {
       if (!schoolName.trim()) {

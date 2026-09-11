@@ -11,6 +11,7 @@ import { COLORS } from '../../../constants/theme';
 import { REPORT_REASONS } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
 import { FlagIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
 interface ReportModalProps {
   visible: boolean;
@@ -38,14 +39,10 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
-
-          {/* 헤더 */}
-          <View style={styles.header}>
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height={540}>
+      <View style={styles.container}>
+        {/* 헤더 */}
+        <View style={styles.header}>
             <View style={styles.headerTitleRow}>
               <FlagIcon size={20} color="#E11D48" />
               <Text style={styles.headerTitle}>
@@ -88,8 +85,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             <Text style={styles.submitBtnText}>신고 접수하기</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

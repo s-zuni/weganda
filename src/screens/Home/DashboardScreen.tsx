@@ -26,6 +26,7 @@ import {
   ScheduleActionButtons,
   DailyNoteSection,
   SalaryPredictionCard,
+  SalaryCalculatorModal,
 } from '../../components/specific/Home';
 
 export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
@@ -61,6 +62,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const [fullScheduleModalVisible, setFullScheduleModalVisible] = useState(false);
   const [addScheduleModalVisible, setAddScheduleModalVisible] = useState(false);
   const [dailyNoteModalVisible, setDailyNoteModalVisible] = useState(false);
+  const [salaryCalculatorModalVisible, setSalaryCalculatorModalVisible] = useState(false);
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
 
@@ -162,6 +164,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
         <SalaryPredictionCard
           isPremium={isPremium}
           onOpenPaywall={() => setPaywallVisible(true)}
+          onOpenCalculator={() => setSalaryCalculatorModalVisible(true)}
         />
       </ScrollView>
 
@@ -185,6 +188,11 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
       <DailyNoteModal
         visible={dailyNoteModalVisible}
         onClose={() => setDailyNoteModalVisible(false)}
+      />
+
+      <SalaryCalculatorModal
+        visible={salaryCalculatorModalVisible}
+        onClose={() => setSalaryCalculatorModalVisible(false)}
       />
 
       <PaywallBottomSheet

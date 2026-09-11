@@ -9,11 +9,13 @@ import {
   Linking,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { COLORS } from '../../constants/theme';
 import { CrownIcon } from './Icon';
 import { inAppPurchaseService } from '../../services/inAppPurchaseService';
 import { useUserStore } from '../../store/useUserStore';
+import { SwipeableBottomSheet } from './SwipeableBottomSheet';
 
 interface PaywallBottomSheetProps {
   visible: boolean;
@@ -52,24 +54,8 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
     }
   };
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <TouchableOpacity
-        style={styles.backdrop}
-        activeOpacity={1}
-        onPressOut={onClose}
-        accessibilityRole="button"
-        accessibilityLabel="닫기"
-      >
-        <TouchableWithoutFeedback>
-          <View style={styles.sheetContainer}>
-            <View style={styles.handleContainer}>
-              <View style={styles.handle} />
-            </View>
+    <SwipeableBottomSheet visible={visible} onClose={onClose}>
+      <View style={styles.sheetContainer}>
 
             <View style={styles.contentContainer}>
               <View style={styles.iconContainer}>
@@ -141,15 +127,29 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
 
               <View style={styles.legalRow}>
                 <TouchableOpacity
-                  onPress={() => Linking.openURL('https://weganda.app/terms/membership')}
+                  onPress={() => {
+                    const url = 'https://weganda.kr/membership';
+                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                      window.open(url, '_blank');
+                    } else {
+                      Linking.openURL(url).catch((err) => console.warn(err));
+                    }
+                  }}
                   accessibilityRole="link"
-                  accessibilityLabel="이용약관"
+                  accessibilityLabel="멤버십 이용약관"
                 >
-                  <Text style={styles.legalLinkText}>이용약관</Text>
+                  <Text style={styles.legalLinkText}>멤버십 이용약관</Text>
                 </TouchableOpacity>
                 <Text style={styles.legalDot}>•</Text>
                 <TouchableOpacity
-                  onPress={() => Linking.openURL('https://weganda.app/privacy')}
+                  onPress={() => {
+                    const url = 'https://weganda.kr/privacy';
+                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                      window.open(url, '_blank');
+                    } else {
+                      Linking.openURL(url).catch((err) => console.warn(err));
+                    }
+                  }}
                   accessibilityRole="link"
                   accessibilityLabel="개인정보 처리방침"
                 >
@@ -158,9 +158,7 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
               </View>
             </View>
           </View>
-        </TouchableWithoutFeedback>
-      </TouchableOpacity>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

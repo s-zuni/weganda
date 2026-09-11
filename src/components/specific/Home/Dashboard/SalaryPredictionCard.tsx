@@ -1,26 +1,86 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useAppTheme } from '../../../../constants/theme';
 import { ChartBarIcon, LockIcon } from '../../../common/Icon';
-import { MOCK_SALARY_PREDICTION } from '../../../../mocks/membership';
+import { useSalaryStore } from '../../../../store/useSalaryStore';
+import { useShiftScheduleStore } from '../../../../store/useShiftScheduleStore';
 
 interface SalaryPredictionCardProps {
   isPremium: boolean;
   onOpenPaywall: () => void;
+  onOpenCalculator?: () => void;
 }
 
 export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
   isPremium,
   onOpenPaywall,
+  onOpenCalculator,
 }) => {
   const theme = useAppTheme();
+  const {
+    baseSalary,
+    customNightAllowance,
+    customHolidayAllowance,
+    getInferredNightRate,
+    getInferredHolidayRate,
+  } = useSalaryStore();
+  const { schedules, currentDate, customCodes } = useShiftScheduleStore();
+
+  const currentYm = useMemo(() => {
+    const y = currentDate.getFullYear();
+    const m = String(currentDate.getMonth() + 1).padStart(2, '0');
+    return `${y}-${m}`;
+  }, [currentDate]);
+
+  const monthLabel = `${currentDate.getMonth() + 1}월`;
+
+  // 해당 달의 나이트(N) 일수 실시간 계산
+  const nightCount = useMemo(() => {
+    return Object.entries(schedules).filter(([dateKey, code]) => {
+      if (!dateKey.startsWith(currentYm)) return false;
+      if (code === 'N') return true;
+      const custom = customCodes[code];
+      return custom && custom.name && custom.name.includes('나이트');
+    }).length;
+  }, [schedules, currentYm, customCodes]);
+
+  // 해당 달의 주말/휴일 근무 일수 계산
+  const holidayWorkCount = useMemo(() => {
+    return Object.entries(schedules).filter(([dateKey, code]) => {
+      if (!dateKey.startsWith(currentYm)) return false;
+      const d = new Date(dateKey);
+      const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+      if (!isWeekend) return false;
+      if (code === 'O' || code === 'V' || code === '/' || code === 'OFF') return false;
+      const custom = customCodes[code];
+      if (custom && custom.isOff) return false;
+      return true;
+    }).length;
+  }, [schedules, currentYm, customCodes]);
+
+  const effectiveNightRate = customNightAllowance || getInferredNightRate(baseSalary);
+  const totalNightPay = nightCount * effectiveNightRate;
+
+  const effectiveHolidayRate = customHolidayAllowance || getInferredHolidayRate(baseSalary);
+  const totalHolidayPay = holidayWorkCount * effectiveHolidayRate;
+
+  const totalEstimated = baseSalary + totalNightPay + totalHolidayPay;
+
+  const handlePress = () => {
+    if (!isPremium) {
+      onOpenPaywall();
+    } else if (onOpenCalculator) {
+      onOpenCalculator();
+    }
+  };
+
   return (
     <>
       <Text style={styles.sectionTitle}>월급/수당 예측</Text>
       <TouchableOpacity
         style={styles.salaryCard}
-        onPress={() => !isPremium && onOpenPaywall()}
-        activeOpacity={isPremium ? 1 : 0.8}
+        onPress={handlePress}
+        activeOpacity={0.8}
       >
         {isPremium ? (
           <>
@@ -29,30 +89,33 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
                 <ChartBarIcon size={22} color={theme.onPrimaryText} />
               </View>
               <View style={styles.salaryCardTexts}>
-                <Text style={styles.salaryCardTitle}>{MOCK_SALARY_PREDICTION.month}</Text>
-                <Text style={styles.salaryCardSubtitle}>예상 월급</Text>
+                <Text style={styles.salaryCardTitle}>{monthLabel} 예상 실수령액</Text>
+                <Text style={styles.salaryCardSubtitle}>근무표 실시간 연동</Text>
+              </View>
+              <View style={styles.editBadge}>
+                <Text style={styles.editBadgeText}>수당 계산기 &gt;</Text>
               </View>
             </View>
             <Text style={styles.salaryAmount}>
-              {MOCK_SALARY_PREDICTION.totalEstimated.toLocaleString()}원
+              {totalEstimated.toLocaleString()}원
             </Text>
             <View style={styles.salaryBreakdownRow}>
               <View style={styles.salaryBreakdownItem}>
                 <Text style={styles.breakdownLabel}>기본급</Text>
                 <Text style={styles.breakdownValue}>
-                  {MOCK_SALARY_PREDICTION.baseSalary.toLocaleString()}
+                  {baseSalary.toLocaleString()}
                 </Text>
               </View>
               <View style={styles.salaryBreakdownItem}>
-                <Text style={styles.breakdownLabel}>야간수당</Text>
-                <Text style={styles.breakdownValue}>
-                  +{MOCK_SALARY_PREDICTION.nightAllowance.toLocaleString()}
+                <Text style={styles.breakdownLabel}>야간수당 ({nightCount}일)</Text>
+                <Text style={[styles.breakdownValue, { color: theme.primary }]}>
+                  +{totalNightPay.toLocaleString()}
                 </Text>
               </View>
               <View style={styles.salaryBreakdownItem}>
-                <Text style={styles.breakdownLabel}>휴일수당</Text>
+                <Text style={styles.breakdownLabel}>휴일수당 ({holidayWorkCount}일)</Text>
                 <Text style={styles.breakdownValue}>
-                  +{MOCK_SALARY_PREDICTION.holidayAllowance.toLocaleString()}
+                  +{totalHolidayPay.toLocaleString()}
                 </Text>
               </View>
             </View>
@@ -197,6 +260,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#9CA3AF',
     lineHeight: 18,
+  },
+  editBadge: {
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  editBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4B5563',
   },
 });
 

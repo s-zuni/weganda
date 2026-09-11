@@ -1,13 +1,35 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { COLORS } from '../../../constants/theme';
+import { LegalTabKey } from '../../../constants/legal';
 import { useResponsive } from '../../../utils/useResponsive';
 
-export const LandingFooter: React.FC = () => {
+interface LandingFooterProps {
+  onNavigateLegal?: (tab?: LegalTabKey) => void;
+}
+
+export const LandingFooter: React.FC<LandingFooterProps> = ({ onNavigateLegal }) => {
   const { isMobile } = useResponsive();
 
-  const handleLinkClick = (name: string) => {
-    alert(`${name} 페이지는 현재 준비 중입니다. 문의사항은 contact@weganda.kr로 보내주세요.`);
+  const handleLegalClick = (tab: LegalTabKey) => {
+    if (onNavigateLegal) {
+      onNavigateLegal(tab);
+    } else if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const path = tab === 'terms' ? '/terms' : tab === 'privacy' ? '/privacy' : tab === 'membership' ? '/membership' : '/community';
+      window.location.href = path;
+    }
+  };
+
+  const handleSupportClick = (type: string) => {
+    if (type === 'contact' || type === 'b2b') {
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.location.href = 'mailto:contact@weganda.kr?subject=[우간다 문의]';
+      } else {
+        alert('문의는 contact@weganda.kr로 메일을 보내주세요.');
+      }
+    } else {
+      alert(`${type} 안내는 서비스 공식 출시와 함께 공개됩니다.`);
+    }
   };
 
   return (
@@ -35,50 +57,42 @@ export const LandingFooter: React.FC = () => {
           {/* Links Columns */}
           <View style={[styles.linksGrid, isMobile && styles.linksGridMobile]}>
             <View style={styles.linksCol}>
-              <Text style={styles.linksHeader}>서비스</Text>
-              <TouchableOpacity onPress={() => handleLinkClick('스마트 듀티 캘린더')}>
-                <Text style={styles.linkText}>스마트 듀티 캘린더</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLinkClick('동기 듀티 공유')}>
-                <Text style={styles.linkText}>동기 듀티 공유</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLinkClick('간호 지식 AI')}>
-                <Text style={styles.linkText}>간호 지식 Ask AI</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLinkClick('듀티 사주 운세')}>
-                <Text style={styles.linkText}>듀티 사주 운세</Text>
-              </TouchableOpacity>
+              <Text style={styles.linksHeader}>주요 기능</Text>
+              <Text style={styles.linkText}>스마트 듀티 캘린더</Text>
+              <Text style={styles.linkText}>동기 듀티 연동</Text>
+              <Text style={styles.linkText}>간호 지식 Ask AI</Text>
+              <Text style={styles.linkText}>듀티 사주 운세</Text>
             </View>
 
             <View style={styles.linksCol}>
               <Text style={styles.linksHeader}>고객 지원</Text>
-              <TouchableOpacity onPress={() => handleLinkClick('자주 묻는 질문(FAQ)')}>
+              <TouchableOpacity onPress={() => handleSupportClick('FAQ')}>
                 <Text style={styles.linkText}>자주 묻는 질문 (FAQ)</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLinkClick('공지사항')}>
+              <TouchableOpacity onPress={() => handleSupportClick('공지사항')}>
                 <Text style={styles.linkText}>공지사항</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLinkClick('1:1 제휴/문의')}>
+              <TouchableOpacity onPress={() => handleSupportClick('contact')}>
                 <Text style={styles.linkText}>1:1 문의 / 제휴</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLinkClick('병원 단체 도입')}>
+              <TouchableOpacity onPress={() => handleSupportClick('b2b')}>
                 <Text style={styles.linkText}>병원 단체 도입 문의</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.linksCol}>
               <Text style={styles.linksHeader}>약관 및 정책</Text>
-              <TouchableOpacity onPress={() => handleLinkClick('서비스 이용약관')}>
+              <TouchableOpacity onPress={() => handleLegalClick('terms')}>
                 <Text style={styles.linkText}>서비스 이용약관</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLinkClick('개인정보처리방침')}>
+              <TouchableOpacity onPress={() => handleLegalClick('privacy')}>
                 <Text style={[styles.linkText, styles.linkBold]}>개인정보처리방침</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLinkClick('위치정보 이용약관')}>
-                <Text style={styles.linkText}>위치기반서비스 이용약관</Text>
+              <TouchableOpacity onPress={() => handleLegalClick('membership')}>
+                <Text style={styles.linkText}>우간다+ 멤버십 이용약관</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleLinkClick('커뮤니티 운영원칙')}>
-                <Text style={styles.linkText}>커뮤니티 운영원칙</Text>
+              <TouchableOpacity onPress={() => handleLegalClick('community')}>
+                <Text style={styles.linkText}>커뮤니티 이용약관</Text>
               </TouchableOpacity>
             </View>
           </View>

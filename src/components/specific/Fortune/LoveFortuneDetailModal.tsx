@@ -66,9 +66,9 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
         <View style={styles.headerTitleRow}>
           <HeartIcon size={20} color="#E11D48" />
           <View>
-            <Text style={styles.headerTitle}>💖 💘 애정운 & 사주·MBTI 궁합</Text>
+            <Text style={styles.headerTitle}>💖 애정운 & 사주·MBTI 궁합</Text>
             <Text style={styles.headerSubtitle}>
-              간호사 연애 및 교대 근무 배려 솔루션
+              사주 연애운 타임라인 및 MBTI 이상형 매칭
             </Text>
           </View>
         </View>
@@ -88,12 +88,12 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
         </View>
       </View>
 
-      {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
+      {/* 미열람 잠금 오버레이 / 언락 화면 */}
       {!isUnlocked ? (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <FortuneUnlockView
             fortuneType="love"
-            title="💖 💘 애정운 & 사주·MBTI 궁합"
+            title="💖 애정운 & 사주·MBTI 궁합"
             subtitle="연인·짝사랑 사주 궁합, MBTI 성격 케미스트리 및 3교대 데이트 가이드 정밀 분석"
             icon={<HeartIcon size={28} color="#E11D48" />}
             previewItems={[

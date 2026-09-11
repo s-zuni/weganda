@@ -14,6 +14,7 @@ import { COLORS } from '../../../constants/theme';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { nativeCalendarService } from '../../../services/nativeCalendarService';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
 interface FullScheduleModalProps {
   visible: boolean;
@@ -134,14 +135,9 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
   const selectedShiftInfo = selectedShiftCode ? customCodes[selectedShiftCode] : null;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer} {...panResponder.panHandlers}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
-
-          {/* 헤더 */}
-          <View style={styles.header}>
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height="92%">
+      {/* 헤더 */}
+      <View style={styles.header}>
             <Text style={styles.headerTitle}>전체 스케줄 (월간 캘린더)</Text>
             <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Text style={styles.closeText}>닫기</Text>
@@ -267,9 +263,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
               )}
             </TouchableOpacity>
           </ScrollView>
-        </View>
-      </View>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

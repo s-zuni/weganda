@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFortuneStore, BirthInfo, PartnerBirthData } from '../../../store/useFortuneStore';
 import { SajuTopicItem } from '../../../mocks/sajuCategories';
 import { SajuBirthPicker } from './SajuBirthPicker';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
 interface SajuTopicInputModalProps {
   visible: boolean;
@@ -90,30 +91,9 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <KeyboardAvoidingView
-        style={styles.backdrop}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <TouchableOpacity
-          style={StyleSheet.absoluteFill}
-          activeOpacity={1}
-          onPress={onClose}
-        />
-
-        <View style={styles.sheetContainer}>
-          {/* 핸들 바 */}
-          <View style={styles.handleContainer}>
-            <View style={styles.handleBar} />
-          </View>
-
-          {/* 헤더 */}
-          <View style={styles.header}>
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height="90%" maxHeight="92%">
+      {/* 헤더 */}
+      <View style={styles.header}>
             <View style={styles.headerTextWrap}>
               <View style={styles.badgeRow}>
                 <View style={[styles.topicBadge, { backgroundColor: topic.badgeColor }]}>
@@ -217,9 +197,7 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
               )}
             </TouchableOpacity>
           </View>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

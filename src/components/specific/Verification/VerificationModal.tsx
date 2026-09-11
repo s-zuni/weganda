@@ -18,6 +18,7 @@ import {
   VerificationType,
   VerificationSubmissionData,
 } from '../../../types/verification';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
 interface VerificationModalProps {
   visible: boolean;
@@ -142,10 +143,9 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
   const docTypeList = targetRole === 'nurse' ? NURSE_DOC_TYPES : STUDENT_DOC_TYPES;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent presentationStyle="overFullScreen">
-      <View style={styles.backdrop}>
-        <View style={styles.sheetContainer}>
-          {/* Header */}
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height="92%">
+      <View style={styles.sheetContainer}>
+        {/* Header */}
           <View style={styles.header}>
             <View>
               <Text style={styles.headerTitle}>간호 전문직 및 학생 인증</Text>
@@ -435,9 +435,8 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
 
             <View style={{ height: 40 }} />
           </ScrollView>
-        </View>
       </View>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

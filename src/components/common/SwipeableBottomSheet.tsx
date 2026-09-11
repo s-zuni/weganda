@@ -77,10 +77,14 @@ export const SwipeableBottomSheet: React.FC<SwipeableBottomSheetProps> = ({
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => false,
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        // Only capture downward gestures
-        return gestureState.dy > 4;
+        // Capture downward gestures that are primarily vertical
+        return gestureState.dy > 6 && Math.abs(gestureState.dy) > Math.abs(gestureState.dx);
+      },
+      onMoveShouldSetPanResponderCapture: (_, gestureState) => {
+        // Intercept downward drag before children if clearly pulling down
+        return gestureState.dy > 10 && Math.abs(gestureState.dy) > Math.abs(gestureState.dx) * 1.2;
       },
       onPanResponderMove: (_, gestureState) => {
         if (gestureState.dy > 0) {
@@ -88,14 +92,14 @@ export const SwipeableBottomSheet: React.FC<SwipeableBottomSheetProps> = ({
         }
       },
       onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 90 || gestureState.vy > 0.45) {
+        if (gestureState.dy > 70 || gestureState.vy > 0.35) {
           handleDismiss();
         } else {
           // Snap back
           Animated.spring(translateY, {
             toValue: 0,
-            damping: 20,
-            stiffness: 250,
+            damping: 22,
+            stiffness: 280,
             useNativeDriver: true,
           }).start();
         }
@@ -183,16 +187,16 @@ const styles = StyleSheet.create({
   },
   dragZone: {
     width: '100%',
-    paddingTop: 10,
-    paddingBottom: 8,
+    paddingTop: 12,
+    paddingBottom: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   handleBar: {
-    width: 44,
+    width: 48,
     height: 5,
     backgroundColor: '#D1D5DB',
-    borderRadius: 2.5,
+    borderRadius: 3,
   },
 });
 

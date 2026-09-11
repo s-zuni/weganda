@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { StyleSheet, SafeAreaView, View } from 'react-native';
 import { useUserStore } from '../../store/useUserStore';
 import { useVerificationStore } from '../../store/useVerificationStore';
-import { profileApi } from '../../services/profileApi';
 import {
   OnboardingProgressBar,
   Step1ProfileSetup,
@@ -19,25 +18,23 @@ interface OnboardingFlowScreenProps {
 export const OnboardingFlowScreen: React.FC<OnboardingFlowScreenProps> = ({
   navigation,
 }) => {
-  const storeUser = useUserStore();
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [profileData, setProfileData] = useState<Step1Data>({
+    role: 'nurse',
+    nickname: '',
+    hospitalName: '',
+    wardName: '',
+    experienceYears: 1,
+    schoolName: '',
+    schoolGrade: 1,
+  });
+
   const {
     id: userId,
     setUser,
     setVerificationState,
     completeOnboarding,
-    updateUserProfile,
-  } = storeUser;
-
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
-  const [profileData, setProfileData] = useState<Step1Data>({
-    role: (storeUser.role === 'student' ? 'student' : 'nurse'),
-    nickname: storeUser.nickname || storeUser.name || '',
-    hospitalName: storeUser.hospitalName || '',
-    wardName: storeUser.wardName || '',
-    experienceYears: storeUser.experienceYears ?? 1,
-    schoolName: storeUser.schoolName || '',
-    schoolGrade: storeUser.schoolGrade || 1,
-  });
+  } = useUserStore();
 
   const submitVerification = useVerificationStore(
     (state) => state.submitVerification
@@ -63,7 +60,7 @@ export const OnboardingFlowScreen: React.FC<OnboardingFlowScreenProps> = ({
       role: data.role === 'nurse' ? 'nurse' : 'student',
       hospitalName: data.role === 'nurse' ? (data.hospitalName || '종합병원') : (data.schoolName || '간호대학'),
       wardName: data.role === 'nurse' ? (data.wardName || '일반병동') : `${data.schoolGrade || 1}학년`,
-      experienceYears: data.experienceYears !== undefined ? data.experienceYears : 1,
+      experienceYears: data.experienceYears || 1,
       schoolName: data.schoolName,
       schoolGrade: data.schoolGrade,
     });
@@ -94,56 +91,8 @@ export const OnboardingFlowScreen: React.FC<OnboardingFlowScreenProps> = ({
     setCurrentStep(3);
   };
 
-  // 3단계 완료 -> 최종 온보딩 종료 & DB 저장 & 홈 이동
-  const handleFinalComplete = async () => {
-    const finalNickname = profileData.nickname || storeUser.nickname || '간호사';
-    const finalRole = profileData.role === 'nurse' ? 'nurse' : 'student';
-    const finalHospital =
-      profileData.role === 'nurse'
-        ? (profileData.hospitalName || '종합병원')
-        : (profileData.schoolName || '간호대학');
-    const finalWard =
-      profileData.role === 'nurse'
-        ? (profileData.wardName || '일반병동')
-        : `${profileData.schoolGrade || 1}학년`;
-    const finalExp =
-      profileData.experienceYears !== undefined
-        ? profileData.experienceYears
-        : (profileData.role === 'nurse' ? 1 : 0);
-
-    // Zustand 스토어 즉시 업데이트
-    setUser({
-      name: finalNickname,
-      nickname: finalNickname,
-      role: finalRole,
-      hospitalName: finalHospital,
-      wardName: finalWard,
-      experienceYears: finalExp,
-      schoolName: profileData.schoolName,
-      schoolGrade: profileData.schoolGrade,
-    });
-
-    try {
-      // Supabase profiles 테이블 업데이트
-      await profileApi.updateProfile({
-        nickname: finalNickname,
-        hospital_name: finalHospital,
-        ward_name: finalWard,
-        experience_years: finalExp,
-        role: finalRole,
-      });
-
-      await updateUserProfile({
-        name: finalNickname,
-        nickname: finalNickname,
-        hospitalName: finalHospital,
-        wardName: finalWard,
-        experienceYears: finalExp,
-        role: finalRole,
-      });
-    } catch (e) {
-      console.warn('온보딩 프로필 DB 저장 실패 (로컬 스토어 유지):', e);
-    }
+  // 3단계 완료 -> 최종 온보딩 종료 & 홈 이동
+  const handleFinalComplete = () => {
     completeOnboarding();
   };
 
