@@ -6,3 +6,6 @@ export * from './SharedShiftBanner';
 export * from './FriendCard';
 export * from './FriendsListTab';
 export * from './GroupsTab';
+export * from './AddFriendModal';
+export * from './CommonScheduleList';
+export * from './CreateGroupModal';

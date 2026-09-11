@@ -8,11 +8,13 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../constants/theme';
 import { PencilIcon } from '../../common/Icon';
 import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 import { useDailyNoteStore } from '../../../store/useDailyNoteStore';
 import { useUserStore } from '../../../store/useUserStore';
+import { SbarSummaryModal } from './SbarSummaryModal';
+import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 
 interface DailyNoteModalProps {
   visible: boolean;
@@ -23,7 +25,9 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
   visible,
   onClose,
 }) => {
+  const theme = useAppTheme();
   const userId = useUserStore((s) => s.id);
+  const isPremium = useUserStore((s) => s.isPremium);
   const { notes, fetchNotes, addNote, deleteNote } = useDailyNoteStore();
 
   const today = new Date();
@@ -32,12 +36,26 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
   const [patient, setPatient] = useState('');
   const [diagnosis, setDiagnosis] = useState('');
   const [noteContent, setNoteContent] = useState('');
+  const [sbarModalVisible, setSbarModalVisible] = useState(false);
+  const [paywallVisible, setPaywallVisible] = useState(false);
 
   React.useEffect(() => {
     if (visible && userId) {
       fetchNotes(userId, date);
     }
   }, [visible, userId, date, fetchNotes]);
+
+  const handleOpenSbarSummary = () => {
+    if (notes.length === 0) {
+      Alert.alert('알림', '요약할 환자 특이사항 메모를 최소 1건 이상 등록해주세요.');
+      return;
+    }
+    if (!isPremium) {
+      setPaywallVisible(true);
+      return;
+    }
+    setSbarModalVisible(true);
+  };
 
   const handleSaveNote = () => {
     if (!patient.trim()) {
@@ -85,7 +103,7 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
       {/* 헤더 */}
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <PencilIcon size={20} color={COLORS.primary} />
+          <PencilIcon size={20} color={theme.primary} />
           <Text style={styles.headerTitle}>특이사항 기록하기 (인수인계)</Text>
         </View>
         <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -153,15 +171,33 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
                 />
               </View>
 
-              <TouchableOpacity style={styles.submitBtn} onPress={handleSaveNote} activeOpacity={0.85}>
-                <Text style={styles.submitBtnText}>특이사항 등록하기</Text>
+              <TouchableOpacity
+                style={[styles.submitBtn, { backgroundColor: theme.primary }]}
+                onPress={handleSaveNote}
+                activeOpacity={0.85}
+              >
+                <Text style={[styles.submitBtnText, { color: theme.onPrimaryText }]}>특이사항 등록하기</Text>
               </TouchableOpacity>
             </View>
 
-            {/* ── 2. 등록된 특이사항 목록 ── */}
+            {/* ── 2. 등록된 특이사항 목록 & AI SBAR 요약 ── */}
             <View style={styles.listHeaderRow}>
-              <Text style={styles.sectionSubtitle}>기록된 특이사항 목록 ({notes.length}건)</Text>
-              <Text style={styles.listHeaderHint}>자유롭게 추가 및 삭제 가능</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.sectionSubtitle}>기록된 특이사항 목록 ({notes.length}건)</Text>
+                <Text style={styles.listHeaderHint}>자유롭게 추가 및 삭제 가능</Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.sbarSummaryBtn}
+                onPress={handleOpenSbarSummary}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.sbarSummaryBtnSparkle}>✨</Text>
+                <Text style={styles.sbarSummaryBtnText}>AI SBAR 요약</Text>
+                <View style={styles.sbarProBadge}>
+                  <Text style={styles.sbarProBadgeText}>PRO</Text>
+                </View>
+              </TouchableOpacity>
             </View>
 
             {notes.length === 0 ? (
@@ -173,8 +209,8 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
                 <View key={item.id} style={styles.noteCard}>
                   <View style={styles.noteCardHeader}>
                     <View style={styles.patientInfoRow}>
-                      <View style={styles.patientBadge}>
-                        <Text style={styles.patientBadgeText}>{item.patient}</Text>
+                      <View style={[styles.patientBadge, { backgroundColor: theme.primary }]}>
+                        <Text style={[styles.patientBadgeText, { color: theme.onPrimaryText }]}>{item.patient}</Text>
                       </View>
                       <Text style={styles.diagnosisText}>{item.diagnosis}</Text>
                     </View>
@@ -198,6 +234,20 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
               ))
             )}
           </ScrollView>
+
+      {/* 📋 원터치 AI SBAR 인수인계 요약 모달 */}
+      <SbarSummaryModal
+        visible={sbarModalVisible}
+        onClose={() => setSbarModalVisible(false)}
+        notes={notes}
+        currentDate={date}
+      />
+
+      {/* weganda+ 멤버십 페이월 모달 */}
+      <MembershipScreen
+        visible={paywallVisible}
+        onClose={() => setPaywallVisible(false)}
+      />
     </SwipeableBottomSheet>
   );
 };
@@ -321,6 +371,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
+  },
+  sbarSummaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF1F4',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#FFE4E6',
+  },
+  sbarSummaryBtnSparkle: {
+    fontSize: 12,
+  },
+  sbarSummaryBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.primary,
+  },
+  sbarProBadge: {
+    backgroundColor: '#D4A853',
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+  },
+  sbarProBadgeText: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: '#FFFFFF',
   },
   sectionSubtitle: {
     fontSize: 14,

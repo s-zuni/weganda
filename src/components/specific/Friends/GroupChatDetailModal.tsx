@@ -8,10 +8,12 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { GroupChat } from '../../../mocks/friendsData';
 import { CalendarIcon, SendIcon, UsersIcon } from '../../common/Icon';
+import { useCommonSchedules, CommonScheduleItem } from '../../../hooks/useCommonSchedules';
+import { CommonScheduleList } from './CommonScheduleList';
 
 interface GroupChatDetailModalProps {
   visible: boolean;
@@ -26,6 +28,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
   groupChat,
   onClose,
 }) => {
+  const theme = useAppTheme();
   const [activeTab, setActiveTab] = useState<TabMode>('matrix');
   const [messageText, setMessageText] = useState('');
   const [messages, setMessages] = useState<
@@ -35,6 +38,31 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
     { id: '2', sender: '한준혁', text: '저는 이번 주말 다 좋습니다!', time: '오후 1:12' },
     { id: '3', sender: '송지원', text: '스케줄 매트릭스 보니까 14일이랑 20일이 다 오프네요!', time: '오후 1:15' },
   ]);
+
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth(); // 0-indexed
+
+  // 커스텀 훅으로 추출된 공통 스케줄 로직
+  const {
+    commonSchedules,
+    filteredCommonSchedules,
+    filter: commonScheduleFilter,
+    setFilter: setCommonScheduleFilter,
+  } = useCommonSchedules(groupChat, currentYear, currentMonth);
+
+  const handleShareCommonSchedule = (item: CommonScheduleItem) => {
+    setActiveTab('chat');
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `gmsg_${Date.now()}`,
+        sender: '나',
+        text: `📢 [공통 스케줄] ${currentMonth + 1}월 ${item.day}일(${item.dayOfWeek}) : ${item.title} (${item.memberNames.join(', ')})`,
+        time: '방금 전',
+        isMe: true,
+      },
+    ]);
+  };
 
   if (!groupChat) return null;
 
@@ -62,7 +90,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={styles.backBtnText}>‹ 뒤로</Text>
+            <Text style={[styles.backBtnText, { color: theme.primary }]}>‹ 뒤로</Text>
           </TouchableOpacity>
 
           <View style={styles.headerCenter}>
@@ -76,34 +104,50 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
         {/* 탭 네비게이션 */}
         <View style={styles.tabRow}>
           <TouchableOpacity
-            style={[styles.tabBtn, activeTab === 'matrix' && styles.tabBtnActive]}
+            style={[
+              styles.tabBtn,
+              activeTab === 'matrix' && { backgroundColor: theme.primary, borderColor: theme.primary },
+            ]}
             onPress={() => setActiveTab('matrix')}
           >
-            <CalendarIcon size={16} color={activeTab === 'matrix' ? '#FFFFFF' : COLORS.textSecondary} />
-            <Text style={[styles.tabText, activeTab === 'matrix' && styles.tabTextActive]}>
-              구성원 스케줄 일괄 비교
+            <CalendarIcon size={16} color={activeTab === 'matrix' ? theme.onPrimaryText : COLORS.textSecondary} />
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'matrix' && { color: theme.onPrimaryText },
+              ]}
+            >
+              스케줄 비교
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.tabBtn, activeTab === 'chat' && styles.tabBtnActive]}
+            style={[
+              styles.tabBtn,
+              activeTab === 'chat' && { backgroundColor: theme.primary, borderColor: theme.primary },
+            ]}
             onPress={() => setActiveTab('chat')}
           >
-            <UsersIcon size={16} color={activeTab === 'chat' ? '#FFFFFF' : COLORS.textSecondary} />
-            <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>
+            <UsersIcon size={16} color={activeTab === 'chat' ? theme.onPrimaryText : COLORS.textSecondary} />
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'chat' && { color: theme.onPrimaryText },
+              ]}
+            >
               단체 대화방
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* ══════════ TAB 1: 전원 스케줄 일괄 비교 매트릭스 ══════════ */}
+        {/* ══════════ TAB 1: 전원 스케줄 비교 매트릭스 ══════════ */}
         {activeTab === 'matrix' && (
           <ScrollView style={styles.matrixScroll} contentContainerStyle={styles.matrixContent}>
             {/* 골든 오프(전원 휴무일) 추천 배너 */}
-            <View style={styles.goldenOffCard}>
-              <Text style={styles.goldenOffTitle}>회식 & 모임 추천일 (Golden Off)</Text>
+            <View style={[styles.goldenOffCard, { backgroundColor: theme.primaryTint, borderLeftColor: theme.primary }]}>
+              <Text style={[styles.goldenOffTitle, { color: theme.primary }]}>회식 & 모임 추천일 (Golden Off)</Text>
               <Text style={styles.goldenOffDesc}>
-                <Text style={styles.boldPink}>9월 14일(일)</Text>과 <Text style={styles.boldPink}>9월 20일(토)</Text>에 전원 또는 과반수가 쉬는 날입니다!
+                <Text style={{ color: theme.primary, fontWeight: '800' }}>9월 14일(일)</Text>과 <Text style={{ color: theme.primary, fontWeight: '800' }}>9월 20일(토)</Text>에 전원 또는 과반수가 쉬는 날입니다!
               </Text>
             </View>
 
@@ -112,20 +156,32 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
               <Text style={styles.scrollHint}>좌우로 스크롤하여 날짜별 확인</Text>
             </View>
 
-            {/* 스케줄 테이블 매트릭스 */}
+            {/* 스케줄 테이블 매트릭스 (마이듀티 레퍼런스 스타일: 넉넉한 셀과 볼드 뱃지) */}
             <View style={styles.tableCard}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View>
-                  {/* 날짜 헤더 행 */}
+                  {/* 날짜 + 요일 2단 헤더 행 */}
                   <View style={styles.tableRow}>
                     <View style={styles.memberColHeader}>
                       <Text style={styles.colHeaderText}>구성원</Text>
                     </View>
-                    {days.map((d) => (
-                      <View key={`day_${d}`} style={styles.dayColHeader}>
-                        <Text style={styles.dayHeaderText}>{d}</Text>
-                      </View>
-                    ))}
+                    {days.map((d) => {
+                      const dateObj = new Date(currentYear, currentMonth, d);
+                      const dayOfWeekIdx = dateObj.getDay();
+                      const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][dayOfWeekIdx];
+                      const isSun = dayOfWeekIdx === 0;
+                      const isSat = dayOfWeekIdx === 6;
+                      return (
+                        <View key={`day_${d}`} style={styles.dayColHeader}>
+                          <Text style={[styles.dayHeaderText, isSun && styles.sundayText, isSat && styles.saturdayText]}>
+                            {d}
+                          </Text>
+                          <Text style={[styles.dayWeekText, isSun && styles.sundayText, isSat && styles.saturdayText]}>
+                            {dayOfWeek}
+                          </Text>
+                        </View>
+                      );
+                    })}
                   </View>
 
                   {/* 각 멤버별 스케줄 행 */}
@@ -142,14 +198,15 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
 
                       {member.monthlyShifts.map((s) => {
                         const shiftColor = SHIFT_TYPES[s.shift]?.color || '#9CA3AF';
-                        const isOff = s.shift === 'O';
                         return (
                           <View
                             key={`shift_${member.id}_${s.day}`}
-                            style={[styles.shiftCell, isOff && styles.offCellHighlight]}
+                            style={styles.shiftCell}
                           >
                             <View style={[styles.shiftBadge, { backgroundColor: shiftColor }]}>
-                              <Text style={styles.shiftBadgeText}>{s.shift}</Text>
+                              <Text style={styles.shiftBadgeText}>
+                                {s.shift === 'O' ? 'OFF' : s.shift}
+                              </Text>
                             </View>
                           </View>
                         );
@@ -179,6 +236,15 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                 <Text style={styles.legendText}>Off</Text>
               </View>
             </View>
+
+            {/* ══════════ 듀티 매트릭스 아래: 공통 스케줄 목록 (모듈 분리) ══════════ */}
+            <CommonScheduleList
+              commonSchedules={commonSchedules}
+              filteredCommonSchedules={filteredCommonSchedules}
+              filter={commonScheduleFilter}
+              onFilterChange={setCommonScheduleFilter}
+              onShareSchedule={handleShareCommonSchedule}
+            />
           </ScrollView>
         )}
 
@@ -193,8 +259,18 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                 >
                   <View style={{ maxWidth: '78%' }}>
                     {!m.isMe && <Text style={styles.senderName}>{m.sender}</Text>}
-                    <View style={[styles.bubble, m.isMe ? styles.bubbleMe : styles.bubbleOther]}>
-                      <Text style={[styles.bubbleText, m.isMe ? styles.bubbleTextMe : styles.bubbleTextOther]}>
+                    <View
+                      style={[
+                        styles.bubble,
+                        m.isMe ? [styles.bubbleMe, { backgroundColor: theme.primary }] : styles.bubbleOther,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.bubbleText,
+                          m.isMe ? [styles.bubbleTextMe, { color: theme.onPrimaryText }] : styles.bubbleTextOther,
+                        ]}
+                      >
                         {m.text}
                       </Text>
                     </View>
@@ -215,11 +291,14 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                 placeholderTextColor={COLORS.textMuted}
               />
               <TouchableOpacity
-                style={[styles.sendBtn, !messageText.trim() && styles.sendBtnDisabled]}
+                style={[
+                  styles.sendBtn,
+                  messageText.trim() ? { backgroundColor: theme.primary } : styles.sendBtnDisabled,
+                ]}
                 onPress={handleSendMessage}
                 disabled={!messageText.trim()}
               >
-                <SendIcon size={18} color="#FFFFFF" />
+                <SendIcon size={18} color={messageText.trim() ? theme.onPrimaryText : '#9CA3AF'} />
               </TouchableOpacity>
             </View>
           </View>
@@ -364,34 +443,50 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   memberColHeader: {
-    width: 90,
+    width: 78,
     paddingLeft: 4,
   },
   colHeaderText: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '800',
     color: COLORS.textSecondary,
   },
   dayColHeader: {
-    width: 28,
+    width: 44,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
+    borderLeftWidth: 0.5,
+    borderLeftColor: '#F3F4F6',
   },
   dayHeaderText: {
-    fontSize: 11,
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+  },
+  dayWeekText: {
+    fontSize: 10,
     fontWeight: '700',
     color: COLORS.textMuted,
+    marginTop: 1,
+  },
+  sundayText: {
+    color: '#EF4444',
+  },
+  saturdayText: {
+    color: '#3B82F6',
   },
   memberCol: {
-    width: 90,
+    width: 78,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    paddingLeft: 2,
   },
   miniAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -407,25 +502,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   shiftCell: {
-    width: 28,
-    height: 28,
+    width: 44,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 4,
+    borderLeftWidth: 0.5,
+    borderLeftColor: '#F3F4F6',
   },
   offCellHighlight: {
     backgroundColor: '#FFF1F4',
   },
   shiftBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 1.5,
+    elevation: 1,
   },
   shiftBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: 13,
+    fontWeight: '900',
     color: '#FFFFFF',
   },
   legendRow: {
@@ -433,7 +534,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 14,
-    marginTop: 4,
+    marginTop: 6,
+    marginBottom: 8,
   },
   legendItem: {
     flexDirection: 'row',

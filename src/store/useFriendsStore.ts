@@ -30,15 +30,37 @@ interface FriendsState {
     myUserId?: string
   ) => Promise<void>;
   respondToSwap: (friendId: string, messageId: string, accept: boolean) => Promise<void>;
+  createGroupChat: (name: string, category: string, members: FriendDetail[]) => void;
   subscribeRealtimeChat: (myUserId: string) => void;
   unsubscribeRealtimeChat: () => void;
 }
 
 export const useFriendsStore = create<FriendsState>((set, get) => ({
   friends: [],
-  groupChats: MOCK_GROUP_CHATS,
+  groupChats: [],
   chatMessages: {},
   isLoading: false,
+
+  createGroupChat: (name: string, category: string, members: FriendDetail[]) => {
+    const newGroup: GroupChat = {
+      id: `group_${Date.now()}`,
+      name,
+      category,
+      unreadCount: 0,
+      lastMessage: '단체 모임이 개설되었습니다.',
+      lastTime: '방금',
+      members: members.map((m) => ({
+        id: m.id,
+        name: m.name,
+        role: m.role,
+        avatarLetter: m.avatarLetter,
+        avatarBg: m.avatarBg,
+        todayShift: m.todayShift,
+        monthlyShifts: m.monthlyShifts,
+      })),
+    };
+    set((state) => ({ groupChats: [newGroup, ...state.groupChats] }));
+  },
 
   // 친구 목록 DB 조회
   fetchFriends: async (userId: string) => {

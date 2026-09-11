@@ -5,6 +5,7 @@ export type AdminMenuKey =
   | 'dashboard'
   | 'waitlist'
   | 'users'
+  | 'inquiries'
   | 'verification'
   | 'community'
   | 'analytics'
@@ -16,6 +17,7 @@ interface AdminSidebarProps {
   onSelectMenu: (menu: AdminMenuKey) => void;
   pendingReportsCount?: number;
   pendingVerificationsCount?: number;
+  pendingInquiriesCount?: number;
   onGoMain: () => void;
 }
 
@@ -24,6 +26,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onSelectMenu,
   pendingReportsCount = 0,
   pendingVerificationsCount = 0,
+  pendingInquiriesCount = 0,
   onGoMain,
 }) => {
   const menuItems: {
@@ -36,6 +39,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { key: 'dashboard', label: '대시보드', icon: '⊞' },
     { key: 'waitlist', label: '사전예약 대기자 (Waitlist)', icon: '📬' },
     { key: 'users', label: '회원 관리', icon: '👥' },
+    {
+      key: 'inquiries',
+      label: '고객 문의 센터',
+      icon: '🎧',
+      badge: pendingInquiriesCount > 0 ? pendingInquiriesCount : undefined,
+    },
     {
       key: 'verification',
       label: '간호 서류 인증 심사',

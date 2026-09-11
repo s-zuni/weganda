@@ -163,7 +163,7 @@ export const TERMS_OF_SERVICE: LegalDocument = {
       title: '부칙',
       paragraphs: [
         '본 약관은 2026년 9월 1일부터 시행합니다.',
-        '공식 문의처: contact@weganda.kr | 운영사: 우간다 (Weganda) | 대표자: 이승준',
+        '운영사: 스즈니(SZUNI) | 대표자: 이승준 | 사업자등록번호: 364-45-01374 | 고객센터: 070-8095-3075 | 이메일: buiszuni@gmail.com',
       ],
     },
   ],

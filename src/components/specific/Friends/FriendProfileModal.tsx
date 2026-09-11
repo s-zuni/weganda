@@ -43,6 +43,8 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
   onProposeSwap,
 }) => {
   const { toggleFavorite } = useFriendsStore();
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
 
   if (!friend) return null;
 
@@ -141,16 +143,28 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
             <View style={styles.calendarContainer}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={styles.calendarGrid}>
-                  {/* 날짜 행 */}
+                  {/* 날짜 행 (일자 + 요일) */}
                   <View style={styles.calendarRow}>
                     <View style={styles.rowLabelCell}>
                       <Text style={styles.rowLabelText}>일자</Text>
                     </View>
-                    {friend.monthlyShifts.map((s) => (
-                      <View key={`day_${s.day}`} style={styles.cellDay}>
-                        <Text style={styles.dayNumText}>{s.day}</Text>
-                      </View>
-                    ))}
+                    {friend.monthlyShifts.map((s) => {
+                      const dateObj = new Date(currentYear, currentMonth, s.day);
+                      const dayOfWeekIdx = dateObj.getDay();
+                      const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][dayOfWeekIdx];
+                      const isSun = dayOfWeekIdx === 0;
+                      const isSat = dayOfWeekIdx === 6;
+                      return (
+                        <View key={`day_${s.day}`} style={styles.cellDay}>
+                          <Text style={[styles.dayNumText, isSun && styles.sundayText, isSat && styles.saturdayText]}>
+                            {s.day}
+                          </Text>
+                          <Text style={[styles.dayWeekText, isSun && styles.sundayText, isSat && styles.saturdayText]}>
+                            {dayOfWeek}
+                          </Text>
+                        </View>
+                      );
+                    })}
                   </View>
 
                   {/* 친구 듀티 행 */}
@@ -163,7 +177,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
                       return (
                         <View key={`f_shift_${s.day}`} style={styles.cellShift}>
                           <View style={[styles.shiftDot, { backgroundColor: color }]}>
-                            <Text style={styles.shiftDotText}>{s.shift}</Text>
+                            <Text style={styles.shiftDotText}>{s.shift === 'O' ? 'OFF' : s.shift}</Text>
                           </View>
                         </View>
                       );
@@ -185,7 +199,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
                           style={[styles.cellShift, isBothOff && styles.bothOffCell]}
                         >
                           <View style={[styles.shiftDot, { backgroundColor: color }]}>
-                            <Text style={styles.shiftDotText}>{myShift}</Text>
+                            <Text style={styles.shiftDotText}>{myShift === 'O' ? 'OFF' : myShift}</Text>
                           </View>
                         </View>
                       );
@@ -475,50 +489,69 @@ const styles = StyleSheet.create({
   calendarRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 2,
   },
   rowLabelCell: {
-    width: 32,
+    width: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rowLabelText: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '800',
     color: COLORS.textSecondary,
   },
   cellDay: {
-    width: 28,
-    height: 24,
+    width: 42,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
+    borderLeftWidth: 0.5,
+    borderLeftColor: '#F3F4F6',
   },
   dayNumText: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+  },
+  dayWeekText: {
+    fontSize: 10,
+    fontWeight: '700',
     color: COLORS.textMuted,
+    marginTop: 1,
+  },
+  sundayText: {
+    color: '#EF4444',
+  },
+  saturdayText: {
+    color: '#3B82F6',
   },
   cellShift: {
-    width: 28,
-    height: 28,
+    width: 42,
+    height: 46,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 4,
+    borderLeftWidth: 0.5,
+    borderLeftColor: '#F3F4F6',
   },
   bothOffCell: {
     backgroundColor: '#FFF1F4',
-    borderWidth: 1,
-    borderColor: COLORS.primaryLight,
   },
   shiftDot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 1.5,
+    elevation: 1,
   },
   shiftDotText: {
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: 13,
+    fontWeight: '900',
     color: '#FFFFFF',
   },
   legendRow: {

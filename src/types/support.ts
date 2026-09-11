@@ -64,6 +64,7 @@ export const BUSINESS_INFO = {
   representative: '이승준',
   tel: '070-8095-3075',
   email: 'buiszuni@gmail.com',
-  officialServiceEmail: 'contact@weganda.kr',
+  officialServiceEmail: 'buiszuni@gmail.com',
   hours: '평일 09:00 ~ 18:00 (주말 및 공휴일 휴무)',
 } as const;
+

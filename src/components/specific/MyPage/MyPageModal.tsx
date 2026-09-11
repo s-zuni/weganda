@@ -14,14 +14,23 @@ import {
   Linking,
 } from 'react-native';
 import { COLORS, useAppTheme } from '../../../constants/theme';
+import * as Clipboard from 'expo-clipboard';
 import { useUserStore } from '../../../store/useUserStore';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 import { BirthInfoModal } from '../Fortune/BirthInfoModal';
-import { UserIcon, SparklesIcon, CalendarIcon, BookmarkIcon, CrownIcon, LockIcon, PaletteIcon } from '../../common/Icon';
+import { UserIcon, SparklesIcon, CalendarIcon, BookmarkIcon, CrownIcon, LockIcon, PaletteIcon, ShieldCheckIcon } from '../../common/Icon';
 import { PremiumBadge } from '../../common/PremiumBadge';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { APP_THEME_COLORS, AppThemeColor } from '../../../constants/membership';
 import { VerificationModal } from '../Verification';
+import { SupportModal } from '../Support/SupportModal';
+import { BusinessInfoModal } from '../Support/BusinessInfoModal';
+import { BurnoutGuardModal } from './BurnoutGuardModal';
+import { MyPageUserCodeBadge } from './MyPageUserCodeBadge';
+import { MyPageBurnoutBanner } from './MyPageBurnoutBanner';
+import { MyPageSupportSection } from './MyPageSupportSection';
+import { MyPageFooterSection } from './MyPageFooterSection';
+import { InquiryCategory, BUSINESS_INFO } from '../../../types/support';
 
 interface MyPageModalProps {
   visible: boolean;
@@ -35,6 +44,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
     hospitalName: storeHospital,
     wardName: storeWard,
     experienceYears: storeExp,
+    userCode,
     isPremium,
     role,
     verificationStatus,
@@ -60,7 +70,11 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
   const [notifPush, setNotifPush] = useState(true);
   const [birthModalVisible, setBirthModalVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
+  const [burnoutModalVisible, setBurnoutModalVisible] = useState(false);
   const [verificationModalVisible, setVerificationModalVisible] = useState(false);
+  const [supportModalVisible, setSupportModalVisible] = useState(false);
+  const [supportCategory, setSupportCategory] = useState<InquiryCategory>('서비스 문의');
+  const [businessInfoVisible, setBusinessInfoVisible] = useState(false);
 
   const handleCancelSubscription = () => {
     const isTrial = subscriptionInfo?.isTrial;
@@ -161,6 +175,12 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
     Alert.alert('저장 완료', '프로필 정보가 성공적으로 변경되었습니다.');
   };
 
+  const handleCopyUserCode = async () => {
+    if (!userCode) return;
+    await Clipboard.setStringAsync(userCode);
+    Alert.alert('고유번호 복사', `간호사 고유번호 #${userCode}가 클립보드에 복사되었습니다.\n동료 간호사에게 전달하여 친구를 맺어보세요!`);
+  };
+
   return (
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <KeyboardAvoidingView
@@ -190,7 +210,10 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
                 <UserIcon size={24} color={theme.primary} />
               </View>
               <View style={styles.profileTexts}>
-                <Text style={styles.userName}>{name}</Text>
+                <View style={styles.profileNameRow}>
+                  <Text style={styles.userName}>{name}</Text>
+                  <MyPageUserCodeBadge userCode={userCode} onCopy={handleCopyUserCode} />
+                </View>
                 <Text style={styles.userRole}>
                   {hospitalName} • {wardName} ({experienceYears}년차)
                 </Text>
@@ -314,6 +337,9 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             </View>
             <Text style={styles.verificationCardArrow}>›</Text>
           </TouchableOpacity>
+
+          {/* 🩺 스마트 듀티 건강 & 번아웃 위험도 분석 배너 카드 (유료 기능 안내 & 바로가기) */}
+          <MyPageBurnoutBanner onPress={() => setBurnoutModalVisible(true)} />
 
           {/* weganda+ 멤버십 배지 */}
           <PremiumBadge
@@ -553,6 +579,14 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             </View>
           </View>
 
+          {/* ── 고객센터 & 1:1 문의 (모듈 분리) ── */}
+          <MyPageSupportSection
+            onOpenSupport={(cat) => {
+              setSupportCategory(cat);
+              setSupportModalVisible(true);
+            }}
+          />
+
           {/* ── 약관 및 정책 (Apple / Google 심사 필수) ── */}
           <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>약관 및 정책</Text>
@@ -636,10 +670,14 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             </TouchableOpacity>
           </View>
 
-          {/* 로그아웃 버튼 */}
-          <TouchableOpacity
-            style={styles.logoutBtn}
-            onPress={() =>
+          {/* ── 최하단 서비스 안내 및 고객지원 버튼 (모듈 분리) ── */}
+          <MyPageFooterSection
+            onOpenSupport={() => {
+              setSupportCategory('서비스 문의');
+              setSupportModalVisible(true);
+            }}
+            onOpenBusinessInfo={() => setBusinessInfoVisible(true)}
+            onLogout={() =>
               Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
                 { text: '취소', style: 'cancel' },
                 {
@@ -652,20 +690,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
                 },
               ])
             }
-          >
-            <Text style={styles.logoutBtnText}>로그아웃</Text>
-          </TouchableOpacity>
-
-          {/* ⚠️ 회원 탈퇴 버튼 (Apple Guideline 5.1.1(v) 필수 요건) */}
-          <TouchableOpacity
-            style={styles.deleteAccountBtn}
-            onPress={handleDeleteAccount}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel="회원 탈퇴"
-          >
-            <Text style={styles.deleteAccountBtnText}>회원 탈퇴</Text>
-          </TouchableOpacity>
+            onDeleteAccount={handleDeleteAccount}
+          />
         </ScrollView>
 
         {/* 사주 탄생정보 수정 모달 */}
@@ -679,10 +705,34 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
           onClose={() => setMembershipVisible(false)}
         />
 
+        {/* 고객센터 1:1 문의 모달 */}
+        <SupportModal
+          visible={supportModalVisible}
+          onClose={() => setSupportModalVisible(false)}
+          initialCategory={supportCategory}
+        />
+
+        {/* 사업자 정보 확인 모달 */}
+        <BusinessInfoModal
+          visible={businessInfoVisible}
+          onClose={() => setBusinessInfoVisible(false)}
+        />
+
         {/* 전문직/간호학생 인증 모달 */}
         <VerificationModal
           visible={verificationModalVisible}
           onClose={() => setVerificationModalVisible(false)}
+        />
+
+        {/* 🩺 스마트 듀티 건강 & 번아웃 위험도 AI 분석 모달 */}
+        <BurnoutGuardModal
+          visible={burnoutModalVisible}
+          isPremium={isPremium}
+          onClose={() => setBurnoutModalVisible(false)}
+          onOpenMembership={() => {
+            setBurnoutModalVisible(false);
+            setMembershipVisible(true);
+          }}
         />
       </KeyboardAvoidingView>
     </Modal>
@@ -749,6 +799,12 @@ const styles = StyleSheet.create({
   },
   profileTexts: {
     flex: 1,
+  },
+  profileNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
   },
   userName: {
     fontSize: 20,
@@ -1103,7 +1159,7 @@ const styles = StyleSheet.create({
   },
   subPriceText: {
     fontSize: 14,
-    color: '#FF507C',
+    color: COLORS.primary,
     fontWeight: '700',
   },
   subDateInfoBox: {

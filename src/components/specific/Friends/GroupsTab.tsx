@@ -1,19 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Modal,
+  TextInput,
+  ScrollView,
+  Platform,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../constants/theme';
 import {
   PlusIcon,
   UsersIcon,
   CalendarIcon,
   LockIcon,
 } from '../../common/Icon';
-import { GroupChat } from '../../../types/friends';
+import { GroupChat, FriendDetail } from '../../../types/friends';
+import { useFriendsStore } from '../../../store/useFriendsStore';
+import { CreateGroupModal } from './CreateGroupModal';
 
 interface GroupsTabProps {
   groupChats: GroupChat[];
@@ -26,10 +32,30 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
   groupChats,
   onOpenGroup,
 }) => {
+  const theme = useAppTheme();
+  const { friends, createGroupChat } = useFriendsStore();
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+
+  const handleCreateGroup = (name: string, category: string, chosenFriends: typeof friends) => {
+    createGroupChat(name, category, chosenFriends);
+    Alert.alert('개설 완료', `'${name}' 모임 방이 성공적으로 생성되었습니다!`);
+  };
+
   return (
     <View style={styles.groupContainer}>
       <View style={styles.groupNoticeCard}>
-        <Text style={styles.groupNoticeTitle}>구성원 스케줄 한눈에 비교하기</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+          <Text style={styles.groupNoticeTitle}>구성원 스케줄 한눈에 비교하기</Text>
+          {groupChats.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setCreateModalVisible(true)}
+              style={[styles.smallCreateBtn, { backgroundColor: theme.primary }]}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.smallCreateBtnText, { color: theme.onPrimaryText }]}>+ 모임 개설</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         <Text style={styles.groupNoticeSub}>
           단체 톡방을 터치하면 단원들의 이번 달 듀티(D/E/N/O)를 한 표에서 교차 대조할 수 있습니다.
         </Text>
@@ -43,17 +69,12 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
             병동이나 동기 모임을 만들어 여러 명의 스케줄을 한눈에 비교해보세요!
           </Text>
           <TouchableOpacity
-            style={styles.emptyAddBtn}
-            onPress={() =>
-              Alert.alert(
-                '모임 방 만들기',
-                '새로운 동기 모임이나 병동 스케줄 공유방을 개설할 수 있습니다.'
-              )
-            }
+            style={[styles.emptyAddBtn, { backgroundColor: theme.primary }]}
+            onPress={() => setCreateModalVisible(true)}
             activeOpacity={0.85}
           >
             <PlusIcon size={14} color="#FFFFFF" />
-            <Text style={styles.emptyAddBtnText}>새 모임 만들기</Text>
+            <Text style={[styles.emptyAddBtnText, { color: theme.onPrimaryText }]}>새 모임 만들기</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -97,8 +118,8 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
                   {group.lastMessage}
                 </Text>
                 <View style={styles.matrixBtnBadge}>
-                  <CalendarIcon size={12} color={COLORS.primary} />
-                  <Text style={styles.matrixBtnText}>스케줄 비교 ›</Text>
+                  <CalendarIcon size={12} color={theme.primary} />
+                  <Text style={[styles.matrixBtnText, { color: theme.primary }]}>스케줄 비교 ›</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -123,6 +144,14 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
           </Text>
         </View>
       </TouchableOpacity>
+
+      {/* ── 단체 모임 개설 모달 ── */}
+      <CreateGroupModal
+        visible={createModalVisible}
+        onClose={() => setCreateModalVisible(false)}
+        friends={friends}
+        onCreateGroup={handleCreateGroup}
+      />
     </View>
   );
 };
@@ -324,5 +353,16 @@ const styles = StyleSheet.create({
   aiRecommendTextLocked: {
     color: '#9CA3AF',
   },
+  smallCreateBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  smallCreateBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
 });
+
+export default GroupsTab;
 

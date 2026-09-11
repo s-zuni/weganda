@@ -24,6 +24,7 @@ import {
   SharedShiftBanner,
   FriendsListTab,
   GroupsTab,
+  AddFriendModal,
 } from '../../components/specific/Friends';
 
 type FriendsTabType = 'list' | 'groups';
@@ -52,6 +53,7 @@ export const FriendsScreen: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<GroupChat | null>(null);
   const [groupModalVisible, setGroupModalVisible] = useState(false);
   const [sharedShiftModalVisible, setSharedShiftModalVisible] = useState(false);
+  const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
 
   // 친구 검색 필터
   const filteredFriends = friends.filter(
@@ -87,10 +89,7 @@ export const FriendsScreen: React.FC = () => {
   };
 
   const handleAddFriend = () => {
-    Alert.alert(
-      '친구 추가',
-      '사내 메신저 연동 또는 사번/연락처로 동기를 검색하여 친구를 추가할 수 있습니다.'
-    );
+    setAddFriendModalVisible(true);
   };
 
   return (
@@ -212,6 +211,12 @@ export const FriendsScreen: React.FC = () => {
         friends={friends}
         onClose={() => setSharedShiftModalVisible(false)}
         onOpenChat={(f) => handleOpenChat(f)}
+      />
+
+      {/* 👥 동료 간호사 친구 추가 모달 (7자리 고유번호 & 연락처 수동 추가) */}
+      <AddFriendModal
+        visible={addFriendModalVisible}
+        onClose={() => setAddFriendModalVisible(false)}
       />
     </SafeAreaView>
   );

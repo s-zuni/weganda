@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useAppTheme } from '../../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../../constants/theme';
 import { ChartBarIcon, LockIcon } from '../../../common/Icon';
 import { useSalaryStore } from '../../../../store/useSalaryStore';
 import { useShiftScheduleStore } from '../../../../store/useShiftScheduleStore';
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FF507C',
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -217,10 +217,11 @@ class InAppPurchaseService {
     const price = options?.price || (planType === 'yearly' ? (isEarlybird ? 59000 : 70000) : (isEarlybird ? 5900 : 7900));
     const isTrial = options?.isTrial !== undefined ? options.isTrial : true;
 
-    try {
-      const RNIap = getNativeIap();
+    const isNative = this.isNativeSupported();
+    const RNIap = isNative ? getNativeIap() : null;
 
-      if (RNIap && typeof RNIap.requestPurchase === 'function' && this.isNativeSupported()) {
+    if (isNative && RNIap && typeof RNIap.requestPurchase === 'function') {
+      try {
         console.log('[IAP] Invoking native requestPurchase for SKU:', targetSku);
 
         const requestPayload = {
@@ -239,15 +240,20 @@ class InAppPurchaseService {
           productId: targetSku,
           transactionId: 'tx-' + Date.now(),
         };
+      } catch (error: any) {
+        if (error?.code === 'E_USER_CANCELLED') {
+          return { success: false, errorMessage: '결제를 취소하셨습니다.' };
+        }
+        console.warn('[IAP] Native purchase error:', error?.message);
+        return {
+          success: false,
+          errorMessage: error?.message || '결제 진행 중 오류가 발생했습니다. 다시 시도해주세요.',
+        };
       }
-    } catch (error: any) {
-      if (error?.code === 'E_USER_CANCELLED') {
-        return { success: false, errorMessage: '결제를 취소하셨습니다.' };
-      }
-      console.warn('[IAP] Native purchase error, falling back to mock flow:', error?.message);
     }
 
-    // Mock Flow: Simulate network delay (1.5s) and confirm subscription
+    // Mock Flow: 웹 또는 네이티브 IAP 모듈이 없는 모의/개발 환경에서만 시뮬레이션 동작
+    // (실제 iOS / Android 프로덕션 환경에서는 결제 실패 시 무료 승급이 절대 발생하지 않음)
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // 계산된 구독 정보로 전역 스토어 업데이트

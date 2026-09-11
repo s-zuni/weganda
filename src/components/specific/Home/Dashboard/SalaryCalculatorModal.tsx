@@ -15,6 +15,7 @@ import { COLORS, useAppTheme } from '../../../../constants/theme';
 import { useSalaryStore } from '../../../../store/useSalaryStore';
 import { useShiftScheduleStore } from '../../../../store/useShiftScheduleStore';
 import { ChartBarIcon } from '../../../common/Icon';
+import { SwipeableBottomSheet } from '../../../common/SwipeableBottomSheet';
 
 interface SalaryCalculatorModalProps {
   visible: boolean;
@@ -109,13 +110,8 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.modalOverlay}
-      >
-        <View style={styles.modalContainer}>
-          {/* 헤더 */}
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height="90%" maxHeight="92%">
+      {/* 헤더 */}
           <View style={styles.modalHeader}>
             <View style={styles.headerTitleGroup}>
               <View style={[styles.headerIconCircle, { backgroundColor: theme.primary }]}>
@@ -251,9 +247,7 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
               <Text style={styles.saveBtnText}>설정 저장 및 예측 반영</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

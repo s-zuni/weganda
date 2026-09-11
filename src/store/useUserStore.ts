@@ -17,6 +17,7 @@ export interface UserState {
   wardName: string;
   experienceYears: number;
   avatarUrl?: string;
+  userCode: string | null; // 7자리 고유번호
   isAuthenticated: boolean;
   isGuest: boolean;
   isLoading: boolean;
@@ -88,6 +89,7 @@ export const useUserStore = create<UserState>()(
   wardName: '',
   experienceYears: 1,
   avatarUrl: undefined,
+  userCode: null,
   isAuthenticated: false,
   isGuest: false,
   isLoading: true,
@@ -297,6 +299,7 @@ export const useUserStore = create<UserState>()(
           avatarUrl: profile.avatarUrl || current.avatarUrl || meta.avatar_url || meta.picture,
           role: userRole,
           isPremium: userRole === 'plus' || userRole === 'admin' || get().isPremium,
+          userCode: profile.userCode || current.userCode || null,
           hasCompletedOnboarding: true,
         });
 
@@ -329,6 +332,7 @@ export const useUserStore = create<UserState>()(
       isAuthenticated: false,
       isGuest: false,
       isLoading: false,
+      userCode: null,
       role: 'user',
       isPremium: false,
       monthlyFortuneCount: 0,
@@ -429,6 +433,7 @@ export const useUserStore = create<UserState>()(
         wardName: state.wardName,
         experienceYears: state.experienceYears,
         avatarUrl: state.avatarUrl,
+        userCode: state.userCode,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         schoolName: state.schoolName,
         schoolGrade: state.schoolGrade,

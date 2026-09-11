@@ -10,7 +10,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../constants/theme';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { nativeCalendarService } from '../../../services/nativeCalendarService';
@@ -27,6 +27,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
   onClose,
   onOpenAddSchedule,
 }) => {
+  const theme = useAppTheme();
   const { currentDate, schedules, customCodes, changeMonth } = useShiftScheduleStore();
   const userId = useUserStore((s) => s.id);
   const today = new Date();
@@ -89,7 +90,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
     const cells = [];
     // 이전 달 빈칸 패딩
     for (let i = 0; i < firstDayIndex; i++) {
-      cells.push(<View key={`empty-${i}`} style={styles.dayCell} />);
+      cells.push(<View key={`empty-${i}`} style={styles.dayCellEmpty} />);
     }
 
     // 당월 날짜들
@@ -101,6 +102,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
       const shiftInfo = code ? customCodes[code] || { code, name: code, color: COLORS.primary, textColor: '#FFF' } : null;
       const isSelected = selectedDateStr === dateKey;
       const isToday = dateKey === defaultDateStr;
+      const dayOfWeek = (firstDayIndex + day - 1) % 7;
 
       cells.push(
         <TouchableOpacity
@@ -109,20 +111,26 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
           onPress={() => setSelectedDateStr(dateKey)}
           activeOpacity={0.7}
         >
-          <View style={[styles.dateCircle, isToday && styles.todayDateCircle]}>
-            <Text style={[styles.dayNumberText, isToday && styles.todayNumberText]}>
+          <View style={[styles.dateHeaderRow, isToday && { backgroundColor: theme.primary }]}>
+            <Text
+              style={[
+                styles.dayNumberText,
+                dayOfWeek === 0 ? styles.sundayText : dayOfWeek === 6 ? styles.saturdayText : null,
+                isToday && [styles.todayNumberText, { color: theme.onPrimaryText }],
+              ]}
+            >
               {day}
             </Text>
           </View>
 
           {shiftInfo ? (
-            <View style={[styles.shiftBadge, { backgroundColor: shiftInfo.color }]}>
-              <Text style={[styles.shiftBadgeText, { color: shiftInfo.textColor }]}>
-                {shiftInfo.code}
+            <View style={[styles.shiftBlock, { backgroundColor: shiftInfo.color }]}>
+              <Text style={[styles.shiftBlockText, { color: shiftInfo.textColor || '#FFFFFF' }]}>
+                {shiftInfo.code === 'O' ? '🛏️' : shiftInfo.code}
               </Text>
             </View>
           ) : (
-            <View style={styles.emptyShiftSpace} />
+            <View style={styles.emptyShiftBlock} />
           )}
         </TouchableOpacity>
       );
@@ -171,6 +179,27 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
               </TouchableOpacity>
             </View>
 
+            {/* ── 상단 듀티 통계 바 (마이듀티 레퍼런스 스타일) ── */}
+            <View style={styles.topSummaryBar}>
+              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.D?.color || '#4F98CA' }]}>
+                <Text style={styles.topSummaryBadgeText}>D {dutyCounts.D || 0}</Text>
+              </View>
+              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.E?.color || '#E2703A' }]}>
+                <Text style={styles.topSummaryBadgeText}>E {dutyCounts.E || 0}</Text>
+              </View>
+              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.N?.color || '#272727' }]}>
+                <Text style={styles.topSummaryBadgeText}>N {dutyCounts.N || 0}</Text>
+              </View>
+              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.O?.color || '#E84A5F' }]}>
+                <Text style={styles.topSummaryBadgeText}>🛏️ {totalOffCount}</Text>
+              </View>
+              {(dutyCounts.V || 0) > 0 && (
+                <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.V?.color || '#9B51E0' }]}>
+                  <Text style={styles.topSummaryBadgeText}>V {dutyCounts.V}</Text>
+                </View>
+              )}
+            </View>
+
             {/* ── 요일 헤더 ── */}
             <View style={styles.weekHeader}>
               {daysOfWeek.map((d, idx) => (
@@ -204,14 +233,14 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
 
                 {onOpenAddSchedule && (
                   <TouchableOpacity
-                    style={styles.editDateBtn}
+                    style={[styles.editDateBtn, { backgroundColor: theme.primary }]}
                     onPress={() => {
                       onClose();
                       onOpenAddSchedule();
                     }}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.editDateBtnText}>스케줄 수정 ›</Text>
+                    <Text style={[styles.editDateBtnText, { color: theme.onPrimaryText }]}>스케줄 수정 ›</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -249,15 +278,18 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
 
             {/* ── 휴대폰 기본 캘린더 동기화 액션 버튼 ── */}
             <TouchableOpacity
-              style={styles.calendarSyncActionBtn}
+              style={[
+                styles.calendarSyncActionBtn,
+                { backgroundColor: theme.primaryTint, borderColor: theme.primaryLight },
+              ]}
               onPress={handleSyncNativeCalendar}
               disabled={isSyncing}
               activeOpacity={0.85}
             >
               {isSyncing ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
+                <ActivityIndicator color={theme.primary} size="small" />
               ) : (
-                <Text style={styles.calendarSyncActionText}>
+                <Text style={[styles.calendarSyncActionText, { color: theme.primary }]}>
                   🗓️ 휴대폰 기본 캘린더(iOS/Android)로 내보내기
                 </Text>
               )}
@@ -353,19 +385,52 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     marginTop: 2,
   },
+  topSummaryBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+  },
+  topSummaryBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    minWidth: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  topSummaryBadgeText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
   weekHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-    marginBottom: 6,
+    paddingVertical: 10,
+    backgroundColor: '#F9FAFB',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   weekHeaderText: {
     flex: 1,
     textAlign: 'center',
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textSecondary,
   },
   sundayText: {
@@ -377,52 +442,80 @@ const styles = StyleSheet.create({
   calendarGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#E5E7EB',
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    marginBottom: 8,
   },
   dayCell: {
-    width: '14.28%',
-    aspectRatio: 0.9,
+    width: '14.285%',
+    minHeight: 64,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingVertical: 4,
-    borderRadius: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 2,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#F3F4F6',
+    backgroundColor: '#FFFFFF',
+  },
+  dayCellEmpty: {
+    width: '14.285%',
+    minHeight: 64,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#F3F4F6',
+    backgroundColor: '#FAFAFA',
   },
   dayCellSelected: {
-    backgroundColor: 'rgba(255, 80, 124, 0.08)',
+    backgroundColor: '#FFF0F3',
   },
-  dateCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+  dateHeaderRow: {
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginBottom: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
   },
-  todayDateCircle: {
+  todayHeaderBg: {
     backgroundColor: COLORS.primary,
   },
   dayNumberText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: COLORS.textPrimary,
   },
   todayNumberText: {
     color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  shiftBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    minWidth: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  shiftBadgeText: {
-    fontSize: 10,
     fontWeight: '800',
   },
-  emptyShiftSpace: {
-    height: 18,
+  shiftBlock: {
+    width: '92%',
+    height: 30,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1.5,
+    elevation: 1,
+  },
+  shiftBlockText: {
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: -0.2,
+  },
+  emptyShiftBlock: {
+    height: 30,
+    marginTop: 2,
   },
   selectedDetailCard: {
     flexDirection: 'row',

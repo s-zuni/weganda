@@ -12,6 +12,7 @@ import { supabase } from './src/services/supabase';
 import ErrorBoundary from './src/components/common/ErrorBoundary';
 import SplashScreenView from './src/components/common/SplashScreenView';
 import { crashLogger } from './src/services/crashLogger';
+import { inAppPurchaseService } from './src/services/inAppPurchaseService';
 
 export default function App() {
   const initializeAuth = useUserStore((state) => state.initializeAuth);
@@ -129,6 +130,24 @@ export default function App() {
       }
     };
   }, [initializeAuth, syncUserFromSession, clearUser]);
+
+  // 5. In-App Purchase (IAP) 생명주기 초기화 및 미완료 트랜잭션 리스너 등록 (스토어 필수 요건)
+  useEffect(() => {
+    inAppPurchaseService.init().then(() => {
+      inAppPurchaseService.setupPurchaseListeners(
+        (purchase) => {
+          console.log('[IAP] In-app purchase transaction processed:', purchase?.productId);
+        },
+        (error) => {
+          console.warn('[IAP] In-app purchase listener error:', error);
+        }
+      );
+    });
+
+    return () => {
+      inAppPurchaseService.removePurchaseListeners();
+    };
+  }, []);
 
   // ── 웹(Browser) 환경 렌더링 ──
   if (Platform.OS === 'web') {

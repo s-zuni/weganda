@@ -132,3 +132,4 @@ export const useSupportStore = create<SupportState>((set, get) => ({
 
   setSelectedInquiry: (inquiry) => set({ selectedInquiry: inquiry }),
 }));
+

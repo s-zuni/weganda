@@ -27,6 +27,7 @@ import {
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
 import { SajuCategoryId } from '../../mocks/sajuCategories';
+import { FREE_LIMITS } from '../../constants/membership';
 
 export const FortuneScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -56,7 +57,7 @@ export const FortuneScreen: React.FC = () => {
   const [membershipVisible, setMembershipVisible] = useState(false);
 
   const handleRefreshDaily = () => {
-    if (!isPremium && monthlyFortuneCount >= 5) {
+    if (!isPremium && monthlyFortuneCount >= FREE_LIMITS.maxMonthlyFortune) {
       setPaywallVisible(true);
       return;
     }

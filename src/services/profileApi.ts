@@ -16,6 +16,7 @@ export interface ProfileItem {
   calendarType?: 'solar' | 'lunar';
   gender?: 'female' | 'male';
   pushToken?: string;
+  userCode?: string;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -53,6 +54,7 @@ export const profileApi = {
         calendarType: (data.calendar_type as any) || 'solar',
         gender: (data.gender as any) || undefined,
         pushToken: data.push_token || undefined,
+        userCode: (data as any).user_code || undefined,
         isActive: data.is_active ?? true,
         createdAt: data.created_at || undefined,
         updatedAt: data.updated_at || undefined,

@@ -192,5 +192,61 @@ export const friendsApi = {
     }
     return data || [];
   },
+
+  // 7자리 간호사 고유번호로 프로필 검색 (FR8)
+  async searchByNurseCode(userCode: string) {
+    const trimmed = userCode.trim();
+    if (!trimmed) return null;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, nickname, hospital_name, ward_name, experience_years, avatar_url, user_code')
+      .eq('user_code', trimmed)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error searching profile by nurse code:', error);
+      return null;
+    }
+    return data;
+  },
+
+  // 친구 직접 추가/요청 (FR9)
+  async addFriendDirect(userId: string, targetUserId: string): Promise<boolean> {
+    if (userId === targetUserId) {
+      throw new Error('본인과는 친구를 맺을 수 없습니다.');
+    }
+
+    // 이미 존재하는 관계인지 확인
+    const { data: existing } = await supabase
+      .from('friendships')
+      .select('id, status')
+      .or(`and(requester_id.eq.${userId},addressee_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},addressee_id.eq.${userId})`)
+      .maybeSingle();
+
+    if (existing) {
+      if (existing.status === 'accepted') {
+        throw new Error('이미 친구로 등록된 동료 간호사입니다.');
+      }
+      // 대기 중이면 바로 수락 처리
+      await supabase
+        .from('friendships')
+        .update({ status: 'accepted', updated_at: new Date().toISOString() })
+        .eq('id', existing.id);
+      return true;
+    }
+
+    const { error } = await supabase.from('friendships').insert({
+      requester_id: userId,
+      addressee_id: targetUserId,
+      status: 'accepted',
+    });
+
+    if (error) {
+      console.error('Error adding friend direct:', error);
+      throw error;
+    }
+    return true;
+  },
 };
 

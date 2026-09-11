@@ -21,11 +21,21 @@ export const WeeklyCalendarStrip: React.FC<WeeklyCalendarStripProps> = ({ weekDa
   return (
     <View style={styles.weekCard}>
       <View style={styles.weekStrip}>
-        {weekData.map((item) => {
+        {weekData.map((item, idx) => {
           const shiftInfo = item.shift ? SHIFT_TYPES[item.shift] : null;
+          const isSunday = idx === 0;
+          const isSaturday = idx === 6;
           return (
             <View key={item.dateKey} style={styles.dayColumn}>
-              <Text style={styles.dayLabel}>{item.day}</Text>
+              <Text
+                style={[
+                  styles.dayLabel,
+                  isSunday && styles.sundayLabel,
+                  isSaturday && styles.saturdayLabel,
+                ]}
+              >
+                {item.day}
+              </Text>
 
               {item.isToday ? (
                 <View style={[styles.todayCircle, { backgroundColor: theme.primary }]}>
@@ -33,13 +43,23 @@ export const WeeklyCalendarStrip: React.FC<WeeklyCalendarStripProps> = ({ weekDa
                   <Text style={[styles.todayDateText, { color: theme.onPrimaryText }]}>{item.date}</Text>
                 </View>
               ) : (
-                <Text style={styles.dateText}>{item.date}</Text>
+                <Text
+                  style={[
+                    styles.dateText,
+                    isSunday && styles.sundayLabel,
+                    isSaturday && styles.saturdayLabel,
+                  ]}
+                >
+                  {item.date}
+                </Text>
               )}
 
               {item.shift && shiftInfo ? (
-                <Text style={[styles.shiftLabel, { color: shiftInfo.color }]}>
-                  {item.shift}
-                </Text>
+                <View style={[styles.shiftBadge, { backgroundColor: shiftInfo.color }]}>
+                  <Text style={styles.shiftBadgeText}>
+                    {item.shift === 'O' ? 'OFF' : item.shift}
+                  </Text>
+                </View>
               ) : (
                 <View style={styles.emptyShiftSpace} />
               )}
@@ -80,6 +100,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: '600',
   },
+  sundayLabel: {
+    color: '#EF4444',
+  },
+  saturdayLabel: {
+    color: '#3B82F6',
+  },
   dateText: {
     fontSize: 15,
     fontWeight: '700',
@@ -107,12 +133,25 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     lineHeight: 15,
   },
-  shiftLabel: {
-    fontSize: 16,
+  shiftBadge: {
+    width: 38,
+    height: 28,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  shiftBadgeText: {
+    fontSize: 13,
     fontWeight: '900',
+    color: '#FFFFFF',
   },
   emptyShiftSpace: {
-    height: 18,
+    height: 28,
   },
 });
 

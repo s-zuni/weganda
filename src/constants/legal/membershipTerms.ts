@@ -122,7 +122,7 @@ export const MEMBERSHIP_TERMS: LegalDocument = {
         {
           subTitle: '2. Google Play Store (Android) 환불',
           items: [
-            '• Google Play 고객센터 또는 회사 고객지원팀(contact@weganda.kr)으로 Google 주문번호(GPA.XXXX-XXXX-XXXXX)와 계정 정보를 전달해 주시면 검토 후 처리됩니다.',
+            '• Google Play 고객센터 또는 회사 고객지원팀(buiszuni@gmail.com)으로 Google 주문번호(GPA.XXXX-XXXX-XXXXX)와 계정 정보를 전달해 주시면 검토 후 처리됩니다.',
           ],
         },
       ],
@@ -138,7 +138,7 @@ export const MEMBERSHIP_TERMS: LegalDocument = {
       title: '고객 지원 및 분쟁 처리',
       paragraphs: [
         '유료 서비스 이용과 관련한 문의, 불만 처리, 오류 제보는 공식 고객센터를 통해 신속하게 접수 및 처리됩니다.',
-        '• 공식 고객 문의: contact@weganda.kr',
+        '• 공식 고객 문의: buiszuni@gmail.com',
         '• 운영 시간: 평일 09:00 ~ 18:00 (공휴일 제외, 24시간 이내 답변 원칙)',
       ],
     },

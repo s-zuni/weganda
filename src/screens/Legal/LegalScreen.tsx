@@ -6,6 +6,7 @@ import { LegalSectionCard } from '../../components/specific/Legal/LegalSectionCa
 import { LEGAL_DOCUMENTS, LegalTabKey } from '../../constants/legal';
 import { COLORS } from '../../constants/theme';
 import { useResponsive } from '../../utils/useResponsive';
+import { BUSINESS_INFO } from '../../types/support';
 
 interface LegalScreenProps {
   initialTab?: LegalTabKey;
@@ -103,22 +104,30 @@ export const LegalScreen: React.FC<LegalScreenProps> = ({
               우간다 서비스 약관, 개인정보 처리방침, 멤버십 결제/환불 및 커뮤니티 운영과 관련하여 문의사항이 있으실 경우 고객지원센터로 연락 주시면 신속하게 안내해 드리겠습니다.
             </Text>
             <View style={styles.contactItemRow}>
+              <Text style={styles.contactItemLabel}>상호명 / 대표자</Text>
+              <Text style={styles.contactItemValue}>{BUSINESS_INFO.companyName} / {BUSINESS_INFO.representative}</Text>
+            </View>
+            <View style={styles.contactItemRow}>
+              <Text style={styles.contactItemLabel}>사업자등록번호</Text>
+              <Text style={styles.contactItemValue}>{BUSINESS_INFO.businessNumber}</Text>
+            </View>
+            <View style={styles.contactItemRow}>
+              <Text style={styles.contactItemLabel}>고객센터 전화</Text>
+              <Text style={styles.contactItemValue}>{BUSINESS_INFO.tel}</Text>
+            </View>
+            <View style={styles.contactItemRow}>
               <Text style={styles.contactItemLabel}>문의 이메일</Text>
-              <Text style={styles.contactItemValue}>contact@weganda.kr</Text>
+              <Text style={styles.contactItemValue}>{BUSINESS_INFO.email}</Text>
             </View>
             <View style={styles.contactItemRow}>
               <Text style={styles.contactItemLabel}>상담 운영시간</Text>
-              <Text style={styles.contactItemValue}>평일 09:00 ~ 18:00 (주말/공휴일 휴무)</Text>
-            </View>
-            <View style={styles.contactItemRow}>
-              <Text style={styles.contactItemLabel}>운영사 / 대표자</Text>
-              <Text style={styles.contactItemValue}>우간다 (Weganda) / 이승준</Text>
+              <Text style={styles.contactItemValue}>{BUSINESS_INFO.hours}</Text>
             </View>
           </View>
 
           {/* Footer Note */}
           <Text style={styles.footerNote}>
-            © 2026 Weganda Inc. All rights reserved.
+            © 2026 {BUSINESS_INFO.companyName}. All rights reserved.
           </Text>
         </View>
       </ScrollView>

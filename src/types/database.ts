@@ -577,6 +577,7 @@ export type Database = {
           push_token: string | null
           role: string | null
           updated_at: string | null
+          user_code: string | null
           ward_name: string | null
         }
         Insert: {
@@ -595,6 +596,7 @@ export type Database = {
           push_token?: string | null
           role?: string | null
           updated_at?: string | null
+          user_code?: string | null
           ward_name?: string | null
         }
         Update: {
@@ -613,6 +615,7 @@ export type Database = {
           push_token?: string | null
           role?: string | null
           updated_at?: string | null
+          user_code?: string | null
           ward_name?: string | null
         }
         Relationships: []
