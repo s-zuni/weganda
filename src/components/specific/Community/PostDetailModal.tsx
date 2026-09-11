@@ -30,6 +30,7 @@ import {
 } from '../../common/Icon';
 import { ReportModal } from './ReportModal';
 import { PostWriteModal } from './PostWriteModal';
+import { VerificationModal } from '../Verification';
 
 interface PostDetailModalProps {
   visible: boolean;
@@ -54,7 +55,8 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     toggleLikeReply,
     blockUser,
   } = useCommunityStore();
-  const userId = useUserStore((s) => s.id);
+  const { id: userId, role, verificationStatus } = useUserStore();
+  const isVerified = verificationStatus === 'verified' || role === 'admin' || role === 'nurse';
 
   // 최신 동기화된 post 가져오기
   const currentPost = posts.find((p) => p.id === post?.id) || post;
@@ -77,6 +79,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
   }>({ id: '', type: 'post' });
 
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [verificationModalVisible, setVerificationModalVisible] = useState(false);
 
   if (!currentPost) return null;
 
@@ -154,8 +157,60 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
   };
 
+  // 댓글/대댓글 더보기 옵션 (신고 및 작성자 차단 — Apple Guideline 1.2 UGC 필수)
+  const handleCommentMoreOptions = (commentId: string, authorName: string, authorId?: string) => {
+    Alert.alert('댓글 옵션', '원하시는 작업을 선택해 주세요.', [
+      {
+        text: '댓글 신고하기',
+        onPress: () => {
+          setReportTarget({ id: commentId, type: 'comment' });
+          setReportModalVisible(true);
+        },
+      },
+      {
+        text: `${authorName}님 차단하기`,
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert(
+            '작성자 차단',
+            `정말 ${authorName}님을 차단하시겠습니까? 차단 시 해당 사용자의 모든 글과 댓글이 숨김 처리됩니다.`,
+            [
+              { text: '취소', style: 'cancel' },
+              {
+                text: '차단하기',
+                style: 'destructive',
+                onPress: () => {
+                  if (authorId) {
+                    blockUser(authorId);
+                  }
+                  Alert.alert('차단 완료', '해당 사용자가 차단되었습니다.');
+                },
+              },
+            ]
+          );
+        },
+      },
+      { text: '취소', style: 'cancel' },
+    ]);
+  };
+
   // 댓글 / 대댓글 전송
   const handleSendComment = () => {
+    if (!isVerified) {
+      Alert.alert(
+        '간호 인증 필요',
+        '댓글을 작성하시려면 간호사 또는 간호대학생 인증이 필요합니다.',
+        [
+          { text: '닫기', style: 'cancel' },
+          {
+            text: '인증 신청하기',
+            onPress: () => setVerificationModalVisible(true),
+          },
+        ]
+      );
+      return;
+    }
+
     if (!commentText.trim()) return;
 
     if (replyingComment) {
@@ -333,24 +388,37 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       <Text style={styles.commentTime}>{comment.timeAgo}</Text>
                     </View>
 
-                    {/* 댓글 좋아요 */}
-                    <TouchableOpacity
-                      style={styles.commentLikeBtn}
-                      onPress={() => toggleLikeComment(currentPost.id, comment.id, userId || undefined)}
-                    >
-                      <HeartIcon
-                        size={13}
-                        color={comment.isLiked ? COLORS.primary : COLORS.textMuted}
-                      />
-                      <Text
-                        style={[
-                          styles.commentLikeCount,
-                          comment.isLiked && styles.commentLikeCountActive,
-                        ]}
+                    <View style={styles.commentActionGroup}>
+                      {/* 댓글 좋아요 */}
+                      <TouchableOpacity
+                        style={styles.commentLikeBtn}
+                        onPress={() => toggleLikeComment(currentPost.id, comment.id, userId || undefined)}
                       >
-                        {comment.likes}
-                      </Text>
-                    </TouchableOpacity>
+                        <HeartIcon
+                          size={13}
+                          color={comment.isLiked ? COLORS.primary : COLORS.textMuted}
+                        />
+                        <Text
+                          style={[
+                            styles.commentLikeCount,
+                            comment.isLiked && styles.commentLikeCountActive,
+                          ]}
+                        >
+                          {comment.likes}
+                        </Text>
+                      </TouchableOpacity>
+
+                      {/* 댓글 신고 / 차단 더보기 (Apple 1.2 UGC 필수) */}
+                      <TouchableOpacity
+                        style={styles.commentMoreBtn}
+                        onPress={() => handleCommentMoreOptions(comment.id, comment.authorName, (comment as any).authorId)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityRole="button"
+                        accessibilityLabel="댓글 옵션"
+                      >
+                        <MoreVerticalIcon size={14} color={COLORS.textMuted} />
+                      </TouchableOpacity>
+                    </View>
                   </View>
 
                   {/* 댓글 내용 */}
@@ -381,25 +449,38 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 <Text style={styles.commentAuthorName}>{reply.authorName}</Text>
                                 <Text style={styles.commentTime}>{reply.timeAgo}</Text>
                               </View>
-                              <TouchableOpacity
-                                style={styles.commentLikeBtn}
-                                onPress={() =>
-                                  toggleLikeReply(currentPost.id, comment.id, reply.id)
-                                }
-                              >
-                                <HeartIcon
-                                  size={12}
-                                  color={reply.isLiked ? COLORS.primary : COLORS.textMuted}
-                                />
-                                <Text
-                                  style={[
-                                    styles.commentLikeCount,
-                                    reply.isLiked && styles.commentLikeCountActive,
-                                  ]}
+                              <View style={styles.commentActionGroup}>
+                                <TouchableOpacity
+                                  style={styles.commentLikeBtn}
+                                  onPress={() =>
+                                    toggleLikeReply(currentPost.id, comment.id, reply.id)
+                                  }
                                 >
-                                  {reply.likes}
-                                </Text>
-                              </TouchableOpacity>
+                                  <HeartIcon
+                                    size={12}
+                                    color={reply.isLiked ? COLORS.primary : COLORS.textMuted}
+                                  />
+                                  <Text
+                                    style={[
+                                      styles.commentLikeCount,
+                                      reply.isLiked && styles.commentLikeCountActive,
+                                    ]}
+                                  >
+                                    {reply.likes}
+                                  </Text>
+                                </TouchableOpacity>
+
+                                {/* 대댓글 신고 / 차단 더보기 */}
+                                <TouchableOpacity
+                                  style={styles.commentMoreBtn}
+                                  onPress={() => handleCommentMoreOptions(reply.id, reply.authorName, (reply as any).authorId)}
+                                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                                  accessibilityRole="button"
+                                  accessibilityLabel="답글 옵션"
+                                >
+                                  <MoreVerticalIcon size={12} color={COLORS.textMuted} />
+                                </TouchableOpacity>
+                              </View>
                             </View>
 
                             <Text style={styles.replyBodyText}>
@@ -494,6 +575,13 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
           visible={editModalVisible}
           editPost={currentPost}
           onClose={() => setEditModalVisible(false)}
+        />
+
+        {/* 간호사 & 학생 자격 인증 모달 */}
+        <VerificationModal
+          visible={verificationModalVisible}
+          onClose={() => setVerificationModalVisible(false)}
+          onSuccess={() => setVerificationModalVisible(false)}
         />
       </KeyboardAvoidingView>
     </Modal>
@@ -739,11 +827,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textMuted,
   },
+  commentActionGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   commentLikeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
     padding: 4,
+  },
+  commentMoreBtn: {
+    padding: 4,
+    minHeight: 32,
+    minWidth: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   commentLikeCount: {
     fontSize: 12,

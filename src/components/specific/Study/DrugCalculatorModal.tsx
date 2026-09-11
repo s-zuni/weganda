@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { useDrugStore, CustomDrugPreset } from '../../../store/useDrugStore';
+import { useUserStore } from '../../../store/useUserStore';
+import { FREE_LIMITS } from '../../../constants/membership';
+import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
+import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { CalculatorIcon } from '../../common/Icon';
 import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
@@ -23,6 +27,9 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
   onClose,
 }) => {
   const { presets, addPreset, deletePreset, togglePinPreset } = useDrugStore();
+  const { isPremium, dailyDrugCalcCount, incrementDailyDrugCalcCount } = useUserStore();
+  const [paywallVisible, setPaywallVisible] = useState(false);
+  const [membershipVisible, setMembershipVisible] = useState(false);
 
   // 핀 고정된 프리셋을 앞으로 정렬
   const sortedPresets = useMemo(() => {
@@ -61,11 +68,18 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
   const [newDrugPinned, setNewDrugPinned] = useState(true);
 
   const handleSelectPreset = (preset: CustomDrugPreset) => {
+    if (!isPremium && dailyDrugCalcCount >= FREE_LIMITS.maxDailyDrugCalculations) {
+      setPaywallVisible(true);
+      return;
+    }
     setSelectedPreset(preset);
     setDose(String(preset.defaultDose));
     setDrugMg(String(preset.drugTotalMg));
     setFluidMl(String(preset.fluidTotalMl));
     setDropFactor(preset.dropFactor);
+    if (!isPremium) {
+      incrementDailyDrugCalcCount();
+    }
   };
 
   const handleSaveCustomDrug = () => {
@@ -83,9 +97,9 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
       drugTotalMg: mg,
       fluidTotalMl: ml,
       defaultDose: isNaN(d) ? 5 : d,
-      unit: newUnit.trim() || 'mcg/kg/min',
+      unit: newUnit as any,
       dropFactor: 20,
-      description: newDescription.trim() || '내 병동 커스텀 지침 희석법',
+      description: newDescription.trim() || '사용자 등록 프로토콜',
       isPinned: newDrugPinned,
     });
 
@@ -126,6 +140,11 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
         <View style={styles.headerTitleRow}>
           <CalculatorIcon size={20} color={COLORS.primary} />
           <Text style={styles.headerTitle}>💊 🧮 임상 약물 gtt/cc 계산기</Text>
+          {!isPremium && (
+            <View style={styles.limitBadge}>
+              <Text style={styles.limitBadgeText}>{dailyDrugCalcCount}/3회</Text>
+            </View>
+          )}
         </View>
 
         <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -373,6 +392,26 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
             </Text>
           </View>
         </ScrollView>
+
+        <PaywallBottomSheet
+          visible={paywallVisible}
+          onClose={() => setPaywallVisible(false)}
+          onSubscribe={() => {
+            setPaywallVisible(false);
+            setMembershipVisible(true);
+          }}
+          onLearnMore={() => {
+            setPaywallVisible(false);
+            setMembershipVisible(true);
+          }}
+          featureTitle="약물 계산기 무제한 이용"
+          featureDescription="무료 일일 3회 초과 시 weganda+로 무제한 임상 약물 계산기를 이용하세요"
+        />
+
+        <MembershipScreen
+          visible={membershipVisible}
+          onClose={() => setMembershipVisible(false)}
+        />
     </SwipeableBottomSheet>
   );
 };
@@ -401,6 +440,18 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '800',
     color: COLORS.textPrimary,
+  },
+  limitBadge: {
+    backgroundColor: '#FFF1F4',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: 6,
+  },
+  limitBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.primary,
   },
   presetHeaderRow: {
     flexDirection: 'row',

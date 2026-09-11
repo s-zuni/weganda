@@ -53,6 +53,7 @@ export const BottomTabNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       initialRouteName="HomeTab"
+      backBehavior="initialRoute"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.primary,

@@ -1,4 +1,4 @@
-﻿# 📱 우간다 (Weganda) 스토어 심사 제출 가이드 (App Store & Google Play)
+# 📱 우간다 (Weganda) 스토어 심사 제출 가이드 (App Store & Google Play)
 
 스토어 심사 제출 시 복사하여 사용할 수 있는 메타데이터 및 심사원 가이드 문서입니다.
 
@@ -15,7 +15,7 @@
 | **번들 ID** | `com.weganda.app` |
 | **SKU** | `weganda-app-ios` |
 | **가격** | 무료 (인앱 구독 제공) |
-| **연령 등급** | 4+ |
+| **연령 등급** | 12+ (UGC 익명 커뮤니티 및 의료 정보/사주 포함) |
 | **지원 URL** | `https://weganda.app/support` |
 | **마케팅 URL** | `https://weganda.app` |
 | **개인정보 처리방침 URL** | `https://weganda.app/privacy` |
@@ -59,7 +59,7 @@
 
 ### 심사용 데모 계정 및 심사 메모 (App Review Information)
 - **로그인 방식**: 전화번호나 복잡한 인증 없이 **"로그인 없이 앱 둘러보기"** (게스트 모드)를 탭하면 모든 기능을 즉시 심사관이 테스트할 수 있습니다.
-- **인앱 결제 테스트**: StoreKit Sandbox 환경에서 `com.weganda.app.premium.monthly` 구독을 테스트할 수 있으며, 결제 후 즉시 프리미엄 혜택(수당 분석, 테마 변경 등)이 활성화됩니다.
+- **인앱 결제 테스트**: StoreKit Sandbox 환경에서 `com.weganda.app.sub.monthly.earlybird` 구독을 테스트할 수 있으며, 결제 후 즉시 프리미엄 혜택(수당 분석, 테마 변경 등)이 활성화됩니다.
 - **심사 메모 (Reviewer Notes)**:
 ```text
 Dear Apple App Review Team,

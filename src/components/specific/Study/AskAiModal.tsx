@@ -12,6 +12,10 @@ import {
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { useStudyStore } from '../../../store/useStudyStore';
+import { useUserStore } from '../../../store/useUserStore';
+import { FREE_LIMITS } from '../../../constants/membership';
+import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
+import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { BotIcon, SendIcon } from '../../common/Icon';
 
 interface AskAiModalProps {
@@ -33,19 +37,38 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
   initialQuestion,
 }) => {
   const { aiMessages, askAi } = useStudyStore();
+  const { isPremium, dailyAiCount, incrementDailyAiCount } = useUserStore();
   const [inputText, setInputText] = useState('');
+  const [paywallVisible, setPaywallVisible] = useState(false);
+  const [membershipVisible, setMembershipVisible] = useState(false);
 
   // 검색창에서 전달된 질문이 있을 경우 자동 질문 전송
   React.useEffect(() => {
     if (visible && initialQuestion && initialQuestion.trim()) {
+      if (!isPremium && dailyAiCount >= FREE_LIMITS.maxDailyAiQueries) {
+        setPaywallVisible(true);
+        return;
+      }
       askAi(initialQuestion.trim());
+      if (!isPremium) {
+        incrementDailyAiCount();
+      }
     }
   }, [visible, initialQuestion]);
 
   const handleSend = (textToSend?: string) => {
     const text = textToSend || inputText;
     if (!text.trim()) return;
+
+    if (!isPremium && dailyAiCount >= FREE_LIMITS.maxDailyAiQueries) {
+      setPaywallVisible(true);
+      return;
+    }
+
     askAi(text.trim());
+    if (!isPremium) {
+      incrementDailyAiCount();
+    }
     setInputText('');
   };
 
@@ -64,6 +87,11 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
           <View style={styles.headerTitleRow}>
             <BotIcon size={18} color={COLORS.primary} />
             <Text style={styles.headerTitle}>임상 간호 AI 멘토</Text>
+            {!isPremium && (
+              <View style={styles.limitBadge}>
+                <Text style={styles.limitBadgeText}>{dailyAiCount}/3회</Text>
+              </View>
+            )}
           </View>
 
           <View style={{ width: 40 }} />
@@ -137,6 +165,26 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
             <SendIcon size={16} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
+
+        <PaywallBottomSheet
+          visible={paywallVisible}
+          onClose={() => setPaywallVisible(false)}
+          onSubscribe={() => {
+            setPaywallVisible(false);
+            setMembershipVisible(true);
+          }}
+          onLearnMore={() => {
+            setPaywallVisible(false);
+            setMembershipVisible(true);
+          }}
+          featureTitle="Ask AI 무제한 질문"
+          featureDescription="무료 일일 3회 초과 시 weganda+로 무제한 임상 멘토링을 이용하세요"
+        />
+
+        <MembershipScreen
+          visible={membershipVisible}
+          onClose={() => setMembershipVisible(false)}
+        />
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -281,6 +329,18 @@ const styles = StyleSheet.create({
   },
   sendBtnDisabled: {
     backgroundColor: '#E5E7EB',
+  },
+  limitBadge: {
+    backgroundColor: '#FFF1F4',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: 6,
+  },
+  limitBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.primary,
   },
 });
 

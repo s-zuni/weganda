@@ -178,4 +178,14 @@ export const authService = {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   },
+
+  // 회원 탈퇴 (Apple Guideline 5.1.1(v) 필수 요건)
+  async deleteAccount() {
+    const { error } = await supabase.rpc('delete_user_account');
+    if (error) {
+      console.error('Delete account RPC error:', error);
+      throw error;
+    }
+    await supabase.auth.signOut();
+  },
 };

@@ -36,7 +36,7 @@ interface FriendsState {
 
 export const useFriendsStore = create<FriendsState>((set, get) => ({
   friends: [],
-  groupChats: [],
+  groupChats: MOCK_GROUP_CHATS,
   chatMessages: {},
   isLoading: false,
 

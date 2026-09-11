@@ -25,10 +25,18 @@ interface PostWriteModalProps {
   onSuccess?: () => void;
 }
 
-const CATEGORIES: PostItem['category'][] = [
+const ALL_CATEGORIES: PostItem['category'][] = [
   '임상/질문',
   '교대근무 고민',
   '이직/커리어',
+  '간호대생 라운지',
+  '채용/취업 정보',
+  '자유게시판',
+];
+
+const STUDENT_CATEGORIES: PostItem['category'][] = [
+  '간호대생 라운지',
+  '채용/취업 정보',
   '자유게시판',
 ];
 
@@ -45,12 +53,17 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const userId = useUserStore((s) => s.id);
+  const { id: userId, role, verificationRole } = useUserStore();
   const { createPost, updatePost } = useCommunityStore();
+
+  const isStudent = role === 'student' || verificationRole === 'student';
+  const availableCategories = isStudent ? STUDENT_CATEGORIES : ALL_CATEGORIES;
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [category, setCategory] = useState<PostItem['category']>('자유게시판');
+  const [category, setCategory] = useState<PostItem['category']>(
+    isStudent ? '간호대생 라운지' : '자유게시판'
+  );
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [images, setImages] = useState<string[]>([]);
 
@@ -64,11 +77,11 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
     } else {
       setTitle('');
       setContent('');
-      setCategory('자유게시판');
+      setCategory(isStudent ? '간호대생 라운지' : '자유게시판');
       setIsAnonymous(true);
       setImages([]);
     }
-  }, [editPost, visible]);
+  }, [editPost, visible, isStudent]);
 
   const handleAddPhoto = () => {
     if (images.length >= 3) {
@@ -129,7 +142,7 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
           {/* 카테고리 선택 */}
           <Text style={styles.inputLabel}>게시판 선택</Text>
           <View style={styles.categoryRow}>
-            {CATEGORIES.map((cat) => {
+            {availableCategories.map((cat) => {
               const isSelected = category === cat;
               return (
                 <TouchableOpacity

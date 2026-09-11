@@ -55,6 +55,17 @@ export const FortuneScreen: React.FC = () => {
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
 
+  const handleRefreshDaily = () => {
+    if (!isPremium && monthlyFortuneCount >= 5) {
+      setPaywallVisible(true);
+      return;
+    }
+    fetchAiFortune('daily');
+    if (!isPremium) {
+      incrementFortuneCount();
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -78,7 +89,7 @@ export const FortuneScreen: React.FC = () => {
           title={currentFortune?.title}
           description={currentFortune?.fortuneText}
           isLoading={isLoading}
-          onRefresh={() => fetchAiFortune('daily')}
+          onRefresh={handleRefreshDaily}
         />
 
         {/* 50년 명인 5대 사주 카테고리 섹션 */}

@@ -35,6 +35,8 @@ import {
 } from '../../components/common/Icon';
 
 import { useUserStore } from '../../store/useUserStore';
+import { useMembershipEventStore } from '../../store/useMembershipEventStore';
+import { MembershipPlanKey } from '../../types/membershipEvent';
 import { InAppPurchaseModal } from '../../components/common/InAppPurchaseModal';
 import { inAppPurchaseService } from '../../services/inAppPurchaseService';
 import { COLORS } from '../../constants/theme';
@@ -53,10 +55,17 @@ export interface MembershipScreenProps {
 }
 
 export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onClose }) => {
+  const [selectedPlan, setSelectedPlan] = useState<MembershipPlanKey>('monthly');
   const [paymentVisible, setPaymentVisible] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+
   const isPremium = useUserStore((state) => state.isPremium);
-  const subscribeToPremium = useUserStore((state) => state.subscribeToPremium);
+  const subscribeToPremiumWithDetails = useUserStore((state) => state.subscribeToPremiumWithDetails);
+  const { getPlanPricing, isFreeTrialActive } = useMembershipEventStore();
+
+  const currentPricing = getPlanPricing(selectedPlan);
+  const monthlyPricing = getPlanPricing('monthly');
+  const yearlyPricing = getPlanPricing('yearly');
 
   const handleSubscribe = () => {
     setPaymentVisible(true);
@@ -64,7 +73,6 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
 
   const handlePaymentSuccess = () => {
     setPaymentVisible(false);
-    subscribeToPremium();
     onClose();
   };
 
@@ -121,9 +129,101 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
               <Text style={styles.heroSubtitle}>한 단계 높여보세요</Text>
             </View>
 
+            {/* 출시 이벤트 프로모션 배너 */}
+            {currentPricing.isFreeTrialActive && (
+              <View style={styles.launchEventBanner}>
+                <Text style={styles.eventBannerBadge}>🎉 런칭 기념 특가</Text>
+                <Text style={styles.eventBannerTitle}>첫 1개월 0원 무료 체험 혜택</Text>
+                <Text style={styles.eventBannerDesc}>
+                  스토어 결제 수단 등록 후 1개월간 무료로 이용하세요.{'\n'}
+                  무료 기간 종료 전 언제든 마이페이지에서 위약금 없이 해지 가능합니다.
+                </Text>
+              </View>
+            )}
+
+            {/* 플랜 선택기 (월간 vs 연간) */}
+            <View style={styles.planSelectorContainer}>
+              <Text style={styles.planSelectorTitle}>멤버십 플랜 선택</Text>
+              <View style={styles.planCardsRow}>
+                {/* 월간 플랜 */}
+                <TouchableOpacity
+                  style={[
+                    styles.planCard,
+                    selectedPlan === 'monthly' && styles.planCardSelected,
+                  ]}
+                  onPress={() => setSelectedPlan('monthly')}
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.planCardHeader}>
+                    <Text style={[styles.planCardName, selectedPlan === 'monthly' && styles.planCardNameSelected]}>
+                      월간 정기구독
+                    </Text>
+                    {monthlyPricing.isDiscountActive && (
+                      <View style={styles.discountPill}>
+                        <Text style={styles.discountPillText}>-25% 평생할인</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View style={styles.priceRow}>
+                    <Text style={styles.currentPriceText}>
+                      ₩{monthlyPricing.currentPrice.toLocaleString()}
+                    </Text>
+                    <Text style={styles.pricePeriodText}>/ 월</Text>
+                  </View>
+
+                  {monthlyPricing.isDiscountActive && (
+                    <Text style={styles.originalPriceCrossed}>
+                      ₩{monthlyPricing.originalPrice.toLocaleString()}
+                    </Text>
+                  )}
+                  <Text style={styles.planBenefitNote}>출시 얼리버드 평생 보장</Text>
+                </TouchableOpacity>
+
+                {/* 연간 플랜 */}
+                <TouchableOpacity
+                  style={[
+                    styles.planCard,
+                    selectedPlan === 'yearly' && styles.planCardSelected,
+                  ]}
+                  onPress={() => setSelectedPlan('yearly')}
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.popularTag}>
+                    <Text style={styles.popularTagText}>BEST • 최대 절약</Text>
+                  </View>
+
+                  <View style={styles.planCardHeader}>
+                    <Text style={[styles.planCardName, selectedPlan === 'yearly' && styles.planCardNameSelected]}>
+                      연간 정기구독
+                    </Text>
+                    {yearlyPricing.isDiscountActive && (
+                      <View style={[styles.discountPill, { backgroundColor: '#DEF7EC' }]}>
+                        <Text style={[styles.discountPillText, { color: '#03543F' }]}>평생 5.9만</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View style={styles.priceRow}>
+                    <Text style={styles.currentPriceText}>
+                      ₩{yearlyPricing.currentPrice.toLocaleString()}
+                    </Text>
+                    <Text style={styles.pricePeriodText}>/ 년</Text>
+                  </View>
+
+                  {yearlyPricing.isDiscountActive && (
+                    <Text style={styles.originalPriceCrossed}>
+                      ₩{yearlyPricing.originalPrice.toLocaleString()}
+                    </Text>
+                  )}
+                  <Text style={styles.planBenefitNote}>월 4,916원 꼴 (추가 절약)</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             {/* Benefits Section */}
             <View style={styles.benefitsSection}>
-              <Text style={styles.sectionTitle}>프리미엄 혜택</Text>
+              <Text style={styles.sectionTitle}>프리미엄 5대 혜택</Text>
 
               {isPremium && (
                 <View style={styles.premiumSuccessCard}>
@@ -174,12 +274,19 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
                   onPress={handleSubscribe}
                   activeOpacity={0.85}
                   accessibilityRole="button"
-                  accessibilityLabel="우간다+ 구독하기 (월 7,800원)"
                 >
-                  <Text style={styles.subscribeText}>우간다+ 구독하기 (월 7,800원)</Text>
+                  <Text style={styles.subscribeText}>
+                    {currentPricing.isFreeTrialActive
+                      ? '1개월 무료 체험 시작하기'
+                      : `우간다+ 구독하기 (${selectedPlan === 'monthly' ? '월' : '연'} ${currentPricing.currentPrice.toLocaleString()}원)`}
+                  </Text>
                 </TouchableOpacity>
                 <View style={styles.captionRow}>
-                  <Text style={styles.ctaCaption}>첫 7일 무료 • 스토어 계정으로 결제</Text>
+                  <Text style={styles.ctaCaption}>
+                    {currentPricing.isFreeTrialActive
+                      ? `1개월 무료 체험 후 ${selectedPlan === 'monthly' ? `월 ${currentPricing.currentPrice.toLocaleString()}원` : `연 ${currentPricing.currentPrice.toLocaleString()}원`} 자동 결제`
+                      : '스토어 계정으로 안전하게 결제'}
+                  </Text>
                   <Text style={styles.captionDot}>•</Text>
                   <TouchableOpacity
                     onPress={handleRestorePurchases}
@@ -193,6 +300,11 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
                   </TouchableOpacity>
                 </View>
                 <View style={styles.legalRow}>
+                  <Text style={styles.cancelAnytimeNotice}>
+                    * 무료 체험 종료 전 언제든 마이페이지에서 위약금 없이 해지 가능합니다.
+                  </Text>
+                </View>
+                <View style={[styles.legalRow, { marginTop: 4 }]}>
                   <TouchableOpacity
                     onPress={() => Linking.openURL('https://weganda.app/terms/membership')}
                     accessibilityRole="link"
@@ -213,11 +325,12 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
             ) : (
               <TouchableOpacity
                 style={styles.manageButton}
+                onPress={onClose}
                 activeOpacity={0.8}
                 accessibilityRole="button"
                 accessibilityLabel="구독 관리"
               >
-                <Text style={styles.manageText}>구독 관리</Text>
+                <Text style={styles.manageText}>마이페이지에서 구독 확인하기</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -226,6 +339,13 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
         {paymentVisible && (
           <InAppPurchaseModal
             visible={paymentVisible}
+            sku={currentPricing.sku}
+            options={{
+              planType: selectedPlan,
+              price: currentPricing.currentPrice,
+              isTrial: currentPricing.isFreeTrialActive,
+              isEarlybird: currentPricing.isDiscountActive,
+            }}
             onClose={() => setPaymentVisible(false)}
             onPaymentSuccess={handlePaymentSuccess}
           />
@@ -251,12 +371,18 @@ const styles = StyleSheet.create({
     zIndex: 10,
     minWidth: 44,
     minHeight: 44,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
   },
   closeButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
   },
   scrollView: {
     flex: 1,
@@ -465,5 +591,148 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontSize: 16,
     fontWeight: '600',
+  },
+  cancelAnytimeNotice: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    textAlign: 'center',
+  },
+  launchEventBanner: {
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1.5,
+    borderColor: '#FCD34D',
+    borderRadius: 16,
+    padding: 16,
+    marginHorizontal: 20,
+    marginTop: -20,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  eventBannerBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F59E0B',
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginBottom: 6,
+  },
+  eventBannerTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#92400E',
+    marginBottom: 4,
+  },
+  eventBannerDesc: {
+    fontSize: 12,
+    color: '#78350F',
+    lineHeight: 18,
+  },
+  planSelectorContainer: {
+    paddingHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  planSelectorTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 12,
+  },
+  planCardsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  planCard: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    position: 'relative',
+  },
+  planCardSelected: {
+    backgroundColor: '#FFFFFF',
+    borderColor: PREMIUM_THEME.heroBg,
+    shadowColor: PREMIUM_THEME.heroBg,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  popularTag: {
+    position: 'absolute',
+    top: -10,
+    right: 12,
+    backgroundColor: '#D97706',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  popularTagText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  planCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  planCardName: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  planCardNameSelected: {
+    color: PREMIUM_THEME.heroBg,
+  },
+  discountPill: {
+    backgroundColor: '#FCE7F3',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  discountPillText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#BE185D',
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 2,
+  },
+  currentPriceText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  pricePeriodText: {
+    fontSize: 12,
+    color: '#64748B',
+    fontWeight: '600',
+  },
+  originalPriceCrossed: {
+    fontSize: 11,
+    color: '#94A3B8',
+    textDecorationLine: 'line-through',
+    marginTop: 2,
+  },
+  planBenefitNote: {
+    fontSize: 11,
+    color: '#059669',
+    fontWeight: '600',
+    marginTop: 8,
   },
 });

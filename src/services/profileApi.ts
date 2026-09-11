@@ -61,17 +61,55 @@ export const profileApi = {
   },
 
   // 프로필 수정 (P2)
-  async updateProfile(userId: string, updates: Partial<ProfileItem>): Promise<boolean> {
+  async updateProfile(
+    userIdOrUpdates: string | (Partial<ProfileItem> & {
+      hospital_name?: string;
+      ward_name?: string;
+      experience_years?: number;
+    }),
+    maybeUpdates?: Partial<ProfileItem> & {
+      hospital_name?: string;
+      ward_name?: string;
+      experience_years?: number;
+    }
+  ): Promise<boolean> {
     return withClockSkewRetry(async () => {
+      let userId: string = '';
+      let updates: Partial<ProfileItem> & {
+        hospital_name?: string;
+        ward_name?: string;
+        experience_years?: number;
+      };
+
+      if (typeof userIdOrUpdates === 'string') {
+        userId = userIdOrUpdates;
+        updates = maybeUpdates || {};
+      } else {
+        updates = userIdOrUpdates || {};
+        const { data } = await supabase.auth.getUser();
+        userId = data?.user?.id || '';
+      }
+
+      if (!userId) {
+        console.warn('profileApi.updateProfile: No userId available to update profile');
+        return false;
+      }
+
       const rowUpdates: TablesUpdate<'profiles'> = {
         updated_at: new Date().toISOString(),
       };
 
       if (updates.name !== undefined) rowUpdates.name = updates.name;
-      if (updates.nickname !== undefined) rowUpdates.nickname = updates.nickname;
+      if (updates.nickname !== undefined) {
+        rowUpdates.nickname = updates.nickname;
+        if (!rowUpdates.name) rowUpdates.name = updates.nickname;
+      }
       if (updates.hospitalName !== undefined) rowUpdates.hospital_name = updates.hospitalName;
+      if (updates.hospital_name !== undefined) rowUpdates.hospital_name = updates.hospital_name;
       if (updates.wardName !== undefined) rowUpdates.ward_name = updates.wardName;
+      if (updates.ward_name !== undefined) rowUpdates.ward_name = updates.ward_name;
       if (updates.experienceYears !== undefined) rowUpdates.experience_years = updates.experienceYears;
+      if (updates.experience_years !== undefined) rowUpdates.experience_years = updates.experience_years;
       if (updates.role !== undefined) rowUpdates.role = updates.role;
       if (updates.avatarUrl !== undefined) rowUpdates.avatar_url = updates.avatarUrl;
       if (updates.birthDate !== undefined) rowUpdates.birth_date = updates.birthDate;
@@ -82,8 +120,11 @@ export const profileApi = {
 
       const { error } = await supabase
         .from('profiles')
-        .update(rowUpdates)
-        .eq('id', userId);
+        .upsert({
+          id: userId,
+          name: rowUpdates.name || '간호사',
+          ...rowUpdates,
+        });
 
       if (error) {
         console.error('Error updating profile:', error);

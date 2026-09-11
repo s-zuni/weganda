@@ -23,7 +23,7 @@ export const DEFAULT_SHIFT_CODES: Record<string, CustomShiftCode> = {
   M: { code: 'M', name: '미드', color: '#10B981', textColor: '#FFFFFF' },
 };
 
-// 기본 초기 스케줄
+// 기본 초기 스케줄 (2026년 8월 & 9월)
 const INITIAL_AUGUST_SCHEDULES: Record<string, string> = {
   '2026-08-01': 'D', '2026-08-02': 'D', '2026-08-03': 'E', '2026-08-04': 'E',
   '2026-08-05': 'O', '2026-08-06': 'O', '2026-08-07': 'N', '2026-08-08': 'N',
@@ -35,6 +35,17 @@ const INITIAL_AUGUST_SCHEDULES: Record<string, string> = {
   '2026-08-29': 'E', '2026-08-30': 'O', '2026-08-31': 'O',
 };
 
+const INITIAL_SEPTEMBER_SCHEDULES: Record<string, string> = {
+  '2026-09-01': 'D', '2026-09-02': 'O', '2026-09-03': 'N', '2026-09-04': 'E',
+  '2026-09-05': 'N', '2026-09-06': 'E', '2026-09-07': 'N', '2026-09-08': 'E',
+  '2026-09-09': 'N', '2026-09-10': 'D', '2026-09-11': 'N', '2026-09-12': 'O',
+  '2026-09-13': 'D', '2026-09-14': 'E', '2026-09-15': 'N', '2026-09-16': 'D',
+  '2026-09-17': 'E', '2026-09-18': 'N', '2026-09-19': 'D', '2026-09-20': 'O',
+  '2026-09-21': 'D', '2026-09-22': 'N', '2026-09-23': 'E', '2026-09-24': 'E',
+  '2026-09-25': 'E', '2026-09-26': 'E', '2026-09-27': 'E', '2026-09-28': 'E',
+  '2026-09-29': 'E', '2026-09-30': 'E',
+};
+
 interface ShiftScheduleState {
   currentDate: Date;
   schedules: Record<string, string>; // "YYYY-MM-DD": "D"
@@ -42,7 +53,7 @@ interface ShiftScheduleState {
   isLoading: boolean;
 
   // Actions
-  fetchMonthlySchedule: (userId: string, yearMonth?: string) => Promise<void>;
+  fetchMonthlySchedule: (userId?: string, yearMonth?: string) => Promise<void>;
   setShiftForDate: (dateStr: string, code: string, userId?: string) => Promise<void>;
   changeMonth: (offset: number, userId?: string) => void;
   setCurrentDate: (date: Date) => void;
@@ -56,15 +67,26 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
   persist(
     (set, get) => ({
       currentDate: new Date(),
-      schedules: INITIAL_AUGUST_SCHEDULES,
+      schedules: {
+        ...INITIAL_AUGUST_SCHEDULES,
+        ...INITIAL_SEPTEMBER_SCHEDULES,
+      },
       customCodes: DEFAULT_SHIFT_CODES,
       isLoading: false,
 
   // 특정 월의 스케줄 DB에서 불러오기
-  fetchMonthlySchedule: async (userId: string, yearMonth?: string) => {
+  fetchMonthlySchedule: async (userId?: string, yearMonth?: string) => {
+    // userId가 없으면(게스트 또는 미로그인) 쿼리를 실행하지 않고 조기 리턴하여 개발자/타인 데이터 오염 방지
+    if (!userId) {
+      return;
+    }
+
     try {
       set({ isLoading: true });
-      const ym = yearMonth || get().currentDate.toISOString().slice(0, 7);
+      const d = get().currentDate;
+      const ym =
+        yearMonth ||
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       const items = await scheduleApi.getMonthlySchedule(userId, ym);
 
       if (items && items.length > 0) {
@@ -94,10 +116,9 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
       } catch (err) {
         console.warn('Notice syncing custom codes:', err);
       }
-
-      set({ isLoading: false });
     } catch (e: any) {
       console.warn('Notice in fetchMonthlySchedule:', e?.message || e);
+    } finally {
       set({ isLoading: false });
     }
   },
@@ -111,17 +132,18 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
       },
     }));
 
-    // userId가 있으면 Supabase DB에도 저장
-    if (userId) {
-      try {
-        await scheduleApi.saveSchedule({
-          userId,
-          date: dateStr,
-          shiftCode: code as any,
-        });
-      } catch (e) {
-        console.error('Failed to sync shift with backend:', e);
-      }
+    if (!userId) {
+      return;
+    }
+
+    try {
+      await scheduleApi.saveSchedule({
+        userId,
+        date: dateStr,
+        shiftCode: code as any,
+      });
+    } catch (e) {
+      console.warn('Notice syncing shift with backend:', e);
     }
   },
 
@@ -194,18 +216,20 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
       },
     }));
 
-    if (userId) {
-      try {
-        const scheduleList = Object.entries(newSchedules).map(([date, shiftCode]) => ({
-          userId,
-          date,
-          shiftCode: shiftCode as any,
-          source: 'ocr' as const,
-        }));
-        await scheduleApi.saveBulkSchedule(scheduleList);
-      } catch (e) {
-        console.error('Failed to bulk save schedules to backend:', e);
-      }
+    if (!userId) {
+      return;
+    }
+
+    try {
+      const scheduleList = Object.entries(newSchedules).map(([date, shiftCode]) => ({
+        userId,
+        date,
+        shiftCode: shiftCode as any,
+        source: 'ocr' as const,
+      }));
+      await scheduleApi.saveBulkSchedule(scheduleList);
+    } catch (e) {
+      console.warn('Notice bulk saving schedules to backend:', e);
     }
   },
 }),

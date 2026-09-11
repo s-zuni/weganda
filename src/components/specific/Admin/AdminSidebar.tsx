@@ -5,6 +5,7 @@ export type AdminMenuKey =
   | 'dashboard'
   | 'waitlist'
   | 'users'
+  | 'verification'
   | 'community'
   | 'analytics'
   | 'payments'
@@ -14,6 +15,7 @@ interface AdminSidebarProps {
   activeMenu: AdminMenuKey;
   onSelectMenu: (menu: AdminMenuKey) => void;
   pendingReportsCount?: number;
+  pendingVerificationsCount?: number;
   onGoMain: () => void;
 }
 
@@ -21,6 +23,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   activeMenu,
   onSelectMenu,
   pendingReportsCount = 0,
+  pendingVerificationsCount = 0,
   onGoMain,
 }) => {
   const menuItems: {
@@ -34,13 +37,19 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { key: 'waitlist', label: '사전예약 대기자 (Waitlist)', icon: '📬' },
     { key: 'users', label: '회원 관리', icon: '👥' },
     {
+      key: 'verification',
+      label: '간호 서류 인증 심사',
+      icon: '📋',
+      badge: pendingVerificationsCount > 0 ? pendingVerificationsCount : undefined,
+    },
+    {
       key: 'community',
       label: '커뮤니티 관리',
       icon: '💬',
       badge: pendingReportsCount > 0 ? pendingReportsCount : undefined,
     },
     { key: 'analytics', label: '서비스 활성도 & 체류시간', icon: '📈' },
-    { key: 'payments', label: '결제/수익 관리', icon: '💳', isPending: true },
+    { key: 'payments', label: '멤버십 & 이벤트 결제 관리', icon: '💳' },
     { key: 'settings', label: '시스템 설정', icon: '⚙️' },
   ];
 

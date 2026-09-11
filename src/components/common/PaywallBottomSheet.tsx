@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   View,
@@ -7,9 +7,13 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Linking,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { COLORS } from '../../constants/theme';
 import { CrownIcon } from './Icon';
+import { inAppPurchaseService } from '../../services/inAppPurchaseService';
+import { useUserStore } from '../../store/useUserStore';
 
 interface PaywallBottomSheetProps {
   visible: boolean;
@@ -28,6 +32,25 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
   featureTitle,
   featureDescription,
 }) => {
+  const [isRestoring, setIsRestoring] = useState(false);
+
+  const handleRestore = async () => {
+    setIsRestoring(true);
+    try {
+      const restored = await inAppPurchaseService.restorePurchases();
+      if (restored) {
+        useUserStore.getState().subscribeToPremium();
+        Alert.alert('구매 복원 완료', '이전 구독 내역이 성공적으로 복원되었습니다.');
+        onClose();
+      } else {
+        Alert.alert('복원 내역 없음', '복원할 수 있는 활성 구독 내역을 찾을 수 없습니다.');
+      }
+    } catch (e: any) {
+      Alert.alert('복원 실패', e.message || '구매 내역 복원 중 오류가 발생했습니다.');
+    } finally {
+      setIsRestoring(false);
+    }
+  };
   return (
     <Modal
       visible={visible}
@@ -79,10 +102,10 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
                 onPress={onSubscribe}
                 activeOpacity={0.8}
                 accessibilityRole="button"
-                accessibilityLabel="우간다+ 구독하기 (월 7,800원)"
+                accessibilityLabel="우간다+ 구독하기 (월 5,900원~)"
               >
                 <Text style={styles.primaryButtonText}>
-                  우간다+ 구독하기 (월 7,800원)
+                  우간다+ 구독하기 (월 5,900원~)
                 </Text>
               </TouchableOpacity>
 
@@ -96,6 +119,24 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
                 <Text style={styles.secondaryButtonText}>
                   자세히 알아보기 {'>'}
                 </Text>
+              </TouchableOpacity>
+
+              {/* 🔄 구매 복원 버튼 (Apple Guideline 3.1.1 필수 요건) */}
+              <TouchableOpacity
+                style={styles.restoreButton}
+                onPress={handleRestore}
+                disabled={isRestoring}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="구매 내역 복원"
+              >
+                {isRestoring ? (
+                  <ActivityIndicator size="small" color="#6B7280" />
+                ) : (
+                  <Text style={styles.restoreButtonText}>
+                    이미 구독 중이신가요? 구매 내역 복원
+                  </Text>
+                )}
               </TouchableOpacity>
 
               <View style={styles.legalRow}>
@@ -221,6 +262,20 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontSize: 15,
     fontWeight: '500',
+  },
+  restoreButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  restoreButtonText: {
+    color: '#6B7280',
+    fontSize: 13,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
   legalRow: {
     flexDirection: 'row',

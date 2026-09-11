@@ -138,17 +138,22 @@ class InAppPurchaseService {
       const RNIap = getNativeIap();
       if (RNIap && typeof RNIap.fetchProducts === 'function' && this.isNativeSupported()) {
         const products = await RNIap.fetchProducts({
-          skus: [sku],
+          skus: [
+            IAP_SKUS.MONTHLY_STANDARD,
+            IAP_SKUS.MONTHLY_EARLYBIRD,
+            IAP_SKUS.YEARLY_STANDARD,
+            IAP_SKUS.YEARLY_EARLYBIRD,
+          ],
           type: 'subs',
         });
         if (products && products.length > 0) {
           return products.map((item: any) => ({
-            productId: item.id || sku,
-            price: item.price || '7800',
+            productId: item.id || item.productId,
+            price: item.price || '5900',
             currency: item.currency || 'KRW',
             title: item.title || 'weganda+ 정기구독',
             description: item.description || '3교대 간호사를 위한 프리미엄 라이프스타일 혜택',
-            localizedPrice: item.localizedPrice || '₩7,800',
+            localizedPrice: item.localizedPrice || (item.id?.includes('yearly') ? '₩59,000' : '₩5,900'),
             type: 'subs',
           }));
         }
@@ -159,25 +164,58 @@ class InAppPurchaseService {
 
     return [
       {
-        productId: sku,
-        price: '7800',
+        productId: IAP_SKUS.MONTHLY_EARLYBIRD,
+        price: '5900',
         currency: 'KRW',
-        title: 'weganda+ (우간다 플러스) 월간 구독',
+        title: 'weganda+ 월간 멤버십 (출시 얼리버드 평생할인)',
         description: '사주 무제한, 월급/수당 예측기, AI 무제한, 듀티 공유',
-        localizedPrice: '월 7,800원',
+        localizedPrice: '월 5,900원 (평생)',
+        type: 'subs',
+      },
+      {
+        productId: IAP_SKUS.YEARLY_EARLYBIRD,
+        price: '59000',
+        currency: 'KRW',
+        title: 'weganda+ 연간 멤버십 (출시 얼리버드 평생할인)',
+        description: '사주 무제한, 월급/수당 예측기, AI 무제한 (월 4,916원 꼴)',
+        localizedPrice: '연 59,000원 (평생)',
+        type: 'subs',
+      },
+      {
+        productId: IAP_SKUS.MONTHLY_STANDARD,
+        price: '7900',
+        currency: 'KRW',
+        title: 'weganda+ 월간 멤버십 (정상가)',
+        description: '사주 무제한, 월급/수당 예측기, AI 무제한, 듀티 공유',
+        localizedPrice: '월 7,900원',
+        type: 'subs',
+      },
+      {
+        productId: IAP_SKUS.YEARLY_STANDARD,
+        price: '70000',
+        currency: 'KRW',
+        title: 'weganda+ 연간 멤버십 (정상가)',
+        description: '사주 무제한, 월급/수당 예측기, AI 무제한, 듀티 공유',
+        localizedPrice: '연 70,000원',
         type: 'subs',
       },
     ];
   }
 
-  public async requestSubscription(sku?: string): Promise<IapPurchaseResult> {
-    const targetSku =
-      sku ||
-      Platform.select({
-        ios: IAP_SKUS.SUBSCRIPTION_MONTHLY_IOS,
-        android: IAP_SKUS.SUBSCRIPTION_MONTHLY_ANDROID,
-        default: IAP_SKUS.SUBSCRIPTION_MONTHLY_IOS,
-      });
+  public async requestSubscription(
+    sku?: string,
+    options?: {
+      planType?: 'monthly' | 'yearly';
+      price?: number;
+      isTrial?: boolean;
+      isEarlybird?: boolean;
+    }
+  ): Promise<IapPurchaseResult> {
+    const targetSku = sku || IAP_SKUS.MONTHLY_EARLYBIRD;
+    const planType = options?.planType || (targetSku.includes('yearly') ? 'yearly' : 'monthly');
+    const isEarlybird = options?.isEarlybird !== undefined ? options.isEarlybird : targetSku.includes('earlybird');
+    const price = options?.price || (planType === 'yearly' ? (isEarlybird ? 59000 : 70000) : (isEarlybird ? 5900 : 7900));
+    const isTrial = options?.isTrial !== undefined ? options.isTrial : true;
 
     try {
       const RNIap = getNativeIap();
@@ -211,7 +249,25 @@ class InAppPurchaseService {
 
     // Mock Flow: Simulate network delay (1.5s) and confirm subscription
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    useUserStore.getState().subscribeToPremium();
+
+    // 계산된 구독 정보로 전역 스토어 업데이트
+    const now = new Date();
+    const trialEnd = new Date(now);
+    trialEnd.setDate(trialEnd.getDate() + (isTrial ? 30 : 0));
+    const billingDate = trialEnd.toISOString().slice(0, 10);
+
+    useUserStore.getState().subscribeToPremiumWithDetails({
+      planType,
+      isEarlybird,
+      price,
+      isTrial,
+      trialStartDate: now.toISOString().slice(0, 10),
+      trialEndDate: isTrial ? billingDate : undefined,
+      nextBillingDate: billingDate,
+      subscribedAt: now.toISOString(),
+      status: isTrial ? 'trial' : 'active',
+      storeSku: targetSku,
+    });
 
     return {
       success: true,

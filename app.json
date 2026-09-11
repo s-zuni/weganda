@@ -14,6 +14,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.weganda.app",
+      "buildNumber": "1",
       "usesAppleSignIn": true,
       "infoPlist": {
         "NSCalendarsUsageDescription": "근무표를 스마트폰 기본 캘린더에 동기화하기 위해 캘린더 접근 권한이 필요합니다.",
@@ -25,6 +26,7 @@
     },
     "android": {
       "package": "com.weganda.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -34,8 +36,7 @@
         "android.permission.WRITE_CALENDAR",
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.POST_NOTIFICATIONS",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.POST_NOTIFICATIONS"
       ]
     },
     "plugins": [
@@ -59,7 +60,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "근무표 이미지 업로드 및 커뮤니티 사진 첨부를 위해 사진 라이브러리 접근 권한이 필요합니다."
+          "photosPermission": "근무표 이미지 업로드 및 커뮤니티 사진 첨부를 위해 사진 라이브러리 접근 권한이 필요합니다.",
+          "cameraPermission": "근무표를 직접 촬영하여 OCR로 자동 입력하기 위해 카메라 접근 권한이 필요합니다."
         }
       ]
     ],

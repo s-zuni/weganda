@@ -19,7 +19,7 @@ interface LoginScreenProps {
   navigation: any;
 }
 
-export const LoginScreen: React.FC<LoginScreenProps> = () => {
+export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
   const setUser = useUserStore((state) => state.setUser);
@@ -31,6 +31,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
       const result = await authService.signInWithApple();
       if (result?.session) {
         await syncUserFromSession(result.session);
+        const state = useUserStore.getState();
+        if (!state.hasCompletedOnboarding) {
+          navigation.navigate('Onboarding');
+        }
       }
     } catch (error: any) {
       // 인증 취소는 조용히 무시
@@ -49,6 +53,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
       const result = await authService.signInWithKakao();
       if (result?.session) {
         await syncUserFromSession(result.session);
+        const state = useUserStore.getState();
+        if (!state.hasCompletedOnboarding) {
+          navigation.navigate('Onboarding');
+        }
       }
     } catch (error: any) {
       if (!error.message?.includes('취소') && !error.message?.includes('dismissed')) {
@@ -66,6 +74,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
       const result = await authService.signInWithGoogle();
       if (result?.session) {
         await syncUserFromSession(result.session);
+        const state = useUserStore.getState();
+        if (!state.hasCompletedOnboarding) {
+          navigation.navigate('Onboarding');
+        }
       }
     } catch (error: any) {
       if (!error.message?.includes('취소') && !error.message?.includes('dismissed')) {
@@ -150,6 +162,22 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
             )}
           </TouchableOpacity>
 
+          {/* 온보딩 및 신규 가입 버튼 */}
+          <TouchableOpacity
+            style={styles.onboardingCtaButton}
+            onPress={() => navigation.navigate('Onboarding')}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="3초 간편 시작 및 1개월 무료체험"
+          >
+            <View style={styles.buttonInner}>
+              <Text style={styles.onboardingCtaEmoji}>🎁</Text>
+              <Text style={styles.onboardingCtaText}>
+                3초 간편 시작하고 1개월 무료체험 받기
+              </Text>
+            </View>
+          </TouchableOpacity>
+
           {/* 게스트 둘러보기 버튼 */}
           <TouchableOpacity
             style={styles.guestButton}
@@ -163,6 +191,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
                 experienceYears: 3,
                 isAuthenticated: true,
                 isGuest: true,
+                hasCompletedOnboarding: true,
               });
             }}
             activeOpacity={0.7}
@@ -328,5 +357,26 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontSize: 14,
     fontWeight: '600',
+  },
+  onboardingCtaButton: {
+    backgroundColor: COLORS.primary,
+    height: 54,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  onboardingCtaEmoji: {
+    fontSize: 18,
+  },
+  onboardingCtaText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: -0.3,
   },
 });

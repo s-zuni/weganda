@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   StatusBar,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
@@ -33,7 +34,7 @@ type FriendsTabType = 'list' | 'groups';
 
 export const FriendsScreen: React.FC = () => {
   const { id: userId, isPremium } = useUserStore((s) => ({ id: s.id, isPremium: s.isPremium }));
-  const { friends, groupChats, fetchFriends } = useFriendsStore();
+  const { friends, groupChats, fetchFriends, isLoading } = useFriendsStore();
 
   useEffect(() => {
     if (userId) {
@@ -170,16 +171,23 @@ export const FriendsScreen: React.FC = () => {
 
         {/* TAB 1: 친구 목록 */}
         {activeTab === 'list' && (
-          <FriendsListTab
-            searchText={searchText}
-            onSearchTextChange={setSearchText}
-            filteredFriends={filteredFriends}
-            favoriteFriends={favoriteFriends}
-            regularFriends={regularFriends}
-            onAddFriend={handleAddFriend}
-            onOpenProfile={handleOpenProfile}
-            onOpenChat={handleOpenChat}
-          />
+          isLoading && friends.length === 0 ? (
+            <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+              <ActivityIndicator color={COLORS.primary} size="large" />
+              <Text style={{ marginTop: 12, color: COLORS.textMuted, fontSize: 14 }}>친구 목록을 불러오는 중입니다...</Text>
+            </View>
+          ) : (
+            <FriendsListTab
+              searchText={searchText}
+              onSearchTextChange={setSearchText}
+              filteredFriends={filteredFriends}
+              favoriteFriends={favoriteFriends}
+              regularFriends={regularFriends}
+              onAddFriend={handleAddFriend}
+              onOpenProfile={handleOpenProfile}
+              onOpenChat={handleOpenChat}
+            />
+          )
         )}
 
         {/* TAB 2: 단체 톡방 & 전원 스케줄 일괄 비교 */}

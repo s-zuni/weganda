@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Platform } from 'react-native';
+import { Platform, AppState, AppStateStatus } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { LandingScreen } from './src/screens/Landing/LandingScreen';
@@ -16,6 +16,8 @@ export default function App() {
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
   const clearUser = useUserStore((state) => state.clearUser);
   const isLoading = useUserStore((state) => state.isLoading);
+  const isAuthenticated = useUserStore((state) => state.isAuthenticated);
+  const role = useUserStore((state) => state.role);
 
   // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs weganda.kr/admin vs weganda.kr/app)
   const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin' | 'app'>(() => {
@@ -44,9 +46,20 @@ export default function App() {
       }
     });
 
-    // 3. 웹 환경 브라우저 뒤로가기/앞으로가기 히스토리 이벤트 리스너
+    // 3. 앱 포그라운드 복귀 시 토큰 갱신 및 세션 유효성 재확인 (1시간 초과 만료 방지)
+    const appStateSub = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        supabase.auth.startAutoRefresh();
+        initializeAuth();
+      } else {
+        supabase.auth.stopAutoRefresh();
+      }
+    });
+
+    // 4. 웹 환경 브라우저 뒤로가기/앞으로가기 히스토리 이벤트 리스너
+    let handlePopState: (() => void) | undefined;
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      const handlePopState = () => {
+      handlePopState = () => {
         if (window.location.pathname.startsWith('/admin')) {
           setCurrentWebRoute('admin');
         } else if (window.location.pathname.startsWith('/app') || window.location.search.includes('app=true')) {
@@ -56,20 +69,48 @@ export default function App() {
         }
       };
       window.addEventListener('popstate', handlePopState);
-      return () => {
-        subscription.unsubscribe();
-        window.removeEventListener('popstate', handlePopState);
-      };
     }
 
     return () => {
       subscription.unsubscribe();
+      appStateSub.remove();
+      if (handlePopState && typeof window !== 'undefined') {
+        window.removeEventListener('popstate', handlePopState);
+      }
     };
   }, [initializeAuth, syncUserFromSession, clearUser]);
 
   // ── 웹(Browser) 환경 렌더링 ──
   if (Platform.OS === 'web') {
+    if (isLoading) {
+      return (
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <SplashScreenView />
+        </SafeAreaProvider>
+      );
+    }
+
     if (currentWebRoute === 'admin') {
+      // 🔒 Authorization Guard: 관리자 권한(role === 'admin') 및 인증 여부 확인
+      if (!isAuthenticated || role !== 'admin') {
+        return (
+          <SafeAreaProvider>
+            <StatusBar style="dark" />
+            <ErrorBoundary>
+              <LandingScreen
+                onNavigateAdmin={() => {
+                  if (typeof window !== 'undefined') {
+                    window.history.pushState({}, '', '/admin');
+                  }
+                  setCurrentWebRoute('admin');
+                }}
+              />
+            </ErrorBoundary>
+          </SafeAreaProvider>
+        );
+      }
+
       return (
         <SafeAreaProvider>
           <StatusBar style="dark" />

@@ -11,6 +11,7 @@ import {
   Switch,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from 'react-native';
 import { COLORS, useAppTheme } from '../../../constants/theme';
 import { useUserStore } from '../../../store/useUserStore';
@@ -20,6 +21,7 @@ import { UserIcon, SparklesIcon, CalendarIcon, BookmarkIcon, CrownIcon, LockIcon
 import { PremiumBadge } from '../../common/PremiumBadge';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { APP_THEME_COLORS, AppThemeColor } from '../../../constants/membership';
+import { VerificationModal } from '../Verification';
 
 interface MyPageModalProps {
   visible: boolean;
@@ -35,10 +37,17 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
     experienceYears: storeExp,
     isPremium,
     role,
+    verificationStatus,
+    verificationRole,
+    verificationRejectReason,
+    subscriptionInfo,
+    cancelSubscription,
+    unsubscribePremium,
     appThemeColor,
     setAppThemeColor,
     setUser,
     clearUser,
+    deleteAccount,
   } = useUserStore();
   const { birthInfo } = useFortuneStore();
 
@@ -46,11 +55,81 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
   const [name, setName] = useState(storeName || '김간호');
   const [hospitalName, setHospitalName] = useState(storeHospital || '서울아산병원');
   const [wardName, setWardName] = useState(storeWard || '51병동 (소화기내과)');
-  const [experienceYears, setExperienceYears] = useState(String(storeExp || 3));
+  const [experienceYears, setExperienceYears] = useState(String(storeExp !== undefined && storeExp !== null ? storeExp : 3));
 
   const [notifPush, setNotifPush] = useState(true);
   const [birthModalVisible, setBirthModalVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
+  const [verificationModalVisible, setVerificationModalVisible] = useState(false);
+
+  const handleCancelSubscription = () => {
+    const isTrial = subscriptionInfo?.isTrial;
+    const isCanceled = subscriptionInfo?.status === 'canceled';
+
+    if (isCanceled) {
+      Alert.alert(
+        '해지 예약 상태',
+        `이미 구독 해지가 예약되어 있습니다. ${subscriptionInfo?.nextBillingDate || '만료일'}까지 혜택이 유지되며 이후 자동 결제되지 않습니다.`
+      );
+      return;
+    }
+
+    Alert.alert(
+      'weganda+ 구독 관리 및 해지',
+      `${isTrial ? '현재 1개월 무료 체험 기간을 이용 중입니다.' : '현재 평생 얼리버드 특가 멤버십을 이용 중입니다.'}\n\n지금 해지하시더라도 ${subscriptionInfo?.nextBillingDate || '체험 만료일'}까지는 모든 프리미엄 기능(사주 무제한, 월급 예측기, 약물 계산기 등)을 위약금 없이 그대로 이용하실 수 있습니다.`,
+      [
+        { text: '닫기', style: 'cancel' },
+        {
+          text: '스토어에서 해지하기',
+          onPress: () => {
+            const storeUrl = Platform.select({
+              ios: 'https://apps.apple.com/account/subscriptions',
+              android: 'https://play.google.com/store/account/subscriptions',
+              default: 'https://apps.apple.com/account/subscriptions',
+            });
+            Linking.openURL(storeUrl).catch(() => {
+              Alert.alert('안내', '스토어 설정 > 구독 메뉴에서 안전하게 취소하실 수 있습니다.');
+            });
+          },
+        },
+        {
+          text: '앱에서 즉시 해지 예약',
+          style: 'destructive',
+          onPress: () => {
+            cancelSubscription();
+            Alert.alert(
+              '해지 예약 완료',
+              `구독 해지가 성공적으로 접수되었습니다. ${subscriptionInfo?.nextBillingDate || '다음 결제일'}까지 프리미엄 혜택이 유지되며 이후 결제되지 않습니다.`
+            );
+          },
+        },
+      ]
+    );
+  };
+
+  // 회원 탈퇴 핸들러 (Apple Guideline 5.1.1(v) 대응)
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      '회원 탈퇴',
+      '정말 회원 탈퇴를 진행하시겠습니까?\n\n탈퇴 시 등록된 모든 근무표, 개인 설정, 채팅 및 활동 데이터가 영구적으로 삭제되며 복구할 수 없습니다.',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '탈퇴하기',
+          style: 'destructive',
+          onPress: async () => {
+            const success = await deleteAccount();
+            if (success) {
+              Alert.alert('탈퇴 완료', '회원 탈퇴 및 모든 개인 데이터가 안전하게 삭제되었습니다.');
+              onClose();
+            } else {
+              Alert.alert('오류', '회원 탈퇴 처리 중 문제가 발생했습니다. 고객센터로 문의해 주세요.');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const handleSaveProfile = () => {
     if (!name.trim() || !hospitalName.trim()) {
@@ -58,11 +137,13 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
       return;
     }
 
+    const finalExp = experienceYears === '' ? 1 : Math.max(0, parseInt(experienceYears, 10));
+
     setUser({
       name: name.trim(),
       hospitalName: hospitalName.trim(),
       wardName: wardName.trim(),
-      experienceYears: parseInt(experienceYears, 10) || 1,
+      experienceYears: finalExp,
       isAuthenticated: true,
     });
 
@@ -72,7 +153,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
         name: name.trim(),
         hospitalName: hospitalName.trim(),
         wardName: wardName.trim(),
-        experienceYears: parseInt(experienceYears, 10) || 1,
+        experienceYears: finalExp,
       }).catch((e) => console.warn('Failed to sync profile with Supabase:', e));
     }
 
@@ -162,11 +243,159 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             )}
           </View>
 
+          {/* 간호 전문직 & 간호학생 인증 상태 카드 */}
+          <TouchableOpacity
+            style={[
+              styles.verificationCard,
+              verificationStatus === 'verified' && styles.verificationCardVerified,
+              verificationStatus === 'pending' && styles.verificationCardPending,
+              verificationStatus === 'rejected' && styles.verificationCardRejected,
+            ]}
+            onPress={() => setVerificationModalVisible(true)}
+            activeOpacity={0.85}
+          >
+            <View style={styles.verificationCardLeft}>
+              <Text style={styles.verificationCardIcon}>
+                {verificationStatus === 'verified'
+                  ? '✓'
+                  : verificationStatus === 'pending'
+                  ? '⏳'
+                  : verificationStatus === 'rejected'
+                  ? '✕'
+                  : '🔒'}
+              </Text>
+              <View style={styles.verificationCardTexts}>
+                <View style={styles.verificationTitleRow}>
+                  <Text style={styles.verificationCardTitle}>
+                    {verificationStatus === 'verified'
+                      ? `${verificationRole === 'student' ? '간호대생' : '간호사'} 인증 완료`
+                      : verificationStatus === 'pending'
+                      ? '서류 심사 진행 중'
+                      : verificationStatus === 'rejected'
+                      ? '인증 반려 (사유 확인)'
+                      : '간호사 & 간호대생 서류 인증'}
+                  </Text>
+                  <View
+                    style={[
+                      styles.verificationStatusTag,
+                      verificationStatus === 'verified' && { backgroundColor: '#DEF7EC' },
+                      verificationStatus === 'pending' && { backgroundColor: '#FEF3C7' },
+                      verificationStatus === 'rejected' && { backgroundColor: '#FDE8E8' },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.verificationStatusTagText,
+                        verificationStatus === 'verified' && { color: '#03543F' },
+                        verificationStatus === 'pending' && { color: '#92400E' },
+                        verificationStatus === 'rejected' && { color: '#9B1C1C' },
+                      ]}
+                    >
+                      {verificationStatus === 'verified'
+                        ? '인증됨'
+                        : verificationStatus === 'pending'
+                        ? '심사중'
+                        : verificationStatus === 'rejected'
+                        ? '반려'
+                        : '미인증'}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.verificationCardSub}>
+                  {verificationStatus === 'verified'
+                    ? '커뮤니티 및 전용 서비스를 모두 이용하실 수 있습니다.'
+                    : verificationStatus === 'pending'
+                    ? '관리자가 서류를 확인하고 있습니다. (최대 24시간 소요)'
+                    : verificationStatus === 'rejected'
+                    ? `반려 사유: ${verificationRejectReason || '서류 보완 필요'} (터치하여 재신청)`
+                    : '면허증 또는 학생증을 인증하고 커뮤니티 권한을 얻으세요.'}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.verificationCardArrow}>›</Text>
+          </TouchableOpacity>
+
           {/* weganda+ 멤버십 배지 */}
           <PremiumBadge
             isPremium={isPremium}
             onPress={() => setMembershipVisible(true)}
           />
+
+          {/* 프리미엄 회원 전용: 구독 관리 및 해지 카드 */}
+          {isPremium && (
+            <View style={styles.subscriptionManageCard}>
+              <View style={styles.subManageHeader}>
+                <View style={{ flex: 1 }}>
+                  <View style={styles.subPlanBadgeRow}>
+                    <Text style={styles.subPlanTitle}>
+                      {subscriptionInfo?.planType === 'yearly'
+                        ? '우간다+ 연간 멤버십'
+                        : '우간다+ 월간 멤버십'}
+                    </Text>
+                    <View
+                      style={[
+                        styles.subStatusBadge,
+                        subscriptionInfo?.status === 'canceled'
+                          ? { backgroundColor: '#FEF3C7' }
+                          : { backgroundColor: '#DEF7EC' },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.subStatusBadgeText,
+                          subscriptionInfo?.status === 'canceled'
+                            ? { color: '#92400E' }
+                            : { color: '#03543F' },
+                        ]}
+                      >
+                        {subscriptionInfo?.status === 'canceled'
+                          ? '해지 예약됨'
+                          : subscriptionInfo?.isTrial
+                          ? '1개월 무료체험 중'
+                          : '정기 구독 중'}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.subPriceText}>
+                    {subscriptionInfo?.price
+                      ? `₩${subscriptionInfo.price.toLocaleString()} / ${subscriptionInfo.planType === 'yearly' ? '년' : '월'}`
+                      : '월 5,900원 (얼리버드 평생특가)'}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.subDateInfoBox}>
+                {subscriptionInfo?.isTrial && subscriptionInfo?.trialEndDate && (
+                  <View style={styles.subDateRow}>
+                    <Text style={styles.subDateLabel}>1개월 무료 체험 종료일</Text>
+                    <Text style={styles.subDateVal}>{subscriptionInfo.trialEndDate}</Text>
+                  </View>
+                )}
+                <View style={styles.subDateRow}>
+                  <Text style={styles.subDateLabel}>
+                    {subscriptionInfo?.status === 'canceled' ? '구독 만료 예정일' : '다음 자동 결제일'}
+                  </Text>
+                  <Text style={styles.subDateVal}>
+                    {subscriptionInfo?.nextBillingDate || '2026-10-11'}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.subActionRow}>
+                <TouchableOpacity
+                  style={styles.cancelSubBtn}
+                  onPress={handleCancelSubscription}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.cancelSubBtnText}>
+                    {subscriptionInfo?.status === 'canceled'
+                      ? '해지 상태 확인'
+                      : '구독 관리 및 해지하기'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
 
 
           {/* ── 사주 탄생 정보 연동 섹션 (운세 PRD 연계) ── */}
@@ -324,6 +553,48 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             </View>
           </View>
 
+          {/* ── 약관 및 정책 (Apple / Google 심사 필수) ── */}
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionTitle}>약관 및 정책</Text>
+
+            <TouchableOpacity
+              style={styles.policyRow}
+              onPress={() => Linking.openURL('https://weganda.app/terms')}
+              activeOpacity={0.7}
+              accessibilityRole="link"
+              accessibilityLabel="서비스 이용약관"
+            >
+              <Text style={styles.policyLabel}>서비스 이용약관</Text>
+              <Text style={styles.policyArrow}>›</Text>
+            </TouchableOpacity>
+
+            <View style={styles.policyDivider} />
+
+            <TouchableOpacity
+              style={styles.policyRow}
+              onPress={() => Linking.openURL('https://weganda.app/privacy')}
+              activeOpacity={0.7}
+              accessibilityRole="link"
+              accessibilityLabel="개인정보 처리방침"
+            >
+              <Text style={styles.policyLabel}>개인정보 처리방침</Text>
+              <Text style={styles.policyArrow}>›</Text>
+            </TouchableOpacity>
+
+            <View style={styles.policyDivider} />
+
+            <TouchableOpacity
+              style={styles.policyRow}
+              onPress={() => Linking.openURL('https://weganda.app/terms/membership')}
+              activeOpacity={0.7}
+              accessibilityRole="link"
+              accessibilityLabel="우간다+ 멤버십 이용약관"
+            >
+              <Text style={styles.policyLabel}>우간다+ 멤버십 이용약관</Text>
+              <Text style={styles.policyArrow}>›</Text>
+            </TouchableOpacity>
+          </View>
+
           {/* 로그아웃 버튼 */}
           <TouchableOpacity
             style={styles.logoutBtn}
@@ -343,6 +614,17 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
           >
             <Text style={styles.logoutBtnText}>로그아웃</Text>
           </TouchableOpacity>
+
+          {/* ⚠️ 회원 탈퇴 버튼 (Apple Guideline 5.1.1(v) 필수 요건) */}
+          <TouchableOpacity
+            style={styles.deleteAccountBtn}
+            onPress={handleDeleteAccount}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="회원 탈퇴"
+          >
+            <Text style={styles.deleteAccountBtnText}>회원 탈퇴</Text>
+          </TouchableOpacity>
         </ScrollView>
 
         {/* 사주 탄생정보 수정 모달 */}
@@ -354,6 +636,12 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
         <MembershipScreen
           visible={membershipVisible}
           onClose={() => setMembershipVisible(false)}
+        />
+
+        {/* 전문직/간호학생 인증 모달 */}
+        <VerificationModal
+          visible={verificationModalVisible}
+          onClose={() => setVerificationModalVisible(false)}
         />
       </KeyboardAvoidingView>
     </Modal>
@@ -663,6 +951,188 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 1,
     borderRadius: 4,
+  },
+  verificationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  verificationCardVerified: {
+    backgroundColor: '#F3FAF7',
+    borderColor: '#31C48D',
+  },
+  verificationCardPending: {
+    backgroundColor: '#FFFBEB',
+    borderColor: '#FCD34D',
+  },
+  verificationCardRejected: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#F87171',
+  },
+  verificationCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,
+  },
+  verificationCardIcon: {
+    fontSize: 22,
+    fontWeight: '700',
+  },
+  verificationCardTexts: {
+    flex: 1,
+  },
+  verificationTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 2,
+  },
+  verificationCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  verificationStatusTag: {
+    backgroundColor: '#E5E7EB',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  verificationStatusTagText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4B5563',
+  },
+  verificationCardSub: {
+    fontSize: 12,
+    color: '#6B7280',
+    lineHeight: 16,
+  },
+  verificationCardArrow: {
+    fontSize: 20,
+    color: '#9CA3AF',
+    marginLeft: 8,
+  },
+  subscriptionManageCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginVertical: 10,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  subManageHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  subPlanBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  subPlanTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  subStatusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  subStatusBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  subPriceText: {
+    fontSize: 14,
+    color: '#FF507C',
+    fontWeight: '700',
+  },
+  subDateInfoBox: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    padding: 12,
+    gap: 6,
+    marginBottom: 12,
+  },
+  subDateRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  subDateLabel: {
+    fontSize: 12,
+    color: '#64748B',
+  },
+  subDateVal: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  subActionRow: {
+    alignItems: 'flex-end',
+  },
+  cancelSubBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
+  },
+  cancelSubBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  policyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+    minHeight: 44,
+  },
+  policyLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  policyArrow: {
+    fontSize: 18,
+    color: '#9CA3AF',
+  },
+  policyDivider: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+  },
+  deleteAccountBtn: {
+    marginTop: 12,
+    marginBottom: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    minHeight: 44,
+  },
+  deleteAccountBtnText: {
+    fontSize: 13,
+    color: '#9CA3AF',
+    textDecorationLine: 'underline',
   },
 });
 

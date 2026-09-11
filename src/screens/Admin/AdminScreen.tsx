@@ -18,9 +18,11 @@ import {
   AdminPaymentsTab,
   AdminSettingsTab,
   AdminWaitlistTab,
+  AdminVerificationTab,
 } from '../../components/specific/Admin';
 import { adminApi, DashboardStats } from '../../services/adminApi';
 import { AdminAnalytics } from '../../types/admin';
+import { useVerificationStore } from '../../store/useVerificationStore';
 
 export interface AdminScreenProps {
   visible?: boolean;
@@ -99,6 +101,11 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           title: '회원 관리',
           subtitle: 'Supabase profiles 실데이터 연동 · 유저 역할(Admin/User/Plus) 및 계정 상태 제어',
         };
+      case 'verification':
+        return {
+          title: '간호 서류 인증 심사',
+          subtitle: '간호사 및 간호학생 자격 증빙 서류 심사 · 수락(승인) 및 반려(사유 작성)',
+        };
       case 'community':
         return {
           title: '커뮤니티 관리',
@@ -111,8 +118,8 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         };
       case 'payments':
         return {
-          title: '결제/수익 관리',
-          subtitle: '토스페이먼츠 PG 정산 연동 및 구독 결제 파이프라인 관리',
+          title: '멤버십 & 런칭 이벤트 결제 관리',
+          subtitle: '인앱결제(Apple/Google) 3대 프로모션 이벤트 기간 및 평생할인가 제어 콘솔',
         };
       case 'settings':
         return {
@@ -123,6 +130,9 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         return { title: '관리자 콘솔', subtitle: '우간다 서비스 운영 시스템' };
     }
   };
+
+  const { adminRequests } = useVerificationStore();
+  const pendingVerificationsCount = adminRequests.filter((r) => r.status === 'pending').length;
 
   const menuInfo = getMenuInfo(activeMenu);
 
@@ -136,6 +146,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           activeMenu={activeMenu}
           onSelectMenu={setActiveMenu}
           pendingReportsCount={stats.pending_reports}
+          pendingVerificationsCount={pendingVerificationsCount}
           onGoMain={handleGoMain}
         />
 
@@ -165,6 +176,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
               )}
               {activeMenu === 'waitlist' && <AdminWaitlistTab />}
               {activeMenu === 'users' && <UserManagementTab />}
+              {activeMenu === 'verification' && <AdminVerificationTab />}
               {activeMenu === 'community' && <CommunityManagementTab />}
               {activeMenu === 'analytics' && <ServiceMetricsTab />}
               {activeMenu === 'payments' && <AdminPaymentsTab />}

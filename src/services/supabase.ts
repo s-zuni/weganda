@@ -4,11 +4,11 @@ import { Platform } from 'react-native';
 
 // 🔒 보안: 공개 가능한 anon key만 사용 (RLS가 실제 보안을 담당)
 // AI API 키(OpenAI, Gemini)는 Edge Function 환경변수에서만 관리
-const SUPABASE_URL =
-  process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://tffvsyarxfujmvbqlutr.supabase.co';
-const SUPABASE_ANON_KEY =
+export const SUPABASE_URL =
+  process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://vegtlnhgfjxdntnxbztb.supabase.co';
+export const SUPABASE_ANON_KEY =
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmZnZzeWFyeGZ1am12YnFsdXRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczMzU0OTEsImV4cCI6MjA4MjkxMTQ5MX0.7ctb_C-BJN_WTNi_yqaQllFY0oVARqsvSjQkte_M-yo';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ3RsbmhnZmp4ZG50bnhienRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NjU2NzUsImV4cCI6MjEwNDE0MTY3NX0.BouXAkcbuwwUvIBWxpP6Rxs7BhzN9evcEQMJiIwqo2g';
 
 // 🛡️ 모바일 하드웨어 보안 스토리지 어댑터 (iOS Keychain / Android Keystore 청킹 지원)
 const CHUNK_SIZE = 1800;

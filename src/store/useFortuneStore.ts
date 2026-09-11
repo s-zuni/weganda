@@ -76,11 +76,11 @@ export const useFortuneStore = create<FortuneState>()(
   persist(
     (set, get) => ({
   birthInfo: {
-    birthDate: '1996-05-18', // 기본 모의 데이터
-    birthTime: '07:30',
+    birthDate: '',
+    birthTime: '미상',
     calendarType: 'solar',
     gender: 'female',
-    isRegistered: true,
+    isRegistered: false,
   },
   partnerInfo: {
     birthDate: '',
@@ -116,7 +116,8 @@ export const useFortuneStore = create<FortuneState>()(
 
   setBirthInfo: (info) =>
     set((state) => ({
-      birthInfo: { ...state.birthInfo, ...info, isRegistered: true },
+      birthInfo: { ...state.birthInfo, ...info, isRegistered: Boolean(info.birthDate ?? state.birthInfo.birthDate) },
+      ...(info.birthDate && info.birthDate !== state.birthInfo.birthDate ? { currentFortune: undefined } : {}),
     })),
 
   setPartnerInfo: (info) =>
