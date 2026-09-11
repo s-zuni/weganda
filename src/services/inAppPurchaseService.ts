@@ -25,7 +25,40 @@ let purchaseUpdateSubscription: any = null;
 let purchaseErrorSubscription: any = null;
 let isConnected = false;
 
+function isNitroAvailable(): boolean {
+  if (Platform.OS !== 'ios' && Platform.OS !== 'android') return false;
+
+  try {
+    // 1. Expo Go 환경인지 체크 (Expo Go는 커스텀 C++ NativeModule 미지원)
+    const Constants = require('expo-constants').default;
+    if (
+      Constants?.appOwnership === 'expo' ||
+      Constants?.executionEnvironment === 'storeClient'
+    ) {
+      return false;
+    }
+  } catch {
+    // expo-constants 없으면 통과
+  }
+
+  try {
+    // 2. React Native TurboModuleRegistry에서 NitroModules 존재 여부 안전 검사
+    const { TurboModuleRegistry } = require('react-native');
+    if (TurboModuleRegistry && typeof TurboModuleRegistry.get === 'function') {
+      const nitro = TurboModuleRegistry.get('NitroModules');
+      return !!nitro;
+    }
+  } catch {
+    return false;
+  }
+
+  return false;
+}
+
 function getNativeIap(): any {
+  if (!isNitroAvailable()) {
+    return null;
+  }
   try {
     const pkg = 'react-native-iap';
     return require(pkg);
