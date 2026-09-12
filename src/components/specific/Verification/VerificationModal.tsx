@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  Keyboard,
 } from 'react-native';
 import { COLORS, useAppTheme } from '../../../constants/theme';
 import { useUserStore } from '../../../store/useUserStore';
@@ -66,6 +67,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
   const [verificationType, setVerificationType] = useState<VerificationType>('license');
   const [organizationName, setOrganizationName] = useState('');
   const [licenseNumber, setLicenseNumber] = useState('');
+  const licenseNumberRef = useRef<TextInput>(null);
   const [documentName, setDocumentName] = useState('');
   const [documentUrl, setDocumentUrl] = useState('');
   const [pickerSheetVisible, setPickerSheetVisible] = useState(false);
@@ -333,18 +335,26 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                   placeholderTextColor="#9CA3AF"
                   value={organizationName}
                   onChangeText={setOrganizationName}
+                  returnKeyType={targetRole === 'nurse' ? 'next' : 'done'}
+                  onSubmitEditing={() =>
+                    targetRole === 'nurse' ? licenseNumberRef.current?.focus() : Keyboard.dismiss()
+                  }
+                  blurOnSubmit={targetRole !== 'nurse'}
                 />
 
                 {targetRole === 'nurse' && (
                   <>
                     <Text style={styles.sectionLabel}>4. 간호사 면허번호 (선택)</Text>
                     <TextInput
+                      ref={licenseNumberRef}
                       style={styles.textInput}
                       placeholder="면허번호 입력 (서류와 일치해야 합니다)"
                       placeholderTextColor="#9CA3AF"
                       value={licenseNumber}
                       onChangeText={setLicenseNumber}
                       keyboardType="number-pad"
+                      returnKeyType="done"
+                      onSubmitEditing={() => Keyboard.dismiss()}
                     />
                   </>
                 )}

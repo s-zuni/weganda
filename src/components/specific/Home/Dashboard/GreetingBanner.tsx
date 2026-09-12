@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../../../constants/theme';
-import { ShiftCode, ShiftInfo } from '../../../../types/shift';
-import { useUserStore } from '../../../../store/useUserStore';
+import { ShiftInfo } from '../../../../types/shift';
 
 interface GreetingBannerProps {
   displayName?: string;
@@ -15,9 +14,7 @@ export const GreetingBanner: React.FC<GreetingBannerProps> = ({
   todayShift,
   todayShiftInfo,
 }) => {
-  const userNickname = useUserStore((s) => s.nickname);
-  const userName = useUserStore((s) => s.name);
-  const activeDisplayName = userNickname || userName || propDisplayName || '김간호';
+  const activeDisplayName = propDisplayName || '회원';
 
   return (
     <View style={styles.greetingBanner}>

@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { ExpoSecureStoreAdapter } from '../services/supabase';
+import { membershipEventApi } from '../services/membershipEventApi';
 import {
   MembershipEventConfig,
   MembershipPlanKey,
@@ -17,12 +16,18 @@ import {
 
 interface MembershipEventState {
   config: MembershipEventConfig;
+  isLoading: boolean;
+  isSaving: boolean;
 
-  // Actions for Admin
-  updateFreeTrialEvent: (patch: Partial<FreeTrialEventConfig>) => void;
-  updateMonthlyDiscountEvent: (patch: Partial<DiscountEventConfig>) => void;
-  updateYearlyDiscountEvent: (patch: Partial<DiscountEventConfig>) => void;
-  resetToDefaultEvents: () => void;
+  // 서버(관리자가 설정한 프로모션 값)에서 조회 — 앱 시작 시 1회 호출
+  fetchConfig: () => Promise<void>;
+
+  // Actions for Admin — 서버(membership_event_config 테이블, 관리자 전용 RLS)에 반영되며,
+  // 실패(권한 없음/네트워크 오류) 시 로컬 상태를 이전 값으로 되돌리고 false를 반환한다.
+  updateFreeTrialEvent: (patch: Partial<FreeTrialEventConfig>) => Promise<boolean>;
+  updateMonthlyDiscountEvent: (patch: Partial<DiscountEventConfig>) => Promise<boolean>;
+  updateYearlyDiscountEvent: (patch: Partial<DiscountEventConfig>) => Promise<boolean>;
+  resetToDefaultEvents: () => Promise<boolean>;
 
   // Calculators & Helpers
   isFreeTrialActive: () => boolean;
@@ -74,39 +79,58 @@ const createDefaultConfig = (): MembershipEventConfig => {
 };
 
 export const useMembershipEventStore = create<MembershipEventState>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       config: createDefaultConfig(),
+      isLoading: false,
+      isSaving: false,
 
-      updateFreeTrialEvent: (patch) => {
-        set((state) => ({
-          config: {
-            ...state.config,
-            freeTrialEvent: { ...state.config.freeTrialEvent, ...patch },
-          },
-        }));
+      fetchConfig: async () => {
+        set({ isLoading: true });
+        try {
+          const remote = await membershipEventApi.getConfig();
+          if (remote) set({ config: remote });
+        } catch (e) {
+          console.warn('[useMembershipEventStore] fetchConfig failed:', e);
+        } finally {
+          set({ isLoading: false });
+        }
       },
 
-      updateMonthlyDiscountEvent: (patch) => {
-        set((state) => ({
-          config: {
-            ...state.config,
-            monthlyDiscountEvent: { ...state.config.monthlyDiscountEvent, ...patch },
-          },
-        }));
+      // 낙관적으로 로컬을 먼저 갱신해 UI가 즉시 반응하게 하고, 서버 반영에 실패하면 이전 값으로 되돌린다.
+      updateFreeTrialEvent: async (patch) => {
+        const previous = get().config;
+        const next = { ...previous, freeTrialEvent: { ...previous.freeTrialEvent, ...patch } };
+        set({ config: next, isSaving: true });
+        const ok = await membershipEventApi.updateConfig(next);
+        set({ isSaving: false, config: ok ? next : previous });
+        return ok;
       },
 
-      updateYearlyDiscountEvent: (patch) => {
-        set((state) => ({
-          config: {
-            ...state.config,
-            yearlyDiscountEvent: { ...state.config.yearlyDiscountEvent, ...patch },
-          },
-        }));
+      updateMonthlyDiscountEvent: async (patch) => {
+        const previous = get().config;
+        const next = { ...previous, monthlyDiscountEvent: { ...previous.monthlyDiscountEvent, ...patch } };
+        set({ config: next, isSaving: true });
+        const ok = await membershipEventApi.updateConfig(next);
+        set({ isSaving: false, config: ok ? next : previous });
+        return ok;
       },
 
-      resetToDefaultEvents: () => {
-        set({ config: createDefaultConfig() });
+      updateYearlyDiscountEvent: async (patch) => {
+        const previous = get().config;
+        const next = { ...previous, yearlyDiscountEvent: { ...previous.yearlyDiscountEvent, ...patch } };
+        set({ config: next, isSaving: true });
+        const ok = await membershipEventApi.updateConfig(next);
+        set({ isSaving: false, config: ok ? next : previous });
+        return ok;
+      },
+
+      resetToDefaultEvents: async () => {
+        const previous = get().config;
+        const next = createDefaultConfig();
+        set({ config: next, isSaving: true });
+        const ok = await membershipEventApi.updateConfig(next);
+        set({ isSaving: false, config: ok ? next : previous });
+        return ok;
       },
 
       isFreeTrialActive: () => {
@@ -166,10 +190,5 @@ export const useMembershipEventStore = create<MembershipEventState>()(
           };
         }
       },
-    }),
-    {
-      name: 'weganda-membership-events',
-      storage: createJSONStorage(() => ExpoSecureStoreAdapter),
-    }
-  )
+    })
 );

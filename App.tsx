@@ -9,6 +9,7 @@ import { AdminLoginView } from './src/components/specific/Admin';
 import { LegalScreen } from './src/screens/Legal/LegalScreen';
 import { LegalTabKey } from './src/constants/legal/types';
 import { useUserStore } from './src/store/useUserStore';
+import { useMembershipEventStore } from './src/store/useMembershipEventStore';
 import { supabase } from './src/services/supabase';
 import ErrorBoundary from './src/components/common/ErrorBoundary';
 import SplashScreenView from './src/components/common/SplashScreenView';
@@ -72,6 +73,9 @@ export default function App() {
   const showSplash = Platform.OS !== 'web' && (isLoading || isSplashVisible);
 
   useEffect(() => {
+    // 0. 무료체험/얼리버드 할인 프로모션 설정을 서버(관리자 설정)에서 조회 — 로그인 여부와 무관하게 전체 사용자 공통.
+    useMembershipEventStore.getState().fetchConfig();
+
     // 1. 앱 기동 시 SecureStore에 저장된 세션 복원
     initializeAuth();
 

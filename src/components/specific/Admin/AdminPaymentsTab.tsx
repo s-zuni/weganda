@@ -36,40 +36,52 @@ export const AdminPaymentsTab: React.FC = () => {
   const [yearlyStart, setYearlyStart] = useState(config.yearlyDiscountEvent.startDate);
   const [yearlyEnd, setYearlyEnd] = useState(config.yearlyDiscountEvent.endDate);
 
-  const handleSaveFreeTrial = () => {
-    updateFreeTrialEvent({
+  const handleSaveFreeTrial = async () => {
+    const ok = await updateFreeTrialEvent({
       startDate: trialStart,
       endDate: trialEnd,
     });
-    Alert.alert('저장 완료', '1개월 무료 체험 이벤트 기간이 성공적으로 저장되었습니다.');
+    if (ok) {
+      Alert.alert('저장 완료', '1개월 무료 체험 이벤트 기간이 전체 사용자에게 적용되었습니다.');
+    } else {
+      Alert.alert('저장 실패', '서버에 반영하지 못했습니다. 관리자 권한 및 네트워크 상태를 확인한 뒤 다시 시도해 주세요.');
+    }
   };
 
-  const handleSaveMonthlyDiscount = () => {
+  const handleSaveMonthlyDiscount = async () => {
     const p = parseInt(monthlyPrice, 10);
     if (isNaN(p) || p <= 0) {
       Alert.alert('확인', '올바른 금액을 입력해 주세요.');
       return;
     }
-    updateMonthlyDiscountEvent({
+    const ok = await updateMonthlyDiscountEvent({
       discountedPrice: p,
       startDate: monthlyStart,
       endDate: monthlyEnd,
     });
-    Alert.alert('저장 완료', '월간 얼리버드 할인 설정이 저장되었습니다.');
+    if (ok) {
+      Alert.alert('저장 완료', '월간 얼리버드 할인 설정이 전체 사용자에게 적용되었습니다.');
+    } else {
+      Alert.alert('저장 실패', '서버에 반영하지 못했습니다. 관리자 권한 및 네트워크 상태를 확인한 뒤 다시 시도해 주세요.');
+    }
   };
 
-  const handleSaveYearlyDiscount = () => {
+  const handleSaveYearlyDiscount = async () => {
     const p = parseInt(yearlyPrice, 10);
     if (isNaN(p) || p <= 0) {
       Alert.alert('확인', '올바른 금액을 입력해 주세요.');
       return;
     }
-    updateYearlyDiscountEvent({
+    const ok = await updateYearlyDiscountEvent({
       discountedPrice: p,
       startDate: yearlyStart,
       endDate: yearlyEnd,
     });
-    Alert.alert('저장 완료', '연간 얼리버드 할인 설정이 저장되었습니다.');
+    if (ok) {
+      Alert.alert('저장 완료', '연간 얼리버드 할인 설정이 전체 사용자에게 적용되었습니다.');
+    } else {
+      Alert.alert('저장 실패', '서버에 반영하지 못했습니다. 관리자 권한 및 네트워크 상태를 확인한 뒤 다시 시도해 주세요.');
+    }
   };
 
   const handleReset = () => {
@@ -81,8 +93,8 @@ export const AdminPaymentsTab: React.FC = () => {
         {
           text: '복원하기',
           style: 'destructive',
-          onPress: () => {
-            resetToDefaultEvents();
+          onPress: async () => {
+            const ok = await resetToDefaultEvents();
             const def = useMembershipEventStore.getState().config;
             setTrialStart(def.freeTrialEvent.startDate);
             setTrialEnd(def.freeTrialEvent.endDate);
@@ -92,7 +104,11 @@ export const AdminPaymentsTab: React.FC = () => {
             setYearlyPrice(String(def.yearlyDiscountEvent.discountedPrice));
             setYearlyStart(def.yearlyDiscountEvent.startDate);
             setYearlyEnd(def.yearlyDiscountEvent.endDate);
-            Alert.alert('초기화 완료', '모든 이벤트 설정이 출시 기본값으로 복원되었습니다.');
+            if (ok) {
+              Alert.alert('초기화 완료', '모든 이벤트 설정이 출시 기본값으로 복원되어 전체 사용자에게 적용되었습니다.');
+            } else {
+              Alert.alert('초기화 실패', '서버에 반영하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+            }
           },
         },
       ]
@@ -154,7 +170,10 @@ export const AdminPaymentsTab: React.FC = () => {
           </View>
           <Switch
             value={config.freeTrialEvent.isEnabled}
-            onValueChange={(val) => updateFreeTrialEvent({ isEnabled: val })}
+            onValueChange={async (val) => {
+              const ok = await updateFreeTrialEvent({ isEnabled: val });
+              if (!ok) Alert.alert('변경 실패', '서버에 반영하지 못해 이전 상태로 되돌렸습니다.');
+            }}
             trackColor={{ false: '#E2E8F0', true: '#FED7AA' }}
             thumbColor={config.freeTrialEvent.isEnabled ? '#EA580C' : '#94A3B8'}
           />
@@ -205,7 +224,10 @@ export const AdminPaymentsTab: React.FC = () => {
           </View>
           <Switch
             value={config.monthlyDiscountEvent.isEnabled}
-            onValueChange={(val) => updateMonthlyDiscountEvent({ isEnabled: val })}
+            onValueChange={async (val) => {
+              const ok = await updateMonthlyDiscountEvent({ isEnabled: val });
+              if (!ok) Alert.alert('변경 실패', '서버에 반영하지 못해 이전 상태로 되돌렸습니다.');
+            }}
             trackColor={{ false: '#E2E8F0', true: '#FCE7F3' }}
             thumbColor={config.monthlyDiscountEvent.isEnabled ? '#FF507C' : '#94A3B8'}
           />
@@ -255,7 +277,10 @@ export const AdminPaymentsTab: React.FC = () => {
           </View>
           <Switch
             value={config.yearlyDiscountEvent.isEnabled}
-            onValueChange={(val) => updateYearlyDiscountEvent({ isEnabled: val })}
+            onValueChange={async (val) => {
+              const ok = await updateYearlyDiscountEvent({ isEnabled: val });
+              if (!ok) Alert.alert('변경 실패', '서버에 반영하지 못해 이전 상태로 되돌렸습니다.');
+            }}
             trackColor={{ false: '#E2E8F0', true: '#FCE7F3' }}
             thumbColor={config.yearlyDiscountEvent.isEnabled ? '#FF507C' : '#94A3B8'}
           />

@@ -4,6 +4,88 @@
 > 각 항목 작업 후 반드시 `npx tsc --noEmit`을 실행해 타입 에러가 없는지 확인하고, `CLAUDE.md`의 "서비스 계층 경유 원칙" / "프리미엄 게이팅 단일 원천(`useUserStore`/`membership.ts`)" / "그라디언트·색상 하드코딩 금지" 규칙을 위반하지 않는지 재확인할 것.
 > 4명의 독립 조사자가 각각 (1) 보안/서비스계층/RLS, (2) 회원가입·온보딩 UX, (3) 키보드·입력 UX, (4) 전체 화면 UI/UX를 담당해 조사한 결과를 통합했다.
 
+## 재점검 결과 (커밋 `1de9225` 반영 후, 2차 점검)
+
+사용자가 위 29개 항목을 기반으로 커밋 `1de9225`에서 코드를 수정한 뒤 다시 점검했다. **25개 항목이 정상적으로 해결됨을 확인**했고, 재검토 중 새로 발견된 버그 2건과 잔여 정리 항목 3건을 직접 수정했다. 아직 코드로 해결되지 않은 항목은 2건(모두 이유가 있음, 아래 참고). 전체 `npx tsc --noEmit` 통과 확인.
+
+**이번 재점검에서 직접 수정한 것:**
+- `src/store/useUserStore.ts`: `onboardingDraft`/`setOnboardingDraft` 타입에 남아있던 `any`를 `Step1Data`로 좁힘(CLAUDE.md 8번 위반이었음).
+- `src/screens/Home/DashboardScreen.tsx`: `isLoading` 상태가 store에서 오긴 했으나 화면에 실제로 렌더링되지 않던 것을 발견 — 최초 로딩 시 스피너 배너를 추가로 연결함(`COLORS` import 추가).
+- `src/components/specific/Home/Dashboard/GreetingBanner.tsx`: 사용하지 않는 `ShiftCode` import 제거.
+- `src/components/specific/Auth/ReviewerLoginModal.tsx`: 실제로는 렌더링되지 않는 죽은 스타일(`quickFillChip`/`quickFillText`, 이전 "퀵 채우기" UI 잔재) 제거.
+- `src/components/specific/MyPage/MyPageModal.tsx`: 남아있던 색상 리터럴(`#FFFFFF`, `#E5E7EB`, `#F3F4F6` 등)을 `COLORS`/`NEUTRAL` 시맨틱 토큰으로 전량 치환(#13 잔여분 마무리).
+- `src/components/specific/Verification/VerificationModal.tsx`: 소속 병원명 → 면허번호 입력 필드 간 `returnKeyType`/`onSubmitEditing` 체이닝 추가(#18 잔여분 마무리).
+- 위 두 건은 검증 중 이미 적용되어 있던 것을 확인하고 `tsc`로 재검증했다(내용 자체는 요구사항과 정확히 일치, 버그 없음).
+
+**여전히 코드로 해결되지 않은 항목 (의도적으로 보류, 후속 조치 필요):**
+- **Critical #2 (프리미엄 서버 검증)**: `src/services/inAppPurchaseService.ts`는 이번 커밋에서도 전혀 수정되지 않았다. `useUserStore.ts:305`의 단기 완화책(서버 `role` 값으로 매번 덮어쓰기)은 적용되어 즉각적 우회 위험은 크게 줄었지만, 신규 Supabase `subscriptions` 테이블 + Edge Function을 통한 실제 영수증 서버 검증은 Apple/Google 서버 자격증명이 필요한 별도 백엔드 작업이라 이번 세션에서 임의로 만들지 않았다. 진행을 원하면 별도로 요청해달라.
+- **Medium #15 (Leaked Password Protection)**: Supabase 대시보드(Authentication → Policies)에서 수동으로 켜야 하는 설정이라 SQL/마이그레이션으로 대신 처리할 수 없다. `mcp__supabase__get_advisors`로 재확인한 결과 여전히 WARN 상태.
+
+**재검토 중 "정상, 조치 불필요"로 확정한 항목(과잉 수정 방지를 위해 기록):**
+- **#7 (SECURITY DEFINER RPC)**: Supabase에서 `accept_duty_swap()`, `delete_user_account()` 함수 정의를 직접 조회해 확인함 — 둘 다 내부에 `auth.uid()` 기반 본인 확인 로직이 있고 `search_path`도 이미 고정되어 있어, advisor의 WARN은 "본인 소유 데이터만 다루는 의도된 self-service RPC"에 대한 일반적 주의 경고였다. `prevent_self_role_escalation()`은 더 이상 advisor 목록에 없음(이미 REST 노출 차단됨). 추가 조치 불필요.
+
+**최종 조율(4명이 동시에 겹치는 파일을 수정해 발생한 충돌·잔여 버그를 병합 후 직접 확인·수정):**
+- `src/store/useUserStore.ts`의 `clearUser()`가 `onboardingDraft`를 `null`로 초기화하지 않던 버그를 발견해 수정함 — 로그아웃/회원탈퇴 후 같은 기기에서 다른 계정으로 로그인하면 이전 사용자가 입력하던 온보딩 초안(닉네임/병원명/병동)이 새 계정의 온보딩 화면에 그대로 복원되는 정보 노출 버그였다.
+- 키보드 UX 담당 조사자가 담당 범위 밖에서 발견한 버그(초기 상태값이 `'김간호'`/`'서울아산병원'` 등 특정 인물 가짜 데이터로 하드코딩되어 있어 실제 로그인 사용자의 이름이 영구적으로 가려질 수 있던 문제)도 검증 결과 정상적으로 반영되어 있음을 확인함(`useUserStore.ts` 초기값 중립화, `DashboardScreen.tsx`/`GreetingBanner.tsx` 폴백을 `'회원'`으로 통일).
+- `MyPageModal.tsx`에 색상 정리 후에도 남아있던 `#FFF1F4` 리터럴 2곳(`avatar`, `actionChip` 배경)을 이미 존재하는 `TINT_COLORS.pinkTint` 토큰으로 치환함(#13 완전 마무리). 그 외 남은 `#B8922E`/`#FFF8E7`(프리미엄 골드), `#111827`/`#4B5563`/`#374151`/`#F8FAFC`(뉴트럴 그레이 계열)는 기존 상수와 정확히 일치하는 토큰이 없어 임의 변경 시 미묘한 색상 차이가 생길 수 있으므로 보존함 — 필요하면 `theme.ts`에 해당 톤의 시맨틱 토큰을 추가하는 별도 작업으로 처리 권장.
+- 위 병합 이후 `npx tsc --noEmit` 재실행, 클린 통과 확인. 겹쳐서 수정된 6개 파일(`useUserStore.ts`, `DashboardScreen.tsx`, `GreetingBanner.tsx`, `MyPageModal.tsx`, `VerificationModal.tsx`, `ReviewerLoginModal.tsx`) 전체를 직접 재열람해 다른 조사자의 변경이 서로를 덮어쓰거나 누락시키지 않았음을 확인함.
+
+## Critical #2 (프리미엄 서버 검증) 해결 완료 — 3차 작업
+
+사용자 요청으로 서버 측 영수증 검증을 실제로 구현했다.
+
+**배포한 백엔드:**
+- Supabase 마이그레이션 `create_subscriptions_table` 적용 — `public.subscriptions` 테이블 신설(플랫폼/상품/거래ID/상태/가격/트라이얼·만료일 등). RLS: 본인 행 SELECT만 허용, INSERT/UPDATE/DELETE 정책은 의도적으로 없음 → 오직 `service_role`(Edge Function)만 쓸 수 있다.
+- Edge Function `verify-purchase` 배포(ACTIVE, v1) — iOS는 App Store Server API(`/inApps/v1/subscriptions/{transactionId}`, ES256 JWT 자체 서명), Android는 Play Developer API v2(`subscriptionsv2`, 서비스 계정 RS256 JWT→OAuth2)로 실제 스토어 서버에 조회해 구독 상태(active/trial/grace_period/expired/revoked/canceled)를 검증한 뒤 `subscriptions` 테이블에 기록한다. 인증되지 않은 요청은 401로 거부. 검증 실패/자격증명 미설정 시 **절대 프리미엄을 부여하지 않고 실패로 응답**(fail-closed).
+
+**클라이언트 변경:**
+- `src/services/subscriptionApi.ts` 신규 — `verifyPurchase()`(Edge Function 호출), `getMySubscription()`(현재 구독 상태 조회, 게스트는 즉시 null).
+- `src/store/useUserStore.ts` — `applyServerSubscription()`(서버 응답을 유일한 진실로 반영, 없으면 무조건 `isPremium:false`), `syncPremiumFromServer()` 추가. `syncUserFromSession()`이 로그인/앱 시작마다 이를 호출해 로컬에 저장돼있던 `isPremium` 값을 서버 값으로 재검증·덮어쓴다(단, 관리자가 `role`을 `plus`/`admin`으로 수동 부여한 경우는 구독 레코드 없이도 프리미엄 유지).
+- `src/services/inAppPurchaseService.ts` — 구매 완료 리스너와 `restorePurchases()`가 더 이상 클라이언트 판단만으로 `subscribeToPremium()`을 호출하지 않고, `verifyAndApplyPurchase()`로 항상 서버 검증을 거친다.
+- **`src/components/common/PaywallBottomSheet.tsx`에서 실사용 버그를 하나 더 발견해 수정함**: `handleRestore`가 `restorePurchases()`의 반환 객체(`{success, ...}`)를 `if (restored)`로 참 판정해(객체는 항상 truthy) 복원 성공 여부와 무관하게 무조건 `subscribeToPremium()`을 호출하던, 서버 검증을 완전히 우회하는 구멍이었다 — `result.success`로 정정하고 store를 직접 건드리지 않도록 수정.
+
+## AdminScreen 실제 기능화 — 4차 작업
+
+사용자 확인: `AdminScreen`은 `App.tsx`의 웹 전용 라우팅(`window.location.pathname.startsWith('/admin')`)으로 `www.weganda.kr/admin`에서만 노출되며 `AdminLoginView` + `role==='admin'` 가드가 이미 있다(모바일 미노출은 의도된 설계, 오조사였음을 정정).
+
+탭별 재점검 결과, "문의관리"는 이미 `supportApi.ts`가 실제 `inquiries`/`inquiry_replies` 테이블과 정상 통신하고 있었다(이전 조사에서 "전체 mock"이라 보고한 것은 오판 — 에러 폴백 코드만 보고 성공 경로를 놓친 것으로 정정). 다만 점검 중 다음 두 가지 **진짜 문제**를 발견해 수정했다:
+
+1. **`membership_event_config`(결제관리 프로모션 설정) — 로컬 전용 → 서버 공유로 전환**
+   - 이전에는 `useMembershipEventStore`가 `zustand/persist`로 **관리자 자신의 기기**에만 저장되어, 무료체험 기간·할인가를 바꿔도 다른 사용자에게 전혀 반영되지 않았다.
+   - Supabase에 `membership_event_config` 싱글턴 테이블 생성(마이그레이션 `create_membership_event_config`) — RLS: 조회는 전체 허용(비로그인 포함, 가격 정보는 공개 정보), 수정/삽입은 `check_is_admin()`만 허용.
+   - `src/services/membershipEventApi.ts` 신규(`getConfig`/`updateConfig`, RLS로 거부된 무권한 갱신을 `.select()`로 실제 반영 행 수까지 검사해 "성공한 척"하지 않도록 처리).
+   - `src/store/useMembershipEventStore.ts`를 로컬 persist 제거하고 서버 연동으로 전환 — `fetchConfig()`(앱 시작 시 전체 사용자 대상 1회 호출, `App.tsx`에 연결), 4개 수정 액션은 모두 비동기로 전환해 서버 반영 실패 시 로컬 값을 자동 롤백.
+   - `src/components/specific/Admin/AdminPaymentsTab.tsx`의 저장 버튼/스위치가 실제 서버 반영 성공·실패를 사용자에게 안내하도록 수정.
+
+2. **`inquiries`/`inquiry_replies` RLS가 사실상 전체 공개였던 것을 강화**
+   - 기존 정책(`qual: true`)은 로그인한 아무나 다른 사람의 1:1 문의를 전부 열람하고, 아무 문의의 상태나 바꾸고, `is_admin: true`를 위조해 가짜 관리자 답변을 남길 수 있는 상태였다.
+   - 마이그레이션 `secure_inquiries_and_dashboard_stats`로 재작성: 본인 문의(또는 이메일 일치)만 조회 가능, 상태 변경은 관리자만, 답글은 본인 문의에 본인 명의(`is_admin=false`)로만 또는 관리자가 `is_admin=true`로만 남길 수 있도록 서버 단에서 강제.
+   - 같은 마이그레이션에서 `admin_get_dashboard_stats()` RPC에도 다른 admin RPC와 동일한 `check_is_admin()` 가드를 추가(기존에는 누락돼 있었음).
+   - `mcp__supabase__get_advisors(security)` 재확인 — 새로 만든 두 테이블에 대한 경고 없음, 기존에 알려진 2건(SECURITY DEFINER RPC 노출 — 내부 `auth.uid()` 검증 있어 안전 확인됨, Leaked Password Protection — 대시보드 수동 설정 필요)만 남아있음.
+
+전체 `npx tsc --noEmit` 클린 통과 확인. 변경사항은 아직 커밋하지 않음.
+
+**사용자가 직접 해야 하는 남은 작업 (코드로 처리 불가):**
+Supabase 프로젝트의 Edge Function 환경변수(Secrets)에 아래 값을 등록해야 실제 검증이 동작한다. 미설정 상태에서는 `verify-purchase`가 "자격증명 없음" 오류를 반환하며 **절대 프리미엄을 임의로 부여하지 않는다**(안전하지만, 등록 전까지는 실제 결제 후 프리미엄이 부여되지 않는다는 뜻이므로 스토어 출시 전 반드시 설정 필요).
+- iOS(App Store Connect → Users and Access → Integrations → App Store Server API에서 발급): `APPLE_ISSUER_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`(.p8 파일 내용 그대로), `APPLE_BUNDLE_ID`
+- Android(Google Play Console → API 액세스 → 서비스 계정, "Play Android Developer" 권한 부여): `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`, `ANDROID_PACKAGE_NAME`
+
+## AdminScreen 실데이터 연동 점검 (사용자 확인: 모바일 미연결은 의도된 설계 — 웹 `www.weganda.kr/admin` 전용)
+
+관리자 페이지가 실제 데이터 조회/수정에 연동돼 있는지 탭별로 점검했다.
+
+| 탭 | 판정 |
+|---|---|
+| 대시보드 / 회원관리 / 커뮤니티관리 / 인증관리 / 대기자명단 | 완전히 연동됨(실 Supabase 조회+수정) |
+| 서비스지표 | 총 유저수만 실데이터, 체류시간·기기통계 등은 하드코딩(월매출은 정직하게 "준비 중" 표시) |
+| **문의관리** | **전체가 mock** — `supportApi.ts`가 `inquiries`/`inquiry_replies` 테이블(실제 존재함)과 통신하지 않고 항상 `INITIAL_MOCK_INQUIRIES` 배열만 반환. 답변 작성/상태변경도 로컬 배열만 바뀌고 저장 안 됨 → **실사용자 문의가 관리자에게 전혀 도달하지 않는 상태** |
+| **결제관리(프로모션 설정)** | **로컬 전용 가짜 저장** — `useMembershipEventStore`가 관리자 기기의 `ExpoSecureStoreAdapter`에만 저장되어, 관리자가 할인/무료체험 설정을 바꿔도 다른 사용자 기기에는 전혀 반영되지 않음 |
+| 설정 | 정보성 화면(연동 대상 아님) |
+
+부가로 `admin_get_dashboard_stats()` RPC에 다른 admin RPC와 달리 `check_is_admin()` 가드가 없음을 발견(단 `profiles` RLS가 조회 범위를 이미 제한하고 있어 심각하지는 않음 — 일관성을 위해 가드 추가 권장).
+
+**문의관리·결제관리 두 항목은 실사용자 체감 임팩트가 커서 출시 전 반드시 실제 서버 연동으로 교체가 필요하다** — 별도로 진행 여부를 알려주면 이어서 작업하겠다.
+
 ---
 
 ## 우선순위 요약

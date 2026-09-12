@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import { useUserStore } from '../store/useUserStore';
+import { subscriptionApi, VerifyPurchaseResult } from './subscriptionApi';
 import { IAP_SKUS } from '../constants/membership';
 
 export interface IapProduct {
@@ -82,6 +83,36 @@ class InAppPurchaseService {
     return Platform.OS === 'ios' || Platform.OS === 'android';
   }
 
+  // 네이티브 구매 객체를 서버(App Store Server API / Play Developer API)로 검증하고,
+  // 검증에 성공한 경우에만 프리미엄을 부여한다. 절대 클라이언트 판단만으로 isPremium을 true로 만들지 않는다.
+  private async verifyAndApplyPurchase(purchase: any): Promise<VerifyPurchaseResult | null> {
+    const platform: 'ios' | 'android' | null =
+      Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : null;
+    const productId: string | undefined = purchase?.productId || purchase?.id || purchase?.sku;
+    const transactionId: string | undefined =
+      purchase?.transactionId || purchase?.id || purchase?.originalTransactionIdIOS;
+    const purchaseToken: string | undefined = purchase?.purchaseToken || purchase?.purchaseTokenAndroid;
+
+    if (!platform || !productId) {
+      console.warn('[IAP] Missing platform/productId, cannot verify purchase server-side.');
+      return null;
+    }
+
+    try {
+      const result = await subscriptionApi.verifyPurchase({ platform, productId, transactionId, purchaseToken });
+      // applyServerSubscription은 subscription이 없거나 비활성 상태면 isPremium을 false로 되돌린다 —
+      // 서버가 검증한 결과만 그대로 반영할 뿐, 클라이언트가 임의로 true를 만들 수 없다.
+      useUserStore.getState().applyServerSubscription(result.subscription ?? null);
+      if (!result.verified || !result.isPremium) {
+        console.warn('[IAP] Purchase verification did not grant premium:', result.reason);
+      }
+      return result;
+    } catch (verifyErr) {
+      console.warn('[IAP] Server-side purchase verification failed:', verifyErr);
+      return null;
+    }
+  }
+
   public async init(): Promise<boolean> {
     if (!this.isNativeSupported()) {
       console.log('[IAP] Web/Desktop environment detected. Using mock billing gateway.');
@@ -130,7 +161,8 @@ class InAppPurchaseService {
             console.log('[IAP] finishTransaction completed successfully.');
           }
 
-          useUserStore.getState().subscribeToPremium();
+          // 서버 검증 통과 시에만 프리미엄 부여 (클라이언트 신뢰 방식 폐기)
+          await this.verifyAndApplyPurchase(purchase);
 
           if (onSuccess) onSuccess(purchase);
         } catch (ackErr) {
@@ -333,12 +365,19 @@ class InAppPurchaseService {
               p.id === IAP_SKUS.SUBSCRIPTION_MONTHLY_ANDROID
           ) || purchases[0];
 
-          useUserStore.getState().subscribeToPremium();
+          // 서버 검증을 통과한 경우에만 복원 성공으로 처리 (클라이언트 신뢰 방식 폐기)
+          const result = await this.verifyAndApplyPurchase(activeSub);
+          if (result?.verified && result.isPremium) {
+            return {
+              success: true,
+              productId: activeSub.productId || activeSub.id,
+              transactionId: activeSub.transactionId || activeSub.id,
+              isRestored: true,
+            };
+          }
           return {
-            success: true,
-            productId: activeSub.productId || activeSub.id,
-            transactionId: activeSub.transactionId || activeSub.id,
-            isRestored: true,
+            success: false,
+            errorMessage: result?.reason || '유효한 구독을 확인하지 못해 복원할 수 없습니다.',
           };
         } else {
           return {
@@ -349,15 +388,6 @@ class InAppPurchaseService {
       }
     } catch (error: any) {
       console.warn('[IAP] restorePurchases failed:', error);
-    }
-
-    const isAlreadyPremium = useUserStore.getState().isPremium;
-    if (isAlreadyPremium) {
-      return {
-        success: true,
-        productId: IAP_SKUS.SUBSCRIPTION_MONTHLY_IOS,
-        isRestored: true,
-      };
     }
 
     return {

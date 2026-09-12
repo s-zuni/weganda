@@ -13,7 +13,7 @@ import {
   Platform,
   Linking,
 } from 'react-native';
-import { COLORS, useAppTheme, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, TINT_COLORS, NEUTRAL } from '../../../constants/theme';
 import * as Clipboard from 'expo-clipboard';
 import { useUserStore } from '../../../store/useUserStore';
 import { useFortuneStore } from '../../../store/useFortuneStore';
@@ -523,7 +523,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
                     <View style={[styles.themeColorCircle, { backgroundColor: themeOption.hex }]}>
                       {isLocked && (
                         <View style={styles.themeColorLockOverlay}>
-                          <LockIcon size={12} color="#FFFFFF" />
+                          <LockIcon size={12} color={COLORS.onPrimaryText} />
                         </View>
                       )}
                       {isSelected && !isLocked && (
@@ -554,8 +554,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
               <Switch
                 value={notifPush}
                 onValueChange={setNotifPush}
-                trackColor={{ false: '#E5E7EB', true: theme.primaryLight }}
-                thumbColor={notifPush ? theme.primary : '#FFFFFF'}
+                trackColor={{ false: COLORS.border, true: theme.primaryLight }}
+                thumbColor={notifPush ? theme.primary : COLORS.cardBackground}
               />
             </View>
           </View>
@@ -723,7 +723,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: 'row',
@@ -733,7 +733,7 @@ const styles = StyleSheet.create({
     paddingTop: 54,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: COLORS.divider,
   },
   backText: {
     fontSize: 16,
@@ -754,11 +754,11 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   profileCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -774,7 +774,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -798,7 +798,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   editBtn: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
@@ -811,7 +811,7 @@ const styles = StyleSheet.create({
   editForm: {
     marginTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: COLORS.divider,
     paddingTop: 14,
     gap: 10,
   },
@@ -824,14 +824,14 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   textInput: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: NEUTRAL.gray50,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 15,
     color: COLORS.textPrimary,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
   },
   saveBtn: {
     backgroundColor: COLORS.primary,
@@ -841,16 +841,16 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   saveBtnText: {
-    color: '#FFFFFF',
+    color: COLORS.onPrimaryText,
     fontSize: 15,
     fontWeight: '700',
   },
   sectionCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -875,7 +875,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   actionChip: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
@@ -890,7 +890,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F9FAFB',
+    borderBottomColor: NEUTRAL.gray50,
   },
   infoLabel: {
     fontSize: 15,
@@ -945,7 +945,7 @@ const styles = StyleSheet.create({
   activityDivider: {
     width: 1,
     height: 24,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: COLORS.border,
     alignSelf: 'center',
   },
   settingRow: {
@@ -968,7 +968,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     borderRadius: 14,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
   },
   logoutBtnText: {
     fontSize: 15,
@@ -989,7 +989,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   themeColorItemSelected: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: COLORS.offWhite,
   },
   themeColorCircle: {
     width: 44,
@@ -1008,18 +1008,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   themeColorCheckmark: {
-    color: '#FFFFFF',
+    color: COLORS.onPrimaryText,
     fontSize: 18,
     fontWeight: '700',
   },
   themeColorLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: COLORS.textPrimary,
     textAlign: 'center',
   },
   themeColorLabelLocked: {
-    color: '#9CA3AF',
+    color: COLORS.textMuted,
   },
   themeColorPremiumTag: {
     fontSize: 10,
@@ -1040,7 +1040,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: NEUTRAL.gray200,
   },
   verificationCardVerified: {
     backgroundColor: TINT_COLORS.greenTint,
@@ -1079,7 +1079,7 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
   verificationStatusTag: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: COLORS.border,
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
@@ -1091,21 +1091,21 @@ const styles = StyleSheet.create({
   },
   verificationCardSub: {
     fontSize: 12,
-    color: '#6B7280',
+    color: COLORS.textSecondary,
     lineHeight: 16,
   },
   verificationCardArrow: {
     fontSize: 20,
-    color: '#9CA3AF',
+    color: COLORS.textMuted,
     marginLeft: 8,
   },
   subscriptionManageCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 16,
     padding: 16,
     marginVertical: 10,
     borderWidth: 1.5,
-    borderColor: '#E2E8F0',
+    borderColor: NEUTRAL.gray200,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -1157,12 +1157,12 @@ const styles = StyleSheet.create({
   },
   subDateLabel: {
     fontSize: 12,
-    color: '#64748B',
+    color: NEUTRAL.gray500,
   },
   subDateVal: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1E293B',
+    color: NEUTRAL.gray800,
   },
   subActionRow: {
     alignItems: 'flex-end',
@@ -1171,12 +1171,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: NEUTRAL.gray100,
   },
   cancelSubBtnText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#64748B',
+    color: NEUTRAL.gray500,
   },
   policyRow: {
     flexDirection: 'row',
@@ -1193,11 +1193,11 @@ const styles = StyleSheet.create({
   },
   policyArrow: {
     fontSize: 18,
-    color: '#9CA3AF',
+    color: COLORS.textMuted,
   },
   policyDivider: {
     height: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
   },
   deleteAccountBtn: {
     marginTop: 12,
@@ -1209,7 +1209,7 @@ const styles = StyleSheet.create({
   },
   deleteAccountBtnText: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: COLORS.textMuted,
     textDecorationLine: 'underline',
   },
 });

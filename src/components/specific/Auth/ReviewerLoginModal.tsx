@@ -267,19 +267,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#111827',
   },
-  quickFillChip: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  quickFillText: {
-    fontSize: 12,
-    color: '#4B5563',
-    fontWeight: '600',
-  },
   buttonRow: {
     flexDirection: 'row',
     gap: 10,

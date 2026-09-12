@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
   View,
   Text,
+  ActivityIndicator,
 } from 'react-native';
 import { AppHeader } from '../../components/common/AppHeader';
+import { COLORS } from '../../constants/theme';
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
 import { ShiftCode, SHIFT_TYPES, ShiftInfo } from '../../constants/shiftTypes';
@@ -38,7 +40,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const userName = useUserStore((s) => s.name);
   const userNickname = useUserStore((s) => s.nickname);
   const { isPremium } = useUserStore();
-  const displayName = userNickname || userName || '김간호';
+  const displayName = userNickname || userName || '회원';
   const { schedules, customCodes, fetchMonthlySchedule, isLoading, error } = useShiftScheduleStore();
 
   const [tomorrowCalendarEvent, setTomorrowCalendarEvent] = useState<string>('');
@@ -149,6 +151,14 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
           >
             <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
           </TouchableOpacity>
+        )}
+
+        {/* 최초 근무표 로딩 인디케이터 */}
+        {isLoading && Object.keys(schedules).length === 0 && !error && (
+          <View style={styles.loadingBanner}>
+            <ActivityIndicator size="small" color={COLORS.primary} />
+            <Text style={styles.loadingBannerText}>근무표를 불러오는 중이에요...</Text>
+          </View>
         )}
 
         {/* 인사 배너 */}
@@ -267,6 +277,19 @@ const styles = StyleSheet.create({
   },
   errorBannerText: {
     color: '#B91C1C',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  loadingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    marginBottom: 12,
+  },
+  loadingBannerText: {
+    color: COLORS.textSecondary,
     fontSize: 13,
     fontWeight: '600',
   },

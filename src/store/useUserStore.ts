@@ -3,8 +3,10 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { supabase, ExpoSecureStoreAdapter } from '../services/supabase';
 import { profileApi, ProfileItem } from '../services/profileApi';
 import { authService } from '../services/auth';
+import { subscriptionApi, SubscriptionRow } from '../services/subscriptionApi';
 import { useFortuneStore } from './useFortuneStore';
 import { UserSubscriptionInfo } from '../types/membershipEvent';
+import type { Step1Data } from '../components/specific/Onboarding';
 
 export type AppThemeColor = 'pink' | 'deepGreen' | 'deepBlue' | 'yellow' | 'purple';
 
@@ -43,8 +45,8 @@ export interface UserState {
   hasCompletedOnboarding: boolean;
   schoolName?: string;
   schoolGrade?: number;
-  onboardingDraft: { step: 1 | 2 | 3; profileData: any } | null;
-  setOnboardingDraft: (draft: { step: 1 | 2 | 3; profileData: any } | null) => void;
+  onboardingDraft: { step: 1 | 2 | 3; profileData: Step1Data } | null;
+  setOnboardingDraft: (draft: { step: 1 | 2 | 3; profileData: Step1Data } | null) => void;
   completeOnboarding: () => void;
 
   // Role & Premium Actions
@@ -58,6 +60,8 @@ export interface UserState {
   }) => void;
   subscribeToPremium: () => void;
   subscribeToPremiumWithDetails: (details: Partial<UserSubscriptionInfo>) => void;
+  applyServerSubscription: (row: SubscriptionRow | null) => void;
+  syncPremiumFromServer: () => Promise<void>;
   cancelSubscription: () => void;
   unsubscribePremium: () => void;
   incrementFortuneCount: () => void;
@@ -85,11 +89,11 @@ export const useUserStore = create<UserState>()(
     (set, get) => ({
   id: null,
   email: null,
-  name: '김간호',
-  nickname: '김간호',
-  hospitalName: '서울아산병원',
-  wardName: '51병동 (소화기내과)',
-  experienceYears: 3,
+  name: '',
+  nickname: '',
+  hospitalName: '',
+  wardName: '',
+  experienceYears: 1,
   avatarUrl: undefined,
   userCode: null,
   isAuthenticated: false,
@@ -177,6 +181,53 @@ export const useUserStore = create<UserState>()(
         storeSku: details.storeSku || 'com.weganda.app.sub.monthly.earlybird',
       },
     });
+  },
+
+  // 서버(subscriptions 테이블)에서 검증된 구독 행을 신뢰해 로컬 상태에 반영 — 프리미엄 여부의 단일 진실 원천.
+  // (row가 null이거나 비활성 상태면 절대 로컬에 남아있던 이전 isPremium 값을 유지하지 않고 false로 되돌린다.)
+  applyServerSubscription: (row) => {
+    if (!row) {
+      set({ isPremium: false, subscriptionInfo: null });
+      return;
+    }
+    const isPremium = row.status === 'active' || row.status === 'trial' || row.status === 'grace_period';
+    set({
+      isPremium,
+      subscriptionInfo: isPremium
+        ? {
+            planType: row.planType,
+            isEarlybird: row.isEarlybird,
+            price: row.price,
+            isTrial: row.isTrial,
+            trialEndDate: row.trialEndDate || undefined,
+            nextBillingDate: row.expiresAt || '',
+            subscribedAt: row.subscribedAt || new Date().toISOString(),
+            status: row.status === 'grace_period' ? 'active' : (row.status as 'active' | 'trial'),
+            storeSku: row.storeSku,
+          }
+        : null,
+    });
+  },
+
+  // 로그인/앱 시작 시 서버의 구독 상태를 조회해 로컬 isPremium을 덮어쓴다(클라이언트 로컬 값은 신뢰하지 않음).
+  // role이 'plus'/'admin'(관리자가 수동 부여한 경우)이면 실제 IAP 구독 레코드가 없어도 프리미엄을 유지한다.
+  syncPremiumFromServer: async () => {
+    const { id, role } = get();
+    if (!id) return;
+    try {
+      const row = await subscriptionApi.getMySubscription(id);
+      const subscriptionActive =
+        !!row && (row.status === 'active' || row.status === 'trial' || row.status === 'grace_period');
+      if (subscriptionActive) {
+        get().applyServerSubscription(row);
+      } else if (role === 'plus' || role === 'admin') {
+        set({ isPremium: true, subscriptionInfo: null });
+      } else {
+        get().applyServerSubscription(null);
+      }
+    } catch (e) {
+      console.warn('[useUserStore] syncPremiumFromServer failed:', e);
+    }
   },
 
   // 구독 해지 예약 (만료일까지는 혜택 유지)
@@ -321,6 +372,9 @@ export const useUserStore = create<UserState>()(
     } catch (e) {
       console.warn('Profile fetch after login (using fallback):', e);
     }
+
+    // 서버 구독 상태로 isPremium을 재검증(클라이언트 로컬 값은 신뢰하지 않음)
+    await get().syncPremiumFromServer();
   },
 
   clearUser: () =>
@@ -344,6 +398,7 @@ export const useUserStore = create<UserState>()(
       dailyDrugCalcCount: 0,
       appThemeColor: 'pink' as AppThemeColor,
       hasCompletedOnboarding: false,
+      onboardingDraft: null,
       schoolName: '',
       schoolGrade: 1,
     }),
