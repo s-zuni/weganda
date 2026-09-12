@@ -34,7 +34,7 @@ workflows:
       - name: 1. Install Node Dependencies
         script: |
           npm ci --legacy-peer-deps
-          node -e "const fs = require('fs'); const p = 'node_modules/expo-modules-jsi/apple/Package.swift'; if (fs.existsSync(p)) { fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace('swift-tools-version: 6.2', 'swift-tools-version: 6.0')); console.log('Patched Package.swift to swift-tools-version: 6.0'); }"
+          node -e "const fs = require('fs'); const p = 'node_modules/expo-modules-jsi/apple/Package.swift'; if (fs.existsSync(p)) { let c = fs.readFileSync(p, 'utf8'); c = c.replace(/swift-tools-version: 6\.[0-9]+/g, 'swift-tools-version: 6.0'); c = c.replace(/,\s*\)/g, '\n)'); fs.writeFileSync(p, c); console.log('Patched Package.swift to swift-tools-version: 6.0 and stripped trailing commas'); }"
       - name: 2. Expo Prebuild (Generate Native iOS Project)
         script: |
           npx expo prebuild --platform ios --clean
@@ -49,8 +49,8 @@ workflows:
         script: |
           set -e
           
-          # Patch Package.swift to swift-tools-version: 6.0 for Xcode 16.2
-          node -e "const fs = require('fs'); const p = 'node_modules/expo-modules-jsi/apple/Package.swift'; if (fs.existsSync(p)) { fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace('swift-tools-version: 6.2', 'swift-tools-version: 6.0')); console.log('Patched Package.swift to swift-tools-version: 6.0'); }"
+          # Patch Package.swift to swift-tools-version: 6.0 and strip trailing commas for Xcode 16.2 (Swift 6.0)
+          node -e "const fs = require('fs'); const p = 'node_modules/expo-modules-jsi/apple/Package.swift'; if (fs.existsSync(p)) { let c = fs.readFileSync(p, 'utf8'); c = c.replace(/swift-tools-version: 6\.[0-9]+/g, 'swift-tools-version: 6.0'); c = c.replace(/,\s*\)/g, '\n)'); fs.writeFileSync(p, c); console.log('Patched Package.swift to swift-tools-version: 6.0 and stripped trailing commas'); }"
           
           cd ios
           echo "=== CocoaPods Version ==="
