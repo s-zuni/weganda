@@ -44,46 +44,67 @@ workflows:
             --type IOS_APP_STORE \
             --create
           keychain add-certificates
-          xcode-project use-profiles
       - name: 4. Install CocoaPods Dependencies
         script: |
+          set -e
           cd ios
-          pod install
-          cd ..
+          echo "=== CocoaPods Version ==="
+          pod --version
+          echo "=== Installing CocoaPods Dependencies ==="
+          pod install --repo-update
+          echo "=== Files in ios after pod install ==="
+          ls -la
       - name: 5. Build iOS IPA (App Store Distribution)
         script: |
           export LC_ALL=en_US.UTF-8
           export LANG=en_US.UTF-8
+          set -e
           
           cd ios
           echo "--- Directory contents of ios/ ---"
           ls -la
           
           WORKSPACE_NAME=$(ls -d *.xcworkspace 2>/dev/null | head -n 1)
-          if [ -z "$WORKSPACE_NAME" ]; then
-            echo "Error: No .xcworkspace found in ios directory!"
+          PROJECT_NAME=$(ls -d *.xcodeproj 2>/dev/null | head -n 1)
+          
+          if [ -n "$WORKSPACE_NAME" ]; then
+            echo "=========================================="
+            echo "Found Workspace: ios/$WORKSPACE_NAME"
+            SCHEME_NAME="${WORKSPACE_NAME%.xcworkspace}"
+            if command -v jq &> /dev/null; then
+              DETECTED=$(xcodebuild -workspace "$WORKSPACE_NAME" -list -json 2>/dev/null | jq -r '.workspace.schemes[0] // .project.schemes[0]' 2>/dev/null)
+              if [ -n "$DETECTED" ] && [ "$DETECTED" != "null" ]; then
+                SCHEME_NAME="$DETECTED"
+              fi
+            fi
+            echo "Found Scheme:    $SCHEME_NAME"
+            echo "=========================================="
+            cd ..
+            xcode-project use-profiles
+            xcode-project build-ipa \
+              --workspace "ios/$WORKSPACE_NAME" \
+              --scheme "$SCHEME_NAME"
+          elif [ -n "$PROJECT_NAME" ]; then
+            echo "=========================================="
+            echo "Found Project:   ios/$PROJECT_NAME"
+            SCHEME_NAME="${PROJECT_NAME%.xcodeproj}"
+            if command -v jq &> /dev/null; then
+              DETECTED=$(xcodebuild -project "$PROJECT_NAME" -list -json 2>/dev/null | jq -r '.project.schemes[0]' 2>/dev/null)
+              if [ -n "$DETECTED" ] && [ "$DETECTED" != "null" ]; then
+                SCHEME_NAME="$DETECTED"
+              fi
+            fi
+            echo "Found Scheme:    $SCHEME_NAME"
+            echo "=========================================="
+            cd ..
+            xcode-project use-profiles
+            xcode-project build-ipa \
+              --project "ios/$PROJECT_NAME" \
+              --scheme "$SCHEME_NAME"
+          else
+            echo "Error: Neither .xcworkspace nor .xcodeproj found in ios directory!"
             exit 1
           fi
-          
-          # Apple 공식 xcodebuild 명령어로 Scheme 자동 추출
-          if command -v jq &> /dev/null; then
-            SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list -json 2>/dev/null | jq -r '.workspace.schemes[0] // .project.schemes[0]' 2>/dev/null)
-          fi
-          
-          if [ -z "$SCHEME_NAME" ] || [ "$SCHEME_NAME" = "null" ]; then
-            SCHEME_NAME="${WORKSPACE_NAME%.xcworkspace}"
-          fi
-          
-          cd ..
-          
-          echo "=========================================="
-          echo "Found Workspace: ios/$WORKSPACE_NAME"
-          echo "Found Scheme:    $SCHEME_NAME"
-          echo "=========================================="
-          
-          xcode-project build-ipa \
-            --workspace "ios/$WORKSPACE_NAME" \
-            --scheme "$SCHEME_NAME"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
