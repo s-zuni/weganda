@@ -5,8 +5,6 @@ import { BellIcon, UserIcon } from './Icon';
 import { WegandaLogo } from './WegandaLogo';
 import { useHeaderModalStore } from '../../store/useHeaderModalStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
-import { NotificationModal } from '../specific/Notification/NotificationModal';
-import { MyPageModal } from '../specific/MyPage/MyPageModal';
 
 interface AppHeaderProps {
   title?: string;
@@ -28,14 +26,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   style,
 }) => {
   const theme = useAppTheme();
-  const {
-    notificationModalVisible,
-    myPageModalVisible,
-    openNotifications,
-    closeNotifications,
-    openMyPage,
-    closeMyPage,
-  } = useHeaderModalStore();
+  const openNotifications = useHeaderModalStore((s) => s.openNotifications);
+  const openMyPage = useHeaderModalStore((s) => s.openMyPage);
 
   const { unreadCount } = useNotificationStore();
 
@@ -43,57 +35,49 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const handleProfile = onPressProfile || openMyPage;
 
   return (
-    <>
-      <View style={[styles.container, style]}>
-        <View style={styles.leftContainer}>
-          {leftElement || (
-            <View>
-              <View style={styles.brandRow}>
-                <WegandaLogo size={26} variant="full" primaryColor={theme.primary} />
-                <Text style={[styles.brandTitle, { color: theme.primary }]}>{title}</Text>
-              </View>
-              {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+    <View style={[styles.container, style]}>
+      <View style={styles.leftContainer}>
+        {leftElement || (
+          <View>
+            <View style={styles.brandRow}>
+              <WegandaLogo size={26} variant="full" primaryColor={theme.primary} />
+              <Text style={[styles.brandTitle, { color: theme.primary }]}>{title}</Text>
             </View>
-          )}
-        </View>
-        <View style={styles.rightContainer}>
-          {rightElement || (
-            <View style={styles.iconsRow}>
-              {/* 알림 벨 아이콘 (안 읽은 알림 뱃지) */}
-              <TouchableOpacity
-                style={styles.iconBtn}
-                onPress={handleNotification}
-                activeOpacity={0.7}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <BellIcon size={20} color={COLORS.textPrimary} />
-                {unreadCount > 0 && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
-              </TouchableOpacity>
-
-              {/* 마이페이지 프로필 아이콘 */}
-              <TouchableOpacity
-                style={styles.iconBtn}
-                onPress={handleProfile}
-                activeOpacity={0.7}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <UserIcon size={18} color={COLORS.textPrimary} />
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+            {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          </View>
+        )}
       </View>
+      <View style={styles.rightContainer}>
+        {rightElement || (
+          <View style={styles.iconsRow}>
+            {/* 알림 벨 아이콘 (안 읽은 알림 뱃지) */}
+            <TouchableOpacity
+              style={styles.iconBtn}
+              onPress={handleNotification}
+              activeOpacity={0.7}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              accessibilityRole="button"
+              accessibilityLabel="알림 열기"
+            >
+              <BellIcon size={20} color={COLORS.textPrimary} />
+              {unreadCount > 0 && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
+            </TouchableOpacity>
 
-      {/* ── 전 화면 공통 상단바 서브 모달들 ── */}
-      <NotificationModal
-        visible={notificationModalVisible}
-        onClose={closeNotifications}
-      />
-      <MyPageModal
-        visible={myPageModalVisible}
-        onClose={closeMyPage}
-      />
-    </>
+            {/* 마이페이지 프로필 아이콘 */}
+            <TouchableOpacity
+              style={styles.iconBtn}
+              onPress={handleProfile}
+              activeOpacity={0.7}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              accessibilityRole="button"
+              accessibilityLabel="마이페이지 열기"
+            >
+              <UserIcon size={18} color={COLORS.textPrimary} />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </View>
   );
 };
 
@@ -137,13 +121,17 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   iconBtn: {
-    padding: 2,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'relative',
   },
   unreadDot: {
     position: 'absolute',
-    top: 0,
-    right: 0,
+    top: 4,
+    right: 4,
     width: 7,
     height: 7,
     borderRadius: 3.5,

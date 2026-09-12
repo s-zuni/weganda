@@ -120,17 +120,26 @@ export const profileApi = {
       if (updates.gender !== undefined) rowUpdates.gender = updates.gender;
       if (updates.pushToken !== undefined) rowUpdates.push_token = updates.pushToken;
 
-      const { error } = await supabase
+      // 먼저 update 시도, 행이 없거나 수신에 실패하면 upsert 수행
+      const { error: updateError, count } = await supabase
         .from('profiles')
-        .upsert({
-          id: userId,
-          name: rowUpdates.name || '간호사',
-          ...rowUpdates,
-        });
+        .update(rowUpdates)
+        .eq('id', userId);
 
-      if (error) {
-        console.error('Error updating profile:', error);
-        throw error;
+      if (updateError) {
+        // RLS나 다른 사유로 update가 에러인 경우 upsert로 폴백
+        const { error: upsertError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: userId,
+            name: rowUpdates.name || '간호사',
+            ...rowUpdates,
+          });
+
+        if (upsertError) {
+          console.error('Error updating profile:', upsertError);
+          throw upsertError;
+        }
       }
       return true;
     });

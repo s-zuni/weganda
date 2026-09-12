@@ -156,12 +156,13 @@ export const useStudyStore = create<StudyState>((set, get) => ({
       }));
     } catch (e: any) {
       console.warn('Error from aiChatApi:', e);
+      const errorMessage = e?.message || 'AI 멘토 응답을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.';
       set((state) => ({
         aiMessages: state.aiMessages.map((m) =>
           m.id === aiTempId
             ? {
                 ...m,
-                text: '일시적인 네트워크 오류가 발생했습니다. 잠시 후 다시 질문해주세요.',
+                text: `⚠️ ${errorMessage}`,
               }
             : m
         ),

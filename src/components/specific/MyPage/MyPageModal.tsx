@@ -41,6 +41,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
   const theme = useAppTheme();
   const {
     name: storeName,
+    nickname: storeNickname,
     hospitalName: storeHospital,
     wardName: storeWard,
     experienceYears: storeExp,
@@ -62,10 +63,21 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
   const { birthInfo } = useFortuneStore();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(storeName || '김간호');
+  const [name, setName] = useState(storeNickname || storeName || '김간호');
   const [hospitalName, setHospitalName] = useState(storeHospital || '서울아산병원');
   const [wardName, setWardName] = useState(storeWard || '51병동 (소화기내과)');
   const [experienceYears, setExperienceYears] = useState(String(storeExp !== undefined && storeExp !== null ? storeExp : 3));
+
+  // 마이페이지가 열리거나 스토어의 사용자 정보가 갱신될 때 로컬 폼 상태 동기화
+  React.useEffect(() => {
+    if (visible) {
+      setName(storeNickname || storeName || '김간호');
+      setHospitalName(storeHospital || '서울아산병원');
+      setWardName(storeWard || '51병동 (소화기내과)');
+      setExperienceYears(String(storeExp !== undefined && storeExp !== null ? storeExp : 3));
+      setIsEditing(false);
+    }
+  }, [visible, storeName, storeNickname, storeHospital, storeWard, storeExp]);
 
   const [notifPush, setNotifPush] = useState(true);
   const [birthModalVisible, setBirthModalVisible] = useState(false);
@@ -151,10 +163,12 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
       return;
     }
 
+    const trimmedName = name.trim();
     const finalExp = experienceYears === '' ? 1 : Math.max(0, parseInt(experienceYears, 10));
 
     setUser({
-      name: name.trim(),
+      name: trimmedName,
+      nickname: trimmedName,
       hospitalName: hospitalName.trim(),
       wardName: wardName.trim(),
       experienceYears: finalExp,
@@ -164,7 +178,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
     const storeUserId = useUserStore.getState().id;
     if (storeUserId) {
       useUserStore.getState().updateUserProfile({
-        name: name.trim(),
+        name: trimmedName,
+        nickname: trimmedName,
         hospitalName: hospitalName.trim(),
         wardName: wardName.trim(),
         experienceYears: finalExp,
@@ -211,11 +226,11 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
               </View>
               <View style={styles.profileTexts}>
                 <View style={styles.profileNameRow}>
-                  <Text style={styles.userName}>{name}</Text>
+                  <Text style={styles.userName}>{storeNickname || storeName || name}</Text>
                   <MyPageUserCodeBadge userCode={userCode} onCopy={handleCopyUserCode} />
                 </View>
                 <Text style={styles.userRole}>
-                  {hospitalName} • {wardName} ({experienceYears}년차)
+                  {storeHospital || hospitalName} • {storeWard || wardName} ({storeExp !== undefined && storeExp !== null ? storeExp : experienceYears}년차)
                 </Text>
               </View>
               <TouchableOpacity

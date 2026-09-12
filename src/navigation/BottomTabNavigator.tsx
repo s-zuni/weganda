@@ -3,6 +3,9 @@ import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, ThemeColors } from '../constants/theme';
+import { useHeaderModalStore } from '../store/useHeaderModalStore';
+import { NotificationModal } from '../components/specific/Notification/NotificationModal';
+import { MyPageModal } from '../components/specific/MyPage/MyPageModal';
 import {
   FortuneIcon,
   FriendsIcon,
@@ -46,12 +49,20 @@ const CenterFAB = ({ onPress, theme }: { onPress: () => void; theme: ThemeColors
 export const BottomTabNavigator: React.FC = () => {
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
+  const {
+    notificationModalVisible,
+    myPageModalVisible,
+    closeNotifications,
+    closeMyPage,
+  } = useHeaderModalStore();
+
   // Safe area bottom inset 고려 + 미존재 기기에서도 Figma 원본 높이(84px) 수준의 쾌적한 높이 확보
   const bottomInset = insets.bottom > 0 ? insets.bottom : 16;
   const barHeight = 64 + bottomInset;
 
   return (
-    <Tab.Navigator
+    <View style={styles.rootContainer}>
+      <Tab.Navigator
       initialRouteName="HomeTab"
       backBehavior="initialRoute"
       screenOptions={{
@@ -134,10 +145,24 @@ export const BottomTabNavigator: React.FC = () => {
         }}
       />
     </Tab.Navigator>
-  );
+
+    {/* 전역 단일 상단바 서브 모달 (다중 탭 중복 인스턴스 충돌 방지) */}
+    <NotificationModal
+      visible={notificationModalVisible}
+      onClose={closeNotifications}
+    />
+    <MyPageModal
+      visible={myPageModalVisible}
+      onClose={closeMyPage}
+    />
+  </View>
+);
 };
 
 const styles = StyleSheet.create({
+  rootContainer: {
+    flex: 1,
+  },
   tabBar: {
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,

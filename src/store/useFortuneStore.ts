@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 import { fortuneApi } from '../services/fortuneApi';
 import { manseryeokService, SajuAnalysisResult } from '../services/manseryeokService';
 import { sajuAnalysisGenerator, GeneratedSajuReport } from '../utils/sajuAnalysisGenerator';
+import { sajuEngine } from '../services/sajuEngine';
 import { SajuCategoryId, SajuTopicItem } from '../mocks/sajuCategories';
 import { ExpoSecureStoreAdapter } from '../services/supabase';
 
@@ -160,8 +161,8 @@ export const useFortuneStore = create<FortuneState>()(
       // 인위적 대기 시간 (정밀 감정 느낌을 주는 1초 딜레이)
       await new Promise((resolve) => setTimeout(resolve, 900));
 
-      // 1,000자+ 심층 리포트 생성
-      const report = sajuAnalysisGenerator.generateReport({
+      // SAJU_ANALYSIS_GUIDE.md 파이프라인 엔진을 거쳐 1,000자+ 심층 리포트 생성
+      const report = await sajuEngine.analyzeSaju({
         topic,
         userSaju,
         partnerSaju,

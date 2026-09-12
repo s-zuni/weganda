@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -8,12 +8,17 @@ import {
   TouchableOpacity,
   StatusBar,
   Share,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useFortuneStore } from '../../store/useFortuneStore';
 import { ELEMENT_COLORS, PillarData } from '../../services/manseryeokService';
 import { SajuTopicInfographic } from '../../components/specific/Fortune';
+import {
+  SAJU_ANALYSIS_GUIDE_MD,
+  SAJU_GUIDE_METADATA,
+} from '../../constants/sajuAnalysisGuide';
 
 export const SajuDetailResultScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -23,6 +28,8 @@ export const SajuDetailResultScreen: React.FC = () => {
     currentManseryeokReport,
     selectedTopic,
   } = useFortuneStore();
+
+  const [showGuideModal, setShowGuideModal] = useState(false);
 
   if (!currentManseryeokAnalysis || !currentManseryeokReport) {
     return (
@@ -143,6 +150,19 @@ export const SajuDetailResultScreen: React.FC = () => {
               심층 분석 {report.totalCharCount}자 수록
             </Text>
           </View>
+
+          <TouchableOpacity
+            style={styles.guideCertificationBadge}
+            onPress={() => setShowGuideModal(true)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="shield-checkmark" size={13} color="#1B4332" />
+            <Text style={styles.guideCertificationText}>
+              사주 분석 가이드({report.appliedGuideVersion || 'v1.0.0'}) 준수 감정
+            </Text>
+            <Ionicons name="information-circle-outline" size={14} color="#1B4332" />
+          </TouchableOpacity>
+
           <Text style={styles.bannerTitle}>{report.topicTitle}</Text>
           <Text style={styles.summaryQuote}>{report.summaryQuote}</Text>
 
@@ -399,6 +419,82 @@ export const SajuDetailResultScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* 사주 분석 가이드 규격 모달 */}
+      <Modal
+        visible={showGuideModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowGuideModal(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleRow}>
+                <Ionicons name="shield-checkmark" size={20} color="#10B981" />
+                <Text style={styles.modalTitle}>우간다 표준 사주 분석 가이드</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setShowGuideModal(false)}
+                style={styles.modalCloseBtn}
+              >
+                <Ionicons name="close" size={22} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              <View style={styles.guideMetaBox}>
+                <Text style={styles.guideMetaTitle}>
+                  {SAJU_GUIDE_METADATA.title} ({report.appliedGuideVersion || SAJU_GUIDE_METADATA.version})
+                </Text>
+                <Text style={styles.guideMetaDesc}>
+                  본 사주 분석은 『{report.guideRuleRef || SAJU_GUIDE_METADATA.filename}』의 8대 거버넌스 규격에 따라 50년 명인 페르소나 및 14대 임상 사주 알고리즘을 거쳐 정밀 산출되었습니다.
+                </Text>
+              </View>
+
+              <Text style={styles.guideSectionHeading}>적용된 핵심 원칙 및 거버넌스</Text>
+              <View style={styles.guideRuleItem}>
+                <Ionicons name="checkmark-circle" size={16} color="#FF507C" />
+                <Text style={styles.guideRuleText}>
+                  <Text style={styles.guideRuleBold}>최소 1,000자 이상 심층 분석:</Text> 단편적 풀이를 배제하고 5대 정밀 섹션 체계 준수 (현재 {report.totalCharCount}자).
+                </Text>
+              </View>
+              <View style={styles.guideRuleItem}>
+                <Ionicons name="checkmark-circle" size={16} color="#FF507C" />
+                <Text style={styles.guideRuleText}>
+                  <Text style={styles.guideRuleBold}>간호 임상 십신·신살 매트릭스:</Text> 비견(동기애), 상관(직언/돌발상황), 귀문관살(예민한 관찰력/임상 촉) 등 병원 현장 맞춤 해석.
+                </Text>
+              </View>
+              <View style={styles.guideRuleItem}>
+                <Ionicons name="checkmark-circle" size={16} color="#FF507C" />
+                <Text style={styles.guideRuleText}>
+                  <Text style={styles.guideRuleBold}>객관적 대운 & 금기/행동 직언:</Text> 뜬구름 잡는 위로 대신 실질적인 태움 방어, 이직 타이밍, 나이트 근무 행동 수칙 명시.
+                </Text>
+              </View>
+              <View style={styles.guideRuleItem}>
+                <Ionicons name="checkmark-circle" size={16} color="#FF507C" />
+                <Text style={styles.guideRuleText}>
+                  <Text style={styles.guideRuleBold}>인포그래픽 시각화 연동:</Text> 텍스트뿐만 아니라 스펙트럼 게이지, 밸런스 차트 등 시각 지표 동시 제공.
+                </Text>
+              </View>
+
+              <View style={styles.guideExcerptBox}>
+                <Text style={styles.guideExcerptTitle}>가이드 규격 전문 (발췌 요약)</Text>
+                <Text style={styles.guideExcerptText} numberOfLines={14}>
+                  {SAJU_ANALYSIS_GUIDE_MD.slice(0, 750)}...
+                </Text>
+              </View>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.modalConfirmBtn}
+              onPress={() => setShowGuideModal(false)}
+            >
+              <Text style={styles.modalConfirmBtnText}>확인 및 감정서 계속 읽기</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -935,6 +1031,137 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   reselectBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  guideCertificationBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    marginBottom: 4,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  guideCertificationText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#065F46',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '85%',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 32,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  modalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  modalTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  modalCloseBtn: {
+    padding: 4,
+  },
+  modalBody: {
+    marginVertical: 14,
+  },
+  guideMetaBox: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    marginBottom: 16,
+  },
+  guideMetaTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#166534',
+    marginBottom: 6,
+  },
+  guideMetaDesc: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#15803D',
+    lineHeight: 18,
+  },
+  guideSectionHeading: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#1F2937',
+    marginBottom: 10,
+  },
+  guideRuleItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 10,
+  },
+  guideRuleText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#374151',
+    lineHeight: 18,
+  },
+  guideRuleBold: {
+    fontWeight: '700',
+    color: '#111827',
+  },
+  guideExcerptBox: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  guideExcerptTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#6B7280',
+    marginBottom: 6,
+  },
+  guideExcerptText: {
+    fontSize: 11,
+    color: '#4B5563',
+    lineHeight: 16,
+  },
+  modalConfirmBtn: {
+    backgroundColor: '#FF507C',
+    borderRadius: 16,
+    paddingVertical: 15,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  modalConfirmBtnText: {
     fontSize: 15,
     fontWeight: '700',
     color: '#FFFFFF',

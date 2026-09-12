@@ -394,7 +394,7 @@ export const useUserStore = create<UserState>()(
       set((state) => ({
         ...state,
         name: updates.name ?? updates.nickname ?? (updates as any).nickname ?? state.name,
-        nickname: updates.nickname ?? (updates as any).nickname ?? state.nickname,
+        nickname: updates.nickname ?? updates.name ?? (updates as any).nickname ?? state.nickname,
         hospitalName: updates.hospitalName ?? (updates as any).hospital_name ?? state.hospitalName,
         wardName: updates.wardName ?? (updates as any).ward_name ?? state.wardName,
         experienceYears: updates.experienceYears ?? (updates as any).experience_years ?? state.experienceYears,

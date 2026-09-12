@@ -40,6 +40,9 @@ export interface GeneratedSajuReport {
   };
   infographicType: InfographicType;
   infographicData: Record<string, any>;
+  appliedGuideVersion?: string;
+  analyzedViaGuide?: boolean;
+  guideRuleRef?: string;
 }
 
 // ─── 유틸리티 헬퍼 ──────────────────────────────────────────────

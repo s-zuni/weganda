@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { LandingScreen } from './src/screens/Landing/LandingScreen';
 import { AdminScreen } from './src/screens/Admin/AdminScreen';
+import { AdminLoginView } from './src/components/specific/Admin';
 import { LegalScreen } from './src/screens/Legal/LegalScreen';
 import { LegalTabKey } from './src/constants/legal/types';
 import { useUserStore } from './src/store/useUserStore';
@@ -57,17 +58,18 @@ export default function App() {
     return 'terms';
   });
 
-  // 스플래시 화면(3번 사진) 안정적 표출 타이머 (1.8초 보장)
-  const [isSplashVisible, setIsSplashVisible] = useState(true);
+  // 스플래시 화면(3번 사진) 안정적 표출 타이머 (모바일 앱 환경에서만 1.8초 표출)
+  const [isSplashVisible, setIsSplashVisible] = useState(() => Platform.OS !== 'web');
 
   useEffect(() => {
+    if (Platform.OS === 'web') return;
     const timer = setTimeout(() => {
       setIsSplashVisible(false);
     }, 1800);
     return () => clearTimeout(timer);
   }, []);
 
-  const showSplash = isLoading || isSplashVisible;
+  const showSplash = Platform.OS !== 'web' && (isLoading || isSplashVisible);
 
   useEffect(() => {
     // 1. 앱 기동 시 SecureStore에 저장된 세션 복원
@@ -163,28 +165,22 @@ export default function App() {
 
   // ── 웹(Browser) 환경 렌더링 ──
   if (Platform.OS === 'web') {
-    if (showSplash) {
-      return (
-        <SafeAreaProvider>
-          <StatusBar style="dark" />
-          <SplashScreenView />
-        </SafeAreaProvider>
-      );
-    }
-
     if (currentWebRoute === 'admin') {
       // 🔒 Authorization Guard: 관리자 권한(role === 'admin') 및 인증 여부 확인
       if (!isAuthenticated || role !== 'admin') {
         return (
           <SafeAreaProvider>
-            <StatusBar style="dark" />
+            <StatusBar style="light" />
             <ErrorBoundary>
-              <LandingScreen
-                onNavigateAdmin={() => {
+              <AdminLoginView
+                onSuccess={() => {
+                  // userStore 업데이트 시 React 리렌더링으로 즉시 AdminScreen 전환
+                }}
+                onGoHome={() => {
                   if (typeof window !== 'undefined') {
-                    window.history.pushState({}, '', '/admin');
+                    window.history.pushState({}, '', '/');
                   }
-                  setCurrentWebRoute('admin');
+                  setCurrentWebRoute('landing');
                 }}
               />
             </ErrorBoundary>
@@ -194,7 +190,7 @@ export default function App() {
 
       return (
         <SafeAreaProvider>
-          <StatusBar style="dark" />
+          <StatusBar style="light" />
           <ErrorBoundary>
             <AdminScreen
               onClose={() => {

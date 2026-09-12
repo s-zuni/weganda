@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -23,6 +23,7 @@ import {
   GreetingBanner,
   ShiftGridRow,
   WeeklyCalendarStrip,
+  WeekDayItem,
   ScheduleActionButtons,
   DailyNoteSection,
   SalaryPredictionCard,
@@ -30,17 +31,19 @@ import {
 } from '../../components/specific/Home';
 
 export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
-  const user = useUserStore((s) => ({ id: s.id, name: s.name, nickname: s.nickname }));
+  const userId = useUserStore((s) => s.id);
+  const userName = useUserStore((s) => s.name);
+  const userNickname = useUserStore((s) => s.nickname);
   const { isPremium } = useUserStore();
-  const displayName = user.nickname || user.name || '간호사';
+  const displayName = userNickname || userName || '간호사';
   const { schedules, customCodes, fetchMonthlySchedule } = useShiftScheduleStore();
 
   const [tomorrowCalendarEvent, setTomorrowCalendarEvent] = useState<string>('');
   const [isSyncingCalendar, setIsSyncingCalendar] = useState(false);
 
   useEffect(() => {
-    if (user.id) {
-      fetchMonthlySchedule(user.id);
+    if (userId) {
+      fetchMonthlySchedule(userId);
     }
     // 스마트폰 기본 캘린더의 내일 개인 일정 읽어오기
     nativeCalendarService.getTomorrowNativeEvents().then((res) => {
@@ -48,7 +51,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
         setTomorrowCalendarEvent(res.summaryText);
       }
     });
-  }, [user.id, fetchMonthlySchedule]);
+  }, [userId, fetchMonthlySchedule]);
 
   const handleQuickSyncCalendar = async () => {
     setIsSyncingCalendar(true);
@@ -99,21 +102,30 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const todayShiftInfo = getShiftInfo(todayShift);
   const tomorrowShiftInfo = getShiftInfo(tomorrowShift);
 
-  // 일요일 시작 기준 이번 주 7일 계산
-  const currentDayOfWeek = today.getDay();
+  // 오늘 기준 이전 30일 ~ 이후 30일 스케줄 타임라인 데이터 (총 61일)
   const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-  const weekData = weekDays.map((dayName, idx) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - currentDayOfWeek + idx);
-    const key = formatDateKey(d);
-    return {
-      day: dayName,
-      date: d.getDate(),
-      dateKey: key,
-      shift: (schedules[key] as ShiftCode) || null,
-      isToday: key === todayKey,
-    };
-  });
+  const timelineDaysOffset = 30;
+  const weekData = useMemo(() => {
+    const list: WeekDayItem[] = [];
+    for (let offset = -timelineDaysOffset; offset <= timelineDaysOffset; offset++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + offset);
+      const key = formatDateKey(d);
+      const dayName = weekDays[d.getDay()];
+      const shiftCode = (schedules[key] as any) || null;
+      const shiftInfo = getShiftInfo(shiftCode);
+      list.push({
+        day: dayName,
+        date: d.getDate(),
+        month: d.getMonth() + 1,
+        dateKey: key,
+        shift: shiftCode,
+        shiftInfo: shiftInfo,
+        isToday: key === todayKey,
+      });
+    }
+    return list;
+  }, [schedules, customCodes, todayKey]);
 
   return (
     <SafeAreaView style={styles.safeArea}>

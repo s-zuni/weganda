@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useUserStore } from '../../../store/useUserStore';
 
 export type AdminMenuKey =
   | 'dashboard'
@@ -112,8 +113,19 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       {/* ── 하단 메인 사이트 복귀 / 로그아웃 ── */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerBtn} onPress={onGoMain} activeOpacity={0.7}>
-          <Text style={styles.footerIcon}>[→]</Text>
+          <Text style={styles.footerIcon}>🏠</Text>
           <Text style={styles.footerText}>메인 사이트 (weganda.kr)</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.footerBtn, { marginTop: 6 }]}
+          onPress={() => {
+            useUserStore.getState().setUser({ role: 'user', isAuthenticated: false });
+            onGoMain();
+          }}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.footerIcon}>🔒</Text>
+          <Text style={styles.footerText}>관리자 로그아웃</Text>
         </TouchableOpacity>
       </View>
     </View>
