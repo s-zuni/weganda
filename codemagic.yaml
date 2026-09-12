@@ -27,6 +27,9 @@ workflows:
         - pattern: 'main'
           include: true
           source: true
+        - pattern: 'feat_app'
+          include: true
+          source: true
     scripts:
       - name: 1. Install Node Dependencies
         script: |
@@ -49,15 +52,38 @@ workflows:
           cd ..
       - name: 5. Build iOS IPA (App Store Distribution)
         script: |
-          WORKSPACE=$(find ios -maxdepth 1 -name "*.xcworkspace" | head -n 1)
-          SCHEME=$(xcode-project list-schemes --workspace "$WORKSPACE" | head -n 1)
+          export LC_ALL=en_US.UTF-8
+          export LANG=en_US.UTF-8
+          
+          cd ios
+          echo "--- Directory contents of ios/ ---"
+          ls -la
+          
+          WORKSPACE_NAME=$(ls -d *.xcworkspace 2>/dev/null | head -n 1)
+          if [ -z "$WORKSPACE_NAME" ]; then
+            echo "Error: No .xcworkspace found in ios directory!"
+            exit 1
+          fi
+          
+          # Apple 공식 xcodebuild 명령어로 Scheme 자동 추출
+          if command -v jq &> /dev/null; then
+            SCHEME_NAME=$(xcodebuild -workspace "$WORKSPACE_NAME" -list -json 2>/dev/null | jq -r '.workspace.schemes[0] // .project.schemes[0]' 2>/dev/null)
+          fi
+          
+          if [ -z "$SCHEME_NAME" ] || [ "$SCHEME_NAME" = "null" ]; then
+            SCHEME_NAME="${WORKSPACE_NAME%.xcworkspace}"
+          fi
+          
+          cd ..
+          
           echo "=========================================="
-          echo "Found Workspace: $WORKSPACE"
-          echo "Found Scheme:    $SCHEME"
+          echo "Found Workspace: ios/$WORKSPACE_NAME"
+          echo "Found Scheme:    $SCHEME_NAME"
           echo "=========================================="
+          
           xcode-project build-ipa \
-            --workspace "$WORKSPACE" \
-            --scheme "$SCHEME"
+            --workspace "ios/$WORKSPACE_NAME" \
+            --scheme "$SCHEME_NAME"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
