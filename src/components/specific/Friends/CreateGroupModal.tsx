@@ -9,9 +9,11 @@ import {
   TextInput,
   Alert,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { COLORS, NEUTRAL, useAppTheme } from '../../../constants/theme';
 import { FriendDetail } from '../../../types/friends';
+import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 
 interface CreateGroupModalProps {
   visible: boolean;
@@ -29,6 +31,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   onCreateGroup,
 }) => {
   const theme = useAppTheme();
+  const keyboardOffset = useKeyboardOffset(0);
   const [groupName, setGroupName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('병동');
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
@@ -61,7 +64,11 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={handleClose}>
-      <View style={styles.modalContainer}>
+      <KeyboardAvoidingView
+        style={styles.modalContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={keyboardOffset}
+      >
         <View style={styles.modalHeader}>
           <TouchableOpacity onPress={handleClose}>
             <Text style={[styles.modalCloseText, { color: theme.primary }]}>‹ 취소</Text>
@@ -72,7 +79,11 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.modalScroll} contentContainerStyle={styles.modalScrollContent}>
+        <ScrollView
+          style={styles.modalScroll}
+          contentContainerStyle={styles.modalScrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* 모임명 입력 */}
           <View style={styles.inputSection}>
             <Text style={styles.inputSectionTitle}>모임 이름</Text>
@@ -82,6 +93,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
               onChangeText={setGroupName}
               placeholder="예: 51병동 동기방, 중환자실 나이트방"
               placeholderTextColor={COLORS.textMuted}
+              returnKeyType="done"
             />
           </View>
 
@@ -158,7 +170,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
             )}
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };

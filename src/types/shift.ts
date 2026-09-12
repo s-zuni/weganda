@@ -1,4 +1,4 @@
-export type ShiftCode = 'D' | 'E' | 'N' | 'O' | 'V';
+export type ShiftCode = 'D' | 'E' | 'N' | 'O' | 'V' | string;
 
 export interface ShiftInfo {
   code: ShiftCode;
@@ -9,6 +9,7 @@ export interface ShiftInfo {
   defaultStartTime?: string;
   defaultEndTime?: string;
   description: string;
+  isOff?: boolean;
 }
 
 export interface CustomShiftCode {

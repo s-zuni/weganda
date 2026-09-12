@@ -212,6 +212,8 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
                   placeholderTextColor="#9CA3AF"
                   keyboardType="numeric"
                   maxLength={7}
+                  returnKeyType="search"
+                  onSubmitEditing={handleSearchCode}
                 />
                 <TouchableOpacity
                   style={[styles.searchBtn, { backgroundColor: theme.primary }]}
@@ -278,6 +280,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
                     onChangeText={setContactSearchQuery}
                     placeholder="이름 또는 전화번호로 검색..."
                     placeholderTextColor="#9CA3AF"
+                    returnKeyType="search"
                   />
                 </View>
               )}

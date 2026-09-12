@@ -35,7 +35,7 @@ export const CommunityScreen: React.FC = () => {
     verificationStatus,
     verificationRole,
   } = useUserStore();
-  const { posts, blockedUserIds, fetchPosts, toggleLikePost, toggleBookmarkPost, isLoading } = useCommunityStore();
+  const { posts, blockedUserIds, fetchPosts, toggleLikePost, toggleBookmarkPost, isLoading, error } = useCommunityStore();
 
   useEffect(() => {
     fetchPosts(undefined, userId || undefined);
@@ -201,6 +201,17 @@ export const CommunityScreen: React.FC = () => {
           onSelectCategory={setSelectedCategory}
         />
 
+        {/* 네트워크/데이터 로딩 에러 알림 배너 */}
+        {error && (
+          <TouchableOpacity
+            style={styles.errorBanner}
+            onPress={() => fetchPosts(undefined, userId || undefined)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
+          </TouchableOpacity>
+        )}
+
         {/* 게시글 피드 헤더 & 글쓰기 버튼 */}
         <View style={styles.feedHeaderRow}>
           <Text style={styles.feedCountText}>총 {filteredPosts.length}개의 이야기</Text>
@@ -332,16 +343,33 @@ const styles = StyleSheet.create({
   writeButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 5,
     backgroundColor: COLORS.primary,
     paddingHorizontal: 16,
     paddingVertical: 9,
-    borderRadius: 20,
+    minHeight: 44,
+    borderRadius: 22,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 3,
+  },
+  errorBanner: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FCA5A5',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  errorBannerText: {
+    color: '#B91C1C',
+    fontSize: 13,
+    fontWeight: '600',
   },
   writeButtonText: {
     color: '#FFFFFF',

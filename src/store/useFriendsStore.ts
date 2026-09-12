@@ -16,6 +16,7 @@ interface FriendsState {
   groupChats: GroupChat[];
   chatMessages: Record<string, ChatMessage[]>;
   isLoading: boolean;
+  error: string | null;
   activeChatChannel?: RealtimeChannel;
 
   // Actions
@@ -40,6 +41,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   groupChats: [],
   chatMessages: {},
   isLoading: false,
+  error: null,
 
   createGroupChat: (name: string, category: string, members: FriendDetail[]) => {
     const newGroup: GroupChat = {
@@ -65,7 +67,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   // 친구 목록 DB 조회
   fetchFriends: async (userId: string) => {
     try {
-      set({ isLoading: true });
+      set({ isLoading: true, error: null });
       const serverFriends = await friendsApi.getFriends(userId);
       if (serverFriends && serverFriends.length > 0) {
         const mapped: FriendDetail[] = serverFriends.map((f) => ({
@@ -82,13 +84,13 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
           matchingOffDaysCount: f.matchingOffDaysCount || 0,
           monthlyShifts: [],
         }));
-        set({ friends: mapped, isLoading: false });
+        set({ friends: mapped, isLoading: false, error: null });
       } else {
-        set({ isLoading: false });
+        set({ isLoading: false, error: null });
       }
     } catch (e) {
       console.error('Error fetching friends from backend:', e);
-      set({ isLoading: false });
+      set({ isLoading: false, error: '동기 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.' });
     }
   },
 

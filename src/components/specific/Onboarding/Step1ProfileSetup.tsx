@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  TextInput,
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { Input, Button } from '../../common';
@@ -42,6 +43,11 @@ export const Step1ProfileSetup: React.FC<Step1ProfileSetupProps> = ({
   );
   const [schoolName, setSchoolName] = useState(initialData?.schoolName || '');
   const [schoolGrade, setSchoolGrade] = useState<number>(initialData?.schoolGrade || 1);
+
+  const hospitalInputRef = useRef<TextInput>(null);
+  const wardInputRef = useRef<TextInput>(null);
+  const expInputRef = useRef<TextInput>(null);
+  const schoolInputRef = useRef<TextInput>(null);
 
   const handleNext = () => {
     if (!nickname.trim()) {
@@ -158,38 +164,58 @@ export const Step1ProfileSetup: React.FC<Step1ProfileSetupProps> = ({
           value={nickname}
           onChangeText={setNickname}
           maxLength={12}
+          returnKeyType="next"
+          onSubmitEditing={() => {
+            if (role === 'nurse') {
+              hospitalInputRef.current?.focus();
+            } else {
+              schoolInputRef.current?.focus();
+            }
+          }}
         />
 
         {role === 'nurse' ? (
           <>
             <Input
+              ref={hospitalInputRef}
               label="소속 병원"
               placeholder="예: 서울아산병원"
               value={hospitalName}
               onChangeText={setHospitalName}
+              returnKeyType="next"
+              onSubmitEditing={() => wardInputRef.current?.focus()}
             />
             <Input
+              ref={wardInputRef}
               label="소속 병동 / 부서"
               placeholder="예: 82병동, 응급의학과"
               value={wardName}
               onChangeText={setWardName}
+              returnKeyType="next"
+              onSubmitEditing={() => expInputRef.current?.focus()}
             />
             <Input
+              ref={expInputRef}
               label="임상 연차"
               placeholder="예: 3 (숫자만 입력)"
               value={experienceYears}
               onChangeText={setExperienceYears}
               keyboardType="number-pad"
               maxLength={2}
+              returnKeyType="done"
+              onSubmitEditing={handleNext}
             />
           </>
         ) : (
           <>
             <Input
+              ref={schoolInputRef}
               label="소속 대학교"
               placeholder="예: 서울대학교 간호대학"
               value={schoolName}
               onChangeText={setSchoolName}
+              returnKeyType="done"
+              onSubmitEditing={handleNext}
             />
             <View style={styles.gradeSection}>
               <Text style={styles.gradeLabel}>현재 학년</Text>

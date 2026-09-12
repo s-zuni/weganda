@@ -100,6 +100,9 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
   const totalHolidayPay = holidayWorkCount * effectiveHolidayRate;
   const totalEstimatedSalary = parsedBase + totalNightPay + totalHolidayPay;
 
+  const nightInputRef = React.useRef<TextInput>(null);
+  const holidayInputRef = React.useRef<TextInput>(null);
+
   const handleSave = () => {
     setBaseSalary(parsedBase);
     setCustomNightAllowance(parsedNightRate);
@@ -124,30 +127,28 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.bodyScroll} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.bodyScroll}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
             {/* 이번 달 스케줄 자동 연동 요약 */}
             <View style={styles.scheduleBadgeCard}>
               <Text style={styles.scheduleBadgeTitle}>📅 {monthLabel} 근무표 자동 연동 결과</Text>
-              <View style={styles.badgeRow}>
-                <View style={styles.badgeItem}>
-                  <Text style={styles.badgeLabel}>나이트 (N)</Text>
-                  <Text style={[styles.badgeValue, { color: theme.primary }]}>{nightCount}일</Text>
-                </View>
-                <View style={styles.badgeDivider} />
-                <View style={styles.badgeItem}>
-                  <Text style={styles.badgeLabel}>주말/휴일 근무</Text>
-                  <Text style={[styles.badgeValue, { color: '#F59E0B' }]}>{holidayWorkCount}일</Text>
-                </View>
-              </View>
+              <Text style={styles.scheduleBadgeSub}>
+                나이트(N) {nightCount}회 • 주말/휴일 근무 {holidayWorkCount}일 반영
+              </Text>
             </View>
 
-            {/* 입력 폼 */}
+            {/* 입력 폼 영역 */}
             <View style={styles.inputSection}>
               {/* 1. 기본급 */}
               <Text style={styles.inputLabel}>월 기본급 (원) <Text style={styles.required}>*</Text></Text>
               <TextInput
                 style={styles.textInput}
                 keyboardType="numeric"
+                returnKeyType="next"
+                onSubmitEditing={() => nightInputRef.current?.focus()}
                 value={parsedBase ? parsedBase.toLocaleString() : ''}
                 placeholder="예: 2,800,000"
                 placeholderTextColor={COLORS.textMuted}
@@ -164,8 +165,11 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
                 )}
               </View>
               <TextInput
+                ref={nightInputRef}
                 style={styles.textInput}
                 keyboardType="numeric"
+                returnKeyType="next"
+                onSubmitEditing={() => holidayInputRef.current?.focus()}
                 value={parsedNightRate ? parsedNightRate.toLocaleString() : ''}
                 placeholder={`미입력 시 기본급 기준 약 ${inferredNightRate.toLocaleString()}원 유추`}
                 placeholderTextColor={COLORS.textMuted}
@@ -187,8 +191,11 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
                 )}
               </View>
               <TextInput
+                ref={holidayInputRef}
                 style={styles.textInput}
                 keyboardType="numeric"
+                returnKeyType="done"
+                onSubmitEditing={handleSave}
                 value={parsedHolidayRate ? parsedHolidayRate.toLocaleString() : ''}
                 placeholder={`미입력 시 기본급 기준 약 ${inferredHolidayRate.toLocaleString()}원 유추`}
                 placeholderTextColor={COLORS.textMuted}
@@ -315,6 +322,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4B5563',
     marginBottom: 10,
+  },
+  scheduleBadgeSub: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 4,
   },
   badgeRow: {
     flexDirection: 'row',

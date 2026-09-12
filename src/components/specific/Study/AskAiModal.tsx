@@ -17,6 +17,7 @@ import { FREE_LIMITS } from '../../../constants/membership';
 import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { BotIcon, SendIcon } from '../../common/Icon';
+import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 
 interface AskAiModalProps {
   visible: boolean;
@@ -36,6 +37,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
   onClose,
   initialQuestion,
 }) => {
+  const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const { aiMessages, askAi } = useStudyStore();
   const { isPremium, dailyAiCount, incrementDailyAiCount } = useUserStore();
   const [inputText, setInputText] = useState('');
@@ -76,6 +78,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={keyboardOffset}
         style={styles.container}
       >
         {/* 헤더 */}
@@ -118,6 +121,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
           style={styles.chatScroll}
           contentContainerStyle={styles.chatContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {aiMessages.map((msg) => {
             const isMe = msg.sender === 'user';
@@ -155,6 +159,8 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
             onChangeText={setInputText}
             placeholder="임상 프로토콜, 약물 투약법을 질문하세요..."
             placeholderTextColor={COLORS.textMuted}
+            returnKeyType="send"
+            onSubmitEditing={() => handleSend()}
           />
           <TouchableOpacity
             style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}

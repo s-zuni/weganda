@@ -31,6 +31,7 @@ import {
 import { ReportModal } from './ReportModal';
 import { PostWriteModal } from './PostWriteModal';
 import { VerificationModal } from '../Verification';
+import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 
 interface PostDetailModalProps {
   visible: boolean;
@@ -43,6 +44,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
   post,
   onClose,
 }) => {
+  const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const {
     posts,
     blockedUserIds,
@@ -236,6 +238,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={keyboardOffset}
         style={styles.container}
       >
         {/* 상단 네비게이션 바 */}
@@ -278,7 +281,11 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
           </View>
         </View>
 
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* 차단된 작성자 경고 */}
           {isAuthorBlocked ? (
             <View style={styles.blockedBanner}>
@@ -546,6 +553,8 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   : '따뜻한 위로와 조언의 댓글을 남겨보세요...'
               }
               placeholderTextColor={COLORS.textMuted}
+              returnKeyType="send"
+              onSubmitEditing={handleSendComment}
             />
 
             <TouchableOpacity

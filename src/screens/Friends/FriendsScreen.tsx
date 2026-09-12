@@ -31,7 +31,7 @@ type FriendsTabType = 'list' | 'groups';
 
 export const FriendsScreen: React.FC = () => {
   const { id: userId, isPremium } = useUserStore((s) => ({ id: s.id, isPremium: s.isPremium }));
-  const { friends, groupChats, fetchFriends, isLoading } = useFriendsStore();
+  const { friends, groupChats, fetchFriends, isLoading, error } = useFriendsStore();
 
   useEffect(() => {
     if (userId) {
@@ -102,6 +102,17 @@ export const FriendsScreen: React.FC = () => {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        {/* 네트워크/데이터 로딩 에러 알림 배너 */}
+        {error && (
+          <TouchableOpacity
+            style={styles.errorBanner}
+            onPress={() => userId && fetchFriends(userId)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
+          </TouchableOpacity>
+        )}
+
         {/* 겹치는 근무 요약 상단 배너 */}
         <SharedShiftBanner
           friendsCount={friends.length}
@@ -263,6 +274,21 @@ const styles = StyleSheet.create({
   tabSegmentTextActive: {
     color: COLORS.primary,
     fontWeight: '800',
+  },
+  errorBanner: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FCA5A5',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  errorBannerText: {
+    color: '#B91C1C',
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
 

@@ -51,6 +51,7 @@ interface ShiftScheduleState {
   schedules: Record<string, string>; // "YYYY-MM-DD": "D"
   customCodes: Record<string, CustomShiftCode>;
   isLoading: boolean;
+  error: string | null;
 
   // Actions
   fetchMonthlySchedule: (userId?: string, yearMonth?: string) => Promise<void>;
@@ -73,6 +74,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
       },
       customCodes: DEFAULT_SHIFT_CODES,
       isLoading: false,
+      error: null,
 
   // 특정 월의 스케줄 DB에서 불러오기
   fetchMonthlySchedule: async (userId?: string, yearMonth?: string) => {
@@ -82,7 +84,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
     }
 
     try {
-      set({ isLoading: true });
+      set({ isLoading: true, error: null });
       const d = get().currentDate;
       const ym =
         yearMonth ||
@@ -118,6 +120,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
       }
     } catch (e: any) {
       console.warn('Notice in fetchMonthlySchedule:', e?.message || e);
+      set({ error: '근무표를 불러오지 못했습니다. 네트워크 상태를 확인해주세요.' });
     } finally {
       set({ isLoading: false });
     }

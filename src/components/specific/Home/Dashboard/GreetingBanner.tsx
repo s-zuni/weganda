@@ -2,22 +2,27 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../../../constants/theme';
 import { ShiftCode, ShiftInfo } from '../../../../types/shift';
+import { useUserStore } from '../../../../store/useUserStore';
 
 interface GreetingBannerProps {
-  displayName: string;
+  displayName?: string;
   todayShift: string | null;
   todayShiftInfo: ShiftInfo | null;
 }
 
 export const GreetingBanner: React.FC<GreetingBannerProps> = ({
-  displayName,
+  displayName: propDisplayName,
   todayShift,
   todayShiftInfo,
 }) => {
+  const userNickname = useUserStore((s) => s.nickname);
+  const userName = useUserStore((s) => s.name);
+  const activeDisplayName = userNickname || userName || propDisplayName || '김간호';
+
   return (
     <View style={styles.greetingBanner}>
       <Text style={styles.greetingText}>
-        {displayName}님, 오늘은{' '}
+        {activeDisplayName}님, 오늘은{' '}
         {todayShiftInfo ? (
           <Text style={[styles.dutyHighlight, { color: todayShiftInfo.color }]}>
             {todayShiftInfo.shortName} 근무

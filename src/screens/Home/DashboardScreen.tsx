@@ -5,11 +5,14 @@ import {
   ScrollView,
   StatusBar,
   Alert,
+  TouchableOpacity,
+  View,
+  Text,
 } from 'react-native';
 import { AppHeader } from '../../components/common/AppHeader';
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
-import { ShiftCode, SHIFT_TYPES } from '../../constants/shiftTypes';
+import { ShiftCode, SHIFT_TYPES, ShiftInfo } from '../../constants/shiftTypes';
 import { useUserStore } from '../../store/useUserStore';
 import { useShiftScheduleStore } from '../../store/useShiftScheduleStore';
 import { nativeCalendarService } from '../../services/nativeCalendarService';
@@ -35,8 +38,8 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const userName = useUserStore((s) => s.name);
   const userNickname = useUserStore((s) => s.nickname);
   const { isPremium } = useUserStore();
-  const displayName = userNickname || userName || '간호사';
-  const { schedules, customCodes, fetchMonthlySchedule } = useShiftScheduleStore();
+  const displayName = userNickname || userName || '김간호';
+  const { schedules, customCodes, fetchMonthlySchedule, isLoading, error } = useShiftScheduleStore();
 
   const [tomorrowCalendarEvent, setTomorrowCalendarEvent] = useState<string>('');
   const [isSyncingCalendar, setIsSyncingCalendar] = useState(false);
@@ -80,10 +83,10 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const todayKey = formatDateKey(today);
   const tomorrowKey = formatDateKey(tomorrow);
 
-  const todayShift = (schedules[todayKey] as any) || null;
-  const tomorrowShift = (schedules[tomorrowKey] as any) || null;
+  const todayShift = schedules[todayKey] || null;
+  const tomorrowShift = schedules[tomorrowKey] || null;
 
-  const getShiftInfo = (code: string | null) => {
+  const getShiftInfo = (code: string | null): ShiftInfo | null => {
     if (!code) return null;
     if (customCodes[code]) {
       return {
@@ -96,7 +99,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
         description: customCodes[code].name,
       };
     }
-    return (SHIFT_TYPES as any)[code] || null;
+    return code in SHIFT_TYPES ? (SHIFT_TYPES as Record<string, ShiftInfo>)[code] : null;
   };
 
   const todayShiftInfo = getShiftInfo(todayShift);
@@ -112,7 +115,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
       d.setDate(today.getDate() + offset);
       const key = formatDateKey(d);
       const dayName = weekDays[d.getDay()];
-      const shiftCode = (schedules[key] as any) || null;
+      const shiftCode = schedules[key] || null;
       const shiftInfo = getShiftInfo(shiftCode);
       list.push({
         day: dayName,
@@ -137,6 +140,17 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        {/* 네트워크/데이터 로딩 에러 알림 배너 */}
+        {error && (
+          <TouchableOpacity
+            style={styles.errorBanner}
+            onPress={() => userId && fetchMonthlySchedule(userId)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
+          </TouchableOpacity>
+        )}
+
         {/* 인사 배너 */}
         <GreetingBanner
           displayName={displayName}
@@ -240,6 +254,21 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 20,
     paddingBottom: 90,
+  },
+  errorBanner: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FCA5A5',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  errorBannerText: {
+    color: '#B91C1C',
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
 

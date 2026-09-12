@@ -1,4 +1,5 @@
-export type ShiftCode = 'D' | 'E' | 'N' | 'O' | 'V';
+export type StandardShiftCode = 'D' | 'E' | 'N' | 'O' | 'V';
+export type ShiftCode = StandardShiftCode | string;
 
 export interface ShiftInfo {
   code: ShiftCode;
@@ -12,7 +13,7 @@ export interface ShiftInfo {
   isOff?: boolean;
 }
 
-export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
+export const SHIFT_TYPES: Record<string, ShiftInfo> = {
   D: {
     code: 'D',
     name: '데이 (Day)',

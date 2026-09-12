@@ -43,6 +43,8 @@ export interface UserState {
   hasCompletedOnboarding: boolean;
   schoolName?: string;
   schoolGrade?: number;
+  onboardingDraft: { step: 1 | 2 | 3; profileData: any } | null;
+  setOnboardingDraft: (draft: { step: 1 | 2 | 3; profileData: any } | null) => void;
   completeOnboarding: () => void;
 
   // Role & Premium Actions
@@ -83,11 +85,11 @@ export const useUserStore = create<UserState>()(
     (set, get) => ({
   id: null,
   email: null,
-  name: '',
-  nickname: '',
-  hospitalName: '',
-  wardName: '',
-  experienceYears: 1,
+  name: '김간호',
+  nickname: '김간호',
+  hospitalName: '서울아산병원',
+  wardName: '51병동 (소화기내과)',
+  experienceYears: 3,
   avatarUrl: undefined,
   userCode: null,
   isAuthenticated: false,
@@ -112,11 +114,13 @@ export const useUserStore = create<UserState>()(
   hasCompletedOnboarding: false,
   schoolName: '',
   schoolGrade: 1,
+  onboardingDraft: null,
+  setOnboardingDraft: (draft) => set({ onboardingDraft: draft }),
 
-  completeOnboarding: () => set({ hasCompletedOnboarding: true, isAuthenticated: true }),
+  completeOnboarding: () => set({ hasCompletedOnboarding: true, isAuthenticated: true, onboardingDraft: null }),
 
   isAdmin: () => get().role === 'admin',
-  setUserRole: (role) => set({ role, isPremium: role === 'plus' || role === 'admin' || get().isPremium }),
+  setUserRole: (role) => set({ role, isPremium: role === 'plus' || role === 'admin' }),
   setVerificationState: (newState) =>
     set((state) => ({
       verificationStatus: newState.verificationStatus,
@@ -298,7 +302,7 @@ export const useUserStore = create<UserState>()(
           experienceYears: profile.experienceYears ?? current.experienceYears ?? 1,
           avatarUrl: profile.avatarUrl || current.avatarUrl || meta.avatar_url || meta.picture,
           role: userRole,
-          isPremium: userRole === 'plus' || userRole === 'admin' || get().isPremium,
+          isPremium: userRole === 'plus' || userRole === 'admin',
           userCode: profile.userCode || current.userCode || null,
           hasCompletedOnboarding: true,
         });
@@ -435,6 +439,7 @@ export const useUserStore = create<UserState>()(
         avatarUrl: state.avatarUrl,
         userCode: state.userCode,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        onboardingDraft: state.onboardingDraft,
         schoolName: state.schoolName,
         schoolGrade: state.schoolGrade,
       }),

@@ -13,7 +13,7 @@ import {
   Platform,
   Linking,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, useAppTheme, TINT_COLORS } from '../../../constants/theme';
 import * as Clipboard from 'expo-clipboard';
 import { useUserStore } from '../../../store/useUserStore';
 import { useFortuneStore } from '../../../store/useFortuneStore';
@@ -30,6 +30,7 @@ import { MyPageUserCodeBadge } from './MyPageUserCodeBadge';
 import { MyPageBurnoutBanner } from './MyPageBurnoutBanner';
 import { MyPageSupportSection } from './MyPageSupportSection';
 import { MyPageFooterSection } from './MyPageFooterSection';
+import { MyPageActivityStatsSection } from './MyPageActivityStatsSection';
 import { InquiryCategory, BUSINESS_INFO } from '../../../types/support';
 
 interface MyPageModalProps {
@@ -63,7 +64,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
   const { birthInfo } = useFortuneStore();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(storeNickname || storeName || '김간호');
+  const [name, setName] = useState(storeName || '김간호');
+  const [nickname, setNickname] = useState(storeNickname || storeName || '김간호');
   const [hospitalName, setHospitalName] = useState(storeHospital || '서울아산병원');
   const [wardName, setWardName] = useState(storeWard || '51병동 (소화기내과)');
   const [experienceYears, setExperienceYears] = useState(String(storeExp !== undefined && storeExp !== null ? storeExp : 3));
@@ -71,7 +73,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
   // 마이페이지가 열리거나 스토어의 사용자 정보가 갱신될 때 로컬 폼 상태 동기화
   React.useEffect(() => {
     if (visible) {
-      setName(storeNickname || storeName || '김간호');
+      setName(storeName || '김간호');
+      setNickname(storeNickname || storeName || '김간호');
       setHospitalName(storeHospital || '서울아산병원');
       setWardName(storeWard || '51병동 (소화기내과)');
       setExperienceYears(String(storeExp !== undefined && storeExp !== null ? storeExp : 3));
@@ -158,17 +161,19 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
   };
 
   const handleSaveProfile = () => {
-    if (!name.trim() || !hospitalName.trim()) {
-      Alert.alert('확인', '이름과 소속 병원은 필수 입력 항목입니다.');
+    const finalNickname = (nickname || name || '김간호').trim();
+    const finalName = (name || nickname || '김간호').trim();
+
+    if (!finalNickname || !hospitalName.trim()) {
+      Alert.alert('확인', '닉네임(또는 이름)과 소속 병원은 필수 입력 항목입니다.');
       return;
     }
 
-    const trimmedName = name.trim();
     const finalExp = experienceYears === '' ? 1 : Math.max(0, parseInt(experienceYears, 10));
 
     setUser({
-      name: trimmedName,
-      nickname: trimmedName,
+      name: finalName,
+      nickname: finalNickname,
       hospitalName: hospitalName.trim(),
       wardName: wardName.trim(),
       experienceYears: finalExp,
@@ -178,8 +183,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
     const storeUserId = useUserStore.getState().id;
     if (storeUserId) {
       useUserStore.getState().updateUserProfile({
-        name: trimmedName,
-        nickname: trimmedName,
+        name: finalName,
+        nickname: finalNickname,
         hospitalName: hospitalName.trim(),
         wardName: wardName.trim(),
         experienceYears: finalExp,
@@ -226,7 +231,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
               </View>
               <View style={styles.profileTexts}>
                 <View style={styles.profileNameRow}>
-                  <Text style={styles.userName}>{storeNickname || storeName || name}</Text>
+                  <Text style={styles.userName}>{storeNickname || storeName || nickname || name}</Text>
                   <MyPageUserCodeBadge userCode={userCode} onCopy={handleCopyUserCode} />
                 </View>
                 <Text style={styles.userRole}>
@@ -246,8 +251,22 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             {isEditing && (
               <View style={styles.editForm}>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.fieldLabel}>이름 / 닉네임</Text>
-                  <TextInput style={styles.textInput} value={name} onChangeText={setName} />
+                  <Text style={styles.fieldLabel}>닉네임 (메인 화면 인사 및 호칭)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={nickname}
+                    onChangeText={setNickname}
+                    placeholder="메인 화면에 표시될 닉네임을 입력하세요"
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.fieldLabel}>이름 (실명)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={name}
+                    onChangeText={setName}
+                    placeholder="실명을 입력하세요"
+                  />
                 </View>
                 <View style={styles.inputGroup}>
                   <Text style={styles.fieldLabel}>소속 병원</Text>
@@ -316,17 +335,17 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
                   <View
                     style={[
                       styles.verificationStatusTag,
-                      verificationStatus === 'verified' && { backgroundColor: '#DEF7EC' },
-                      verificationStatus === 'pending' && { backgroundColor: '#FEF3C7' },
-                      verificationStatus === 'rejected' && { backgroundColor: '#FDE8E8' },
+                      verificationStatus === 'verified' && { backgroundColor: TINT_COLORS.statusVerifiedBg },
+                      verificationStatus === 'pending' && { backgroundColor: TINT_COLORS.statusPendingBg },
+                      verificationStatus === 'rejected' && { backgroundColor: TINT_COLORS.statusRejectedBg },
                     ]}
                   >
                     <Text
                       style={[
                         styles.verificationStatusTagText,
-                        verificationStatus === 'verified' && { color: '#03543F' },
-                        verificationStatus === 'pending' && { color: '#92400E' },
-                        verificationStatus === 'rejected' && { color: '#9B1C1C' },
+                        verificationStatus === 'verified' && { color: TINT_COLORS.statusVerifiedText },
+                        verificationStatus === 'pending' && { color: TINT_COLORS.statusPendingText },
+                        verificationStatus === 'rejected' && { color: TINT_COLORS.statusRejectedText },
                       ]}
                     >
                       {verificationStatus === 'verified'
@@ -377,16 +396,16 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
                       style={[
                         styles.subStatusBadge,
                         subscriptionInfo?.status === 'canceled'
-                          ? { backgroundColor: '#FEF3C7' }
-                          : { backgroundColor: '#DEF7EC' },
+                          ? { backgroundColor: TINT_COLORS.statusPendingBg }
+                          : { backgroundColor: TINT_COLORS.statusVerifiedBg },
                       ]}
                     >
                       <Text
                         style={[
                           styles.subStatusBadgeText,
                           subscriptionInfo?.status === 'canceled'
-                            ? { color: '#92400E' }
-                            : { color: '#03543F' },
+                            ? { color: TINT_COLORS.statusPendingText }
+                            : { color: TINT_COLORS.statusVerifiedText },
                         ]}
                       >
                         {subscriptionInfo?.status === 'canceled'
@@ -472,61 +491,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             </View>
           </View>
 
-          {/* ── 나의 9월 3교대 근무 현황 ── */}
-          <View style={styles.sectionCard}>
-            <View style={styles.sectionTitleGroup}>
-              <CalendarIcon size={18} color={theme.primary} />
-              <Text style={styles.sectionTitle}>이번 달 나의 3교대 현황</Text>
-            </View>
-
-            <View style={styles.shiftStatsRow}>
-              <View style={styles.shiftStatItem}>
-                <View style={[styles.statDot, { backgroundColor: '#4F98CA' }]} />
-                <Text style={styles.statLabel}>Day</Text>
-                <Text style={styles.statValue}>10회</Text>
-              </View>
-              <View style={styles.shiftStatItem}>
-                <View style={[styles.statDot, { backgroundColor: '#E2703A' }]} />
-                <Text style={styles.statLabel}>Evening</Text>
-                <Text style={styles.statValue}>8회</Text>
-              </View>
-              <View style={styles.shiftStatItem}>
-                <View style={[styles.statDot, { backgroundColor: '#272727' }]} />
-                <Text style={styles.statLabel}>Night</Text>
-                <Text style={styles.statValue}>5회</Text>
-              </View>
-              <View style={styles.shiftStatItem}>
-                <View style={[styles.statDot, { backgroundColor: '#E84A5F' }]} />
-                <Text style={styles.statLabel}>Off</Text>
-                <Text style={styles.statValue}>8회</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* ── 내 활동 통계 ── */}
-          <View style={styles.sectionCard}>
-            <View style={styles.sectionTitleGroup}>
-              <BookmarkIcon size={18} color={theme.primary} filled={true} />
-              <Text style={styles.sectionTitle}>내 활동 기록</Text>
-            </View>
-
-            <View style={styles.activityRow}>
-              <View style={styles.activityCol}>
-                <Text style={styles.activityCount}>3</Text>
-                <Text style={styles.activityLabel}>작성한 글</Text>
-              </View>
-              <View style={styles.activityDivider} />
-              <View style={styles.activityCol}>
-                <Text style={styles.activityCount}>12</Text>
-                <Text style={styles.activityLabel}>작성한 댓글</Text>
-              </View>
-              <View style={styles.activityDivider} />
-              <View style={styles.activityCol}>
-                <Text style={styles.activityCount}>5</Text>
-                <Text style={styles.activityLabel}>보관한 족보</Text>
-              </View>
-            </View>
-          </View>
+          {/* ── 나의 3교대 근무 현황 & 내 활동 기록 (동적 계산 서브 컴포넌트) ── */}
+          <MyPageActivityStatsSection />
 
           {/* 앱 테마 컬러 설정 */}
           <View style={styles.sectionCard}>
@@ -1077,16 +1043,16 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   verificationCardVerified: {
-    backgroundColor: '#F3FAF7',
-    borderColor: '#31C48D',
+    backgroundColor: TINT_COLORS.greenTint,
+    borderColor: TINT_COLORS.greenTintBorder,
   },
   verificationCardPending: {
-    backgroundColor: '#FFFBEB',
-    borderColor: '#FCD34D',
+    backgroundColor: TINT_COLORS.orangeTint,
+    borderColor: TINT_COLORS.statusPendingBg,
   },
   verificationCardRejected: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#F87171',
+    backgroundColor: TINT_COLORS.redTint,
+    borderColor: TINT_COLORS.redTintBorder,
   },
   verificationCardLeft: {
     flexDirection: 'row',

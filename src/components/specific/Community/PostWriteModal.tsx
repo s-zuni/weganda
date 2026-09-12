@@ -138,7 +138,11 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* 카테고리 선택 */}
           <Text style={styles.inputLabel}>게시판 선택</Text>
           <View style={styles.categoryRow}>

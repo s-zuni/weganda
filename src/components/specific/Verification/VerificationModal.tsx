@@ -9,6 +9,7 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { COLORS, useAppTheme } from '../../../constants/theme';
 import { useUserStore } from '../../../store/useUserStore';
@@ -19,6 +20,7 @@ import {
   VerificationSubmissionData,
 } from '../../../types/verification';
 import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { DocumentPickerActionSheet, PickedDocument } from '../../common/DocumentPickerActionSheet';
 
 interface VerificationModalProps {
   visible: boolean;
@@ -39,11 +41,6 @@ const STUDENT_DOC_TYPES: { type: VerificationType; label: string; desc: string }
   { type: 'tuition_bill', label: '등록금 납부확인서', desc: '당해 학기 간호학과 등록금 납부 영수증' },
 ];
 
-const SAMPLE_DOCS = [
-  { name: '간호사면허증_김간호.jpg', url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800' },
-  { name: '재직증명서_서울아산.pdf', url: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=800' },
-  { name: '학생증_한국간호대_이지은.jpg', url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800' },
-];
 
 export const VerificationModal: React.FC<VerificationModalProps> = ({
   visible,
@@ -71,6 +68,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
   const [licenseNumber, setLicenseNumber] = useState('');
   const [documentName, setDocumentName] = useState('');
   const [documentUrl, setDocumentUrl] = useState('');
+  const [pickerSheetVisible, setPickerSheetVisible] = useState(false);
   const [isReapplying, setIsReapplying] = useState(false);
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
 
@@ -92,9 +90,9 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
   const currentStatus = myRequest ? myRequest.status : verificationStatus;
   const currentRejectReason = myRequest?.rejectReason || verificationRejectReason;
 
-  const handleSelectSampleDoc = (doc: { name: string; url: string }) => {
+  const handleSelectDoc = (doc: PickedDocument) => {
     setDocumentName(doc.name);
-    setDocumentUrl(doc.url);
+    setDocumentUrl(doc.uri);
   };
 
   const handleSubmit = async () => {
@@ -158,7 +156,11 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.scrollBody} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.scrollBody}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
             {/* Status Banners */}
             {currentStatus === 'pending' && !isReapplying && (
               <View style={[styles.statusCard, styles.pendingCard]}>
@@ -353,42 +355,55 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                 </Text>
                 <View style={styles.fileBox}>
                   {documentUrl ? (
-                    <View style={styles.fileSelectedRow}>
-                      <Text style={styles.fileSelectedIcon}>📄</Text>
-                      <View style={styles.fileSelectedInfo}>
-                        <Text style={styles.fileSelectedName} numberOfLines={1}>
-                          {documentName || '첨부서류.pdf'}
-                        </Text>
-                        <Text style={styles.fileSelectedStatus}>첨부 완료</Text>
+                    <View style={styles.fileSelectedContainer}>
+                      <View style={styles.fileSelectedRow}>
+                        {documentUrl.startsWith('file:') || documentUrl.startsWith('http') || documentUrl.startsWith('content:') ? (
+                          <Image source={{ uri: documentUrl }} style={styles.docThumbnail} />
+                        ) : (
+                          <Text style={styles.fileSelectedIcon}>📄</Text>
+                        )}
+                        <View style={styles.fileSelectedInfo}>
+                          <Text style={styles.fileSelectedName} numberOfLines={1}>
+                            {documentName || '첨부서류'}
+                          </Text>
+                          <Text style={styles.fileSelectedStatus}>✓ 파일 첨부 완료</Text>
+                        </View>
+                        <TouchableOpacity
+                          style={styles.fileRemoveBtn}
+                          onPress={() => {
+                            setDocumentName('');
+                            setDocumentUrl('');
+                          }}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        >
+                          <Text style={styles.fileRemoveText}>✕</Text>
+                        </TouchableOpacity>
                       </View>
                       <TouchableOpacity
-                        style={styles.fileRemoveBtn}
-                        onPress={() => {
-                          setDocumentName('');
-                          setDocumentUrl('');
-                        }}
+                        style={styles.repickButton}
+                        onPress={() => setPickerSheetVisible(true)}
+                        activeOpacity={0.7}
                       >
-                        <Text style={styles.fileRemoveText}>✕</Text>
+                        <Text style={styles.repickButtonText}>서류 다시 선택하기</Text>
                       </TouchableOpacity>
                     </View>
                   ) : (
                     <View style={styles.fileEmptyBox}>
-                      <Text style={styles.fileEmptyDesc}>
-                        주민등록번호 뒷자리는 가린 후 업로드해 주세요.
+                      <Text style={styles.fileEmptyIcon}>📂</Text>
+                      <Text style={styles.fileEmptyTitle}>
+                        면허증 / 학생증 증빙 서류를 업로드해 주세요
                       </Text>
-                      <Text style={styles.sampleDocLabel}>* 테스트용 샘플 서류 바로 선택:</Text>
-                      <View style={styles.sampleChipsRow}>
-                        {SAMPLE_DOCS.map((doc, idx) => (
-                          <TouchableOpacity
-                            key={idx}
-                            style={styles.sampleChip}
-                            onPress={() => handleSelectSampleDoc(doc)}
-                            activeOpacity={0.7}
-                          >
-                            <Text style={styles.sampleChipText}>+ {doc.name}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
+                      <Text style={styles.fileEmptyDesc}>
+                        주민등록번호 뒷자리는 마스킹(가림) 처리 후 첨부해 주세요.{'\n'}
+                        사진 보관함, 카메라 촬영, PDF 전자문서를 지원합니다.
+                      </Text>
+                      <TouchableOpacity
+                        style={[styles.uploadButton, { backgroundColor: theme.primary }]}
+                        onPress={() => setPickerSheetVisible(true)}
+                        activeOpacity={0.85}
+                      >
+                        <Text style={styles.uploadButtonText}>+ 서류 사진 / 파일 첨부하기</Text>
+                      </TouchableOpacity>
                     </View>
                   )}
                 </View>
@@ -436,6 +451,13 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
             <View style={{ height: 40 }} />
           </ScrollView>
       </View>
+      <DocumentPickerActionSheet
+        useModal={false}
+        visible={pickerSheetVisible}
+        onClose={() => setPickerSheetVisible(false)}
+        onSelect={handleSelectDoc}
+        title={targetRole === 'nurse' ? '간호사 자격 증빙 서류 첨부' : '간호대학생 증빙 서류 첨부'}
+      />
     </SwipeableBottomSheet>
   );
 };
@@ -698,13 +720,23 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
   },
+  fileSelectedContainer: {
+    gap: 10,
+  },
   fileSelectedRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  docThumbnail: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: '#E5E7EB',
+  },
   fileSelectedIcon: {
-    fontSize: 26,
-    marginRight: 10,
+    fontSize: 28,
+    marginRight: 12,
   },
   fileSelectedInfo: {
     flex: 1,
@@ -717,51 +749,68 @@ const styles = StyleSheet.create({
   fileSelectedStatus: {
     fontSize: 12,
     color: '#059669',
-    fontWeight: '500',
+    fontWeight: '600',
     marginTop: 2,
   },
   fileRemoveBtn: {
-    padding: 6,
+    padding: 8,
   },
   fileRemoveText: {
     fontSize: 16,
     color: '#9CA3AF',
     fontWeight: '600',
   },
-  fileEmptyBox: {
-    alignItems: 'center',
-    paddingVertical: 8,
+  repickButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    marginTop: 4,
   },
-  fileEmptyDesc: {
-    fontSize: 13,
-    color: '#6B7280',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  sampleDocLabel: {
+  repickButtonText: {
     fontSize: 12,
     fontWeight: '600',
     color: '#4B5563',
-    alignSelf: 'flex-start',
+  },
+  fileEmptyBox: {
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  fileEmptyIcon: {
+    fontSize: 34,
+    marginBottom: 8,
+  },
+  fileEmptyTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1F2937',
     marginBottom: 6,
+    textAlign: 'center',
   },
-  sampleChipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  sampleChip: {
-    backgroundColor: '#EEF2FF',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-  },
-  sampleChipText: {
+  fileEmptyDesc: {
     fontSize: 12,
-    color: '#4F46E5',
-    fontWeight: '600',
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  uploadButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  uploadButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   noticeBox: {
     backgroundColor: '#F8FAFC',

@@ -168,7 +168,7 @@ export const authService = {
       // 사용자가 브라우저를 닫은 경우
       return null;
     } catch (e: any) {
-      console.error(`${providerName} login error:`, e);
+      console.error(`${providerName} login error:`, e?.message || 'Unknown error');
       throw e;
     }
   },

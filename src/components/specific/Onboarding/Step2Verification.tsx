@@ -15,6 +15,7 @@ import {
   VerificationType,
   VerificationSubmissionData,
 } from '../../../types/verification';
+import { DocumentPickerActionSheet, PickedDocument } from '../../common/DocumentPickerActionSheet';
 
 interface Step2VerificationProps {
   role: OnboardingRole;
@@ -49,18 +50,15 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
     role === 'nurse' ? 'license' : 'student_id'
   );
   const [attachedDocName, setAttachedDocName] = useState('');
+  const [attachedDocUrl, setAttachedDocUrl] = useState('');
+  const [pickerSheetVisible, setPickerSheetVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const docOptions = role === 'nurse' ? NURSE_DOCS : STUDENT_DOCS;
 
-  const handleSimulatedFileUpload = () => {
-    const fileName =
-      role === 'nurse'
-        ? selectedDocType === 'license'
-          ? '간호사면허증_인증사본.jpg'
-          : '병원사원증_인증.png'
-        : '학생증_인증사본.jpg';
-    setAttachedDocName(fileName);
+  const handleSelectDoc = (doc: PickedDocument) => {
+    setAttachedDocName(doc.name);
+    setAttachedDocUrl(doc.uri);
   };
 
   const handleCompleteVerification = async () => {
@@ -85,8 +83,8 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
         setIsSubmitting(false);
       }
     } else {
-      if (!attachedDocName) {
-        Alert.alert('확인', '증빙 서류를 첨부해 주세요.\n(샘플 첨부하기 버튼으로 즉시 테스트 가능)');
+      if (!attachedDocName || !attachedDocUrl) {
+        Alert.alert('확인', '증빙 서류 사진 또는 파일을 첨부해 주세요.');
         return;
       }
       setIsSubmitting(true);
@@ -96,7 +94,7 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
           verificationType: selectedDocType,
           organizationName,
           documentName: attachedDocName,
-          documentUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800',
+          documentUrl: attachedDocUrl,
         });
         onNext();
       } catch {
@@ -108,6 +106,7 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
   };
 
   return (
+    <>
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
@@ -224,7 +223,10 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
                   <Text style={styles.uploadedSuccess}>첨부 완료 (심사 준비 완료)</Text>
                 </View>
                 <TouchableOpacity
-                  onPress={() => setAttachedDocName('')}
+                  onPress={() => {
+                    setAttachedDocName('');
+                    setAttachedDocUrl('');
+                  }}
                   style={styles.removeDocButton}
                 >
                   <Text style={styles.removeDocText}>변경</Text>
@@ -240,10 +242,10 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
                 </Text>
                 <TouchableOpacity
                   style={styles.uploadActionBtn}
-                  onPress={handleSimulatedFileUpload}
+                  onPress={() => setPickerSheetVisible(true)}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.uploadActionBtnText}>+ 서류 사진 첨부하기</Text>
+                  <Text style={styles.uploadActionBtnText}>+ 서류 사진 / 파일 첨부하기</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -271,7 +273,7 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
             />
           </View>
           <Text style={styles.helperText}>
-            입력하신 공식 도메인으로 본인 확인 인증 코드가 발송됩니다.
+            입력하신 공식 이메일 정보를 바탕으로 심사팀이 재직/재학 여부 확인 후 승인을 진행합니다. (최대 24시간 소요)
           </Text>
         </View>
       )}
@@ -279,7 +281,13 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
       {/* 하단 액션 버튼 그룹 */}
       <View style={styles.footerSection}>
         <Button
-          title={isSubmitting ? '인증 신청 중...' : '인증 서류 제출하고 다음으로'}
+          title={
+            isSubmitting
+              ? '인증 신청 중...'
+              : track === 'email'
+              ? '공식 이메일 인증 신청하기'
+              : '인증 서류 제출하고 다음으로'
+          }
           onPress={handleCompleteVerification}
           loading={isSubmitting}
           style={styles.submitBtn}
@@ -297,6 +305,13 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
         </TouchableOpacity>
       </View>
     </ScrollView>
+    <DocumentPickerActionSheet
+      visible={pickerSheetVisible}
+      onClose={() => setPickerSheetVisible(false)}
+      onSelect={handleSelectDoc}
+      title={role === 'nurse' ? '간호사 자격 증빙 서류 첨부' : '간호대학생 증빙 서류 첨부'}
+    />
+    </>
   );
 };
 

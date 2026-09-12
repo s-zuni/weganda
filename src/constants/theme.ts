@@ -152,6 +152,12 @@ export const TINT_COLORS = {
   greenTextDark: '#14532D',
   greenTextMid: '#166534',
   greenIcon: '#16A34A',
+  statusVerifiedBg: '#DEF7EC',
+  statusVerifiedText: '#03543F',
+  statusPendingBg: '#FEF3C7',
+  statusPendingText: '#92400E',
+  statusRejectedBg: '#FDE8E8',
+  statusRejectedText: '#9B1C1C',
 } as const;
 
 

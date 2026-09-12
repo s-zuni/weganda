@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
@@ -14,6 +16,7 @@ import { GroupChat } from '../../../mocks/friendsData';
 import { CalendarIcon, SendIcon, UsersIcon } from '../../common/Icon';
 import { useCommonSchedules, CommonScheduleItem } from '../../../hooks/useCommonSchedules';
 import { CommonScheduleList } from './CommonScheduleList';
+import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 
 interface GroupChatDetailModalProps {
   visible: boolean;
@@ -29,6 +32,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
   onClose,
 }) => {
   const theme = useAppTheme();
+  const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const [activeTab, setActiveTab] = useState<TabMode>('matrix');
   const [messageText, setMessageText] = useState('');
   const [messages, setMessages] = useState<
@@ -68,13 +72,13 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
 
   const handleSendMessage = () => {
     if (!messageText.trim()) return;
-    setMessages((prev) => [
-      ...prev,
+    setMessages([
+      ...messages,
       {
-        id: `gmsg_${Date.now()}`,
+        id: Date.now().toString(),
         sender: '나',
         text: messageText.trim(),
-        time: '방금 전',
+        time: '방금',
         isMe: true,
       },
     ]);
@@ -86,7 +90,11 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
-      <View style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={keyboardOffset}
+      >
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -251,14 +259,26 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
         {/* ══════════ TAB 2: 단체 대화방 ══════════ */}
         {activeTab === 'chat' && (
           <View style={styles.chatContainer}>
-            <ScrollView style={styles.chatScroll} contentContainerStyle={styles.chatContent}>
+            <ScrollView
+              style={styles.chatScroll}
+              contentContainerStyle={styles.chatContent}
+              keyboardShouldPersistTaps="handled"
+            >
               {messages.map((m) => (
                 <View
                   key={m.id}
-                  style={[styles.msgRow, m.isMe ? styles.msgRowMe : styles.msgRowOther]}
+                  style={[
+                    styles.msgRow,
+                    m.isMe ? styles.msgRowMe : styles.msgRowOther,
+                  ]}
                 >
-                  <View style={{ maxWidth: '78%' }}>
-                    {!m.isMe && <Text style={styles.senderName}>{m.sender}</Text>}
+                  {!m.isMe && (
+                    <View style={styles.otherAvatar}>
+                      <Text style={styles.otherAvatarText}>{m.sender.charAt(0)}</Text>
+                    </View>
+                  )}
+                  <View style={[styles.msgContent, m.isMe && { alignItems: 'flex-end' }]}>
+                    {!m.isMe && <Text style={styles.msgSender}>{m.sender}</Text>}
                     <View
                       style={[
                         styles.bubble,
@@ -289,6 +309,8 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                 onChangeText={setMessageText}
                 placeholder="단체방에 메시지 입력..."
                 placeholderTextColor={COLORS.textMuted}
+                returnKeyType="send"
+                onSubmitEditing={handleSendMessage}
               />
               <TouchableOpacity
                 style={[
@@ -303,7 +325,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
             </View>
           </View>
         )}
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
@@ -572,6 +594,30 @@ const styles = StyleSheet.create({
   },
   msgRowOther: {
     justifyContent: 'flex-start',
+  },
+  otherAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#E5E7EB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+    marginTop: 2,
+  },
+  otherAvatarText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+  msgContent: {
+    maxWidth: '75%',
+  },
+  msgSender: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginBottom: 2,
   },
   senderName: {
     fontSize: 11,

@@ -77,7 +77,7 @@ export const profileApi = {
   ): Promise<boolean> {
     return withClockSkewRetry(async () => {
       let userId: string = '';
-      let updates: Partial<ProfileItem> & {
+      let updates: Omit<Partial<ProfileItem>, 'role'> & {
         hospital_name?: string;
         ward_name?: string;
         experience_years?: number;
@@ -112,7 +112,7 @@ export const profileApi = {
       if (updates.ward_name !== undefined) rowUpdates.ward_name = updates.ward_name;
       if (updates.experienceYears !== undefined) rowUpdates.experience_years = updates.experienceYears;
       if (updates.experience_years !== undefined) rowUpdates.experience_years = updates.experience_years;
-      if (updates.role !== undefined) rowUpdates.role = updates.role;
+      // 🔒 role 필드는 보안상 클라이언트 updateProfile에서 갱신 불가 (DB 트리거 및 서버 관리자 전용)
       if (updates.avatarUrl !== undefined) rowUpdates.avatar_url = updates.avatarUrl;
       if (updates.birthDate !== undefined) rowUpdates.birth_date = updates.birthDate;
       if (updates.birthTime !== undefined) rowUpdates.birth_time = updates.birthTime;
