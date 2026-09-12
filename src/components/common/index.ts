@@ -8,7 +8,6 @@ export * from './WegandaLogo';
 export * from './PremiumBadge';
 export * from './PremiumLockOverlay';
 export * from './PaywallBottomSheet';
-export * from './TossPaymentWebView';
 export * from './InAppPurchaseModal';
 export * from './SwipeableBottomSheet';
 export * from './ErrorBoundary';
