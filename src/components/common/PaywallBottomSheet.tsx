@@ -128,7 +128,7 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
               <View style={styles.legalRow}>
                 <TouchableOpacity
                   onPress={() => {
-                    const url = 'https://weganda.kr/membership';
+                    const url = 'https://www.weganda.kr/membership';
                     if (Platform.OS === 'web' && typeof window !== 'undefined') {
                       window.open(url, '_blank');
                     } else {
@@ -143,7 +143,7 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
                 <Text style={styles.legalDot}>•</Text>
                 <TouchableOpacity
                   onPress={() => {
-                    const url = 'https://weganda.kr/privacy';
+                    const url = 'https://www.weganda.kr/privacy';
                     if (Platform.OS === 'web' && typeof window !== 'undefined') {
                       window.open(url, '_blank');
                     } else {

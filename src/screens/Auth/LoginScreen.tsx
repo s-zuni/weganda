@@ -223,7 +223,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <Text
               style={styles.legalLink}
               onPress={() => {
-                const url = 'https://weganda.kr/terms';
+                const url = 'https://www.weganda.kr/terms';
                 if (Platform.OS === 'web' && typeof window !== 'undefined') {
                   window.open(url, '_blank');
                 } else {
@@ -239,7 +239,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <Text
               style={styles.legalLink}
               onPress={() => {
-                const url = 'https://weganda.kr/privacy';
+                const url = 'https://www.weganda.kr/privacy';
                 if (Platform.OS === 'web' && typeof window !== 'undefined') {
                   window.open(url, '_blank');
                 } else {

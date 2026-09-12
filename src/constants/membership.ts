@@ -79,14 +79,14 @@ export const IAP_SKUS = {
 export const STORE_SUBSCRIPTION_URLS = {
   ios: 'https://apps.apple.com/account/subscriptions',
   android: 'https://play.google.com/store/account/subscriptions',
-  web: 'https://weganda.kr/membership',
+  web: 'https://www.weganda.kr/membership',
 } as const;
 
 export const IAP_CONFIG = {
   subscriptionSku: IAP_SKUS.MONTHLY_EARLYBIRD,
   trialPeriodDays: 30,
-  storeTermsUrl: 'https://weganda.kr/membership',
-  privacyUrl: 'https://weganda.kr/privacy',
+  storeTermsUrl: 'https://www.weganda.kr/membership',
+  privacyUrl: 'https://www.weganda.kr/privacy',
 } as const;
 
 // 출시일 기준 기본 이벤트 일정 계산 함수 (2026-09-11 기준)

@@ -307,7 +307,7 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
                 <View style={[styles.legalRow, { marginTop: 4 }]}>
                   <TouchableOpacity
                     onPress={() => {
-                      const url = 'https://weganda.kr/membership';
+                      const url = 'https://www.weganda.kr/membership';
                       if (Platform.OS === 'web' && typeof window !== 'undefined') {
                         window.open(url, '_blank');
                       } else {
@@ -322,7 +322,7 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
                   <Text style={styles.legalDot}>•</Text>
                   <TouchableOpacity
                     onPress={() => {
-                      const url = 'https://weganda.kr/privacy';
+                      const url = 'https://www.weganda.kr/privacy';
                       if (Platform.OS === 'web' && typeof window !== 'undefined') {
                         window.open(url, '_blank');
                       } else {

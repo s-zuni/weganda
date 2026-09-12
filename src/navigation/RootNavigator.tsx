@@ -8,7 +8,7 @@ import BottomTabNavigator from './BottomTabNavigator';
 const Stack = createNativeStackNavigator();
 
 const linking: LinkingOptions<any> = {
-  prefixes: ['weganda://', 'https://weganda.app', 'https://weganda.kr'],
+  prefixes: ['weganda://', 'https://weganda.app', 'https://weganda.kr', 'https://www.weganda.kr'],
   config: {
     screens: {
       Main: {
