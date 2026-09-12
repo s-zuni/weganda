@@ -44,7 +44,7 @@ workflows:
             --type IOS_APP_STORE \
             --create
           keychain add-certificates
-      - name: 4. Install CocoaPods Dependencies
+      - name: 4. Install CocoaPods Dependencies & Prebuild JSI Frameworks
         script: |
           set -e
           cd ios
@@ -52,8 +52,16 @@ workflows:
           pod --version
           echo "=== Installing CocoaPods Dependencies ==="
           pod install --repo-update
-          echo "=== Files in ios after pod install ==="
-          ls -la
+          cd ..
+          
+          echo "=== Prebuilding ExpoModulesJSI xcframework for iPhoneOS ==="
+          export PODS_ROOT="$(pwd)/ios/Pods"
+          export PLATFORM_NAME="iphoneos"
+          chmod +x node_modules/expo-modules-jsi/apple/scripts/*.sh
+          ./node_modules/expo-modules-jsi/apple/scripts/build-xcframework.sh
+          
+          echo "=== Checking ExpoModulesJSI Products ==="
+          ls -la node_modules/expo-modules-jsi/apple/Products/ExpoModulesJSI.xcframework
       - name: 5. Build iOS IPA (App Store Distribution)
         script: |
           export LC_ALL=en_US.UTF-8
@@ -83,7 +91,8 @@ workflows:
             xcode-project use-profiles
             xcode-project build-ipa \
               --workspace "ios/$WORKSPACE_NAME" \
-              --scheme "$SCHEME_NAME"
+              --scheme "$SCHEME_NAME" \
+              --archive-xcargs "ENABLE_USER_SCRIPT_SANDBOXING=NO"
           elif [ -n "$PROJECT_NAME" ]; then
             echo "=========================================="
             echo "Found Project:   ios/$PROJECT_NAME"
@@ -100,7 +109,8 @@ workflows:
             xcode-project use-profiles
             xcode-project build-ipa \
               --project "ios/$PROJECT_NAME" \
-              --scheme "$SCHEME_NAME"
+              --scheme "$SCHEME_NAME" \
+              --archive-xcargs "ENABLE_USER_SCRIPT_SANDBOXING=NO"
           else
             echo "Error: Neither .xcworkspace nor .xcodeproj found in ios directory!"
             exit 1
