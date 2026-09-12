@@ -13,8 +13,6 @@ workflows:
         - app_store_credentials # Codemagic UI의 Environment variables 그룹
       vars:
         BUNDLE_ID: "com.weganda.app"
-        XCODE_WORKSPACE: "ios/weganda.xcworkspace"
-        XCODE_SCHEME: "weganda"
         EXPO_PUBLIC_APP_ENV: "production"
         EXPO_PUBLIC_SUPABASE_URL: "https://vegtlnhgfjxdntnxbztb.supabase.co"
         EXPO_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ3RsbmhnZmp4ZG50bnhienRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NjU2NzUsImV4cCI6MjEwNDE0MTY3NX0.BouXAkcbuwwUvIBWxpP6Rxs7BhzN9evcEQMJiIwqo2g"
@@ -51,9 +49,15 @@ workflows:
           cd ..
       - name: 5. Build iOS IPA (App Store Distribution)
         script: |
+          WORKSPACE=$(find ios -maxdepth 1 -name "*.xcworkspace" | head -n 1)
+          SCHEME=$(xcode-project list-schemes --workspace "$WORKSPACE" | head -n 1)
+          echo "=========================================="
+          echo "Found Workspace: $WORKSPACE"
+          echo "Found Scheme:    $SCHEME"
+          echo "=========================================="
           xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
-            --scheme "$XCODE_SCHEME"
+            --workspace "$WORKSPACE" \
+            --scheme "$SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
