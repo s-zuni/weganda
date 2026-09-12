@@ -15,7 +15,7 @@ interface AdminLoginViewProps {
   onGoHome?: () => void;
 }
 
-const VALID_PASSCODES = ['3075', 'weganda2026!', 'admin', 'szuni', '1234'];
+const ADMIN_PASSCODE = 'lsj103820@';
 
 export const AdminLoginView: React.FC<AdminLoginViewProps> = ({
   onSuccess,
@@ -48,27 +48,20 @@ export const AdminLoginView: React.FC<AdminLoginViewProps> = ({
     const trimmed = password.trim();
 
     if (!trimmed) {
-      setError('관리자 비밀번호를 입력해주세요.');
+      setError('관리자 패스코드를 입력해주세요.');
       return;
     }
 
     setIsSubmitting(true);
 
     setTimeout(() => {
-      if (VALID_PASSCODES.includes(trimmed.toLowerCase())) {
+      if (trimmed === ADMIN_PASSCODE) {
         handleGrantAdminAccess();
       } else {
-        setError('비밀번호가 올바르지 않습니다. (기본 패스코드: 3075)');
+        setError('비밀번호가 일치하지 않습니다. 다시 확인해주세요.');
         setIsSubmitting(false);
       }
     }, 300);
-  };
-
-  const handleQuickLogin = () => {
-    setIsSubmitting(true);
-    setTimeout(() => {
-      handleGrantAdminAccess();
-    }, 200);
   };
 
   return (
@@ -89,12 +82,12 @@ export const AdminLoginView: React.FC<AdminLoginViewProps> = ({
 
         {/* 폼 영역 */}
         <View style={styles.formSection}>
-          <Text style={styles.inputLabel}>관리자 비밀번호 (패스코드)</Text>
+          <Text style={styles.inputLabel}>관리자 패스코드</Text>
 
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.input}
-              placeholder="패스코드를 입력하세요 (예: 3075)"
+              placeholder="관리자 패스코드를 입력하세요"
               placeholderTextColor="#64748B"
               secureTextEntry={!showPassword}
               value={password}
@@ -130,24 +123,6 @@ export const AdminLoginView: React.FC<AdminLoginViewProps> = ({
             ) : (
               <Text style={styles.primaryBtnText}>관리자 콘솔 로그인</Text>
             )}
-          </TouchableOpacity>
-
-          {/* 구분선 */}
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>또는</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* 원클릭 빠른 접속 버튼 */}
-          <TouchableOpacity
-            style={styles.quickBtn}
-            onPress={handleQuickLogin}
-            disabled={isSubmitting}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.quickBtnIcon}>⚡</Text>
-            <Text style={styles.quickBtnText}>관리자 원클릭 바로 접속</Text>
           </TouchableOpacity>
         </View>
 
@@ -254,7 +229,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   formSection: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   inputLabel: {
     fontSize: 13,
@@ -314,47 +289,12 @@ const styles = StyleSheet.create({
   btnDisabled: {
     opacity: 0.6,
   },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 18,
-    gap: 12,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#334155',
-  },
-  dividerText: {
-    color: '#64748B',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  quickBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0F172A',
-    borderRadius: 14,
-    height: 48,
-    borderWidth: 1,
-    borderColor: '#475569',
-    gap: 8,
-  },
-  quickBtnIcon: {
-    fontSize: 15,
-  },
-  quickBtnText: {
-    color: '#F1F5F9',
-    fontSize: 14,
-    fontWeight: '700',
-  },
   footer: {
     alignItems: 'center',
-    paddingTop: 12,
+    paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: '#334155',
-    gap: 10,
+    gap: 12,
   },
   homeLink: {
     paddingVertical: 4,
@@ -370,4 +310,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
