@@ -1,0 +1,99 @@
+workflows:
+  # ══════════════════════════════════════════════════════════════════════════════
+  # 🍎 1. iOS App Store & TestFlight 자동화 워크플로우 (Mac 없이 Windows에서 배포)
+  # ══════════════════════════════════════════════════════════════════════════════
+  ios-app-store:
+    name: Weganda iOS App Store & TestFlight Production
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      groups:
+        - app_store_credentials # Codemagic UI의 Environment variables 그룹
+      vars:
+        BUNDLE_ID: "com.weganda.app"
+        XCODE_WORKSPACE: "ios/weganda.xcworkspace"
+        XCODE_SCHEME: "weganda"
+        EXPO_PUBLIC_APP_ENV: "production"
+        EXPO_PUBLIC_SUPABASE_URL: "https://vegtlnhgfjxdntnxbztb.supabase.co"
+        EXPO_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ3RsbmhnZmp4ZG50bnhienRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NjU2NzUsImV4cCI6MjEwNDE0MTY3NX0.BouXAkcbuwwUvIBWxpP6Rxs7BhzN9evcEQMJiIwqo2g"
+      node: 20.18.0
+      xcode: 16.0
+      cocoapods: default
+    triggering:
+      events:
+        - push
+        - tag
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+    scripts:
+      - name: 1. Install Node Dependencies
+        script: |
+          npm ci --legacy-peer-deps
+      - name: 2. Expo Prebuild (Generate Native iOS Project)
+        script: |
+          npx expo prebuild --platform ios --clean
+      - name: 3. Set up Apple Code Signing via App Store Connect API
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
+      - name: 4. Install CocoaPods Dependencies
+        script: |
+          cd ios
+          pod install
+          cd ..
+      - name: 5. Build iOS IPA (App Store Distribution)
+        script: |
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration # Codemagic Apple Developer Portal 연동 키 사용
+        submit_to_testflight: true
+        expire_build_submitted_for_review: true
+      email:
+        recipients:
+          - zxzx729@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  # ══════════════════════════════════════════════════════════════════════════════
+  # 🤖 2. Android Google Play AAB 자동화 워크플로우 (선택 사항: CI 클라우드 빌드)
+  # ══════════════════════════════════════════════════════════════════════════════
+  android-google-play:
+    name: Weganda Android Google Play Production
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      vars:
+        PACKAGE_NAME: "com.weganda.app"
+        EXPO_PUBLIC_APP_ENV: "production"
+        EXPO_PUBLIC_SUPABASE_URL: "https://vegtlnhgfjxdntnxbztb.supabase.co"
+        EXPO_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ3RsbmhnZmp4ZG50bnhienRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NjU2NzUsImV4cCI6MjEwNDE0MTY3NX0.BouXAkcbuwwUvIBWxpP6Rxs7BhzN9evcEQMJiIwqo2g"
+      node: 20.18.0
+      java: 17
+    scripts:
+      - name: 1. Install Node Dependencies
+        script: |
+          npm ci --legacy-peer-deps
+      - name: 2. Expo Prebuild (Generate Native Android Project)
+        script: |
+          npx expo prebuild --platform android --clean
+      - name: 3. Build Android App Bundle (AAB)
+        script: |
+          cd android
+          ./gradlew bundleRelease
+          cd ..
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+

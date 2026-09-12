@@ -27,6 +27,7 @@
         "NSRemindersUsageDescription": "임상 알람을 리마인더에 등록하기 위해 접근 권한이 필요합니다.",
         "NSPhotoLibraryUsageDescription": "근무표 이미지를 업로드하거나 커뮤니티 게시글에 사진을 첨부하기 위해 사진 접근 권한이 필요합니다.",
         "NSCameraUsageDescription": "근무표를 직접 촬영하여 OCR로 자동 입력하기 위해 카메라 접근 권한이 필요합니다.",
+        "NSContactsUsageDescription": "동료 간호사를 찾아 근무표를 공유하고 친구로 추가하기 위해 연락처 접근 권한이 필요합니다.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -47,6 +48,7 @@
         "android.permission.WRITE_CALENDAR",
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_CONTACTS",
         "android.permission.POST_NOTIFICATIONS"
       ]
     },
@@ -60,6 +62,12 @@
         "expo-calendar",
         {
           "calendarPermission": "근무표를 휴대폰 기본 캘린더에 동기화하기 위해 권한이 필요합니다."
+        }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "동료 간호사를 찾아 근무표를 공유하고 친구로 추가하기 위해 연락처 접근 권한이 필요합니다."
         }
       ],
       [
