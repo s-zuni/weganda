@@ -73,12 +73,12 @@ export const WeeklyCalendarStrip: React.FC<WeeklyCalendarStripProps> = ({ weekDa
 
 const styles = StyleSheet.create({
   weekCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 18,
     paddingVertical: 16,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -101,10 +101,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sundayLabel: {
-    color: '#EF4444',
+    color: COLORS.status.error,
   },
   saturdayLabel: {
-    color: '#3B82F6',
+    color: COLORS.status.info,
   },
   dateText: {
     fontSize: 15,
@@ -123,14 +123,14 @@ const styles = StyleSheet.create({
   },
   todaySubText: {
     fontSize: 9,
-    color: '#FFFFFF',
+    color: COLORS.background,
     fontWeight: '700',
     lineHeight: 10,
   },
   todayDateText: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: COLORS.background,
     lineHeight: 15,
   },
   shiftBadge: {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   shiftBadgeText: {
     fontSize: 13,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   emptyShiftSpace: {
     height: 28,

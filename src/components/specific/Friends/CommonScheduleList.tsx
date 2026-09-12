@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { CommonScheduleItem, CommonScheduleFilterType } from '../../../hooks/useCommonSchedules';
 
 interface CommonScheduleListProps {
@@ -169,9 +169,9 @@ export const CommonScheduleList: React.FC<CommonScheduleListProps> = ({
 const styles = StyleSheet.create({
   commonSection: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderBottomWidth: 8,
-    borderBottomColor: '#F4F5F7',
+    borderBottomColor: COLORS.divider,
   },
   commonHeaderRow: {
     marginBottom: 12,
@@ -195,9 +195,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
   },
   filterChipText: {
     fontSize: 12,
@@ -210,11 +210,11 @@ const styles = StyleSheet.create({
   commonCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#EEF2F6',
+    borderColor: COLORS.divider,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -225,20 +225,20 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 10,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: COLORS.offWhite,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: NEUTRAL.gray200,
     marginRight: 12,
   },
   sundayDateBox: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
+    backgroundColor: TINT_COLORS.redTint,
+    borderColor: TINT_COLORS.redTintBorder,
   },
   saturdayDateBox: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#BFDBFE',
+    backgroundColor: TINT_COLORS.blueTint,
+    borderColor: TINT_COLORS.blueTintBorder,
   },
   commonDateDay: {
     fontSize: 13,
@@ -251,10 +251,10 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   sundayText: {
-    color: '#EF4444',
+    color: COLORS.status.error,
   },
   saturdayText: {
-    color: '#3B82F6',
+    color: COLORS.status.info,
   },
   commonCardInfo: {
     flex: 1,
@@ -287,12 +287,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: NEUTRAL.gray100,
   },
   commonMemberPillText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#475569',
+    color: NEUTRAL.gray600,
   },
   commonShareBtn: {
     paddingVertical: 6,
@@ -309,13 +309,14 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FAFAFA',
+    backgroundColor: COLORS.offWhite,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: COLORS.divider,
   },
   commonEmptyText: {
     fontSize: 13,
     color: COLORS.textMuted,
   },
 });
+

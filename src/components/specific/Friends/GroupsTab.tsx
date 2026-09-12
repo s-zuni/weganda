@@ -10,7 +10,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import {
   PlusIcon,
   UsersIcon,
@@ -73,7 +73,7 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
             onPress={() => setCreateModalVisible(true)}
             activeOpacity={0.85}
           >
-            <PlusIcon size={14} color="#FFFFFF" />
+            <PlusIcon size={14} color={COLORS.background} />
             <Text style={[styles.emptyAddBtnText, { color: theme.onPrimaryText }]}>새 모임 만들기</Text>
           </TouchableOpacity>
         </View>
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   groupNoticeCard: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     borderRadius: 16,
     padding: 14,
     borderLeftWidth: 4,
@@ -183,11 +183,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   groupCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   groupCategoryBadge: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
@@ -247,11 +247,11 @@ const styles = StyleSheet.create({
   unreadBadgeText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   groupDivider: {
     height: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     marginVertical: 12,
   },
   groupBottomRow: {
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
@@ -284,10 +284,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 48,
     paddingHorizontal: 24,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.offWhite,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     borderStyle: 'dashed',
     marginVertical: 14,
   },
@@ -326,10 +326,10 @@ const styles = StyleSheet.create({
   emptyAddBtnText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   aiRecommendBtn: {
-    backgroundColor: '#FF507C',
+    backgroundColor: COLORS.primary,
     borderRadius: 16,
     paddingVertical: 15,
     paddingHorizontal: 20,
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   aiRecommendBtnLocked: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
   },
   aiRecommendContent: {
     flexDirection: 'row',
@@ -348,10 +348,10 @@ const styles = StyleSheet.create({
   aiRecommendText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   aiRecommendTextLocked: {
-    color: '#9CA3AF',
+    color: COLORS.textMuted,
   },
   smallCreateBtn: {
     paddingHorizontal: 10,

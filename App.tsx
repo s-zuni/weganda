@@ -57,6 +57,18 @@ export default function App() {
     return 'terms';
   });
 
+  // 스플래시 화면(3번 사진) 안정적 표출 타이머 (1.8초 보장)
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsSplashVisible(false);
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const showSplash = isLoading || isSplashVisible;
+
   useEffect(() => {
     // 1. 앱 기동 시 SecureStore에 저장된 세션 복원
     initializeAuth();
@@ -151,7 +163,7 @@ export default function App() {
 
   // ── 웹(Browser) 환경 렌더링 ──
   if (Platform.OS === 'web') {
-    if (isLoading) {
+    if (showSplash) {
       return (
         <SafeAreaProvider>
           <StatusBar style="dark" />
@@ -248,7 +260,7 @@ export default function App() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <ErrorBoundary>
-        {isLoading ? (
+        {showSplash ? (
           <SplashScreenView />
         ) : (
           <RootNavigator />

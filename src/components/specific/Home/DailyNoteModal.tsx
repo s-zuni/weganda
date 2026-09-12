@@ -8,7 +8,8 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
+import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 import { PencilIcon } from '../../common/Icon';
 import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 import { useDailyNoteStore } from '../../../store/useDailyNoteStore';
@@ -375,13 +376,13 @@ const styles = StyleSheet.create({
   sbarSummaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 20,
     gap: 4,
     borderWidth: 1,
-    borderColor: '#FFE4E6',
+    borderColor: TINT_COLORS.pinkTintBorder,
   },
   sbarSummaryBtnSparkle: {
     fontSize: 12,
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   sbarProBadge: {
-    backgroundColor: '#D4A853',
+    backgroundColor: PREMIUM_COLORS.gold,
     paddingHorizontal: 5,
     paddingVertical: 1.5,
     borderRadius: 4,

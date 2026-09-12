@@ -10,7 +10,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { nativeCalendarService } from '../../../services/nativeCalendarService';
@@ -125,7 +125,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
 
           {shiftInfo ? (
             <View style={[styles.shiftBlock, { backgroundColor: shiftInfo.color }]}>
-              <Text style={[styles.shiftBlockText, { color: shiftInfo.textColor || '#FFFFFF' }]}>
+              <Text style={[styles.shiftBlockText, { color: shiftInfo.textColor || COLORS.background }]}>
                 {shiftInfo.code === 'O' ? '🛏️' : shiftInfo.code}
               </Text>
             </View>
@@ -181,20 +181,20 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
 
             {/* ── 상단 듀티 통계 바 (마이듀티 레퍼런스 스타일) ── */}
             <View style={styles.topSummaryBar}>
-              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.D?.color || '#4F98CA' }]}>
+              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.D?.color || COLORS.shift.day }]}>
                 <Text style={styles.topSummaryBadgeText}>D {dutyCounts.D || 0}</Text>
               </View>
-              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.E?.color || '#E2703A' }]}>
+              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.E?.color || COLORS.shift.evening }]}>
                 <Text style={styles.topSummaryBadgeText}>E {dutyCounts.E || 0}</Text>
               </View>
-              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.N?.color || '#272727' }]}>
+              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.N?.color || COLORS.shift.night }]}>
                 <Text style={styles.topSummaryBadgeText}>N {dutyCounts.N || 0}</Text>
               </View>
-              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.O?.color || '#E84A5F' }]}>
+              <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.O?.color || COLORS.shift.off }]}>
                 <Text style={styles.topSummaryBadgeText}>🛏️ {totalOffCount}</Text>
               </View>
               {(dutyCounts.V || 0) > 0 && (
-                <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.V?.color || '#9B51E0' }]}>
+                <View style={[styles.topSummaryBadge, { backgroundColor: customCodes.V?.color || COLORS.shift.vacation }]}>
                   <Text style={styles.topSummaryBadgeText}>V {dutyCounts.V}</Text>
                 </View>
               )}
@@ -251,25 +251,25 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
               <Text style={styles.statsTitle}>{month + 1}월 듀티 총합</Text>
               <View style={styles.statsRow}>
                 <View style={styles.statBox}>
-                  <View style={[styles.statDot, { backgroundColor: customCodes.D?.color || '#4F98CA' }]} />
+                  <View style={[styles.statDot, { backgroundColor: customCodes.D?.color || COLORS.shift.day }]} />
                   <Text style={styles.statLabel}>Day</Text>
                   <Text style={styles.statValue}>{dutyCounts.D || 0}일</Text>
                 </View>
 
                 <View style={styles.statBox}>
-                  <View style={[styles.statDot, { backgroundColor: customCodes.E?.color || '#E2703A' }]} />
+                  <View style={[styles.statDot, { backgroundColor: customCodes.E?.color || COLORS.shift.evening }]} />
                   <Text style={styles.statLabel}>Eve</Text>
                   <Text style={styles.statValue}>{dutyCounts.E || 0}일</Text>
                 </View>
 
                 <View style={styles.statBox}>
-                  <View style={[styles.statDot, { backgroundColor: customCodes.N?.color || '#272727' }]} />
+                  <View style={[styles.statDot, { backgroundColor: customCodes.N?.color || COLORS.shift.night }]} />
                   <Text style={styles.statLabel}>Night</Text>
                   <Text style={styles.statValue}>{dutyCounts.N || 0}일</Text>
                 </View>
 
                 <View style={styles.statBox}>
-                  <View style={[styles.statDot, { backgroundColor: customCodes.O?.color || '#E84A5F' }]} />
+                  <View style={[styles.statDot, { backgroundColor: customCodes.O?.color || COLORS.shift.off }]} />
                   <Text style={styles.statLabel}>Off</Text>
                   <Text style={styles.statValue}>{totalOffCount}일</Text>
                 </View>
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     maxHeight: '92%',
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: COLORS.border,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 10,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: COLORS.divider,
   },
   headerTitle: {
     fontSize: 18,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -392,11 +392,11 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 10,
     paddingHorizontal: 8,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: COLORS.offWhite,
     borderRadius: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#EEF2F6',
+    borderColor: COLORS.divider,
   },
   topSummaryBadge: {
     paddingHorizontal: 10,
@@ -414,17 +414,17 @@ const styles = StyleSheet.create({
   topSummaryBadgeText: {
     fontSize: 12,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   weekHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 10,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.offWhite,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
   },
   weekHeaderText: {
     flex: 1,
@@ -434,10 +434,10 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   sundayText: {
-    color: '#EF4444',
+    color: COLORS.status.error,
   },
   saturdayText: {
-    color: '#3B82F6',
+    color: COLORS.status.info,
   },
   calendarGrid: {
     flexDirection: 'row',
@@ -445,11 +445,11 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     marginBottom: 8,
   },
   dayCell: {
@@ -461,19 +461,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#F3F4F6',
-    backgroundColor: '#FFFFFF',
+    borderColor: COLORS.divider,
+    backgroundColor: COLORS.cardBackground,
   },
   dayCellEmpty: {
     width: '14.285%',
     minHeight: 64,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#F3F4F6',
-    backgroundColor: '#FAFAFA',
+    borderColor: COLORS.divider,
+    backgroundColor: COLORS.offWhite,
   },
   dayCellSelected: {
-    backgroundColor: '#FFF0F3',
+    backgroundColor: TINT_COLORS.pinkTintSoft,
   },
   dateHeaderRow: {
     paddingHorizontal: 5,
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   todayNumberText: {
-    color: '#FFFFFF',
+    color: COLORS.background,
     fontWeight: '800',
   },
   shiftBlock: {
@@ -521,12 +521,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FAFAFA',
+    backgroundColor: COLORS.offWhite,
     borderRadius: 14,
     padding: 14,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
   },
   selectedDetailLeft: {
     gap: 2,
@@ -550,15 +550,15 @@ const styles = StyleSheet.create({
   editDateBtnText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   statsCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 16,
     padding: 16,
     marginTop: 14,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -595,9 +595,9 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   calendarSyncActionBtn: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: TINT_COLORS.pinkTintBorder,
     borderRadius: 16,
     paddingVertical: 14,
     alignItems: 'center',

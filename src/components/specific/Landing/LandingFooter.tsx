@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL } from '../../../constants/theme';
 import { LegalTabKey } from '../../../constants/legal';
 import { useResponsive } from '../../../utils/useResponsive';
 import { BUSINESS_INFO } from '../../../types/support';
@@ -118,9 +118,9 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({ onNavigateLegal })
 const styles = StyleSheet.create({
   footerContainer: {
     width: '100%',
-    backgroundColor: '#090D16',
+    backgroundColor: NEUTRAL.gray950,
     borderTopWidth: 1,
-    borderTopColor: '#1E293B',
+    borderTopColor: NEUTRAL.gray800,
     paddingVertical: 64,
     paddingHorizontal: 24,
     alignItems: 'center',
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   brandSubtitle: {
     fontSize: 14,
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   brandDesc: {
     fontSize: 14,
     lineHeight: 22,
-    color: '#94A3B8',
+    color: NEUTRAL.gray400,
   },
   linksGrid: {
     flexDirection: 'row',
@@ -191,21 +191,21 @@ const styles = StyleSheet.create({
   linksHeader: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: COLORS.background,
     marginBottom: 4,
   },
   linkText: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: NEUTRAL.gray400,
   },
   linkBold: {
     fontWeight: '700',
-    color: '#E2E8F0',
+    color: NEUTRAL.gray200,
   },
   bottomRow: {
     paddingTop: 28,
     borderTopWidth: 1,
-    borderTopColor: '#1E293B',
+    borderTopColor: NEUTRAL.gray800,
     flexDirection: Platform.OS === 'web' ? 'row' : 'column',
     justifyContent: 'space-between',
     alignItems: Platform.OS === 'web' ? 'center' : 'flex-start',
@@ -214,11 +214,11 @@ const styles = StyleSheet.create({
   legalInfo: {
     fontSize: 12,
     lineHeight: 18,
-    color: '#64748B',
+    color: NEUTRAL.gray500,
   },
   copyrightText: {
     fontSize: 12,
-    color: '#475569',
+    color: NEUTRAL.gray600,
     fontWeight: '600',
   },
 });

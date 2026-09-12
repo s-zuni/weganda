@@ -120,6 +120,40 @@ export function getAppTheme(color: AppThemeColor = 'pink'): ThemeColors {
 
 export { useAppTheme } from '../hooks/useAppTheme';
 
+// 테마 비의존적 뉴트럴(슬레이트) 스케일 — 다크 푸터, 보조 텍스트 등에 사용
+export const NEUTRAL = {
+  gray50: '#F9FAFB',
+  gray100: '#F1F5F9',
+  gray200: '#E2E8F0',
+  gray300: '#CBD5E1',
+  gray400: '#94A3B8',
+  gray500: '#64748B',
+  gray600: '#475569',
+  gray700: '#334155',
+  gray800: '#1E293B',
+  gray900: '#0F172A',
+  gray950: '#090D16',
+} as const;
+
+// 상태/배지용 보조 틴트 컬러 (테마 비의존적)
+export const TINT_COLORS = {
+  pinkTint: '#FFF1F4',
+  pinkTintBorder: '#FFE4E6',
+  pinkTintSoft: '#FFF0F3',
+  redTint: '#FEF2F2',
+  redTintBorder: '#FECACA',
+  blueTint: '#EFF6FF',
+  blueTintBorder: '#BFDBFE',
+  orangeTint: '#FFF7ED',
+  orangeAccent: '#F97316',
+  greenTint: '#F0FDF4',
+  greenTintBorder: '#86EFAC',
+  greenTintStrong: '#DCFCE7',
+  greenTextDark: '#14532D',
+  greenTextMid: '#166534',
+  greenIcon: '#16A34A',
+} as const;
+
 
 export const TYPOGRAPHY = {
   // [대주제] 메인 헤딩, 히어로 수치/코드, 화면 최상단 타이틀

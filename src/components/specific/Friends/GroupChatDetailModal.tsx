@@ -8,7 +8,7 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { GroupChat } from '../../../mocks/friendsData';
 import { CalendarIcon, SendIcon, UsersIcon } from '../../common/Icon';
@@ -197,7 +197,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                       </View>
 
                       {member.monthlyShifts.map((s) => {
-                        const shiftColor = SHIFT_TYPES[s.shift]?.color || '#9CA3AF';
+                        const shiftColor = SHIFT_TYPES[s.shift]?.color || COLORS.textMuted;
                         return (
                           <View
                             key={`shift_${member.id}_${s.day}`}
@@ -220,19 +220,19 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
             {/* 범례 */}
             <View style={styles.legendRow}>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#4F98CA' }]} />
+                <View style={[styles.legendDot, { backgroundColor: COLORS.shift.day }]} />
                 <Text style={styles.legendText}>Day</Text>
               </View>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#E2703A' }]} />
+                <View style={[styles.legendDot, { backgroundColor: COLORS.shift.evening }]} />
                 <Text style={styles.legendText}>Evening</Text>
               </View>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#272727' }]} />
+                <View style={[styles.legendDot, { backgroundColor: COLORS.shift.night }]} />
                 <Text style={styles.legendText}>Night</Text>
               </View>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#E84A5F' }]} />
+                <View style={[styles.legendDot, { backgroundColor: COLORS.shift.off }]} />
                 <Text style={styles.legendText}>Off</Text>
               </View>
             </View>
@@ -298,7 +298,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                 onPress={handleSendMessage}
                 disabled={!messageText.trim()}
               >
-                <SendIcon size={18} color={messageText.trim() ? theme.onPrimaryText : '#9CA3AF'} />
+                <SendIcon size={18} color={messageText.trim() ? theme.onPrimaryText : COLORS.textMuted} />
               </TouchableOpacity>
             </View>
           </View>
@@ -311,7 +311,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
   },
   header: {
     flexDirection: 'row',
@@ -321,8 +321,8 @@ const styles = StyleSheet.create({
     paddingTop: 54,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: COLORS.divider,
+    backgroundColor: COLORS.cardBackground,
   },
   backBtnText: {
     fontSize: 16,
@@ -346,10 +346,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.offWhite,
     gap: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: COLORS.divider,
   },
   tabBtn: {
     flex: 1,
@@ -358,10 +358,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     gap: 6,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
   },
   tabBtnActive: {
     backgroundColor: COLORS.primary,
@@ -373,11 +373,11 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   tabTextActive: {
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   matrixScroll: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
   },
   matrixContent: {
     paddingHorizontal: 16,
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   goldenOffCard: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     borderRadius: 16,
     padding: 14,
     borderLeftWidth: 4,
@@ -423,11 +423,11 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   tableCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 16,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: COLORS.divider,
     paddingVertical: 6,
   },
   memberColHeader: {
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderLeftWidth: 0.5,
-    borderLeftColor: '#F3F4F6',
+    borderLeftColor: COLORS.divider,
   },
   dayHeaderText: {
     fontSize: 12,
@@ -471,10 +471,10 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   sundayText: {
-    color: '#EF4444',
+    color: COLORS.status.error,
   },
   saturdayText: {
-    color: '#3B82F6',
+    color: COLORS.status.info,
   },
   memberCol: {
     width: 78,
@@ -507,10 +507,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderLeftWidth: 0.5,
-    borderLeftColor: '#F3F4F6',
+    borderLeftColor: COLORS.divider,
   },
   offCellHighlight: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
   },
   shiftBadge: {
     width: 36,
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   shiftBadgeText: {
     fontSize: 13,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   legendRow: {
     flexDirection: 'row',
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: COLORS.offWhite,
   },
   chatScroll: {
     flex: 1,
@@ -589,9 +589,9 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   bubbleOther: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
@@ -599,7 +599,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   bubbleTextMe: {
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   bubbleTextOther: {
     color: COLORS.textPrimary,
@@ -616,13 +616,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
+    borderTopColor: COLORS.border,
+    backgroundColor: COLORS.cardBackground,
     gap: 10,
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sendBtnDisabled: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: COLORS.border,
   },
 });
 

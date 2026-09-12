@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BUSINESS_INFO } from '../../../types/support';
+import { NEUTRAL } from '../../../constants/theme';
 
 interface MyPageFooterSectionProps {
   onOpenSupport: () => void;
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: NEUTRAL.gray100,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
   bottomSupportBtnText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#334155',
+    color: NEUTRAL.gray700,
   },
   footerActionsRow: {
     flexDirection: 'row',
@@ -106,26 +107,27 @@ const styles = StyleSheet.create({
   footerBusinessText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: NEUTRAL.gray600,
   },
   footerLogoutText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#64748B',
+    color: NEUTRAL.gray500,
   },
   footerDeleteText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#94A3B8',
+    color: NEUTRAL.gray400,
     textDecorationLine: 'underline',
   },
   footerDot: {
-    color: '#CBD5E1',
+    color: NEUTRAL.gray300,
     fontSize: 12,
   },
   copyrightText: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: NEUTRAL.gray400,
     textAlign: 'center',
   },
 });
+

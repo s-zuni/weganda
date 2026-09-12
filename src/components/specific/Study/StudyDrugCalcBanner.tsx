@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS } from '../../../constants/theme';
-import { CalculatorIcon } from '../../common/Icon';
 
 interface StudyDrugCalcBannerProps {
   onPress: () => void;
@@ -15,9 +14,6 @@ export const StudyDrugCalcBanner: React.FC<StudyDrugCalcBannerProps> = ({ onPres
       activeOpacity={0.85}
     >
       <View style={styles.calcCardLeft}>
-        <View style={styles.calcIconWrapper}>
-          <CalculatorIcon size={22} color="#FFFFFF" />
-        </View>
         <View style={styles.calcTexts}>
           <Text style={styles.calcTitle}>🧮 임상 약물 gtt / cc 계산기</Text>
           <Text style={styles.calcSub}>승압제 · 수액 처방 용량(mcg) ↔ 주입 속도 환산</Text>
@@ -50,16 +46,7 @@ const styles = StyleSheet.create({
   calcCardLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
     flex: 1,
-  },
-  calcIconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   calcTexts: {
     flex: 1,

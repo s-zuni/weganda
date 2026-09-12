@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { InquiryCategory } from '../../../types/support';
 
 interface MyPageSupportSectionProps {
@@ -60,11 +60,11 @@ export const MyPageSupportSection: React.FC<MyPageSupportSectionProps> = ({ onOp
 
 const styles = StyleSheet.create({
   sectionCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -81,12 +81,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFF1F2',
+    backgroundColor: TINT_COLORS.pinkTintSoft,
     padding: 14,
     borderRadius: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#FFE4E6',
+    borderColor: TINT_COLORS.pinkTintBorder,
   },
   supportBannerLeft: {
     flexDirection: 'row',
@@ -100,12 +100,12 @@ const styles = StyleSheet.create({
   supportBannerTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#0F172A',
+    color: NEUTRAL.gray900,
     marginBottom: 2,
   },
   supportBannerSubtitle: {
     fontSize: 11,
-    color: '#64748B',
+    color: NEUTRAL.gray500,
   },
   supportBannerArrow: {
     fontSize: 12,
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   },
   policyDivider: {
     height: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
   },
   policyRow: {
     flexDirection: 'row',
@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
   policyArrow: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#9CA3AF',
+    color: COLORS.textMuted,
   },
 });
+

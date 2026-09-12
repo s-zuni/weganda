@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { COLORS, TINT_COLORS } from '../../../constants/theme';
+import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 
 interface MyPageBurnoutBannerProps {
   onPress: () => void;
@@ -40,11 +42,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F0FDF4',
+    backgroundColor: TINT_COLORS.greenTint,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1.5,
-    borderColor: '#86EFAC',
+    borderColor: TINT_COLORS.greenTintBorder,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -61,7 +63,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#DCFCE7',
+    backgroundColor: TINT_COLORS.greenTintStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -80,21 +82,21 @@ const styles = StyleSheet.create({
   burnoutBannerTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#14532D',
+    color: TINT_COLORS.greenTextDark,
   },
   burnoutBannerSub: {
     fontSize: 12,
-    color: '#166534',
+    color: TINT_COLORS.greenTextMid,
     lineHeight: 16,
   },
   burnoutBannerArrow: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#16A34A',
+    color: TINT_COLORS.greenIcon,
     marginLeft: 8,
   },
   proTagSmall: {
-    backgroundColor: '#D4A853',
+    backgroundColor: PREMIUM_COLORS.gold,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -102,6 +104,7 @@ const styles = StyleSheet.create({
   proTagSmallText: {
     fontSize: 10,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
 });
+

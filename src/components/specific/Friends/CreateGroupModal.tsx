@@ -10,7 +10,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme } from '../../../constants/theme';
 import { FriendDetail } from '../../../types/friends';
 
 interface CreateGroupModalProps {
@@ -81,7 +81,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
               value={groupName}
               onChangeText={setGroupName}
               placeholder="예: 51병동 동기방, 중환자실 나이트방"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={COLORS.textMuted}
             />
           </View>
 
@@ -166,7 +166,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 56 : 20,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: COLORS.divider,
   },
   modalCloseText: {
     fontSize: 16,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#111827',
+    color: COLORS.textPrimary,
   },
   modalDoneText: {
     fontSize: 16,
@@ -204,15 +204,15 @@ const styles = StyleSheet.create({
   inputSectionTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#111827',
+    color: COLORS.textPrimary,
   },
   textInput: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#111827',
+    color: COLORS.textPrimary,
   },
   categoryRow: {
     flexDirection: 'row',
@@ -223,18 +223,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
   },
   categoryChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#4B5563',
+    color: NEUTRAL.gray600,
   },
   emptyFriendsNotice: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: COLORS.textMuted,
     fontStyle: 'italic',
     paddingVertical: 8,
   },
@@ -247,9 +247,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 12,
     borderRadius: 14,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.offWhite,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
   },
   memberSelectLeft: {
     flexDirection: 'row',
@@ -267,16 +267,16 @@ const styles = StyleSheet.create({
   memberAvatarText: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   memberSelectName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#111827',
+    color: COLORS.textPrimary,
   },
   memberSelectRole: {
     fontSize: 12,
-    color: '#6B7280',
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   checkbox: {
@@ -284,13 +284,13 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 6,
     borderWidth: 1.5,
-    borderColor: '#D1D5DB',
-    backgroundColor: '#FFFFFF',
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.cardBackground,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxCheck: {
-    color: '#FFFFFF',
+    color: COLORS.background,
     fontSize: 12,
     fontWeight: '900',
   },

@@ -17,6 +17,11 @@
       "bundleIdentifier": "com.weganda.app",
       "buildNumber": "1",
       "usesAppleSignIn": true,
+      "splash": {
+        "image": "./src/assets/splash.png",
+        "backgroundColor": "#FFFFFF",
+        "resizeMode": "contain"
+      },
       "infoPlist": {
         "NSCalendarsUsageDescription": "근무표를 스마트폰 기본 캘린더에 동기화하기 위해 캘린더 접근 권한이 필요합니다.",
         "NSRemindersUsageDescription": "임상 알람을 리마인더에 등록하기 위해 접근 권한이 필요합니다.",
@@ -28,6 +33,11 @@
     "android": {
       "package": "com.weganda.app",
       "versionCode": 1,
+      "splash": {
+        "image": "./src/assets/splash.png",
+        "backgroundColor": "#FFFFFF",
+        "resizeMode": "contain"
+      },
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
