@@ -93,6 +93,9 @@ workflows:
             echo "Found Scheme:    $SCHEME_NAME"
             echo "=========================================="
             cd ..
+            # Safeguard: ensure ExpoContacts is built from source and not using cached infected xcframework
+            rm -rf ios/Pods/ExpoContacts/ExpoContacts.xcframework 2>/dev/null || true
+            rm -rf ios/Pods/ExpoContacts/artifacts 2>/dev/null || true
             xcode-project use-profiles
             xcode-project build-ipa \
               --workspace "ios/$WORKSPACE_NAME" \
