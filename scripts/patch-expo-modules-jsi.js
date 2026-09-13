@@ -68,3 +68,4 @@ if (fs.existsSync(contactsPodspec)) {
 }
 
 console.log('=== Expo & Xcode 16.2 Compatibility Patches Complete ===');
+

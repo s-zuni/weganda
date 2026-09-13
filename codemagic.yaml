@@ -35,9 +35,22 @@ workflows:
         script: |
           npm ci --legacy-peer-deps
           node scripts/patch-expo-modules-jsi.js
-      - name: 2. Expo Prebuild (Generate Native iOS Project)
+      - name: 2. Expo Prebuild & Auto-Increment Build Number
         script: |
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" 2>/dev/null || echo 0)
+          if [ -n "$LATEST_BUILD_NUMBER" ] && [ "$LATEST_BUILD_NUMBER" -ge 1 ] 2>/dev/null; then
+            export NEW_BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
+          else
+            export NEW_BUILD_NUMBER=${BUILD_NUMBER:-2}
+          fi
+          echo "=========================================="
+          echo "Current TestFlight Build: $LATEST_BUILD_NUMBER"
+          echo "Setting New Build Number: $NEW_BUILD_NUMBER"
+          echo "=========================================="
+          node -e "const fs = require('fs'); const app = JSON.parse(fs.readFileSync('app.json', 'utf8')); app.expo.ios.buildNumber = String(process.env.NEW_BUILD_NUMBER); fs.writeFileSync('app.json', JSON.stringify(app, null, 2));"
           npx expo prebuild --platform ios --clean
+          cd ios && agvtool new-version -all "$NEW_BUILD_NUMBER" 2>/dev/null || true
+          cd ..
       - name: 3. Set up Apple Code Signing via App Store Connect API
         script: |
           keychain initialize
