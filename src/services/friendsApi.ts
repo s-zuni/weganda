@@ -176,7 +176,9 @@ export const friendsApi = {
   // 친구 월간 스케줄 조회 (FR7 - RLS 적용)
   async getFriendSchedule(friendUserId: string, yearMonth: string) {
     const startDate = `${yearMonth}-01`;
-    const endDate = `${yearMonth}-31`;
+    const [y, m] = yearMonth.split('-').map(Number);
+    const lastDay = new Date(y, m, 0).getDate();
+    const endDate = `${yearMonth}-${String(lastDay).padStart(2, '0')}`;
 
     const { data, error } = await supabase
       .from('schedules')
