@@ -78,8 +78,9 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
 
   // 특정 월의 스케줄 DB에서 불러오기
   fetchMonthlySchedule: async (userId?: string, yearMonth?: string) => {
-    // userId가 없으면(게스트 또는 미로그인) 쿼리를 실행하지 않고 조기 리턴하여 개발자/타인 데이터 오염 방지
-    if (!userId) {
+    // userId가 없거나 게스트/모의 계정이면 원격 DB 조회를 스킵하여 불필요한 네트워크 에러 배너 방지
+    if (!userId || userId.startsWith('guest_') || userId.startsWith('mock_') || userId === 'user_1') {
+      set({ isLoading: false, error: null });
       return;
     }
 

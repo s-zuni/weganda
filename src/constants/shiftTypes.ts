@@ -28,7 +28,7 @@ export const SHIFT_TYPES: Record<string, ShiftInfo> = {
   E: {
     code: 'E',
     name: '이브닝 (Evening)',
-    shortName: '이브ニング',
+    shortName: '이브닝',
     color: '#E2703A',
     textColor: '#FFFFFF',
     defaultStartTime: '15:00',

@@ -41,8 +41,8 @@ export const WeeklyCalendarStrip: React.FC<WeeklyCalendarStripProps> = ({ weekDa
 
   // 카드 내부 좌우 패딩: 12 * 2 = 24
   const innerWidth = containerWidth > 0 ? containerWidth - 24 : Dimensions.get('window').width - 64;
-  // 항상 정확히 7일이 한 화면에 꼭 맞게 보이도록 너비 계산
-  const itemWidth = Math.floor(innerWidth / 7);
+  // 항상 정확히 7일이 한 화면에 꼭 맞게 균등 분할되도록 너비 계산
+  const itemWidth = innerWidth / 7;
 
   // 오늘이 정중앙(7개 중 4번째인 index 3)에 위치하도록 스크롤 오프셋 산출
   const getTodayScrollX = () => {

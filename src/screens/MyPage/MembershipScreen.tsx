@@ -6,11 +6,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   Platform,
   Linking,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import {
@@ -123,7 +123,7 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
       transparent={false}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         {/* 상단 정갈한 Toss 스타일 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity

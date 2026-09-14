@@ -40,9 +40,9 @@ const styles = StyleSheet.create({
   },
   schedulePillBtn: {
     flex: 1,
+    height: 48,
     backgroundColor: COLORS.primary,
-    paddingVertical: 14,
-    borderRadius: 25,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: COLORS.primary,

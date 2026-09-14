@@ -12,6 +12,7 @@ import {
   Platform,
   Linking,
   BackHandler,
+  StatusBar,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, TINT_COLORS, NEUTRAL } from '../../../constants/theme';
@@ -234,7 +235,19 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
         style={styles.container}
       >
         {/* 헤더 */}
-        <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) + 8 }]}>
+        <View
+          style={[
+            styles.header,
+            {
+              paddingTop:
+                Platform.OS === 'web'
+                  ? 16
+                  : (Platform.OS === 'android'
+                      ? Math.max(StatusBar.currentHeight || 0, insets.top)
+                      : insets.top) + 10,
+            },
+          ]}
+        >
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={[styles.backText, { color: theme.primary }]}>‹ 닫기</Text>
           </TouchableOpacity>

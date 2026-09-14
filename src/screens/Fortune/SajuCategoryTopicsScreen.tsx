@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useFortuneStore } from '../../store/useFortuneStore';
@@ -82,7 +82,7 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* 상단 네비게이션 헤더 */}

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   View,
   Text,
   ScrollView,
@@ -10,6 +9,7 @@ import {
   Share,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useFortuneStore } from '../../store/useFortuneStore';
@@ -144,7 +144,7 @@ export const SajuDetailResultScreen: React.FC = () => {
 
   if (!currentManseryeokAnalysis || !currentManseryeokReport) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
           <Text style={styles.errorTitle}>분석 결과가 없습니다</Text>
@@ -227,7 +227,7 @@ export const SajuDetailResultScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* 상단 네비게이션 헤더 */}

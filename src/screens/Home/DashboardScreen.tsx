@@ -141,7 +141,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   }, [schedules, customCodes, todayKey]);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={[]}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <AppHeader />
 

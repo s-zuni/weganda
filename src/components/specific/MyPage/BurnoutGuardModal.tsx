@@ -6,9 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme } from '../../../constants/theme';
 import { useBurnoutStore } from '../../../store/useBurnoutStore';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
@@ -60,7 +60,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>

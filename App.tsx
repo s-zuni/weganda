@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Platform, AppState, AppStateStatus, Text, TextInput } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 
 // 안드로이드 및 iOS 환경에서 시스템 글자 크기(Font Scaling) 과도한 확대 방지 (가독성 유지 한계치 1.08)
 if ((Text as any).defaultProps == null) (Text as any).defaultProps = {};
@@ -238,7 +238,7 @@ export default function App() {
 
     if (currentWebRoute === 'landing') {
       return (
-        <SafeAreaProvider>
+        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
           <StatusBar style="dark" />
           <ErrorBoundary>
             <LandingScreen
@@ -265,7 +265,7 @@ export default function App() {
 
   // ── 모바일 앱(iOS / Android) 환경 렌더링 ──
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <StatusBar style="dark" />
       <ErrorBoundary>
         {showSplash ? (

@@ -78,13 +78,22 @@ export const ShiftGridRow: React.FC<ShiftGridRowProps> = ({
                 </View>
               )}
             </View>
-            <Text style={styles.cardTimeText} numberOfLines={1}>
-              {todayShiftInfo?.defaultStartTime && todayShiftInfo?.defaultEndTime
-                ? `${todayShiftInfo.defaultStartTime} - ${todayShiftInfo.defaultEndTime}`
-                : todayShift === 'O' || todayShift === 'V'
-                ? '오늘 편안한 휴무!'
-                : '근무표를 등록해 주세요'}
-            </Text>
+            <View style={styles.todayTextGroup}>
+              <Text style={styles.cardTimeText} numberOfLines={1}>
+                {todayShiftInfo?.defaultStartTime && todayShiftInfo?.defaultEndTime
+                  ? `${todayShiftInfo.defaultStartTime} - ${todayShiftInfo.defaultEndTime}`
+                  : todayShift === 'O' || todayShift === 'V'
+                  ? '오늘 편안한 휴무!'
+                  : '근무표를 등록해 주세요'}
+              </Text>
+              <View style={[styles.todayStatusBadge, { backgroundColor: theme.primaryLight + '20' }]}>
+                <Text style={[styles.todayStatusText, { color: theme.primary }]} numberOfLines={1}>
+                  {todayShift
+                    ? (todayShift === 'O' || todayShift === 'V' ? '☕ 휴식 & 충전' : '🩺 환자 간호 중')
+                    : '📅 듀티 미등록'}
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
         <TouchableOpacity
@@ -195,10 +204,11 @@ const styles = StyleSheet.create({
   },
   // ── 오늘 카드: 코랄 핑크 틴트 + 핑크 테두리 ──
   todayCard: {
+    flex: 1,
     backgroundColor: '#FFF1F4',
     borderRadius: 18,
     padding: 16,
-    minHeight: 156,
+    minHeight: 168,
     justifyContent: 'space-between',
     borderWidth: 1.5,
     borderColor: '#FFCCD6',
@@ -222,10 +232,11 @@ const styles = StyleSheet.create({
   },
   // ── 내일 카드: 웜 오트밀 베이지 + 베이지 테두리 ──
   tomorrowCard: {
+    flex: 1,
     backgroundColor: COLORS.subBeige,
     borderRadius: 18,
     padding: 16,
-    minHeight: 156,
+    minHeight: 168,
     justifyContent: 'space-between',
     borderWidth: 1.5,
     borderColor: COLORS.subBeigeBorder,
@@ -272,9 +283,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
   },
+  todayTextGroup: {
+    gap: 4,
+    width: '100%',
+  },
   cardTimeText: {
     fontSize: 14,
     color: '#374151',
+    fontWeight: '700',
+  },
+  todayStatusBadge: {
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+  },
+  todayStatusText: {
+    fontSize: 12,
     fontWeight: '700',
   },
   tomorrowTextGroup: {
@@ -299,11 +325,11 @@ const styles = StyleSheet.create({
     color: COLORS.subBeigeText,
     fontWeight: '700',
   },
-  // ── 버튼 스타일 분리 ──
+  // ── 버튼 스타일 분리 (동일한 44px 높이로 수평 정렬 일치) ──
   todayActionBtn: {
+    height: 44,
     backgroundColor: COLORS.primary,
     borderRadius: 14,
-    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: COLORS.primary,
@@ -318,9 +344,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   tomorrowActionBtn: {
+    height: 44,
     backgroundColor: COLORS.subBeigeBtn,
     borderRadius: 14,
-    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: COLORS.subBeigeBtn,

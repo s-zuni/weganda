@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ViewStyle, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, useAppTheme } from '../../constants/theme';
 import { BellIcon, UserIcon } from './Icon';
@@ -26,6 +27,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onPressProfile,
   style,
 }) => {
+  const insets = useSafeAreaInsets();
   const theme = useAppTheme();
   const navigation = useNavigation<any>();
   const openNotifications = useHeaderModalStore((s) => s.openNotifications);
@@ -44,8 +46,16 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       }
     });
 
+  // 안드로이드 및 iOS 환경에서 노치/다이내믹 아일랜드/시스템 상태바 오버랩 방지
+  const statusBarHeight = Platform.OS === 'android'
+    ? Math.max(StatusBar.currentHeight || 0, insets.top)
+    : insets.top;
+  const headerTopPadding = Platform.OS === 'web'
+    ? 14
+    : (statusBarHeight > 0 ? statusBarHeight : (Platform.OS === 'android' ? 28 : 0)) + 8;
+
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, { paddingTop: headerTopPadding }, style]}>
       <View style={styles.leftContainer}>
         {leftElement || (
           <View>
@@ -97,7 +107,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 14,
     paddingBottom: 12,
     backgroundColor: '#FFFFFF',
   },
