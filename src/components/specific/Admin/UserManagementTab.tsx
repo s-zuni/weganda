@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -72,6 +72,12 @@ export const UserManagementTab: React.FC = () => {
   useEffect(() => {
     fetchUsers();
   }, [selectedRoleFilter]);
+
+  useEffect(() => {
+    if (searchQuery === '') {
+      fetchUsers();
+    }
+  }, [searchQuery]);
 
   const handleSearchSubmit = () => {
     fetchUsers();

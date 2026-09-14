@@ -91,7 +91,7 @@ export const adminApi = {
     }
   },
 
-  // ── 1. 유저 관리 (profiles 테이블 실데이터) ──────────────────────────────────
+  // ── 1. 유저 관리 (profiles + auth.users 실데이터 연동) ───────────────────
   async getUsers(params?: {
     search?: string;
     role?: string;
@@ -101,6 +101,41 @@ export const adminApi = {
     try {
       const page = params?.page || 1;
       const pageSize = params?.pageSize || 50;
+
+      // 1. 보안 정의자(SECURITY DEFINER) 기반 전용 RPC 호출 시도 (이메일 조인 포함)
+      const { data: rpcData, error: rpcError } = await supabase.rpc('admin_get_users', {
+        p_search: params?.search?.trim() || null,
+        p_role: params?.role && params.role !== 'all' ? params.role : null,
+        p_page: page,
+        p_page_size: pageSize,
+      });
+
+      if (!rpcError && rpcData && typeof rpcData === 'object') {
+        const rawUsers = (rpcData as any).users || [];
+        const total = Number((rpcData as any).total_count) || rawUsers.length;
+
+        const users: AdminUser[] = rawUsers.map((row: any) => ({
+          id: row.id,
+          name: row.name || row.nickname || '간호사',
+          email: row.email || 'user@weganda.com',
+          role: (row.role as UserRole) || 'user',
+          tier: row.role || 'free',
+          isActive: row.is_active ?? true,
+          credits: 0,
+          createdAt: row.created_at || new Date().toISOString(),
+          updatedAt: row.updated_at,
+          hospitalName: row.hospital_name,
+          wardName: row.ward_name,
+        }));
+
+        return { users, totalCount: total };
+      }
+
+      if (rpcError) {
+        console.warn('admin_get_users RPC fallback to direct query:', rpcError);
+      }
+
+      // 2. RPC 실패 시 직접 쿼리 fallback
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
 
@@ -128,7 +163,7 @@ export const adminApi = {
       const rawList = data || [];
       const users: AdminUser[] = rawList.map((row: any) => ({
         id: row.id,
-        name: row.name || '간호사',
+        name: row.name || row.nickname || '간호사',
         email: row.email || 'user@weganda.com',
         role: (row.role as UserRole) || 'user',
         tier: row.role || 'free',
