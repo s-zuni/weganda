@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   StatusBar,
@@ -11,6 +10,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { PencilIcon, SearchIcon } from '../../components/common/Icon';
@@ -140,7 +140,7 @@ export const CommunityScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <AppHeader />
 

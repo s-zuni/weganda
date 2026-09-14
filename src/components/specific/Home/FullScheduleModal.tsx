@@ -72,6 +72,12 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
     return acc;
   }, 0);
 
+  const totalDutyCount =
+    (dutyCounts.D || 0) +
+    (dutyCounts.E || 0) +
+    (dutyCounts.N || 0) +
+    totalOffCount;
+
   // 간단한 좌우 스와이프 감지 PanResponder
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dx) > 30,
@@ -241,6 +247,30 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
                     activeOpacity={0.8}
                   >
                     <Text style={[styles.editDateBtnText, { color: theme.onPrimaryText }]}>스케줄 수정 ›</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+
+            {/* ── 이번 달 스케줄 미등록 안내 박스 ── */}
+            {totalDutyCount === 0 && (
+              <View style={styles.emptyMonthBox}>
+                <Text style={styles.emptyMonthTitle}>{month + 1}월 근무표가 아직 등록되지 않았어요</Text>
+                <Text style={styles.emptyMonthSub}>
+                  사진 촬영(OCR) 또는 직접 입력으로 간편하게 등록해 보세요.
+                </Text>
+                {onOpenAddSchedule && (
+                  <TouchableOpacity
+                    style={[styles.emptyRegisterBtn, { backgroundColor: theme.primary }]}
+                    onPress={() => {
+                      onClose();
+                      onOpenAddSchedule();
+                    }}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={[styles.emptyRegisterBtnText, { color: theme.onPrimaryText }]}>
+                      + {month + 1}월 근무표 등록하기
+                    </Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -609,6 +639,38 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: COLORS.primary,
+  },
+  emptyMonthBox: {
+    backgroundColor: '#FFF8F9',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#FFE4EA',
+    marginBottom: 12,
+    alignItems: 'center',
+    gap: 6,
+  },
+  emptyMonthTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+  emptyMonthSub: {
+    fontSize: 12.5,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  emptyRegisterBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyRegisterBtnText: {
+    fontSize: 13.5,
+    fontWeight: '700',
   },
 });
 

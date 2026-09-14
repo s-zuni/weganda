@@ -20,6 +20,117 @@ import {
   SAJU_GUIDE_METADATA,
 } from '../../constants/sajuAnalysisGuide';
 
+interface TopicDisplaySections {
+  showFourPillars: boolean;
+  showFiveElements: boolean;
+  showShinsals: boolean;
+  showDaewoon: boolean;
+  isGeneralLife: boolean;
+}
+
+const getTopicDisplaySections = (topicId: string): TopicDisplaySections => {
+  switch (topicId) {
+    // 1. 내 사주 풀이 (간호사 무관, 정통 평생 총운): 4개 모두 포함!
+    case 'general_life_saju':
+      return {
+        showFourPillars: true,
+        showFiveElements: true,
+        showShinsals: true,
+        showDaewoon: true,
+        isGeneralLife: true,
+      };
+
+    // 2. 간호 사주
+    case 'ward_fit':
+      return {
+        showFourPillars: false,
+        showFiveElements: true,
+        showShinsals: true, // 백호/괴강/귀문관살 병동 적성
+        showDaewoon: false,
+        isGeneralLife: false,
+      };
+    case 'hospital_fengshui':
+    case 'duty_difficulty':
+    case 'night_shift_biorhythm':
+      return {
+        showFourPillars: false,
+        showFiveElements: true,
+        showShinsals: false,
+        showDaewoon: false,
+        isGeneralLife: false,
+      };
+
+    // 3. 동료 & 대인관계
+    case 'colleague_chemistry':
+    case 'preceptor_chemistry':
+    case 'patient_rapport':
+      return {
+        showFourPillars: false,
+        showFiveElements: true,
+        showShinsals: true, // 원진살, 홍염살, 도화살 등 대인 기운
+        showDaewoon: false,
+        isGeneralLife: false,
+      };
+
+    // 4. 이직 & 진로 대운
+    case 'ten_year_daewoon':
+      return {
+        showFourPillars: false,
+        showFiveElements: true,
+        showShinsals: false,
+        showDaewoon: true, // 10년 대운 집중
+        isGeneralLife: false,
+      };
+    case 'apn_grad_school':
+    case 'overseas_nurse':
+      return {
+        showFourPillars: false,
+        showFiveElements: true,
+        showShinsals: true, // 화개/역마살
+        showDaewoon: true, // 도약 타이밍 대운
+        isGeneralLife: false,
+      };
+
+    // 5. 연애 & 결혼 궁합
+    case 'life_partner':
+    case 'relationship_harmony':
+      return {
+        showFourPillars: false,
+        showFiveElements: true,
+        showShinsals: true, // 배우자궁, 도화/홍염, 합충살
+        showDaewoon: false,
+        isGeneralLife: false,
+      };
+
+    // 6. 재물 & 수당 재테크
+    case 'night_allowance_wealth':
+      return {
+        showFourPillars: false,
+        showFiveElements: true,
+        showShinsals: false,
+        showDaewoon: false,
+        isGeneralLife: false,
+      };
+    case 'real_estate_luck':
+      return {
+        showFourPillars: false,
+        showFiveElements: true,
+        showShinsals: false,
+        showDaewoon: true, // 청약/문서 취득 대운 타이밍
+        isGeneralLife: false,
+      };
+
+    default:
+      return {
+        showFourPillars: false,
+        showFiveElements: true,
+        showShinsals: false,
+        showDaewoon: false,
+        isGeneralLife: false,
+      };
+  }
+};
+
 export const SajuDetailResultScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const {
@@ -52,6 +163,8 @@ export const SajuDetailResultScreen: React.FC = () => {
   const { pillars, dayMaster, fiveElements, detectedShinsals, daewoon, birthInfo } =
     currentManseryeokAnalysis;
   const report = currentManseryeokReport;
+  const { showFourPillars, showFiveElements, showShinsals, showDaewoon, isGeneralLife } =
+    getTopicDisplaySections(report.topicId);
 
   const handleShare = async () => {
     try {
@@ -183,173 +296,187 @@ export const SajuDetailResultScreen: React.FC = () => {
           partnerSaju={currentPartnerAnalysis}
         />
 
-        {/* 1. 만세력 사주 원국표 (四柱原局) */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionTitleRow}>
-            <Ionicons name="grid" size={18} color="#FF507C" />
-            <Text style={styles.sectionHeaderTitle}>만세력 사주 원국표 (四柱原局)</Text>
-          </View>
-          <Text style={styles.sectionHeaderDesc}>
-            천간과 지지 8글자의 음양오행 및 십신(十神) 정밀 배치
-          </Text>
-
-          <View style={styles.pillarsCard}>
-            <View style={styles.pillarsRow}>
-              {renderPillarColumn('시주 (時柱)', '말년·자녀', pillars.hour)}
-              {renderPillarColumn('일주 (日柱)', '본인·일간', pillars.day, true)}
-              {renderPillarColumn('월주 (月柱)', '청년·직장', pillars.month)}
-              {renderPillarColumn('연주 (年柱)', '초년·가문', pillars.year)}
+        {/* 1. 만세력 사주 원국표 (四柱原局) - 선택적 맞춤 노출 */}
+        {showFourPillars && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="grid" size={18} color="#FF507C" />
+              <Text style={styles.sectionHeaderTitle}>만세력 사주 원국표 (四柱原局)</Text>
             </View>
+            <Text style={styles.sectionHeaderDesc}>
+              천간과 지지 8글자의 음양오행 및 십신(十神) 정밀 배치
+            </Text>
 
-            <View style={styles.dayMasterCallout}>
-              <Ionicons name="star" size={16} color="#FF507C" />
-              <Text style={styles.dayMasterCalloutText}>
-                나를 상징하는 일간(본원):{' '}
-                <Text style={styles.dayMasterHighlight}>{dayMaster.natureTitle}</Text>
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* 2. 오행 분포 분석 (五行) */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionTitleRow}>
-            <Ionicons name="pie-chart" size={18} color="#10B981" />
-            <Text style={styles.sectionHeaderTitle}>오행(五行) 에너지 밸런스</Text>
-          </View>
-
-          <View style={styles.fiveElementsCard}>
-            {fiveElements.map((el) => (
-              <View key={el.rawName} style={styles.elementRow}>
-                <View style={styles.elementNameWrap}>
-                  <View style={[styles.elementDot, { backgroundColor: el.color }]} />
-                  <Text style={styles.elementNameText}>{el.element}</Text>
-                  <View
-                    style={[
-                      styles.elementStatusBadge,
-                      el.status === '과다' && styles.statusOver,
-                      el.status === '결핍' && styles.statusDeficient,
-                    ]}
-                  >
-                    <Text style={styles.elementStatusText}>{el.status}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.barTrack}>
-                  <View
-                    style={[
-                      styles.barFill,
-                      {
-                        width: `${Math.max(el.percentage, 5)}%`,
-                        backgroundColor: el.color,
-                      },
-                    ]}
-                  />
-                </View>
-                <Text style={styles.percentageText}>{el.percentage}%</Text>
+            <View style={styles.pillarsCard}>
+              <View style={styles.pillarsRow}>
+                {renderPillarColumn('시주 (時柱)', '말년·자녀', pillars.hour)}
+                {renderPillarColumn('일주 (日柱)', '본인·일간', pillars.day, true)}
+                {renderPillarColumn('월주 (月柱)', '청년·직장', pillars.month)}
+                {renderPillarColumn('연주 (年柱)', '초년·가문', pillars.year)}
               </View>
-            ))}
-          </View>
-        </View>
 
-        {/* 3. 검출된 기운 및 신살 (神煞) */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionTitleRow}>
-            <Ionicons name="flash" size={18} color="#8B5CF6" />
-            <Text style={styles.sectionHeaderTitle}>사주에 잠재된 특수 기운 & 신살 (神煞)</Text>
+              <View style={styles.dayMasterCallout}>
+                <Ionicons name="star" size={16} color="#FF507C" />
+                <Text style={styles.dayMasterCalloutText}>
+                  나를 상징하는 일간(본원):{' '}
+                  <Text style={styles.dayMasterHighlight}>{dayMaster.natureTitle}</Text>
+                </Text>
+              </View>
+            </View>
           </View>
-          <Text style={styles.sectionHeaderDesc}>
-            임상 현장에서 발현되는 귀문관살, 홍염살, 백호대살 등의 작용
-          </Text>
+        )}
 
-          <View style={styles.shinsalList}>
-            {detectedShinsals.length > 0 ? (
-              detectedShinsals.map((shinsal) => (
-                <View key={shinsal.name} style={styles.shinsalCard}>
-                  <View style={styles.shinsalHeader}>
+        {/* 2. 오행 분포 분석 (五行) - 모든 사주 분석 공통 노출 */}
+        {showFiveElements && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="pie-chart" size={18} color="#10B981" />
+              <Text style={styles.sectionHeaderTitle}>오행(五行) 에너지 밸런스</Text>
+            </View>
+
+            <View style={styles.fiveElementsCard}>
+              {fiveElements.map((el) => (
+                <View key={el.rawName} style={styles.elementRow}>
+                  <View style={styles.elementNameWrap}>
+                    <View style={[styles.elementDot, { backgroundColor: el.color }]} />
+                    <Text style={styles.elementNameText}>{el.element}</Text>
                     <View
                       style={[
-                        styles.shinsalBadge,
-                        { backgroundColor: shinsal.badgeColor },
+                        styles.elementStatusBadge,
+                        el.status === '과다' && styles.statusOver,
+                        el.status === '결핍' && styles.statusDeficient,
                       ]}
                     >
-                      <Text style={styles.shinsalBadgeText}>{shinsal.name}</Text>
-                    </View>
-                    <Text style={styles.shinsalHanja}>{shinsal.hanja}</Text>
-                    <View style={styles.shinsalTypeTag}>
-                      <Text style={styles.shinsalTypeTagText}>{shinsal.type}</Text>
+                      <Text style={styles.elementStatusText}>{el.status}</Text>
                     </View>
                   </View>
 
-                  <Text style={styles.shinsalSummary}>{shinsal.oneLineSummary}</Text>
-
-                  <View style={styles.shinsalDetailBox}>
-                    <Text style={styles.shinsalDetailLabel}>병원 임상 발현:</Text>
-                    <Text style={styles.shinsalDetailText}>{shinsal.hospitalImpact}</Text>
+                  <View style={styles.barTrack}>
+                    <View
+                      style={[
+                        styles.barFill,
+                        {
+                          width: `${Math.max(el.percentage, 5)}%`,
+                          backgroundColor: el.color,
+                        },
+                      ]}
+                    />
                   </View>
-
-                  <View style={[styles.shinsalDetailBox, { marginTop: 6 }]}>
-                    <Text style={[styles.shinsalDetailLabel, { color: '#FF507C' }]}>
-                      처방 조언:
-                    </Text>
-                    <Text style={styles.shinsalDetailText}>{shinsal.clinicalAdvice}</Text>
-                  </View>
+                  <Text style={styles.percentageText}>{el.percentage}%</Text>
                 </View>
-              ))
-            ) : (
-              <View style={styles.emptyShinsalCard}>
-                <Text style={styles.emptyShinsalText}>
-                  특정 흉살이나 극단적 충살 없이, 온화하고 원만한 정인(正印)의 기운이 흐릅니다.
-                </Text>
-              </View>
-            )}
+              ))}
+            </View>
           </View>
-        </View>
+        )}
 
-        {/* 4. 10년 대운 흐름표 (大運) */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionTitleRow}>
-            <Ionicons name="calendar" size={18} color="#3B82F6" />
-            <Text style={styles.sectionHeaderTitle}>10년 대운(大運)의 인생 운로</Text>
-          </View>
-          <Text style={styles.sectionHeaderDesc}>
-            {daewoon.startAge}세부터 시작하는 {daewoon.isForward ? '순행(順行)' : '역행(逆行)'} 운로 (현재 대운 강조)
-          </Text>
+        {/* 3. 검출된 기운 및 신살 (神煞) - 맞춤 노출 */}
+        {showShinsals && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="flash" size={18} color="#8B5CF6" />
+              <Text style={styles.sectionHeaderTitle}>사주에 잠재된 특수 기운 & 신살 (神煞)</Text>
+            </View>
+            <Text style={styles.sectionHeaderDesc}>
+              {isGeneralLife
+                ? '한 사람의 성품과 그릇, 인생의 전성기와 시련을 좌우하는 핵심 신살'
+                : '임상 현장에서 발현되는 귀문관살, 홍염살, 백호대살 등의 작용'}
+            </Text>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daewoonScroll}>
-            {daewoon.pillars.map((item) => (
-              <View
-                key={item.age}
-                style={[
-                  styles.daewoonItem,
-                  item.isCurrent && styles.daewoonItemCurrent,
-                ]}
-              >
-                {item.isCurrent && (
-                  <View style={styles.currentIndicatorBadge}>
-                    <Text style={styles.currentIndicatorText}>현재 대운</Text>
+            <View style={styles.shinsalList}>
+              {detectedShinsals.length > 0 ? (
+                detectedShinsals.map((shinsal) => (
+                  <View key={shinsal.name} style={styles.shinsalCard}>
+                    <View style={styles.shinsalHeader}>
+                      <View
+                        style={[
+                          styles.shinsalBadge,
+                          { backgroundColor: shinsal.badgeColor },
+                        ]}
+                      >
+                        <Text style={styles.shinsalBadgeText}>{shinsal.name}</Text>
+                      </View>
+                      <Text style={styles.shinsalHanja}>{shinsal.hanja}</Text>
+                      <View style={styles.shinsalTypeTag}>
+                        <Text style={styles.shinsalTypeTagText}>{shinsal.type}</Text>
+                      </View>
+                    </View>
+
+                    <Text style={styles.shinsalSummary}>{shinsal.oneLineSummary}</Text>
+
+                    <View style={styles.shinsalDetailBox}>
+                      <Text style={styles.shinsalDetailLabel}>
+                        {isGeneralLife ? '인생 및 성품 발현:' : '병원 임상 발현:'}
+                      </Text>
+                      <Text style={styles.shinsalDetailText}>
+                        {isGeneralLife ? shinsal.oneLineSummary : shinsal.hospitalImpact}
+                      </Text>
+                    </View>
+
+                    <View style={[styles.shinsalDetailBox, { marginTop: 6 }]}>
+                      <Text style={[styles.shinsalDetailLabel, { color: '#FF507C' }]}>
+                        {isGeneralLife ? '처세 조언:' : '처방 조언:'}
+                      </Text>
+                      <Text style={styles.shinsalDetailText}>{shinsal.clinicalAdvice}</Text>
+                    </View>
                   </View>
-                )}
-                <Text
+                ))
+              ) : (
+                <View style={styles.emptyShinsalCard}>
+                  <Text style={styles.emptyShinsalText}>
+                    특정 흉살이나 극단적 충살 없이, 온화하고 원만한 정인(正印)의 기운이 흐릅니다.
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* 4. 10년 대운 흐름표 (大運) - 맞춤 노출 */}
+        {showDaewoon && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="calendar" size={18} color="#3B82F6" />
+              <Text style={styles.sectionHeaderTitle}>10년 대운(大運)의 인생 운로</Text>
+            </View>
+            <Text style={styles.sectionHeaderDesc}>
+              {daewoon.startAge}세부터 시작하는 {daewoon.isForward ? '순행(順行)' : '역행(逆行)'} 운로 (현재 대운 강조)
+            </Text>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daewoonScroll}>
+              {daewoon.pillars.map((item) => (
+                <View
+                  key={item.age}
                   style={[
-                    styles.daewoonAge,
-                    item.isCurrent && styles.daewoonAgeCurrent,
+                    styles.daewoonItem,
+                    item.isCurrent && styles.daewoonItemCurrent,
                   ]}
                 >
-                  {item.age}세~
-                </Text>
-                <Text
-                  style={[
-                    styles.daewoonPillar,
-                    item.isCurrent && styles.daewoonPillarCurrent,
-                  ]}
-                >
-                  {item.korean}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
+                  {item.isCurrent && (
+                    <View style={styles.currentIndicatorBadge}>
+                      <Text style={styles.currentIndicatorText}>현재 대운</Text>
+                    </View>
+                  )}
+                  <Text
+                    style={[
+                      styles.daewoonAge,
+                      item.isCurrent && styles.daewoonAgeCurrent,
+                    ]}
+                  >
+                    {item.age}세~
+                  </Text>
+                  <Text
+                    style={[
+                      styles.daewoonPillar,
+                      item.isCurrent && styles.daewoonPillarCurrent,
+                    ]}
+                  >
+                    {item.korean}
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* 5. 50년 명인의 1,000자+ 심층 분석 리포트 본문 */}
         <View style={styles.sectionContainer}>

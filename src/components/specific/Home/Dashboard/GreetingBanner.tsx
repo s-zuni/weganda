@@ -15,24 +15,30 @@ export const GreetingBanner: React.FC<GreetingBannerProps> = ({
   todayShiftInfo,
 }) => {
   const activeDisplayName = propDisplayName || '회원';
+  const hasShift = Boolean(todayShift && todayShiftInfo);
 
   return (
     <View style={styles.greetingBanner}>
       <Text style={styles.greetingText}>
-        {activeDisplayName}님, 오늘은{' '}
-        {todayShiftInfo ? (
-          <Text style={[styles.dutyHighlight, { color: todayShiftInfo.color }]}>
-            {todayShiftInfo.shortName} 근무
-          </Text>
+        {activeDisplayName}님,{' '}
+        {hasShift ? (
+          <>
+            오늘은{' '}
+            <Text style={[styles.dutyHighlight, { color: todayShiftInfo!.color }]}>
+              {todayShiftInfo!.shortName} 근무
+            </Text>
+            이시네요.
+          </>
         ) : (
-          <Text style={styles.dutyHighlight}>근무 일정 확인</Text>
+          <Text style={styles.dutyHighlight}>아직 등록된 근무표가 없어요</Text>
         )}
-        이시네요.
       </Text>
       <Text style={styles.greetingSubText}>
         {todayShift === 'O' || todayShift === 'V'
           ? '달콤한 오프! 재충전 가득한 하루 보내세요 ☕'
-          : '오늘도 안전 간호와 건강한 하루를 응원합니다!'}
+          : hasShift
+          ? '오늘도 안전 간호와 건강한 하루를 응원합니다!'
+          : '근무표를 등록하고 스마트 알람과 듀티 통계를 시작해보세요.'}
       </Text>
     </View>
   );

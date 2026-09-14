@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, ThemeColors } from '../constants/theme';
 import { useHeaderModalStore } from '../store/useHeaderModalStore';
 import { NotificationModal } from '../components/specific/Notification/NotificationModal';
-import { MyPageModal } from '../components/specific/MyPage/MyPageModal';
+import { MyPageScreen } from '../screens/MyPage/MyPageScreen';
 import {
   FortuneIcon,
   FriendsIcon,
@@ -27,6 +28,7 @@ export type BottomTabParamList = {
   HomeTab: undefined;
   StudyTab: undefined;
   CommunityTab: undefined;
+  MyPageTab: undefined;
 };
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -49,12 +51,21 @@ const CenterFAB = ({ onPress, theme }: { onPress: () => void; theme: ThemeColors
 export const BottomTabNavigator: React.FC = () => {
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
   const {
     notificationModalVisible,
     myPageModalVisible,
     closeNotifications,
     closeMyPage,
   } = useHeaderModalStore();
+
+  // 상단 헤더 프로필 아이콘 클릭 등으로 myPageModalVisible이 켜질 때 마이페이지 탭으로 전환
+  useEffect(() => {
+    if (myPageModalVisible) {
+      navigation.navigate('MyPageTab');
+      closeMyPage();
+    }
+  }, [myPageModalVisible, navigation, closeMyPage]);
 
   // Safe area bottom inset 고려 + 미존재 기기에서도 Figma 원본 높이(84px) 수준의 쾌적한 높이 확보
   const bottomInset = insets.bottom > 0 ? insets.bottom : 16;
@@ -63,100 +74,106 @@ export const BottomTabNavigator: React.FC = () => {
   return (
     <View style={styles.rootContainer}>
       <Tab.Navigator
-      initialRouteName="HomeTab"
-      backBehavior="initialRoute"
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: theme.primary,
-        tabBarInactiveTintColor: '#6B7280',
-        tabBarStyle: [
-          styles.tabBar,
-          {
-            height: barHeight,
-            paddingBottom: bottomInset,
-            paddingTop: 10,
-          },
-        ],
-        tabBarLabelStyle: styles.tabLabel,
-      }}
-    >
-      {/* Tab 1: 운세 */}
-      <Tab.Screen
-        name="FortuneTab"
-        component={FortuneStackNavigator}
-        options={{
-          tabBarLabel: '운세',
-          tabBarAccessibilityLabel: '임상 운세 및 사주',
-          tabBarIcon: ({ focused }) => (
-            <FortuneIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
-          ),
+        initialRouteName="HomeTab"
+        backBehavior="initialRoute"
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: theme.primary,
+          tabBarInactiveTintColor: '#6B7280',
+          tabBarStyle: [
+            styles.tabBar,
+            {
+              height: barHeight,
+              paddingBottom: bottomInset,
+              paddingTop: 10,
+            },
+          ],
+          tabBarLabelStyle: styles.tabLabel,
         }}
-      />
+      >
+        {/* Tab 1: 운세 */}
+        <Tab.Screen
+          name="FortuneTab"
+          component={FortuneStackNavigator}
+          options={{
+            tabBarLabel: '운세',
+            tabBarAccessibilityLabel: '임상 운세 및 사주',
+            tabBarIcon: ({ focused }) => (
+              <FortuneIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
+            ),
+          }}
+        />
 
-      {/* Tab 2: 친구 */}
-      <Tab.Screen
-        name="FriendsTab"
-        component={FriendsScreen}
-        options={{
-          tabBarLabel: '친구',
-          tabBarAccessibilityLabel: '동기 및 듀티 공유',
-          tabBarIcon: ({ focused }) => (
-            <FriendsIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
-          ),
-        }}
-      />
+        {/* Tab 2: 친구 */}
+        <Tab.Screen
+          name="FriendsTab"
+          component={FriendsScreen}
+          options={{
+            tabBarLabel: '친구',
+            tabBarAccessibilityLabel: '동기 및 듀티 공유',
+            tabBarIcon: ({ focused }) => (
+              <FriendsIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
+            ),
+          }}
+        />
 
-      {/* Tab 3: 홈 (Center FAB) */}
-      <Tab.Screen
-        name="HomeTab"
-        component={DashboardScreen}
-        options={{
-          tabBarLabel: '',
-          tabBarAccessibilityLabel: '홈 대시보드',
-          tabBarButton: (props) => (
-            <CenterFAB onPress={props.onPress as () => void} theme={theme} />
-          ),
-        }}
-      />
+        {/* Tab 3: 홈 (Center FAB) */}
+        <Tab.Screen
+          name="HomeTab"
+          component={DashboardScreen}
+          options={{
+            tabBarLabel: '',
+            tabBarAccessibilityLabel: '홈 대시보드',
+            tabBarButton: (props) => (
+              <CenterFAB onPress={props.onPress as () => void} theme={theme} />
+            ),
+          }}
+        />
 
-      {/* Tab 4: 학습 */}
-      <Tab.Screen
-        name="StudyTab"
-        component={StudyScreen}
-        options={{
-          tabBarLabel: '학습',
-          tabBarAccessibilityLabel: '간호 학습 및 약물 계산',
-          tabBarIcon: ({ focused }) => (
-            <StudyIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
-          ),
-        }}
-      />
+        {/* Tab 4: 학습 */}
+        <Tab.Screen
+          name="StudyTab"
+          component={StudyScreen}
+          options={{
+            tabBarLabel: '학습',
+            tabBarAccessibilityLabel: '간호 학습 및 약물 계산',
+            tabBarIcon: ({ focused }) => (
+              <StudyIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
+            ),
+          }}
+        />
 
-      {/* Tab 5: 커뮤니티 */}
-      <Tab.Screen
-        name="CommunityTab"
-        component={CommunityScreen}
-        options={{
-          tabBarLabel: '커뮤니티',
-          tabBarAccessibilityLabel: '간호사 커뮤니티',
-          tabBarIcon: ({ focused }) => (
-            <CommunityIcon size={22} focused={focused} color={focused ? theme.primary : '#6B7280'} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+        {/* Tab 5: 커뮤니티 */}
+        <Tab.Screen
+          name="CommunityTab"
+          component={CommunityScreen}
+          options={{
+            tabBarLabel: '커뮤니티',
+            tabBarAccessibilityLabel: '간호사 커뮤니티',
+            tabBarIcon: ({ focused }) => (
+              <CommunityIcon size={22} focused={focused} color={focused ? theme.primary : '#6B7280'} />
+            ),
+          }}
+        />
 
-    {/* 전역 단일 상단바 서브 모달 (다중 탭 중복 인스턴스 충돌 방지) */}
-    <NotificationModal
-      visible={notificationModalVisible}
-      onClose={closeNotifications}
-    />
-    <MyPageModal
-      visible={myPageModalVisible}
-      onClose={closeMyPage}
-    />
-  </View>
-);
+        {/* Tab 6: 마이페이지 (바텀바 탭 버튼 숨김, 프로필 아이콘 및 네비게이션으로 진입하여 바텀바 완벽 유지) */}
+        <Tab.Screen
+          name="MyPageTab"
+          component={MyPageScreen}
+          options={{
+            tabBarItemStyle: { display: 'none' },
+            tabBarButton: () => null,
+          }}
+        />
+      </Tab.Navigator>
+
+      {/* 전역 단일 상단바 알림 모달 */}
+      <NotificationModal
+        visible={notificationModalVisible}
+        onClose={closeNotifications}
+      />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({

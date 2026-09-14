@@ -62,19 +62,19 @@ interface ShiftScheduleState {
   deleteCustomCode: (code: string) => void;
   getOffCodes: () => string[];
   applyUploadedSchedules: (newSchedules: Record<string, string>, userId?: string) => Promise<void>;
+  clearAllSchedules: () => void;
 }
 
 export const useShiftScheduleStore = create<ShiftScheduleState>()(
   persist(
     (set, get) => ({
       currentDate: new Date(),
-      schedules: {
-        ...INITIAL_AUGUST_SCHEDULES,
-        ...INITIAL_SEPTEMBER_SCHEDULES,
-      },
+      schedules: {},
       customCodes: DEFAULT_SHIFT_CODES,
       isLoading: false,
       error: null,
+
+      clearAllSchedules: () => set({ schedules: {} }),
 
   // 특정 월의 스케줄 DB에서 불러오기
   fetchMonthlySchedule: async (userId?: string, yearMonth?: string) => {
@@ -238,7 +238,17 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
 }),
     {
       name: 'weganda-shift-schedule-store',
+      version: 2,
       storage: createJSONStorage(() => ExpoSecureStoreAdapter),
+      migrate: (persistedState: any, version: number) => {
+        if (version < 2) {
+          return {
+            ...persistedState,
+            schedules: {},
+          };
+        }
+        return persistedState;
+      },
       partialize: (state) => ({
         schedules: state.schedules,
         customCodes: state.customCodes,

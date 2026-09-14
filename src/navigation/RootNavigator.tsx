@@ -18,6 +18,7 @@ const linking: LinkingOptions<any> = {
           FortuneTab: 'fortune',
           StudyTab: 'study',
           CommunityTab: 'community',
+          MyPageTab: 'mypage',
         },
       },
       Auth: {

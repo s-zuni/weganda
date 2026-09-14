@@ -3,12 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   TextInput,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS, useAppTheme } from '../../constants/theme';
 import { SearchIcon } from '../../components/common/Icon';
@@ -93,7 +93,7 @@ export const StudyScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <AppHeader />
 

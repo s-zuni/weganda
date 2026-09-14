@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Platform, AppState, AppStateStatus } from 'react-native';
+import { Platform, AppState, AppStateStatus, Text, TextInput } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// 안드로이드 및 iOS 환경에서 시스템 글자 크기(Font Scaling) 과도한 확대 방지 (가독성 유지 한계치 1.08)
+if ((Text as any).defaultProps == null) (Text as any).defaultProps = {};
+(Text as any).defaultProps.maxFontSizeMultiplier = 1.08;
+
+if ((TextInput as any).defaultProps == null) (TextInput as any).defaultProps = {};
+(TextInput as any).defaultProps.maxFontSizeMultiplier = 1.08;
+
 import RootNavigator from './src/navigation/RootNavigator';
 import { LandingScreen } from './src/screens/Landing/LandingScreen';
 import { AdminScreen } from './src/screens/Admin/AdminScreen';

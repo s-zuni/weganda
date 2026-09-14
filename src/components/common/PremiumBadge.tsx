@@ -2,7 +2,6 @@ import React from 'react';
 import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import { CrownIcon } from './Icon';
 import { COLORS } from '../../constants/theme';
-import { PREMIUM_COLORS } from '../../constants/premiumTheme';
 
 export interface PremiumBadgeProps {
   isPremium: boolean;
@@ -23,10 +22,12 @@ export const PremiumBadge: React.FC<PremiumBadgeProps> = ({
         compact && styles.compactContainer,
       ]}
       onPress={onPress}
-      activeOpacity={0.8}
+      activeOpacity={0.82}
+      accessibilityRole="button"
+      accessibilityLabel={isPremium ? 'weganda+ 구독 관리' : 'weganda+ 혜택 알아보기'}
     >
       <View style={styles.content}>
-        {isPremium && <CrownIcon size={compact ? 16 : 20} color={PREMIUM_COLORS.gold} />}
+        <CrownIcon size={compact ? 16 : 18} color={isPremium ? '#10B981' : COLORS.primary} />
         <Text
           style={[
             styles.text,
@@ -34,14 +35,12 @@ export const PremiumBadge: React.FC<PremiumBadgeProps> = ({
             compact && styles.compactText,
           ]}
         >
-          {isPremium ? '👑 weganda+ 이용 중' : '✨ weganda+ 알아보기 ›'}
+          {isPremium ? 'weganda+ 이용 중' : '✨ weganda+ 혜택 알아보기'}
         </Text>
       </View>
-      {isPremium && (
-        <Text style={[styles.linkText, compact && styles.compactLinkText]}>
-          구독 관리 {'>'}
-        </Text>
-      )}
+      <Text style={[styles.linkText, isPremium ? styles.premiumLinkText : styles.freeLinkText, compact && styles.compactLinkText]}>
+        {isPremium ? '구독 관리 ›' : '자세히 ›'}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -51,25 +50,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
-    minHeight: 44,
+    minHeight: 48,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   compactContainer: {
-    minHeight: 36,
+    minHeight: 38,
     paddingHorizontal: 12,
     paddingVertical: 8,
+    borderRadius: 10,
   },
   premiumContainer: {
-    backgroundColor: '#FFF8E7',
-    borderColor: '#F5E6C8',
+    backgroundColor: '#F0FDF4',
+    borderColor: '#BBF7D0',
   },
   freeContainer: {
-    backgroundColor: '#FFE8EE', // primaryTint fallback
-    borderColor: 'transparent',
-    justifyContent: 'center', // Center text for free version
+    backgroundColor: '#FFF5F7',
+    borderColor: '#FFD1DC',
   },
   content: {
     flexDirection: 'row',
@@ -77,22 +76,29 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   text: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: -0.3,
   },
   compactText: {
-    fontSize: 14,
+    fontSize: 13,
   },
   premiumText: {
-    color: '#B8922E', // PREMIUM_COLORS.goldText
+    color: '#15803D',
   },
   freeText: {
-    color: COLORS.primary, // #FF507C
+    color: '#FF507C',
   },
   linkText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#B8922E',
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: -0.2,
+  },
+  premiumLinkText: {
+    color: '#16A34A',
+  },
+  freeLinkText: {
+    color: '#FF507C',
   },
   compactLinkText: {
     fontSize: 12,

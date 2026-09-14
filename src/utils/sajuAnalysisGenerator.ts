@@ -22,6 +22,7 @@ export type InfographicType =
   | 'partner_chemistry'
   | 'career_timeline'
   | 'wealth_portfolio'
+  | 'life_destiny'
   | 'general';
 
 export interface GeneratedSajuReport {
@@ -1441,6 +1442,114 @@ ${chem.harmonyDesc}
             documentLuckScore: 91,
             subscriptionLuck: 88,
             recommendedOrientation: '남향 / 동남향',
+          },
+        };
+      }
+
+      // ══════════════════════════════════════════════════════════════
+      // 6. LIFE CATEGORY (정통 사주 · 평생 총운) — 간호 직무 무관
+      // ══════════════════════════════════════════════════════════════
+      case 'general_life_saju': {
+        const sections: AnalysisSection[] = [
+          {
+            title: '사주 원국 총평 & 타고난 천명(天命)과 그릇',
+            badge: '천명 총평',
+            badgeColor: '#6366F1',
+            content: `당신의 사주팔자는 연주(${pillars.year.combinedKorean}), 월주(${pillars.month.combinedKorean}), 일주(${pillars.day.combinedKorean}), 시주(${pillars.hour.combinedKorean}) 4기둥 8글자가 조화롭게 배열되어 한 사람의 독립된 운명으로서 웅혼한 기틀을 갖추고 있습니다.
+특히 당신의 본원(日干)을 상징하는 일간은 '${dayMaster.natureTitle}(${dayMaster.stem})'의 기운으로, ${dayMaster.natureDescription}
+사주명리학에서 일간은 한 인간의 정신적 중심축이자 성품의 뿌리입니다. 당신은 타고난 총명함과 흔들리지 않는 내면의 뚝심을 품고 있어, 어떠한 환경에 처하더라도 자신만의 고유한 영역을 개척해 내는 자수성가형(自手成家型) 그릇을 지녔습니다.
+타인에게 의존하기보다 스스로 길을 열어가는 자주성이 뛰어나며, 불의와 타협하지 않는 곧은 성정이 인생의 든든한 나침반이 되어 줍니다.`,
+            keyPoints: [
+              `일간 본원: ${dayMaster.natureTitle} (${dayMaster.stem})`,
+              '타고난 천명: 흔들리지 않는 자립심과 독립적 개척 정신',
+              '사주 원국: 4기둥 8글자의 오행 순환과 안정된 격국',
+            ],
+          },
+          {
+            title: '음양오행(五行) 밸런스와 평생 건강·체질 운로',
+            badge: '오행 체질',
+            badgeColor: '#10B981',
+            content: `오행의 분포를 살피건대, 당신의 명조에서는 ${dominant.element}의 기운이 ${dominant.percentage}%로 가장 왕성하게 작용하여 왕성한 활력과 추진력, 결단력을 불어넣고 있습니다.
+반면 ${weak.element}의 에너지는 ${weak.percentage}%로 다소 부족하여 오행의 수화기제(水火旣濟) 조화에서 세심한 관리가 요구됩니다.
+동양의학 및 명리학적 관점에서 ${dominant.element}이 과다하고 ${weak.element}이 취약할 때에는 체내 순환계와 자율신경계에 피로가 누적되기 쉽습니다. 스트레스가 극에 달하면 소화기 장애나 만성 피로, 수면 불균형으로 발현될 수 있으므로 규칙적인 유산소 운동과 체온 유지, 수분 섭취를 습관화해야 합니다.
+몸이 차가워지거나 지나치게 열이 쏠리지 않도록 섭생을 조율하는 것이 평생 무병장수(無病長壽)의 핵심 비결입니다.`,
+            keyPoints: [
+              `왕성한 기운: ${dominant.element} (${dominant.percentage}%) — 왕성한 생명력과 결단력`,
+              `보완할 기운: ${weak.element} (${weak.percentage}%) — 휴식과 유연한 충전 필요`,
+              '평생 섭생 지침: 체온 유지, 규칙적 수면, 자율신경계 안정',
+            ],
+          },
+          {
+            title: '타고난 평생 재물복(財運)과 사회적 성취·입신양명',
+            badge: '재물·명예',
+            badgeColor: '#F59E0B',
+            content: `사주 내의 재성(財星, 정재·편재)과 관성(官星, 정관·편관)의 동태를 분석하면, 당신의 재물 그릇은 밑 빠진 독처럼 새어 나가지 않고 차곡차곡 쌓여 거대한 저수지를 이루는 '축적형 부(富)'의 성향을 띱니다.
+단기적인 투기나 일확천금을 좇기보다는, 본인의 전문 지식과 성실한 근로소득을 바탕으로 부동산, 우량 자산, 연금으로 자산을 치환할 때 재운이 폭발적으로 상승합니다.
+사회적 성취 운로 역시 타인 밑에서 단순 지시를 따르는 자리보다는, 독자적인 결정권을 행사하거나 조직의 핵심 축을 담당하는 리더의 위치에서 본인의 진가가 발휘됩니다.
+중년 이후 명예운(官運)이 함께 발동하여 사회적으로 확고한 입지와 존경을 획득하게 됩니다.`,
+            keyPoints: [
+              '재물 그릇: 성실 축적 후 우량 자산 치환형 거부(巨富) 운로',
+              '사회적 성취: 결정권을 쥔 전문직 및 핵심 리더십 포지션 최적',
+              '자산 관리 비책: 고위험 투기 근절, 부동산 및 안전 자산 집중',
+            ],
+          },
+          {
+            title: '인복(人德), 대인관계 및 가정·배우자운',
+            badge: '인연·가정',
+            badgeColor: '#EC4899',
+            content: `사주의 일지(日支) 배우자궁과 인성(印星)의 흐름을 보건대, 당신은 겉으로는 담담하고 독립적으로 보이나 내면에는 따뜻한 온정과 깊은 의리를 품고 있습니다.
+살아가면서 겪는 여러 고비마다 결정적인 조언을 건네고 길을 열어주는 천을귀인(天乙貴人)과 덕망 높은 스승, 은인의 조력이 끊이지 않는 복록(福祿)을 타고났습니다.
+배우자운 또한 감정 기복이 심한 사람보다는, 바위처럼 묵직하고 신뢰할 수 있으며 서로의 지적·정서적 성장을 존중해 주는 배필과 가장 훌륭한 백년가약(百年佳約)을 맺습니다.
+가정 내에서 서로를 통제하려 들지 않고 각자의 자율성을 존중할 때 화목함이 만발하고 자손 대대로 번영을 누립니다.`,
+            keyPoints: [
+              '인복 지수: 89% (위기마다 나타나는 귀인과 조력자의 은덕)',
+              '이상적 배우자: 바위처럼 진중하고 독립심을 지지해 주는 인연',
+              '가정 화목 비결: 상호 존중과 자율성 보장, 감정적 지지',
+            ],
+          },
+          {
+            title: '10년 대운(大運)의 장대한 운로와 전성기 도약 전략',
+            badge: '대운 운로',
+            badgeColor: '#3B82F6',
+            content: `인간의 운명은 10년마다 거대한 계절의 변화를 맞이합니다. 현재 당신은 만세력상 [${currentDaewoonPillar}(${daewoonAge}세~)] 대운을 통과하고 있으며, 이는 인생의 사계절 중 비옥한 대지에 씨앗을 뿌리고 싹을 틔우는 역동적인 도약기에 해당합니다.
+과거의 시련과 번민은 모두 지금의 단단한 그릇을 빚어내기 위한 담금질이었음을 깨달아야 합니다.
+앞으로 다가오는 대운의 흐름은 당신의 일간을 생(生)하고 도와주는 상생의 기운이 강력하게 유입되므로, 망설임 없이 오랜 숙원이었던 도전 과제를 실행에 옮겨야 할 타이밍입니다.
+지금 뿌려둔 인연과 지식의 씨앗이 향후 10년 뒤 눈부신 열매로 보답할 것입니다.`,
+            keyPoints: [
+              `현재 통과 대운: ${daewoonAge}세 [${currentDaewoonPillar}] 대운 (기운 상승 변곡점)`,
+              '인생의 계절: 시련을 끝내고 풍요로운 결실을 준비하는 도약기',
+              '황금기 실천 수칙: 주저함을 버리고 장기적 목표에 과감히 베팅하라',
+            ],
+          },
+        ];
+
+        return {
+          topicId: topic.id,
+          topicTitle: topic.title,
+          personaSummary: '50년 사주명리학자의 정통 사주팔자 원국 & 평생 총운 정밀 감정서',
+          overallScore: 94,
+          totalCharCount: sections.reduce((acc, s) => acc + s.content.replace(/\\s+/g, '').length, 0),
+          coreKeyword: `천명 본원 ${dayMaster.natureTitle} · 4기둥 조화 · 10년 대운 상승 운로`,
+          summaryQuote: `"${dayMaster.natureTitle}의 숭고한 기운을 품고 태어나, 독립된 한 인간으로서 평생의 부귀와 안정을 개척해 나갈 정통 명조입니다."`,
+          sections,
+          directAdvice: {
+            title: '50년 명리학자의 평생 처세 직언(Direct Advice)',
+            warning: '자신의 능력만 과신하여 타인의 조언을 배척하거나, 조급한 마음에 편법과 투기에 눈을 돌리는 행위',
+            actionRule: '타고난 일간 본원의 우직함을 믿고, 원칙을 지키며 덕을 베풀 때 하늘이 준비한 큰 복이 온전히 열린다.',
+          },
+          infographicType: 'life_destiny',
+          infographicData: {
+            destinyScore: 94,
+            wealthLuckScore: 91,
+            careerHonorScore: 89,
+            familySpouseScore: 88,
+            healthScore: 85,
+            lifeSeason: '인생의 활기찬 도약기 (대운 상승 국면)',
+            earlyLifeTrajectory: '초년: 배움과 기초 축적의 시기 (성실한 내공 형성)',
+            youthTrajectory: '청년: 재능 발현과 사회적 개척 (독자적 입지 구축)',
+            middleAgeTrajectory: '중년: 자산 결실과 가문 안정 (명예와 부의 황금기)',
+            lateLifeTrajectory: '말년: 평온한 수복(壽福)과 존경 (덕을 나누는 원숙기)',
+            coreElementAdvice: `${weak.element} 기운을 보완하는 라이프스타일 처방 실천`,
           },
         };
       }

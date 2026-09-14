@@ -1,4 +1,4 @@
-export type SajuCategoryId = 'nurse' | 'chemistry' | 'career' | 'love' | 'wealth';
+export type SajuCategoryId = 'life' | 'nurse' | 'chemistry' | 'career' | 'love' | 'wealth';
 
 export interface SajuTopicItem {
   id: string;
@@ -28,6 +28,17 @@ export interface SajuCategoryItem {
 }
 
 export const SAJU_CATEGORIES: SajuCategoryItem[] = [
+  {
+    id: 'life',
+    title: '내 사주 풀이',
+    subtitle: '정통 사주팔자 · 평생 총운 · 성품 & 재물',
+    icon: 'account-star',
+    themeColor: '#6366F1', // Indigo
+    bgLightColor: '#EEF2FF',
+    description: '간호 직무와 무관한 순수 정통 사주명리학으로 타고난 기질과 그릇, 평생의 재물·건강·10년 대운을 총체적으로 감정합니다.',
+    topicsCount: 1,
+    highlightTag: '정통 평생 총운',
+  },
   {
     id: 'nurse',
     title: '간호 사주',
@@ -86,6 +97,19 @@ export const SAJU_CATEGORIES: SajuCategoryItem[] = [
 ];
 
 export const SAJU_TOPICS: Record<SajuCategoryId, SajuTopicItem[]> = {
+  life: [
+    {
+      id: 'general_life_saju',
+      categoryId: 'life',
+      title: '정통 내 사주 풀이 (원국 & 평생 총운)',
+      subtitle: '간호 직무와 무관한 순수 평생 사주 · 성품 · 재물 · 대운',
+      badge: '정통 명리',
+      badgeColor: '#6366F1',
+      tags: ['#정통원국', '#평생총운', '#10년대운', '#성품과재물'],
+      description: '직업이나 간호 환경과 무관하게, 한 사람으로서 타고난 사주 원국 8글자와 음양오행, 신살, 10년 대운을 총체적으로 감정합니다.',
+      estimatedReadTime: '약 5분 읽기 (1,600자+)',
+    },
+  ],
   nurse: [
     {
       id: 'ward_fit',

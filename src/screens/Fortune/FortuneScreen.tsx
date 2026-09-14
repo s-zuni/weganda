@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { AppHeader } from '../../components/common/AppHeader';
 import { useFortuneStore } from '../../store/useFortuneStore';
@@ -68,7 +68,7 @@ export const FortuneScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <AppHeader />
 
@@ -104,11 +104,14 @@ export const FortuneScreen: React.FC = () => {
           onOpenPaywall={() => setPaywallVisible(true)}
         />
 
-        {/* 오늘의 행운 (컬러, 숫자, 방향) */}
+        {/* 오늘의 행운 (컬러, 숫자, 방향, 아이템 & 오늘 분석하기) */}
         <LuckyItemsSection
           color={currentFortune?.lucky?.color}
           number={currentFortune?.lucky?.number}
           direction={currentFortune?.lucky?.direction}
+          item={currentFortune?.lucky?.item}
+          isLoading={isLoading}
+          onAnalyze={handleRefreshDaily}
         />
 
         {/* 오늘의 조언 */}

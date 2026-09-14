@@ -432,6 +432,73 @@ export const SajuTopicInfographic: React.FC<SajuTopicInfographicProps> = ({
     );
   }
 
+  // ─── 8. 정통 사주 · 평생 총운 인포그래픽 ───
+  if (infographicType === 'life_destiny') {
+    const destinyScore = infographicData.destinyScore || 94;
+    const wealthScore = infographicData.wealthLuckScore || 91;
+    const careerScore = infographicData.careerHonorScore || 89;
+    const familyScore = infographicData.familySpouseScore || 88;
+    const healthScore = infographicData.healthScore || 85;
+    const lifeSeason = infographicData.lifeSeason || '인생의 활기찬 도약기 (대운 상승 국면)';
+
+    const realms = [
+      { name: '천명 기질 & 그릇', score: destinyScore, color: '#6366F1' },
+      { name: '평생 재물운 (財運)', score: wealthScore, color: '#F59E0B' },
+      { name: '사회적 명예 & 성공', score: careerScore, color: '#3B82F6' },
+      { name: '인복 & 가정/배우자', score: familyScore, color: '#EC4899' },
+      { name: '평생 건강 & 활력', score: healthScore, color: '#10B981' },
+    ];
+
+    return (
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <Ionicons name="sparkles" size={20} color="#6366F1" />
+          <Text style={styles.cardTitle}>평생 운로 & 5대 인생 영역 지수</Text>
+        </View>
+        <Text style={styles.cardSubtitle}>
+          사주팔자 원국과 대운의 기운으로 산출된 평생의 지표
+        </Text>
+
+        <View style={[styles.scoreBanner, { backgroundColor: '#EEF2FF', borderColor: '#C7D2FE' }]}>
+          <View style={styles.scoreLeft}>
+            <Text style={[styles.scoreLabel, { color: '#4338CA' }]}>인생 총운 지수</Text>
+            <Text style={[styles.scoreValue, { color: '#4F46E5' }]}>{destinyScore}점</Text>
+            <Text style={[styles.scoreGrade, { color: '#6366F1' }]}>{lifeSeason}</Text>
+          </View>
+          <View style={[styles.scoreRightBadge, { borderColor: '#C7D2FE' }]}>
+            <Text style={[styles.scoreRightBadgeText, { color: '#4338CA' }]}>대운 상승세</Text>
+          </View>
+        </View>
+
+        <View style={styles.metricsContainer}>
+          {realms.map((realm) => (
+            <View key={realm.name} style={styles.metricItem}>
+              <View style={styles.metricHeader}>
+                <Text style={styles.metricLabel}>{realm.name}</Text>
+                <Text style={[styles.metricValue, { color: realm.color }]}>{realm.score}점</Text>
+              </View>
+              <View style={styles.barTrack}>
+                <View
+                  style={[
+                    styles.barFill,
+                    { width: `${realm.score}%`, backgroundColor: realm.color },
+                  ]}
+                />
+              </View>
+            </View>
+          ))}
+        </View>
+
+        <View style={[styles.seedBox, { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0', marginTop: 14 }]}>
+          <Ionicons name="compass" size={18} color="#6366F1" />
+          <Text style={[styles.seedText, { color: '#334155' }]}>
+            {infographicData.coreElementAdvice || '오행의 상생 흐름을 따르는 균형 잡힌 인생 설계'}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
   return null;
 };
 

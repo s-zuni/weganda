@@ -179,6 +179,7 @@ export const useUserStore = create<UserState>()(
         subscribedAt: details.subscribedAt || now.toISOString(),
         status: details.status || (details.isTrial ? 'trial' : 'active'),
         storeSku: details.storeSku || 'com.weganda.app.sub.monthly.earlybird',
+        paymentMethod: details.paymentMethod,
       },
     });
   },

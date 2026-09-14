@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import { useUserStore } from '../store/useUserStore';
 import { subscriptionApi, VerifyPurchaseResult } from './subscriptionApi';
 import { IAP_SKUS } from '../constants/membership';
+import { PaymentMethodInfo } from '../types/membershipEvent';
 
 export interface IapProduct {
   productId: string;
@@ -274,6 +275,7 @@ class InAppPurchaseService {
       price?: number;
       isTrial?: boolean;
       isEarlybird?: boolean;
+      paymentMethod?: PaymentMethodInfo;
     }
   ): Promise<IapPurchaseResult> {
     const targetSku = sku || IAP_SKUS.MONTHLY_EARLYBIRD;
@@ -323,21 +325,30 @@ class InAppPurchaseService {
 
     // 계산된 구독 정보로 전역 스토어 업데이트
     const now = new Date();
-    const trialEnd = new Date(now);
-    trialEnd.setDate(trialEnd.getDate() + (isTrial ? 30 : 0));
-    const billingDate = trialEnd.toISOString().slice(0, 10);
+    const nextBilling = new Date(now);
+    if (isTrial) {
+      nextBilling.setDate(nextBilling.getDate() + 30);
+    } else {
+      if (planType === 'yearly') {
+        nextBilling.setFullYear(nextBilling.getFullYear() + 1);
+      } else {
+        nextBilling.setMonth(nextBilling.getMonth() + 1);
+      }
+    }
+    const billingDate = nextBilling.toISOString().slice(0, 10);
 
     useUserStore.getState().subscribeToPremiumWithDetails({
       planType,
       isEarlybird,
       price,
       isTrial,
-      trialStartDate: now.toISOString().slice(0, 10),
+      trialStartDate: isTrial ? now.toISOString().slice(0, 10) : undefined,
       trialEndDate: isTrial ? billingDate : undefined,
       nextBillingDate: billingDate,
       subscribedAt: now.toISOString(),
       status: isTrial ? 'trial' : 'active',
       storeSku: targetSku,
+      paymentMethod: options?.paymentMethod,
     });
 
     return {

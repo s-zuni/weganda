@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, useAppTheme } from '../../../../constants/theme';
-import { ClockIcon, FortuneIcon } from '../../../common/Icon';
+import { ClockIcon, FortuneIcon, CalendarIcon } from '../../../common/Icon';
 import { ShiftInfo } from '../../../../types/shift';
 
 interface ShiftGridRowProps {
@@ -13,6 +13,7 @@ interface ShiftGridRowProps {
   tomorrowShiftInfo: ShiftInfo | null;
   tomorrowCalendarEvent: string;
   onOpenAlarmModal: () => void;
+  onOpenAddSchedule?: () => void;
   onQuickSyncCalendar: () => void;
   onNavigateFortune: () => void;
 }
@@ -26,6 +27,7 @@ export const ShiftGridRow: React.FC<ShiftGridRowProps> = ({
   tomorrowShiftInfo,
   tomorrowCalendarEvent,
   onOpenAlarmModal,
+  onOpenAddSchedule,
   onQuickSyncCalendar,
   onNavigateFortune,
 }) => {
@@ -81,18 +83,27 @@ export const ShiftGridRow: React.FC<ShiftGridRowProps> = ({
                 ? `${todayShiftInfo.defaultStartTime} - ${todayShiftInfo.defaultEndTime}`
                 : todayShift === 'O' || todayShift === 'V'
                 ? '오늘 편안한 휴무!'
-                : '스케줄 미등록'}
+                : '근무표를 등록해 주세요'}
             </Text>
           </View>
         </View>
         <TouchableOpacity
           style={[styles.todayActionBtn, { backgroundColor: theme.primary, shadowColor: theme.primary }]}
-          onPress={onOpenAlarmModal}
+          onPress={todayShift ? onOpenAlarmModal : (onOpenAddSchedule || onOpenAlarmModal)}
           activeOpacity={0.8}
         >
           <View style={styles.subActionInner}>
-            <ClockIcon size={14} color={theme.onPrimaryText} />
-            <Text style={[styles.todayActionText, { color: theme.onPrimaryText }]}>알람 맞추기</Text>
+            {todayShift ? (
+              <>
+                <ClockIcon size={14} color={theme.onPrimaryText} />
+                <Text style={[styles.todayActionText, { color: theme.onPrimaryText }]}>알람 맞추기</Text>
+              </>
+            ) : (
+              <>
+                <CalendarIcon size={14} color={theme.onPrimaryText} />
+                <Text style={[styles.todayActionText, { color: theme.onPrimaryText }]}>근무표 등록</Text>
+              </>
+            )}
           </View>
         </TouchableOpacity>
       </View>

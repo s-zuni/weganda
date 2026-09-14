@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import {
-  Modal,
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  TouchableWithoutFeedback,
   Linking,
   Alert,
   ActivityIndicator,
   Platform,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/theme';
 import { CrownIcon } from './Icon';
 import { inAppPurchaseService } from '../../services/inAppPurchaseService';
@@ -38,8 +37,6 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
   const handleRestore = async () => {
     setIsRestoring(true);
     try {
-      // restorePurchases()가 서버 검증까지 마친 뒤 store를 직접 갱신하므로,
-      // 여기서는 결과 메시지만 안내한다(클라이언트가 임의로 프리미엄을 부여하지 않는다).
       const result = await inAppPurchaseService.restorePurchases();
       if (result.success) {
         Alert.alert('구매 복원 완료', '이전 구독 내역이 성공적으로 복원되었습니다.');
@@ -53,243 +50,252 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
       setIsRestoring(false);
     }
   };
+
   return (
     <SwipeableBottomSheet visible={visible} onClose={onClose}>
       <View style={styles.sheetContainer}>
+        <View style={styles.contentContainer}>
+          {/* 상단 핑크 틴트 아이콘 서클 */}
+          <View style={styles.iconCircle}>
+            <CrownIcon color="#FF507C" size={26} />
+          </View>
 
-            <View style={styles.contentContainer}>
-              <View style={styles.iconContainer}>
-                <CrownIcon color="#D4A853" size={32} />
-              </View>
+          <View style={styles.brandBadge}>
+            <Text style={styles.brandBadgeText}>weganda+ 멤버십 전용</Text>
+          </View>
 
-              <Text style={styles.title}>weganda+ 전용 기능</Text>
+          <Text style={styles.title}>
+            {featureTitle || '더 스마트한 간호 라이프를 시작하세요'}
+          </Text>
 
-              {(featureTitle || featureDescription) && (
-                <View style={styles.featureInfoContainer}>
-                  {featureTitle && (
-                    <Text style={styles.featureTitle}>{featureTitle}</Text>
-                  )}
-                  {featureDescription && (
-                    <Text style={styles.featureDescription}>
-                      {featureDescription}
-                    </Text>
-                  )}
-                </View>
-              )}
+          {featureDescription && (
+            <Text style={styles.descriptionText}>
+              {featureDescription}
+            </Text>
+          )}
 
-              <View style={styles.benefitsContainer}>
-                <Text style={styles.benefitText}>✓ 사주 서비스 무제한</Text>
-                <Text style={styles.benefitText}>✓ 월급/수당 자동 예측기</Text>
-                <Text style={styles.benefitText}>✓ AI 모임 날짜 추천</Text>
-              </View>
-
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={onSubscribe}
-                activeOpacity={0.8}
-                accessibilityRole="button"
-                accessibilityLabel="우간다+ 구독하기 (월 5,900원~)"
-              >
-                <Text style={styles.primaryButtonText}>
-                  우간다+ 구독하기 (월 5,900원~)
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.secondaryButton}
-                onPress={onLearnMore}
-                activeOpacity={0.6}
-                accessibilityRole="button"
-                accessibilityLabel="자세히 알아보기"
-              >
-                <Text style={styles.secondaryButtonText}>
-                  자세히 알아보기 {'>'}
-                </Text>
-              </TouchableOpacity>
-
-              {/* 🔄 구매 복원 버튼 (Apple Guideline 3.1.1 필수 요건) */}
-              <TouchableOpacity
-                style={styles.restoreButton}
-                onPress={handleRestore}
-                disabled={isRestoring}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel="구매 내역 복원"
-              >
-                {isRestoring ? (
-                  <ActivityIndicator size="small" color="#6B7280" />
-                ) : (
-                  <Text style={styles.restoreButtonText}>
-                    이미 구독 중이신가요? 구매 내역 복원
-                  </Text>
-                )}
-              </TouchableOpacity>
-
-              <View style={styles.legalRow}>
-                <TouchableOpacity
-                  onPress={() => {
-                    const url = 'https://www.weganda.kr/membership';
-                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                      window.open(url, '_blank');
-                    } else {
-                      Linking.openURL(url).catch((err) => console.warn(err));
-                    }
-                  }}
-                  accessibilityRole="link"
-                  accessibilityLabel="멤버십 이용약관"
-                >
-                  <Text style={styles.legalLinkText}>멤버십 이용약관</Text>
-                </TouchableOpacity>
-                <Text style={styles.legalDot}>•</Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    const url = 'https://www.weganda.kr/privacy';
-                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                      window.open(url, '_blank');
-                    } else {
-                      Linking.openURL(url).catch((err) => console.warn(err));
-                    }
-                  }}
-                  accessibilityRole="link"
-                  accessibilityLabel="개인정보 처리방침"
-                >
-                  <Text style={styles.legalLinkText}>개인정보 처리방침</Text>
-                </TouchableOpacity>
-              </View>
+          {/* 3대 핵심 혜택 리스트 (Toss 깔끔한 스타일) */}
+          <View style={styles.benefitsCard}>
+            <View style={styles.benefitRow}>
+              <Ionicons name="checkmark-circle" size={20} color="#FF507C" />
+              <Text style={styles.benefitText}>사주 서비스 무제한 제공</Text>
+            </View>
+            <View style={styles.benefitRow}>
+              <Ionicons name="checkmark-circle" size={20} color="#FF507C" />
+              <Text style={styles.benefitText}>야간/휴일 수당 & 월급 자동 예측기</Text>
+            </View>
+            <View style={styles.benefitRow}>
+              <Ionicons name="checkmark-circle" size={20} color="#FF507C" />
+              <Text style={styles.benefitText}>약물 계산기 & Ask AI 무제한 이용</Text>
             </View>
           </View>
+
+          {/* 메인 구독 시작 버튼 */}
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={onSubscribe}
+            activeOpacity={0.88}
+            accessibilityRole="button"
+            accessibilityLabel="1개월 무료 체험 시작하기"
+          >
+            <Text style={styles.primaryButtonText}>
+              1개월 무료 체험 시작하기
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={onLearnMore}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="멤버십 혜택 자세히 보기"
+          >
+            <Text style={styles.secondaryButtonText}>
+              멤버십 혜택 자세히 보기 ›
+            </Text>
+          </TouchableOpacity>
+
+          {/* 구매 복원 버튼 */}
+          <TouchableOpacity
+            style={styles.restoreButton}
+            onPress={handleRestore}
+            disabled={isRestoring}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="구매 내역 복원"
+          >
+            {isRestoring ? (
+              <ActivityIndicator size="small" color="#6B7280" />
+            ) : (
+              <Text style={styles.restoreButtonText}>
+                이미 구독 중이신가요? 구매 내역 복원
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          {/* 하단 약관 링크 */}
+          <View style={styles.legalRow}>
+            <TouchableOpacity
+              onPress={() => {
+                const url = 'https://www.weganda.kr/membership';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
+              accessibilityRole="link"
+              accessibilityLabel="멤버십 이용약관"
+            >
+              <Text style={styles.legalLinkText}>멤버십 이용약관</Text>
+            </TouchableOpacity>
+            <Text style={styles.legalDot}>•</Text>
+            <TouchableOpacity
+              onPress={() => {
+                const url = 'https://www.weganda.kr/privacy';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
+              accessibilityRole="link"
+              accessibilityLabel="개인정보 처리방침"
+            >
+              <Text style={styles.legalLinkText}>개인정보 처리방침</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
     </SwipeableBottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    justifyContent: 'flex-end',
-  },
   sheetContainer: {
-    backgroundColor: COLORS.background || '#FFFFFF',
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
-    paddingBottom: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 10,
-  },
-  handleContainer: {
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 2,
+    paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+    paddingTop: 8,
   },
   contentContainer: {
     alignItems: 'center',
   },
-  iconContainer: {
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    marginBottom: 16,
-  },
-  featureInfoContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    width: '100%',
-  },
-  featureTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#374151',
-    marginBottom: 4,
-  },
-  featureDescription: {
-    fontSize: 15,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 21,
-  },
-  benefitsContainer: {
-    alignSelf: 'flex-start',
-    marginLeft: 20,
-    marginBottom: 32,
-  },
-  benefitText: {
-    fontSize: 16,
-    color: '#4B5563',
-    marginBottom: 12,
-    fontWeight: '600',
-  },
-  primaryButton: {
-    backgroundColor: COLORS.primary || '#FF507C',
-    borderRadius: 9999,
-    width: '100%',
-    paddingVertical: 16,
+  iconCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#FFF0F3',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
-    minHeight: 44,
+    marginTop: 6,
+    marginBottom: 12,
+  },
+  brandBadge: {
+    backgroundColor: '#FFF5F7',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  brandBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FF507C',
+    letterSpacing: -0.2,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#191F28',
+    textAlign: 'center',
+    letterSpacing: -0.5,
+    marginBottom: 8,
+  },
+  descriptionText: {
+    fontSize: 14,
+    color: '#4E5968',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 20,
+    paddingHorizontal: 16,
+  },
+  benefitsCard: {
+    width: '100%',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 16,
+    padding: 18,
+    gap: 12,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#F2F4F6',
+  },
+  benefitRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  benefitText: {
+    fontSize: 15,
+    color: '#191F28',
+    fontWeight: '600',
+    letterSpacing: -0.2,
+  },
+  primaryButton: {
+    backgroundColor: '#FF507C',
+    borderRadius: 26,
+    width: '100%',
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+    shadowColor: '#FF507C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
   },
   primaryButtonText: {
     color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: -0.3,
   },
   secondaryButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    minHeight: 44,
-    justifyContent: 'center',
+    marginBottom: 10,
   },
   secondaryButtonText: {
-    color: '#6B7280',
-    fontSize: 15,
-    fontWeight: '500',
+    color: '#4E5968',
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: -0.2,
   },
   restoreButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    minHeight: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
+    paddingVertical: 6,
+    marginBottom: 16,
   },
   restoreButtonText: {
-    color: '#6B7280',
-    fontSize: 13,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
+    fontSize: 12,
+    color: '#8B95A1',
+    fontWeight: '500',
   },
   legalRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 12,
   },
   legalLinkText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#9CA3AF',
-    textDecorationLine: 'underline',
+    fontWeight: '500',
   },
   legalDot: {
-    fontSize: 12,
-    color: '#D1D5DB',
+    fontSize: 11,
+    color: '#E5E8EB',
   },
 });
-

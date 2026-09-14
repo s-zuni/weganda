@@ -3,13 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
   Linking,
   Platform,
+  ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
@@ -42,6 +43,7 @@ const getFriendlyAuthErrorMessage = (error: any, provider: string): string => {
 };
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
@@ -118,7 +120,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: Math.max(insets.bottom, 16) }]}>
       {/* 🔒 앱스토어 / 구글플레이 심사관 전용 로그인 (프로덕션 빌드에서는 제외) */}
       {isReviewerLoginEnabled && (
         <View style={styles.topBar}>
@@ -137,10 +139,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         </View>
       )}
 
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* 상단 브랜딩 영역 */}
         <View style={styles.heroSection}>
-          <WegandaLogo size={76} variant="full" style={{ marginBottom: 18 }} />
+          <WegandaLogo size={64} variant="full" style={{ marginBottom: 14 }} />
           <View style={styles.badge}>
             <Text style={styles.badgeText}>대한민국 50만 간호사를 위한</Text>
           </View>
@@ -254,14 +262,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             에 동의합니다.
           </Text>
         </View>
-      </View>
+      </ScrollView>
 
       {/* 🔐 심사관 전용 로그인 모달 */}
       <ReviewerLoginModal
         visible={reviewerModalVisible}
         onClose={() => setReviewerModalVisible(false)}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -287,12 +295,15 @@ const styles = StyleSheet.create({
     color: '#D1D5DB', // 심사관 전용으로 은은하고 희미하게 노출
     fontWeight: '500',
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'space-between',
     paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 24,
+    paddingTop: 12,
+    paddingBottom: 16,
   },
   heroSection: {
     alignItems: 'flex-start',
@@ -300,48 +311,51 @@ const styles = StyleSheet.create({
   badge: {
     backgroundColor: '#FFF0F3',
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: 20,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   badgeText: {
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: '700',
     color: COLORS.primary,
   },
   brandTitle: {
-    fontSize: 44,
+    fontSize: 36,
     fontWeight: '900',
     color: COLORS.textPrimary,
-    letterSpacing: -1.5,
-    marginBottom: 12,
+    letterSpacing: -1.2,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 17,
-    lineHeight: 26,
+    fontSize: 15,
+    lineHeight: 23,
     color: COLORS.textSecondary,
     fontWeight: '500',
     letterSpacing: -0.3,
-    marginBottom: 18,
+    marginBottom: 16,
   },
   promoBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFF5F7',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#FFE4E9',
     gap: 8,
+    width: '100%',
   },
   promoEmoji: {
     fontSize: 16,
   },
   promoText: {
-    fontSize: 13,
+    flex: 1,
+    fontSize: 12.5,
     color: COLORS.textSecondary,
     fontWeight: '500',
+    lineHeight: 18,
   },
   promoBold: {
     color: COLORS.primary,
@@ -349,7 +363,8 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     width: '100%',
-    gap: 12,
+    gap: 10,
+    marginTop: 18,
   },
   buttonInner: {
     flexDirection: 'row',
@@ -359,8 +374,8 @@ const styles = StyleSheet.create({
   },
   appleButton: {
     backgroundColor: '#000000',
-    height: 54,
-    borderRadius: 16,
+    height: 50,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000000',
@@ -371,14 +386,14 @@ const styles = StyleSheet.create({
   },
   appleButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15.5,
     fontWeight: '700',
     letterSpacing: -0.3,
   },
   kakaoButton: {
     backgroundColor: '#FEE500',
-    height: 54,
-    borderRadius: 16,
+    height: 50,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000000',
@@ -389,14 +404,14 @@ const styles = StyleSheet.create({
   },
   kakaoButtonText: {
     color: '#181600',
-    fontSize: 16,
+    fontSize: 15.5,
     fontWeight: '700',
     letterSpacing: -0.3,
   },
   googleButton: {
     backgroundColor: '#FFFFFF',
-    height: 54,
-    borderRadius: 16,
+    height: 50,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -409,17 +424,17 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     color: COLORS.textPrimary,
-    fontSize: 16,
+    fontSize: 15.5,
     fontWeight: '700',
     letterSpacing: -0.3,
   },
   legalNotice: {
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 11.5,
+    lineHeight: 17,
     color: COLORS.textMuted,
     textAlign: 'center',
     marginTop: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
   },
   legalLink: {
     color: COLORS.textSecondary,

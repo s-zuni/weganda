@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   ScrollView,
   TextInput,
@@ -12,7 +11,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   Linking,
+  BackHandler,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, TINT_COLORS, NEUTRAL } from '../../../constants/theme';
 import * as Clipboard from 'expo-clipboard';
 import { useUserStore } from '../../../store/useUserStore';
@@ -34,11 +35,19 @@ import { MyPageActivityStatsSection } from './MyPageActivityStatsSection';
 import { InquiryCategory, BUSINESS_INFO } from '../../../types/support';
 
 interface MyPageModalProps {
-  visible: boolean;
-  onClose: () => void;
+  visible?: boolean;
+  onClose?: () => void;
+  bottomBarHeight?: number;
+  isScreen?: boolean;
 }
 
-export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) => {
+export const MyPageModal: React.FC<MyPageModalProps> = ({
+  visible = true,
+  onClose = () => {},
+  bottomBarHeight = 0,
+  isScreen = false,
+}) => {
+  const insets = useSafeAreaInsets();
   const theme = useAppTheme();
   const {
     name: storeName,
@@ -201,14 +210,31 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
     Alert.alert('고유번호 복사', `간호사 고유번호 #${userCode}가 클립보드에 복사되었습니다.\n동료 간호사에게 전달하여 친구를 맺어보세요!`);
   };
 
+  // 안드로이드 하드웨어 뒤로가기 버튼 지원
+  useEffect(() => {
+    if (!visible) return;
+    const onBackPress = () => {
+      onClose();
+      return true;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [visible, onClose]);
+
+  if (!visible) return null;
+
+  const containerStyle = isScreen
+    ? styles.screenContainer
+    : [styles.modalOverlay, { bottom: bottomBarHeight }];
+
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <View style={containerStyle}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
         {/* 헤더 */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) + 8 }]}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={[styles.backText, { color: theme.primary }]}>‹ 닫기</Text>
           </TouchableOpacity>
@@ -425,6 +451,14 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
               </View>
 
               <View style={styles.subDateInfoBox}>
+                {subscriptionInfo?.paymentMethod && (
+                  <View style={styles.subDateRow}>
+                    <Text style={styles.subDateLabel}>등록된 결제 수단</Text>
+                    <Text style={styles.subDateVal}>
+                      {subscriptionInfo.paymentMethod.name} ({subscriptionInfo.paymentMethod.maskedNumber?.slice(-4) || '간편결제'})
+                    </Text>
+                  </View>
+                )}
                 {subscriptionInfo?.isTrial && subscriptionInfo?.trialEndDate && (
                   <View style={styles.subDateRow}>
                     <Text style={styles.subDateLabel}>1개월 무료 체험 종료일</Text>
@@ -716,11 +750,23 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
           }}
         />
       </KeyboardAvoidingView>
-    </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  screenContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: COLORS.background,
+    zIndex: 90,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -730,10 +776,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 54,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.divider,
+    backgroundColor: '#FFFFFF',
   },
   backText: {
     fontSize: 16,
@@ -750,7 +796,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 120,
     gap: 16,
   },
   profileCard: {

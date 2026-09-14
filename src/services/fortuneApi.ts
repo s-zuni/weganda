@@ -45,30 +45,95 @@ export interface FortuneGenerateParams {
   };
 }
 
-// 오프라인 또는 일시적 오류 시 기본 제공 운세 폴백
-const DEFAULT_FORTUNE_FALLBACK: FortuneResult = {
-  title: '오늘의 간호 운세',
-  fortuneText: '동료와의 호흡이 편안하고 라운딩이 순조로운 날입니다. 침착한 처치로 환자들에게 신뢰를 얻겠어요.',
-  overallScore: 92,
-  scores: {
-    colleague: 90,
-    career: 93,
-    rest: 94,
-  },
-  biorhythm: {
-    injectionScore: 95,
-    communicationScore: 90,
-    mentalScore: 92,
-  },
-  lucky: {
-    item: '3색 볼펜',
-    color: '비바 코랄 핑크 (#FF507C)',
-    number: 7,
-    direction: '스테이션 동쪽',
-  },
-  advice: '스스로에게 따뜻한 칭찬 한마디를 건네보세요. 오늘도 수고 많으셨습니다.',
-  cached: true,
-};
+const LUCKY_COLORS = [
+  '비바 코랄 핑크 (#FF507C)',
+  '포레스트 에메랄드 (#10B981)',
+  '클리어 스카이 블루 (#3B82F6)',
+  '라벤더 퍼플 (#8B5CF6)',
+  '선셋 골드 옐로우 (#F59E0B)',
+  '소프트 민트 그린 (#34D399)',
+  '딥 네이비 블루 (#1E3A8A)',
+  '로즈 블러셔 (#FB7185)',
+  '차분한 웜 베이지 (#D97706)',
+];
+
+const LUCKY_NUMBERS = [1, 2, 3, 5, 7, 8, 9, 11, 14, 17, 21, 28, 33, 77];
+
+const LUCKY_DIRECTIONS = [
+  '스테이션 동쪽 (목(木) 생기 방위)',
+  '남측 채광 라운지 (화(火) 활력 방위)',
+  '서편 약국 및 처치실 (금(金) 결단 방위)',
+  '북측 조용한 회의실 (수(水) 휴식 방위)',
+  '널싱 스테이션 정중앙 (토(土) 중심 방위)',
+  '동남향 창가 복도 (목화(木火) 상생 방위)',
+  '서북향 차분한 스테이션 (금수(金水) 청량 방위)',
+];
+
+const LUCKY_ITEMS = [
+  '부드러운 3색 젤펜',
+  '포켓용 안전 의료 가위',
+  '종아리 압박 스타킹',
+  '보온 티 텀블러',
+  '클립형 실리콘 시계',
+  '고보습 시어버터 핸드크림',
+  '상큼한 비타민 캔디',
+  '라인 정리용 밴드 테이프',
+];
+
+const DAILY_TITLES = [
+  '동료와의 팀워크가 빛을 발하는 날',
+  '손끝의 감각이 살아나 처치가 매끄러운 날',
+  '환자와의 라포가 따뜻하게 통하는 날',
+  '침착한 판단으로 정시 퇴근에 다가서는 날',
+  '새로운 배움과 전문성이 한 단계 도약하는 날',
+  '마음의 여유와 잔잔한 평온이 깃드는 날',
+];
+
+const DAILY_FORTUNES = [
+  '동료와의 호흡이 편안하고 라운딩이 순조로운 하루입니다. 침착한 처치와 온화한 미소로 병동 분위기를 밝게 이끌겠어요.',
+  '오후 인수인계와 바이탈 체크가 물 흐르듯 신속하게 진행됩니다. 집중력이 최고조에 달해 돌발 상황도 여유 있게 대처합니다.',
+  '작은 배려가 큰 신뢰로 돌아오는 길한 날입니다. 동료 간호사가 건네는 따뜻한 간식이나 응원의 말이 큰 힘이 되어 줍니다.',
+  '처치 난이도가 높은 환자도 단번에 안정시킬 수 있는 날입니다. 본인의 직관을 믿고 원칙대로 차분히 임상에 임하십시오.',
+  '오늘 번표의 듀티 흐름이 상생의 기운을 탑니다. 칼퇴의 가능성이 높으니 업무 후 나만을 위한 힐링 시간을 계획해 보세요.',
+];
+
+const DAILY_ADVICES = [
+  '바쁜 일과 중에도 깊은 심호흡 세 번으로 마음의 평정심을 유지하세요.',
+  '동료에게 건네는 따뜻한 수고 한마디가 다시 나에게 든든한 방패로 돌아옵니다.',
+  '퇴근 후에는 온전히 나만의 안식을 즐기며 오늘의 피로를 씻어내세요.',
+  '충분한 수분 섭취와 스트레칭으로 굳어진 어깨를 부드럽게 풀어주세요.',
+  '당신은 이미 환자와 동료들에게 없어서는 안 될 소중하고 빛나는 존재입니다.',
+];
+
+// 동적 일일 운세 생성기 (오프라인/폴백 시에도 매일/클릭 시 갱신 보장)
+export function getDynamicDailyFortune(params?: FortuneGenerateParams): FortuneResult {
+  const rand = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+  const overallScore = Math.floor(Math.random() * 9) + 90; // 90 ~ 98
+
+  return {
+    title: rand(DAILY_TITLES),
+    fortuneText: rand(DAILY_FORTUNES),
+    overallScore,
+    scores: {
+      colleague: Math.floor(Math.random() * 8) + 90,
+      career: Math.floor(Math.random() * 8) + 90,
+      rest: Math.floor(Math.random() * 8) + 90,
+    },
+    biorhythm: {
+      injectionScore: Math.floor(Math.random() * 8) + 90,
+      communicationScore: Math.floor(Math.random() * 8) + 90,
+      mentalScore: Math.floor(Math.random() * 8) + 90,
+    },
+    lucky: {
+      item: rand(LUCKY_ITEMS),
+      color: rand(LUCKY_COLORS),
+      number: rand(LUCKY_NUMBERS),
+      direction: rand(LUCKY_DIRECTIONS),
+    },
+    advice: rand(DAILY_ADVICES),
+    cached: false,
+  };
+}
 
 const DIRECT_OPENAI_KEY =
   process.env.EXPO_PUBLIC_OPENAI_API_KEY ||
@@ -190,10 +255,10 @@ export const fortuneApi = {
         return directResult;
       }
 
-      return DEFAULT_FORTUNE_FALLBACK;
+      return getDynamicDailyFortune(params);
     } catch (e) {
-      console.warn('Notice: using DEFAULT_FORTUNE_FALLBACK due to network or server state:', e);
-      return DEFAULT_FORTUNE_FALLBACK;
+      console.warn('Notice: using getDynamicDailyFortune due to network or server state:', e);
+      return getDynamicDailyFortune(params);
     }
   },
 };

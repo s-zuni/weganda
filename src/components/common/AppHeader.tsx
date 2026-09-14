@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { COLORS, useAppTheme } from '../../constants/theme';
 import { BellIcon, UserIcon } from './Icon';
 import { WegandaLogo } from './WegandaLogo';
@@ -26,13 +27,22 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   style,
 }) => {
   const theme = useAppTheme();
+  const navigation = useNavigation<any>();
   const openNotifications = useHeaderModalStore((s) => s.openNotifications);
   const openMyPage = useHeaderModalStore((s) => s.openMyPage);
 
   const { unreadCount } = useNotificationStore();
 
   const handleNotification = onPressNotification || openNotifications;
-  const handleProfile = onPressProfile || openMyPage;
+  const handleProfile =
+    onPressProfile ||
+    (() => {
+      try {
+        navigation.navigate('MyPageTab');
+      } catch {
+        openMyPage();
+      }
+    });
 
   return (
     <View style={[styles.container, style]}>

@@ -1,4 +1,4 @@
-﻿export type MembershipPlanKey = 'monthly' | 'yearly';
+export type MembershipPlanKey = 'monthly' | 'yearly';
 
 export interface FreeTrialEventConfig {
   isEnabled: boolean;
@@ -23,6 +23,13 @@ export interface MembershipEventConfig {
   yearlyDiscountEvent: DiscountEventConfig;
 }
 
+export interface PaymentMethodInfo {
+  type: 'card' | 'kakaopay' | 'naverpay' | 'tosspay';
+  name: string;
+  maskedNumber?: string;
+  registeredAt: string;
+}
+
 export interface UserSubscriptionInfo {
   planType: MembershipPlanKey;
   isEarlybird: boolean;
@@ -34,6 +41,7 @@ export interface UserSubscriptionInfo {
   subscribedAt: string;
   status: 'active' | 'trial' | 'canceled';
   storeSku: string;
+  paymentMethod?: PaymentMethodInfo;
 }
 
 export interface CurrentPlanPricing {

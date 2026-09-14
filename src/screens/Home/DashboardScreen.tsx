@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   Alert,
@@ -10,11 +9,13 @@ import {
   Text,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
 import { ShiftCode, SHIFT_TYPES, ShiftInfo } from '../../constants/shiftTypes';
+import { CalendarIcon } from '../../components/common/Icon';
 import { useUserStore } from '../../store/useUserStore';
 import { useShiftScheduleStore } from '../../store/useShiftScheduleStore';
 import { nativeCalendarService } from '../../services/nativeCalendarService';
@@ -107,6 +108,13 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const todayShiftInfo = getShiftInfo(todayShift);
   const tomorrowShiftInfo = getShiftInfo(tomorrowShift);
 
+  // 이번 달 등록된 근무 스케줄 존재 여부 확인 (미등록 사용자 감지)
+  const currentYm = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+  const hasCurrentMonthSchedule = Object.keys(schedules).some(
+    (k) => k.startsWith(currentYm) && Boolean(schedules[k])
+  );
+  const isScheduleEmpty = Object.keys(schedules).length === 0 || !hasCurrentMonthSchedule;
+
   // 오늘 기준 이전 30일 ~ 이후 30일 스케줄 타임라인 데이터 (총 61일)
   const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
   const timelineDaysOffset = 30;
@@ -133,7 +141,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   }, [schedules, customCodes, todayKey]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <AppHeader />
 
@@ -168,6 +176,30 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
           todayShiftInfo={todayShiftInfo}
         />
 
+        {/* 📅 근무표 미등록 시 상단 등록 유도 카드 */}
+        {isScheduleEmpty && (
+          <View style={styles.emptyPromptCard}>
+            <View style={styles.emptyPromptHeader}>
+              <View style={styles.emptyPromptIconBadge}>
+                <CalendarIcon size={20} color={COLORS.primary} />
+              </View>
+              <View style={styles.emptyPromptTextCol}>
+                <Text style={styles.emptyPromptTitle}>이번 달 근무표를 등록해 주세요</Text>
+                <Text style={styles.emptyPromptSubtitle}>
+                  근무표를 등록하면 오늘/내일 듀티 알림과 월급 예측이 시작됩니다.
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.emptyPromptBtn}
+              onPress={() => setAddScheduleModalVisible(true)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.emptyPromptBtnText}>+ 근무표 등록하기</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* 오늘 / 내일 근무 카드 2열 그리드 */}
         <ShiftGridRow
           today={today}
@@ -178,6 +210,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
           tomorrowShiftInfo={tomorrowShiftInfo}
           tomorrowCalendarEvent={tomorrowCalendarEvent}
           onOpenAlarmModal={() => setAlarmModalVisible(true)}
+          onOpenAddSchedule={() => setAddScheduleModalVisible(true)}
           onQuickSyncCalendar={handleQuickSyncCalendar}
           onNavigateFortune={() => navigation?.navigate('FortuneTab')}
         />
@@ -292,6 +325,59 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontSize: 13,
     fontWeight: '600',
+  },
+  emptyPromptCard: {
+    backgroundColor: '#FFF8F9',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FFE4EA',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+    gap: 12,
+  },
+  emptyPromptHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  emptyPromptIconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#FFF0F3',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyPromptTextCol: {
+    flex: 1,
+  },
+  emptyPromptTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 2,
+  },
+  emptyPromptSubtitle: {
+    fontSize: 12.5,
+    color: COLORS.textSecondary,
+    lineHeight: 17,
+  },
+  emptyPromptBtn: {
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyPromptBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
 
