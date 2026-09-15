@@ -90,6 +90,14 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
             </View>
           </View>
 
+          {/* 💖 10% 기부 약속 */}
+          <View style={styles.donationRow}>
+            <Ionicons name="heart" size={13} color="#FF507C" />
+            <Text style={styles.donationNoticeText}>
+              수익의 10%는 환아 및 예비 간호사를 위해 기부됩니다
+            </Text>
+          </View>
+
           {/* 메인 구독 시작 버튼 */}
           <TouchableOpacity
             style={styles.primaryButton}
@@ -228,9 +236,23 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 18,
     gap: 12,
-    marginBottom: 24,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: '#F2F4F6',
+  },
+  donationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  donationNoticeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FF507C',
+    letterSpacing: -0.2,
   },
   benefitRow: {
     flexDirection: 'row',

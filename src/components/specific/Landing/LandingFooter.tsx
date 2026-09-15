@@ -51,7 +51,8 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({ onNavigateLegal })
               </Text>
             </View>
             <Text style={styles.brandDesc}>
-              대한민국 50만 3교대 간호사의 건강하고 행복한 일상을 함께 만드는 올인원 라이프스타일 플랫폼입니다.
+              대한민국 50만 3교대 간호사의 건강하고 행복한 일상을 함께 만드는 올인원 라이프스타일 플랫폼입니다.{'\n'}
+              우간다+ 멤버십 수익의 10%는 간호가 필요한 어린이들과 간호사를 꿈꾸는 이들을 위해 기부됩니다.
             </Text>
           </View>
 

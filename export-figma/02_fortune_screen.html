@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우간다 - 운세 (Fortune)</title>
+  <!-- Pretendard & Inter Web Fonts -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#FF507C', // Viva Coral Pink
+            brandLight: '#FFF1F4',
+            brandBorder: '#FFE4EA',
+            sajuIndigo: '#6366F1',
+            sajuGreen: '#10B981',
+            sajuBlue: '#3B82F6',
+            sajuPurple: '#8B5CF6',
+            sajuAmber: '#F59E0B',
+            bgGray: '#F8F9FA',
+            borderGray: '#E5E7EB',
+            textPrimary: '#1A1A1A',
+            textSecondary: '#6B7280',
+            textMuted: '#9CA3AF',
+          },
+          fontFamily: {
+            sans: ['Pretendard', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 2px 10px rgba(0, 0, 0, 0.04)',
+            card: '0 4px 16px rgba(0, 0, 0, 0.05)',
+            btn: '0 4px 12px rgba(255, 80, 124, 0.25)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #F3F4F6;
+      margin: 0;
+      padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mobile-frame {
+      width: 390px;
+      min-height: 844px;
+      background-color: #FFFFFF;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body>
+  <div class="mobile-frame" id="fortune-screen">
+    
+    <!-- 1. 스마트폰 시스템 상태바 -->
+    <div class="w-full px-7 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-textPrimary bg-white">
+      <span>09:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z"/></svg>
+        <div class="w-5 h-2.5 border border-textPrimary rounded-sm p-0.5 flex items-center">
+          <div class="w-full h-full bg-textPrimary rounded-2xs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. AppHeader -->
+    <header class="w-full px-5 py-3.5 flex justify-between items-center bg-white sticky top-0 z-30">
+      <div class="flex items-center gap-2">
+        <svg class="w-6 h-6 text-brand" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 16h5l3-8 6 16 4-10 3 5h5" />
+        </svg>
+        <h1 class="text-2xl font-black tracking-tight text-brand">우간다</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-bgGray">
+          <svg class="w-5 h-5 text-textPrimary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        </button>
+        <button class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-bgGray">
+          <svg class="w-5 h-5 text-textPrimary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 3. 메인 콘텐츠 -->
+    <main class="flex-1 px-5 pb-24 overflow-y-auto no-scrollbar space-y-4">
+      
+      <!-- 사주 탄생 정보 배너 (BirthInfoBanner) -->
+      <section class="mt-1 bg-bgGray border border-borderGray rounded-xl p-3 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <span class="text-sm">🔮</span>
+          <span class="text-xs font-semibold text-textSecondary">
+            김간호사님 (1996.08.15 음력 · 丙子 일주)
+          </span>
+        </div>
+        <button class="text-xs font-bold text-brand hover:underline">
+          사주 수정 ›
+        </button>
+      </section>
+
+      <!-- 메인 운세 카드 (HeroFortuneCard) -->
+      <section class="bg-white border border-borderGray rounded-2xl p-5 shadow-soft">
+        <div class="flex justify-between items-center mb-3.5">
+          <div>
+            <span class="text-xs font-semibold text-textMuted">2026. 9. 15 (월)</span>
+            <h2 class="text-xl font-extrabold text-textPrimary mt-0.5">🍀 오늘의 행운 지수</h2>
+          </div>
+          <!-- 점수 원형 뱃지 -->
+          <div class="w-14 h-14 rounded-full bg-brandLight border-2 border-brand flex items-center justify-center shadow-soft">
+            <span class="text-2xl font-black text-brand">92</span>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-borderGray/60">
+          <p class="text-base font-bold text-brand leading-snug">
+            "동료와의 협력이 빛을 발하는 하루입니다"
+          </p>
+          <p class="text-sm text-textSecondary mt-1.5 leading-relaxed">
+            오후 인수인계 중 동료 간호사의 세심한 배려로 복잡한 차팅이 수월하게 풀립니다. 뜻밖의 긍정적인 라포 형성이 기대되는 길일입니다.
+          </p>
+        </div>
+      </section>
+
+      <!-- 5대 맞춤 사주 섹션 (ThemeFortuneGrid) -->
+      <section class="space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-extrabold text-textPrimary">5대 정밀 맞춤 사주 & 케미</h3>
+          <span class="text-xs font-medium text-textMuted">주제별 정밀 판정</span>
+        </div>
+
+        <!-- 무료 운세 제한 안내 배너 -->
+        <div class="bg-amber-50 border border-amber-200/60 rounded-xl px-3.5 py-2 flex justify-between items-center text-xs">
+          <span class="font-bold text-amber-800">이번 달 무료 운세 2/5회 사용</span>
+          <span class="font-bold text-amber-800 underline cursor-pointer">무제한 이용 ›</span>
+        </div>
+
+        <!-- 🌟 정통 내 사주 풀이 (대형 히어로 카드) -->
+        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 shadow-soft">
+          <div class="flex justify-between items-center mb-2">
+            <span class="bg-indigo-600 text-white text-2xs font-extrabold px-2 py-0.5 rounded-full">
+              정통 평생 사주
+            </span>
+            <span class="text-xs font-bold text-indigo-600">원국 8글자 완비 ›</span>
+          </div>
+          <h4 class="text-base font-bold text-textPrimary">
+            정통 내 사주 풀이 (원국 & 평생 총운)
+          </h4>
+          <p class="text-xs text-textSecondary mt-1 leading-relaxed">
+            직업과 무관하게 타고난 사주 원국표, 오행 밸런스, 10년 대운을 총체적으로 정밀 감정합니다.
+          </p>
+          <div class="flex gap-1.5 mt-3">
+            <span class="bg-white px-2 py-1 rounded-md text-2xs font-semibold text-indigo-700 border border-indigo-100">사주 원국표</span>
+            <span class="bg-white px-2 py-1 rounded-md text-2xs font-semibold text-indigo-700 border border-indigo-100">오행 밸런스</span>
+            <span class="bg-white px-2 py-1 rounded-md text-2xs font-semibold text-indigo-700 border border-indigo-100">특수 신살</span>
+            <span class="bg-white px-2 py-1 rounded-md text-2xs font-semibold text-indigo-700 border border-indigo-100">10년 대운</span>
+          </div>
+        </div>
+
+        <!-- 간호 특화 4대 테마 그리드 -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- 1. 간호 사주 -->
+          <div class="bg-white border border-borderGray rounded-2xl p-3.5 shadow-soft">
+            <div class="flex justify-between items-center mb-2">
+              <span class="w-7 h-7 rounded-lg bg-brandLight flex items-center justify-center text-sm">🩺</span>
+              <span class="text-2xs font-bold text-brand bg-brandLight px-1.5 py-0.5 rounded">필수 감정</span>
+            </div>
+            <h5 class="text-sm font-bold text-textPrimary">간호 사주</h5>
+            <p class="text-xs text-textMuted mt-1 line-clamp-2">
+              병동 적합도 · 듀티 난이도 · 나이트 체질 분석
+            </p>
+          </div>
+
+          <!-- 2. 동료 & 대인관계 -->
+          <div class="bg-white border border-borderGray rounded-2xl p-3.5 shadow-soft">
+            <div class="flex justify-between items-center mb-2">
+              <span class="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-sm">👭</span>
+              <span class="text-2xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">동료 케미</span>
+            </div>
+            <h5 class="text-sm font-bold text-textPrimary">동료 & 대인관계</h5>
+            <p class="text-xs text-textMuted mt-1 line-clamp-2">
+              듀티 메이트 · 프리셉터 처세술 · 환자 라포
+            </p>
+          </div>
+
+          <!-- 3. 이직 & 진로 대운 -->
+          <div class="bg-white border border-borderGray rounded-2xl p-3.5 shadow-soft">
+            <div class="flex justify-between items-center mb-2">
+              <span class="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-sm">🧭</span>
+              <span class="text-2xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">10년 대운</span>
+            </div>
+            <h5 class="text-sm font-bold text-textPrimary">이직 & 진로 대운</h5>
+            <p class="text-xs text-textMuted mt-1 line-clamp-2">
+              사직 타이밍 · 탈임상 · NCLEX 해외 진출
+            </p>
+          </div>
+
+          <!-- 4. 연애 & 결혼 궁합 -->
+          <div class="bg-white border border-borderGray rounded-2xl p-3.5 shadow-soft">
+            <div class="flex justify-between items-center mb-2">
+              <span class="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center text-sm">💍</span>
+              <span class="text-2xs font-bold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">사주 궁합</span>
+            </div>
+            <h5 class="text-sm font-bold text-textPrimary">연애 & 결혼 궁합</h5>
+            <p class="text-xs text-textMuted mt-1 line-clamp-2">
+              3교대 배려 배우자 · 오행 상생 궁합 처방
+            </p>
+          </div>
+        </div>
+
+        <!-- 5. 재물 & 수당 재테크 (전폭 카드) -->
+        <div class="bg-white border border-borderGray rounded-2xl p-3.5 shadow-soft flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-base">💰</div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h5 class="text-sm font-bold text-textPrimary">재물 & 수당 재테크</h5>
+                <span class="text-2xs font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">수당 관리</span>
+              </div>
+              <p class="text-xs text-textMuted mt-0.5">나이트 수당 불리기 · 아파트 청약 및 문서운</p>
+            </div>
+          </div>
+          <span class="text-xs text-textMuted font-bold">›</span>
+        </div>
+      </section>
+
+      <!-- 오늘의 행운 (LuckyItemsSection) -->
+      <section class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft">
+        <h4 class="text-sm font-bold text-textPrimary mb-3">🍀 오늘의 행운 4종 팩</h4>
+        <div class="grid grid-cols-4 gap-2 text-center">
+          <div class="bg-bgGray p-2.5 rounded-xl">
+            <span class="text-2xs text-textMuted font-semibold block">행운 컬러</span>
+            <div class="w-4 h-4 rounded-full bg-brand mx-auto my-1"></div>
+            <span class="text-xs font-bold text-textPrimary block">비바 코랄</span>
+          </div>
+          <div class="bg-bgGray p-2.5 rounded-xl">
+            <span class="text-2xs text-textMuted font-semibold block">행운 숫자</span>
+            <span class="text-base font-black text-brand block my-0.5">7</span>
+            <span class="text-xs font-bold text-textPrimary block">행운의 수</span>
+          </div>
+          <div class="bg-bgGray p-2.5 rounded-xl">
+            <span class="text-2xs text-textMuted font-semibold block">행운 방향</span>
+            <span class="text-base font-black text-brand block my-0.5">SE</span>
+            <span class="text-xs font-bold text-textPrimary block">남동쪽</span>
+          </div>
+          <div class="bg-bgGray p-2.5 rounded-xl">
+            <span class="text-2xs text-textMuted font-semibold block">행운 아이템</span>
+            <span class="text-sm block my-0.5">🧦</span>
+            <span class="text-xs font-bold text-textPrimary block">압박스타킹</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 오늘의 조언 (AdviceCard) -->
+      <section class="bg-brandLight border border-brandBorder rounded-2xl p-3.5 flex items-start gap-2.5">
+        <span class="text-lg">💡</span>
+        <div>
+          <h5 class="text-xs font-bold text-brand">오늘의 임상 명리 조언</h5>
+          <p class="text-xs text-textPrimary mt-0.5 leading-relaxed">
+            나이트 인계 전 수액 세트 챔버 및 투약 라벨을 동료와 한 번 더 상호 점검하면 사고를 미연에 완벽 방지할 수 있습니다.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 4. 하단 탭바 -->
+    <nav class="w-full bg-white border-t border-borderGray px-4 py-2 flex justify-around items-center absolute bottom-0 left-0 z-30">
+      <!-- 1. 홈 -->
+      <button class="flex flex-col items-center gap-1 text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span class="text-2xs font-semibold">홈</span>
+      </button>
+      <!-- 2. 운세 (Active) -->
+      <button class="flex flex-col items-center gap-1 text-brand">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="text-2xs font-bold">운세</span>
+      </button>
+      <!-- 3. 친구 -->
+      <button class="flex flex-col items-center gap-1 text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="text-2xs font-semibold">친구</span>
+      </button>
+      <!-- 4. 교육 -->
+      <button class="flex flex-col items-center gap-1 text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span class="text-2xs font-semibold">교육</span>
+      </button>
+      <!-- 5. 커뮤니티 -->
+      <button class="flex flex-col items-center gap-1 text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="text-2xs font-semibold">커뮤니티</span>
+      </button>
+    </nav>
+
+  </div>
+</body>
+</html>

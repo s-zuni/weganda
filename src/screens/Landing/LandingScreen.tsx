@@ -6,6 +6,7 @@ import {
   LandingFeatureSpotlights,
   LandingHowItWorks,
   LandingCoreFeatures,
+  LandingSocialImpact,
   LandingDownloadCta,
   LandingFooter,
 } from '../../components/specific/Landing';
@@ -59,10 +60,13 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({ onNavigateLegal })
       {/* 5. Dark Navy Problem-Solving Section (간호사의 고충을 해결하는 6가지) */}
       <LandingCoreFeatures />
 
-      {/* 6. Bottom Waitlist Email Conversion Box */}
+      {/* 6. 사회공헌: 10% 기부 약속 (소아 환아 및 예비 간호대생 지원) */}
+      <LandingSocialImpact />
+
+      {/* 7. Bottom Waitlist Email Conversion Box */}
       <LandingDownloadCta />
 
-      {/* 7. Understated Legal & Brand Footer */}
+      {/* 8. Understated Legal & Brand Footer */}
       <LandingFooter onNavigateLegal={onNavigateLegal} />
     </ScrollView>
   );

@@ -1,0 +1,269 @@
+<!DOCTYPE html><html class="light" lang="ko" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>우간다 - 커뮤니티</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "shift-day": "#4F98CA",
+                        "on-secondary-fixed": "#002115",
+                        "secondary-fixed-dim": "#95d4b5",
+                        "surface-container-highest": "#e1e3df",
+                        "on-surface": "#191c1a",
+                        "on-primary": "#ffffff",
+                        "primary": "#003020",
+                        "outline": "#707973",
+                        "surface-dim": "#d8dbd7",
+                        "off-white": "#F8F9FA",
+                        "divider": "#F3F4F6",
+                        "inverse-on-surface": "#eff1ee",
+                        "primary-muted": "#6A9E88",
+                        "shift-night": "#272727",
+                        "tertiary-fixed-dim": "#ffb4aa",
+                        "error": "#ba1a1a",
+                        "on-background": "#191c1a",
+                        "shift-vacation": "#9B51E0",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#316e54",
+                        "surface-container": "#eceeeb",
+                        "on-tertiary-fixed-variant": "#6e3730",
+                        "on-primary-container": "#7ab69b",
+                        "on-tertiary-container": "#e1978e",
+                        "secondary": "#2c6950",
+                        "outline-variant": "#bfc9c2",
+                        "surface-container-low": "#f2f4f0",
+                        "secondary-fixed": "#b1f0d0",
+                        "on-tertiary-fixed": "#370d09",
+                        "text-primary": "#1A1A1A",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#0d513a",
+                        "on-primary-fixed": "#002115",
+                        "tertiary-container": "#642f29",
+                        "text-muted": "#9CA3AF",
+                        "surface-bright": "#f8faf6",
+                        "surface-container-high": "#e7e9e5",
+                        "primary-tint": "#E6F0EC",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#404944",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#024833",
+                        "surface-variant": "#e1e3df",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#491a15",
+                        "primary-fixed": "#b2f0d2",
+                        "shift-evening": "#E2703A",
+                        "tertiary-fixed": "#ffdad5",
+                        "background": "#f8faf6",
+                        "text-secondary": "#6B7280",
+                        "shift-off": "#E84A5F",
+                        "inverse-primary": "#96d3b7",
+                        "surface": "#f8faf6",
+                        "border": "#E5E7EB",
+                        "primary-fixed-dim": "#96d3b7",
+                        "on-primary-fixed-variant": "#10503b",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#2e6952",
+                        "secondary-container": "#aeedce",
+                        "inverse-surface": "#2e312f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "12px",
+                        "stack-gap-md": "16px",
+                        "stack-gap-sm": "8px",
+                        "container-margin": "20px",
+                        "card-padding": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "shift-code": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "shift-code": ["18px", { "lineHeight": "18px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(961px, 100dvh);
+    }
+  </style>
+</head>
+<body class="w-[390px] mx-auto bg-off-white text-text-primary font-body-md antialiased md:pb-0 relative shadow-xl bg-surface pb-[84px] pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface docked full-width top-0 w-full z-50 flex justify-between items-center px-container-margin py-4 max-w-7xl mx-auto sticky">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary font-headline-lg" data-icon="healing">healing</span>
+<h1 class="font-headline-lg text-headline-lg font-extrabold text-primary">우간다</h1>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant hover:opacity-80 transition-opacity">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</header>
+<!-- Category Filter (Tabs) -->
+<nav class="bg-surface-container-lowest sticky top-[64px] z-40 border-b border-border">
+<div class="max-w-7xl mx-auto px-container-margin">
+<ul class="flex space-x-6 overflow-x-auto hide-scrollbar whitespace-nowrap pt-2">
+<li class="pb-3 border-b-2 border-primary-container text-primary-container font-semibold cursor-pointer">전체</li>
+<li class="pb-3 text-text-secondary hover:text-text-primary transition-colors cursor-pointer">커리어 상담</li>
+<li class="pb-3 text-text-secondary hover:text-text-primary transition-colors cursor-pointer">교대 근무</li>
+<li class="pb-3 text-text-secondary hover:text-text-primary transition-colors cursor-pointer">한풀이</li>
+<li class="pb-3 text-text-secondary hover:text-text-primary transition-colors cursor-pointer">자유 게시판</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content: Post List -->
+<main class="max-w-7xl mx-auto px-container-margin py-8">
+<div class="flex flex-col gap-6">
+<!-- Post Card 1 -->
+<article class="bg-surface-container-lowest rounded-[16px] border border-border shadow-[0_2px_6px_rgba(0,0,0,0.04)] p-5 flex flex-col gap-stack-sm cursor-pointer hover:bg-surface-bright transition-colors">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-tint text-primary-container flex items-center justify-center font-bold text-sm">간</div>
+<span class="font-semibold text-sm">간호사ER</span>
+</div>
+<span class="text-text-muted text-xs">2시간 전</span>
+</div>
+<div>
+<h2 class="font-bold text-base mb-2">ER 간호사 연장 근무 팁 질문</h2>
+<p class="text-text-secondary text-sm line-clamp-2 leading-relaxed">요즘 연장 근무가 너무 많아서 체력적으로 한계가 오네요. 선배님들은 바쁜 나이트 듀티 때 체력 관리를 어떻게 하시나요? 좋은 영양제나 팁이 있다면 공유 부탁드립니다.</p>
+</div>
+<div class="flex items-center gap-4 mt-3 text-text-muted text-sm">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">visibility</span> 120</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">favorite</span> 42</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">chat_bubble</span> 18</div>
+</div>
+</article>
+<!-- Post Card 2 -->
+<article class="bg-surface-container-lowest rounded-[16px] border border-border shadow-[0_2px_6px_rgba(0,0,0,0.04)] p-5 flex flex-col gap-stack-sm cursor-pointer hover:bg-surface-bright transition-colors">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-shift-night text-on-primary flex items-center justify-center font-bold text-sm">나</div>
+<span class="font-semibold text-sm">나이트요정</span>
+</div>
+<span class="text-text-muted text-xs">5시간 전</span>
+</div>
+<div>
+<h2 class="font-bold text-base mb-2">나이트 근무 살아남기 가이드 공유</h2>
+<p class="text-text-secondary text-sm line-clamp-2 leading-relaxed">나이트 근무 5년차로서 터득한 저만의 생존 비법을 정리해봤습니다. 수면 패턴 맞추는 방법부터 야식 추천까지, 신규 선생님들께 도움이 되었으면 좋겠네요.</p>
+</div>
+<div class="flex items-center gap-4 mt-3 text-text-muted text-sm">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">visibility</span> 342</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">favorite</span> 89</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">chat_bubble</span> 31</div>
+</div>
+</article>
+<!-- Post Card 3 -->
+<article class="bg-surface-container-lowest rounded-[16px] border border-border shadow-[0_2px_6px_rgba(0,0,0,0.04)] p-5 flex flex-col gap-stack-sm cursor-pointer hover:bg-surface-bright transition-colors">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-dim text-on-surface-variant flex items-center justify-center font-bold text-sm">익</div>
+<span class="font-semibold text-sm">익명</span>
+</div>
+<span class="text-text-muted text-xs">어제</span>
+</div>
+<div>
+<h2 class="font-bold text-base mb-2">선배님의 불합리한 태도 한풀이</h2>
+<p class="text-text-secondary text-sm line-clamp-2 leading-relaxed">오늘도 인수인계 시간에 말도 안되는 트집을 잡으시네요. 명확하게 전달했는데도 본인이 놓친걸 제 탓으로 돌리시니 너무 억울하고 힘빠집니다.</p>
+</div>
+<div class="flex items-center gap-4 mt-3 text-text-muted text-sm">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">visibility</span> 185</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">favorite</span> 24</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">chat_bubble</span> 45</div>
+</div>
+</article>
+<!-- Post Card 4 -->
+<article class="bg-surface-container-lowest rounded-[16px] border border-border shadow-[0_2px_6px_rgba(0,0,0,0.04)] p-5 flex flex-col gap-stack-sm cursor-pointer hover:bg-surface-bright transition-colors">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-shift-day text-on-primary flex items-center justify-center font-bold text-sm">국</div>
+<span class="font-semibold text-sm">국시준비생</span>
+</div>
+<span class="text-text-muted text-xs">어제</span>
+</div>
+<div>
+<h2 class="font-bold text-base mb-2">간호사 국가고시 준비 팁</h2>
+<p class="text-text-secondary text-sm line-clamp-2 leading-relaxed">드디어 국시 합격했습니다! 100일 단기 완성으로 준비했던 저만의 오답노트 작성법과 과목별 시간 분배 팁을 방출합니다. 모두 파이팅하세요!</p>
+</div>
+<div class="flex items-center gap-4 mt-3 text-text-muted text-sm">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">visibility</span> 450</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">favorite</span> 67</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">chat_bubble</span> 22</div>
+</div>
+</article>
+</div>
+</main>
+<!-- Floating Action Button (New Post) -->
+<button aria-label="새 글 작성" class="absolute right-container-margin bottom-[90px] w-14 h-14 bg-primary-container text-on-primary rounded-full flex justify-center items-center shadow-lg z-40 hover:scale-105 active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-[390px] z-50 flex justify-around items-center px-2 pb-safe bg-surface-container-lowest dark:bg-inverse-surface border-t border-border/60 dark:border-outline-variant h-[84px] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-3xl pb-4">
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-text-secondary dark:text-text-muted hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]">auto_awesome</span>
+<span class="font-label-md text-[11px]">운세</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-text-secondary dark:text-text-muted hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]">group</span>
+<span class="font-label-md text-[11px]">친구</span>
+</button>
+<!-- FAB Container (Floating Home) -->
+<div class="relative min-w-[64px] flex justify-center h-full">
+<button class="absolute bg-primary-container text-on-primary w-[68px] h-[68px] rounded-full flex items-center justify-center shadow-[0_8px_16px_rgba(2,72,51,0.25)] hover:scale-105 active:scale-95 transition-transform border-[5px] border-surface-container-lowest -top-4">
+<span class="material-symbols-outlined filled text-[34px]" style="font-variation-settings: &quot;FILL&quot; 1;">stethoscope</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-text-secondary dark:text-text-muted hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]">school</span>
+<span class="font-label-md text-[11px]">학습</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-primary font-semibold hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]" style="font-variation-settings: &quot;FILL&quot; 1;">forum</span>
+<span class="font-label-md text-[11px]">커뮤니티</span>
+</button>
+</nav>
+
+
+</body></html>

@@ -115,6 +115,12 @@ export const LandingDownloadCta: React.FC = () => {
           <Text style={styles.disclaimer}>
             ✨ 물론 기본 듀티 관리 서비스는 평생 무료로 제공됩니다.
           </Text>
+
+          <View style={styles.donationRow}>
+            <Text style={styles.donationText}>
+              💖 멤버십 수익의 10%는 간호가 필요한 어린이들과 간호사를 꿈꾸는 이들을 위해 기부됩니다
+            </Text>
+          </View>
         </View>
       </View>
     </View>
@@ -271,5 +277,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#64748B',
     textAlign: 'center',
+    marginBottom: 12,
+  },
+  donationRow: {
+    backgroundColor: 'rgba(255, 80, 124, 0.12)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 80, 124, 0.3)',
+    marginTop: 4,
+  },
+  donationText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FF7597',
+    textAlign: 'center',
+    letterSpacing: -0.2,
   },
 });

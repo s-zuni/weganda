@@ -152,6 +152,9 @@ export const LandingHero: React.FC = () => {
               <Text style={styles.benefitItem}>
                 ✨ <Text style={{ fontWeight: '700' }}>안내:</Text> 기본 듀티 관리 서비스는 평생 무료로 이용하실 수 있습니다
               </Text>
+              <Text style={styles.benefitItem}>
+                💖 <Text style={{ fontWeight: '700' }}>따뜻한 동행:</Text> 우간다+ 수익의 10%는 간호가 필요한 어린이들과 간호사를 꿈꾸는 이들을 위해 기부됩니다
+              </Text>
             </View>
           </View>
         </View>

@@ -1,0 +1,259 @@
+<!DOCTYPE html><html lang="ko" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>우간다 - 학습</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed": "#b2f0d2",
+                      "primary-muted": "#6A9E88",
+                      "primary": "#003020",
+                      "shift-day": "#4F98CA",
+                      "secondary": "#2c6950",
+                      "surface-container": "#eceeeb",
+                      "primary-fixed-dim": "#96d3b7",
+                      "surface-bright": "#f8faf6",
+                      "inverse-primary": "#96d3b7",
+                      "surface-container-low": "#f2f4f0",
+                      "tertiary-container": "#642f29",
+                      "outline-variant": "#bfc9c2",
+                      "outline": "#707973",
+                      "on-surface-variant": "#404944",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed": "#b1f0d0",
+                      "on-background": "#191c1a",
+                      "shift-off": "#E84A5F",
+                      "on-tertiary-fixed-variant": "#6e3730",
+                      "on-error": "#ffffff",
+                      "shift-evening": "#E2703A",
+                      "error": "#ba1a1a",
+                      "surface-container-high": "#e7e9e5",
+                      "on-primary-fixed-variant": "#10503b",
+                      "background": "#f8faf6",
+                      "on-secondary-fixed-variant": "#0d513a",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb4aa",
+                      "shift-vacation": "#9B51E0",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-container": "#e1978e",
+                      "text-muted": "#9CA3AF",
+                      "on-tertiary-fixed": "#370d09",
+                      "surface-tint": "#2e6952",
+                      "surface-container-highest": "#e1e3df",
+                      "on-secondary-container": "#316e54",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed": "#002115",
+                      "border": "#E5E7EB",
+                      "divider": "#F3F4F6",
+                      "text-primary": "#1A1A1A",
+                      "on-primary-container": "#7ab69b",
+                      "surface-dim": "#d8dbd7",
+                      "secondary-fixed-dim": "#95d4b5",
+                      "inverse-on-surface": "#eff1ee",
+                      "tertiary-fixed": "#ffdad5",
+                      "primary-tint": "#E6F0EC",
+                      "tertiary": "#491a15",
+                      "on-secondary-fixed": "#002115",
+                      "secondary-container": "#aeedce",
+                      "surface": "#f8faf6",
+                      "shift-night": "#272727",
+                      "on-surface": "#191c1a",
+                      "text-secondary": "#6B7280",
+                      "primary-container": "#024833",
+                      "on-tertiary": "#ffffff",
+                      "off-white": "#F8F9FA",
+                      "on-error-container": "#93000a",
+                      "inverse-surface": "#2e312f",
+                      "surface-variant": "#e1e3df"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px",
+                      "2xl": "1rem"
+              },
+              "spacing": {
+                      "stack-gap-md": "16px",
+                      "gutter": "12px",
+                      "container-margin": "20px",
+                      "card-padding": "16px",
+                      "stack-gap-sm": "8px"
+              },
+              "fontFamily": {
+                      "label-md": ["Inter"],
+                      "shift-code": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                      "shift-code": ["18px", {"lineHeight": "18px", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                      "headline-md-mobile": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+<style>
+    body {
+      width: 390px;
+      height: 961px;
+      margin: 0 auto;
+      position: relative;
+    }
+  </style>
+</head>
+<body class="bg-surface-container-lowest text-text-primary antialiased font-body-md flex flex-col overflow-hidden shadow-2xl relative">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-secondary-fixed text-primary dark:text-primary-fixed font-headline-lg-mobile text-headline-lg-mobile docked full-width top-0 bg-surface dark:bg-on-secondary-fixed flat no shadows text-primary dark:text-primary-fixed flex justify-between items-center w-full px-container-margin py-4 max-w-7xl mx-auto z-50 shrink-0">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined hover:opacity-80 transition-opacity" data-icon="healing">healing</span>
+<span class="text-headline-lg-mobile font-headline-lg-mobile font-extrabold text-primary dark:text-primary-fixed">우간다</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-text-primary hover:opacity-80 transition-opacity cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-text-primary hover:opacity-80 transition-opacity cursor-pointer" data-icon="person">person</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto px-container-margin pb-32 no-scrollbar pb-safe">
+<!-- Featured Card -->
+<div class="mt-8 mb-6 px-container-margin">
+<div class="flex items-center justify-between h-14 bg-off-white rounded-2xl px-4 cursor-pointer hover:opacity-90 transition-opacity active:scale-[0.98] duration-150">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-text-secondary" data-icon="search">search</span>
+<span class="text-text-secondary font-body-md">간호 지식을 AI에게 물어보세요</span>
+</div>
+</div>
+</div><section class="mb-10">
+<div class="bg-primary-container rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-primary-container relative overflow-hidden flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<span class="bg-primary-tint text-primary-container font-label-md text-label-md px-2 py-1 rounded-md">NEW</span>
+<span class="text-2xl">📚</span>
+</div>
+<div class="flex flex-col gap-1 z-10">
+<p class="text-white/80 font-body-sm text-sm">오늘의 추천 학습</p>
+<h2 class="text-white font-headline-md-mobile text-headline-md-mobile">전해질 불균형 간호 중재</h2>
+<p class="text-white/90 font-body-md text-body-md mt-1 leading-snug">최신 ICU 임상 간호 실무 지침서를 확인하세요.</p>
+</div>
+<!-- Decorative subtle circle -->
+<div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white opacity-5 rounded-full blur-xl pointer-events-none"></div>
+</div>
+</section>
+<!-- Category Chips -->
+<section class="mb-8 overflow-x-auto no-scrollbar -mx-container-margin px-container-margin">
+<div class="flex gap-2 min-w-max pb-2">
+<button class="px-4 py-2 rounded-full bg-primary-container text-white font-label-md text-label-md transition-transform active:scale-95">전체</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-low text-text-secondary font-label-md text-label-md transition-transform active:scale-95">약물계산</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-low text-text-secondary font-label-md text-label-md transition-transform active:scale-95">바이탈</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-low text-text-secondary font-label-md text-label-md transition-transform active:scale-95">술기</button>
+<button class="px-4 py-2 rounded-full bg-surface-container-low text-text-secondary font-label-md text-label-md transition-transform active:scale-95">EKG</button>
+</div>
+</section>
+<!-- Study Note List (Invisible UI) -->
+<section class="flex flex-col gap-8">
+<!-- Item 1 -->
+<div class="flex items-center gap-4 group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-divider flex items-center justify-center text-xl shrink-0">🧪</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-body-lg text-body-lg text-text-primary font-semibold truncate">도파민(Dopamine) 점적 계산법</h3>
+<p class="font-label-md text-label-md text-text-muted mt-1">약리학 · 2일 전</p>
+</div>
+<button class="p-2 text-text-muted hover:text-primary transition-colors shrink-0">
+<span class="material-symbols-outlined" data-icon="bookmark_border">bookmark_border</span>
+</button>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-4 group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-divider flex items-center justify-center text-xl shrink-0">⚡</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-body-lg text-body-lg text-text-primary font-semibold truncate">ACLS 알고리즘 퀵 레퍼런스</h3>
+<p class="font-label-md text-label-md text-text-muted mt-1">응급 · 1주일 전</p>
+</div>
+<button class="p-2 text-text-muted hover:text-primary transition-colors shrink-0">
+<span class="material-symbols-outlined" data-icon="bookmark_border">bookmark_border</span>
+</button>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center gap-4 group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-divider flex items-center justify-center text-xl shrink-0">🩸</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-body-lg text-body-lg text-text-primary font-semibold truncate">수혈 간호 체크리스트</h3>
+<p class="font-label-md text-label-md text-text-muted mt-1">간호술기 · 3일 전</p>
+</div>
+<button class="p-2 text-text-muted hover:text-primary transition-colors shrink-0">
+<span class="material-symbols-outlined" data-icon="bookmark_border">bookmark_border</span>
+</button>
+</div>
+<!-- Item 4 -->
+<div class="flex items-center gap-4 group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-divider flex items-center justify-center text-xl shrink-0">📈</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-body-lg text-body-lg text-text-primary font-semibold truncate">수술 후 환자 바이탈 모니터링 프로토콜</h3>
+<p class="font-label-md text-label-md text-text-muted mt-1">일반 · 어제</p>
+</div>
+<button class="p-2 text-text-muted hover:text-primary transition-colors shrink-0">
+<span class="material-symbols-outlined" data-icon="bookmark_border">bookmark_border</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Floating Action Area -->
+<div class="bottom-[96px] right-5 z-40 fixed">
+<button class="w-14 h-14 bg-primary-container text-white rounded-full flex items-center justify-center shadow-lg hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+</div>
+<!-- BottomNavBar -->
+<nav class="bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe bg-surface-container-lowest dark:bg-inverse-surface border-t border-border/60 dark:border-outline-variant h-[84px] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-3xl fixed">
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-text-secondary dark:text-text-muted hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]">auto_awesome</span>
+<span class="font-label-md text-[11px]">운세</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-text-secondary dark:text-text-muted hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]">group</span>
+<span class="font-label-md text-[11px]">친구</span>
+</button>
+<!-- FAB Container (Floating Home) -->
+<div class="relative min-w-[64px] flex justify-center h-full">
+<button class="absolute -top-7 bg-primary-container text-on-primary w-[68px] h-[68px] rounded-full flex items-center justify-center shadow-[0_8px_16px_rgba(2,72,51,0.25)] hover:scale-105 active:scale-95 transition-transform border-[5px] border-surface-container-lowest">
+<span class="material-symbols-outlined filled text-[34px]">stethoscope</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-primary dark:text-primary-fixed hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined filled text-[26px]">school</span>
+<span class="font-label-md text-[11px] font-bold">학습</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-text-secondary dark:text-text-muted hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]">forum</span>
+<span class="font-label-md text-[11px]">커뮤니티</span>
+</button>
+</nav>
+
+
+</body></html>

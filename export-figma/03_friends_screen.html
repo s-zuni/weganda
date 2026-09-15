@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="ko" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Weganda - 친구</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link as="style" crossorigin="" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        body {
+            font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+        }
+        /* Mobile max-width constraint for app-like feel on web */
+        .app-container {
+            max-width: 390px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #FFFFFF;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-surface": "#2e312f",
+                        "secondary": "#2c6950",
+                        "on-background": "#191c1a",
+                        "on-primary-fixed": "#002115",
+                        "surface-tint": "#2e6952",
+                        "surface-variant": "#e1e3df",
+                        "text-primary": "#1A1A1A",
+                        "on-tertiary-container": "#e1978e",
+                        "background": "#f8faf6",
+                        "text-secondary": "#6B7280",
+                        "primary-fixed": "#b2f0d2",
+                        "surface-container-high": "#e7e9e5",
+                        "on-primary-fixed-variant": "#10503b",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#bfc9c2",
+                        "on-surface-variant": "#404944",
+                        "divider": "#F3F4F6",
+                        "surface-container-highest": "#e1e3df",
+                        "on-tertiary-fixed": "#370d09",
+                        "text-muted": "#9CA3AF",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#316e54",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#aeedce",
+                        "tertiary": "#491a15",
+                        "secondary-fixed": "#b1f0d0",
+                        "outline": "#707973",
+                        "off-white": "#F8F9FA",
+                        "on-secondary-fixed-variant": "#0d513a",
+                        "shift-vacation": "#9B51E0",
+                        "error": "#ba1a1a",
+                        "shift-evening": "#E2703A",
+                        "surface-container": "#eceeeb",
+                        "on-secondary-fixed": "#002115",
+                        "primary-container": "#024833",
+                        "surface-bright": "#f8faf6",
+                        "inverse-primary": "#96d3b7",
+                        "shift-off": "#E84A5F",
+                        "surface": "#f8faf6",
+                        "on-tertiary-fixed-variant": "#6e3730",
+                        "on-error": "#ffffff",
+                        "on-surface": "#191c1a",
+                        "inverse-on-surface": "#eff1ee",
+                        "tertiary-fixed-dim": "#ffb4aa",
+                        "surface-dim": "#d8dbd7",
+                        "shift-night": "#272727",
+                        "primary": "#003020",
+                        "tertiary-fixed": "#ffdad5",
+                        "border": "#E5E7EB",
+                        "tertiary-container": "#642f29",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#96d3b7",
+                        "on-primary-container": "#7ab69b",
+                        "secondary-fixed-dim": "#95d4b5",
+                        "on-tertiary": "#ffffff",
+                        "primary-muted": "#6A9E88",
+                        "surface-container-low": "#f2f4f0",
+                        "primary-tint": "#E6F0EC",
+                        "shift-day": "#4F98CA"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "stack-gap-md": "16px",
+                        "gutter": "12px",
+                        "stack-gap-sm": "8px",
+                        "container-margin": "20px",
+                        "card-padding": "16px",
+                        "safe": "env(safe-area-inset-bottom, 20px)"
+                    },
+                    fontFamily: {
+                        "body-md": ["Pretendard Variable", "sans-serif"],
+                        "shift-code": ["Pretendard Variable", "sans-serif"],
+                        "label-md": ["Pretendard Variable", "sans-serif"],
+                        "headline-md": ["Pretendard Variable", "sans-serif"],
+                        "body-lg": ["Pretendard Variable", "sans-serif"],
+                        "headline-lg": ["Pretendard Variable", "sans-serif"]
+                    },
+                    fontSize: {
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "shift-code": ["18px", { "lineHeight": "18px", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "brand-header": ["22px", { "fontWeight": "800", "lineHeight": "28px" }],
+                        "banner-text": ["15px", { "fontWeight": "500", "lineHeight": "20px" }],
+                        "section-title": ["18px", { "fontWeight": "700", "lineHeight": "24px" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(961px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface-container-high dark:bg-on-background text-text-primary">
+<div class="app-container pb-[88px] pb-[100px]">
+<!-- TopAppBar (from JSON) -->
+<header class="flex justify-between items-center w-full px-container-margin py-4 z-50 bg-surface-container-lowest sticky top-0 full-width">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary font-[300]" data-icon="healing" data-weight="fill" style="font-variation-settings: 'FILL' 1;">healing</span>
+<h1 class="text-brand-header text-primary tracking-tight">우간다</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-text-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-text-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</header>
+<main class="px-container-margin pt-2 flex flex-col gap-stack-gap-md">
+<!-- Banner -->
+<div class="bg-primary-tint rounded-lg p-card-padding flex items-center justify-center">
+<p class="text-banner-text text-primary-container">이번 달은 6명의 친구가 접속 중이에요</p>
+</div>
+<!-- Search & Add -->
+<div class="flex items-center gap-gutter w-full mt-2">
+<div class="flex-1 bg-off-white rounded-lg flex items-center px-4 py-3 border border-transparent focus-within:border-primary-container transition-colors">
+<span class="material-symbols-outlined text-text-muted mr-2 text-[20px]" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-body-md p-0 placeholder-text-muted outline-none" placeholder="친구 검색" type="text">
+</div>
+<button class="border border-border rounded-lg px-4 py-3 text-body-md font-medium text-text-primary whitespace-nowrap hover:bg-off-white transition-colors">
+                    친구 추가
+                </button>
+</div>
+<!-- Section: 친구들의 근무 -->
+<div class="mt-4">
+<h2 class="text-section-title text-text-primary mb-4">친구들의 근무</h2>
+<!-- List -->
+<div class="flex flex-col gap-8">
+<!-- Item 1 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-[40px] h-[40px] rounded-full object-cover" data-alt="A portrait of a young Korean female nurse, bright lighting, soft professional setting, minimalist corporate style, warm and approachable, high key lighting, crisp resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnIH64ivargdzj7jihd_szYHNhoIDS9-zcVKQw5aGhf-tKIZcDX1Ecn2lievxH_Xkipdk30JXpttD_ixjEb1JXCebBbykqYJu6ZTUtq18PZjV0Av1nR2PKI97Xr9BIRUKCyxqlORkF5z09yB5pOXqhBOxe7iP0W_MkHkX3QzG__Y5W-KiJB8L3oCDUn1Y76xHBL-FGrPixf3rM8CPiqQGhmxZl3wyoLQ6gr5DDA3mSYd7pYyuvi42OyNKv5xOue_VKCLqbg8neUdE">
+<div>
+<div class="flex items-center gap-2 mb-0.5">
+<span class="text-body-md font-semibold text-text-primary">김민지</span>
+<span class="bg-shift-day text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded-[4px]">D</span>
+</div>
+<p class="text-[13px] text-text-secondary">7년차 • 51병동</p>
+</div>
+</div>
+<button class="border border-border rounded-full px-4 py-1.5 text-[13px] font-medium text-text-primary hover:bg-off-white transition-colors">
+                            메시지
+                        </button>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-[40px] h-[40px] rounded-full object-cover" data-alt="A portrait of a young Korean female nurse with short hair, soft professional setting, minimalist corporate style, warm and approachable, high key lighting, crisp resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSdTO6zn4UINGlHRlq4QdBddYi4Bckmmrbsj-OlGJs3xvTyCWhtedef7EyEdf2CbtmNtSJzy8WeN2YuHztq-ZIP1wU0DsQ066mo7GPPYOKaFAYISN7iJ9HJcpAMcrJpEe9BAUJHzmjvRFN-8-YmvJQelYfrl7qRyOXEOOMASN2FjoIXfb_nwcN0OYCuHhPF9xLCSrn5Yg61s3cOvbSph7p7BA-iFO15dHS6VXro1xNEDCZg0ZR3Qq81l79ar09qT-bW4ibxDCuIc0">
+<div>
+<div class="flex items-center gap-2 mb-0.5">
+<span class="text-body-md font-semibold text-text-primary">박수현</span>
+<span class="bg-shift-night text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded-[4px]">N</span>
+</div>
+<p class="text-[13px] text-text-secondary">3년차 • ICU</p>
+</div>
+</div>
+<button class="border border-border rounded-full px-4 py-1.5 text-[13px] font-medium text-text-primary hover:bg-off-white transition-colors">
+                            메시지
+                        </button>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-[40px] h-[40px] rounded-full bg-surface-container flex items-center justify-center text-text-muted">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-0.5">
+<span class="text-body-md font-semibold text-text-primary">유세리</span>
+<span class="bg-shift-off text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded-[4px]">O</span>
+</div>
+<p class="text-[13px] text-text-secondary">5년차 • 응급실</p>
+</div>
+</div>
+<button class="border border-border rounded-full px-4 py-1.5 text-[13px] font-medium text-text-primary hover:bg-off-white transition-colors">
+                            메시지
+                        </button>
+</div>
+<!-- Item 4 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-[40px] h-[40px] rounded-full bg-surface-container flex items-center justify-center text-text-muted">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-0.5">
+<span class="text-body-md font-semibold text-text-primary">한준혁</span>
+<span class="bg-shift-evening text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded-[4px]">E</span>
+</div>
+<p class="text-[13px] text-text-secondary">신규 • 62병동</p>
+</div>
+</div>
+<button class="border border-border rounded-full px-4 py-1.5 text-[13px] font-medium text-text-primary hover:bg-off-white transition-colors">
+                            메시지
+                        </button>
+</div>
+</div>
+</div>
+<!-- Shared Card -->
+<div class="mt-8 mb-12">
+<div class="border border-border rounded-[16px] p-card-padding bg-surface-container-lowest shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+<h3 class="text-body-md font-semibold text-text-primary mb-2 flex items-center gap-1">
+                        겹치는 근무
+                    </h3>
+<div class="flex items-center gap-3">
+<div class="bg-off-white p-2 rounded-full">
+<span class="material-symbols-outlined text-shift-day text-[20px]" data-icon="calendar_month">calendar_month</span>
+</div>
+<p class="text-body-md text-text-primary leading-tight">
+                            이번 주 <span class="font-semibold">민지</span>님과 <span class="font-semibold text-shift-day">3번의 데이(Day)</span> 근무가 겹쳐요!
+                        </p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (from JSON & instructions) -->
+<nav class="fixed bottom-0 left-0 right-0 w-full max-w-[390px] mx-auto z-50 flex justify-around items-center px-2 pb-safe bg-surface-container-lowest dark:bg-inverse-surface border-t border-border/60 dark:border-outline-variant h-[84px] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-3xl">
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-text-secondary dark:text-text-muted hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]">auto_awesome</span>
+<span class="font-label-md text-[11px]">운세</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-primary-container dark:text-primary-fixed hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors font-bold">
+<span class="material-symbols-outlined text-[26px] filled" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-label-md text-[11px]">친구</span>
+</button>
+<div class="relative min-w-[64px] flex justify-center h-full">
+<button class="absolute -top-7 bg-primary-container text-on-primary w-[68px] h-[68px] rounded-full flex items-center justify-center shadow-[0_8px_16px_rgba(2,72,51,0.25)] hover:scale-105 active:scale-95 transition-transform border-[5px] border-surface-container-lowest">
+<span class="material-symbols-outlined filled text-[34px]">stethoscope</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-text-secondary dark:text-text-muted hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]">school</span>
+<span class="font-label-md text-[11px]">학습</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 min-w-[64px] text-text-secondary dark:text-text-muted hover:bg-surface-container-low dark:hover:bg-on-surface-variant p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined text-[26px]">forum</span>
+<span class="font-label-md text-[11px]">커뮤니티</span>
+</button>
+</nav>
+</div>
+
+
+</body></html>

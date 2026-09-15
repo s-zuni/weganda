@@ -3,5 +3,6 @@ export * from './LandingHero';
 export * from './LandingFeatureSpotlights';
 export * from './LandingHowItWorks';
 export * from './LandingCoreFeatures';
+export * from './LandingSocialImpact';
 export * from './LandingDownloadCta';
 export * from './LandingFooter';

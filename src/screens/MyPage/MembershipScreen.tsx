@@ -276,6 +276,25 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
               </View>
             </View>
 
+            {/* 💖 수익의 10% 기부 약속 (Social Impact Card) */}
+            <View style={styles.donationCard}>
+              <View style={styles.donationHeader}>
+                <View style={styles.donationIconBox}>
+                  <Ionicons name="heart" size={16} color="#FF507C" />
+                </View>
+                <View style={styles.donationBadge}>
+                  <Text style={styles.donationBadgeText}>우간다의 선한 동행</Text>
+                </View>
+              </View>
+              <Text style={styles.donationTitle}>
+                수익의 10%는 간호가 필요한 어린이들과{'\n'}
+                간호사를 꿈꾸는 이들을 위해 기부됩니다
+              </Text>
+              <Text style={styles.donationDesc}>
+                우간다+ 멤버십을 이용해주시는 모든 분들의 따뜻한 마음을 모아, 구독료 수익의 10%를 돌봄이 절실한 소아 환아 의료 지원과 간호사를 꿈꾸는 예비 간호대생들을 위한 장학금으로 투명하게 기부합니다.
+              </Text>
+            </View>
+
             {/* Benefits Section */}
             <View style={styles.benefitsSection}>
               <Text style={styles.sectionTitle}>weganda+ 5대 핵심 혜택</Text>
@@ -358,6 +377,9 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
                     {currentPricing.isFreeTrialActive
                       ? `첫 30일 무료 체험 후 ${selectedPlan === 'monthly' ? `월 ${currentPricing.currentPrice.toLocaleString()}원` : `연 ${currentPricing.currentPrice.toLocaleString()}원`} 자동 결제`
                       : '스토어 계정으로 안전하게 결제'}
+                  </Text>
+                  <Text style={styles.ctaDonationNotice}>
+                    💖 멤버십 수익의 10%는 환아 및 예비 간호인 장학금으로 기부됩니다
                   </Text>
                 </View>
 
@@ -682,6 +704,55 @@ const styles = StyleSheet.create({
     color: '#FF507C',
     letterSpacing: -0.2,
   },
+  donationCard: {
+    marginHorizontal: 20,
+    backgroundColor: '#FFF8F9',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#FFDCE4',
+    padding: 18,
+    marginBottom: 26,
+  },
+  donationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    gap: 8,
+  },
+  donationIconBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FFE8EE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  donationBadge: {
+    backgroundColor: '#FF507C',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  donationBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: -0.2,
+  },
+  donationTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#191F28',
+    lineHeight: 23,
+    letterSpacing: -0.3,
+    marginBottom: 8,
+  },
+  donationDesc: {
+    fontSize: 13,
+    color: '#4E5968',
+    lineHeight: 20,
+    letterSpacing: -0.2,
+  },
   benefitsSection: {
     paddingHorizontal: 20,
     marginBottom: 20,
@@ -836,6 +907,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6B7280',
     fontWeight: '500',
+    letterSpacing: -0.2,
+  },
+  ctaDonationNotice: {
+    fontSize: 11,
+    color: '#FF507C',
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 4,
     letterSpacing: -0.2,
   },
   legalRow: {
