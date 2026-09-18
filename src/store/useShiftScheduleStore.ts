@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { scheduleApi } from '../services/scheduleApi';
 import { ExpoSecureStoreAdapter } from '../services/supabase';
+import { COLORS } from '../constants/theme';
 
 export interface CustomShiftCode {
   code: string;
@@ -12,15 +13,15 @@ export interface CustomShiftCode {
 }
 
 export const DEFAULT_SHIFT_CODES: Record<string, CustomShiftCode> = {
-  D: { code: 'D', name: '데이', color: '#4F98CA', textColor: '#FFFFFF' },
-  E: { code: 'E', name: '이브닝', color: '#E2703A', textColor: '#FFFFFF' },
-  N: { code: 'N', name: '나이트', color: '#272727', textColor: '#FFFFFF' },
-  O: { code: 'O', name: '오프', color: '#E84A5F', textColor: '#FFFFFF', isOff: true },
-  '/': { code: '/', name: '슬래시오프(/)', color: '#E84A5F', textColor: '#FFFFFF', isOff: true },
-  OFF: { code: 'OFF', name: '오프(OFF)', color: '#E84A5F', textColor: '#FFFFFF', isOff: true },
-  V: { code: 'V', name: '휴가/연차', color: '#9B51E0', textColor: '#FFFFFF', isOff: true },
-  F: { code: 'F', name: '오프(F)', color: '#E84A5F', textColor: '#FFFFFF', isOff: true },
-  M: { code: 'M', name: '미드', color: '#10B981', textColor: '#FFFFFF' },
+  D: { code: 'D', name: '데이', color: COLORS.shift.day, textColor: COLORS.onPrimaryText },
+  E: { code: 'E', name: '이브닝', color: COLORS.shift.evening, textColor: COLORS.onPrimaryText },
+  N: { code: 'N', name: '나이트', color: COLORS.shift.night, textColor: COLORS.onPrimaryText },
+  O: { code: 'O', name: '오프', color: COLORS.shift.off, textColor: COLORS.onPrimaryText, isOff: true },
+  '/': { code: '/', name: '슬래시오프(/)', color: COLORS.shift.off, textColor: COLORS.onPrimaryText, isOff: true },
+  OFF: { code: 'OFF', name: '오프(OFF)', color: COLORS.shift.off, textColor: COLORS.onPrimaryText, isOff: true },
+  V: { code: 'V', name: '휴가/연차', color: COLORS.shift.vacation, textColor: COLORS.onPrimaryText, isOff: true },
+  F: { code: 'F', name: '오프(F)', color: COLORS.shift.off, textColor: COLORS.onPrimaryText, isOff: true },
+  M: { code: 'M', name: '미드', color: COLORS.status.success, textColor: COLORS.onPrimaryText },
 };
 
 // 기본 초기 스케줄 (2026년 8월 & 9월)
@@ -109,7 +110,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
               code: c.code,
               name: c.name,
               color: c.color,
-              textColor: c.textColor || '#FFFFFF',
+              textColor: c.textColor || COLORS.onPrimaryText,
               isOff: c.isOff || false,
             };
           });
@@ -172,7 +173,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
           code,
           name,
           color,
-          textColor: '#FFFFFF',
+          textColor: COLORS.onPrimaryText,
           isOff,
         },
       },
@@ -185,7 +186,7 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
           code,
           name,
           color,
-          textColor: '#FFFFFF',
+          textColor: COLORS.onPrimaryText,
           isOff,
         });
       } catch (e) {

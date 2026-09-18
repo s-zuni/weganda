@@ -11,6 +11,8 @@ import Svg, {
   SvgProps,
 } from 'react-native-svg';
 
+import { COLORS } from '../../constants/theme';
+
 export interface WegandaLogoProps extends SvgProps {
   size?: number;
   variant?: 'full' | 'symbol';
@@ -45,7 +47,7 @@ export const WegandaLogo: React.FC<WegandaLogoProps> = ({
       >
         <Path
           d="M32.4956 101.15L48.9395 93.829L46.173 55.6538L92.8154 113.701L79.9742 40.6046L125.703 99.0586L122.023 61.2901L127.504 58.8497"
-          stroke={symbolColor || primaryColor || '#FF507C'}
+          stroke={symbolColor || primaryColor || COLORS.primary}
           strokeWidth="14"
           strokeLinecap="round"
           strokeLinejoin="round"

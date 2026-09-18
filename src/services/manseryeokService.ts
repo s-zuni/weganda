@@ -5,6 +5,7 @@ import {
   HeavenlyStem,
   EarthlyBranch,
 } from 'manseryeok';
+import { COLORS, NEUTRAL, TINT_COLORS } from '../constants/theme';
 
 // ─── 타입 선언 ──────────────────────────────────────────────
 
@@ -129,11 +130,11 @@ export const HANJA_BRANCH: Record<EarthlyBranch, string> = {
 };
 
 export const ELEMENT_COLORS: Record<FiveElement, string> = {
-  목: '#10B981', // 초록
-  화: '#FF507C', // 코랄 핑크
-  토: '#F59E0B', // 노랑/황토
-  금: '#6B7280', // 은백색/그레이
-  수: '#3B82F6', // 블루
+  목: COLORS.status.success, // 초록
+  화: COLORS.primary, // 코랄 핑크
+  토: COLORS.status.warning, // 노랑/황토
+  금: COLORS.textSecondary, // 은백색/그레이
+  수: COLORS.status.info, // 블루
 };
 
 // ─── 일간별 상징 및 본성 ───────────────────────────────────
@@ -269,7 +270,7 @@ export function calculateShinsals(
       name: '귀문관살',
       hanja: '鬼門關煞',
       type: '특수성(特殊)',
-      badgeColor: '#8B5CF6',
+      badgeColor: COLORS.shift.vacation,
       oneLineSummary: '신들린 육감과 예민한 감각으로 환자의 미세한 바이탈 악화를 조기 포착함',
       hospitalImpact: '모니터 경보가 울리기 전 환자의 상태 이상을 감지하는 천부적 임상 직관이 발휘됩니다.',
       clinicalAdvice: '극도의 신경과민과 불면증, 교대근무 후 잔류 스트레스가 심할 수 있으니 오프 날 뇌 휴식이 절대 필수입니다.',
@@ -296,7 +297,7 @@ export function calculateShinsals(
       name: '홍염살',
       hanja: '紅艶煞',
       type: '길신(吉神)',
-      badgeColor: '#FF507C',
+      badgeColor: COLORS.primary,
       oneLineSummary: '환자와 보호자의 마음을 무장해제시키는 따뜻한 인간적 호감과 라포 형성력',
       hospitalImpact: '까다롭고 날 선 보호자도 당신의 부드러운 미소와 눈빛 앞에서는 컴플레인을 누그러뜨립니다.',
       clinicalAdvice: '모든 사람의 감정 쓰레기통 역할을 자처하기 쉬우므로, 직업적 친절과 개인적 감정의 분리선(경계)을 지키세요.',
@@ -311,7 +312,7 @@ export function calculateShinsals(
       name: '백호대살',
       hanja: '白虎大煞',
       type: '특수성(特殊)',
-      badgeColor: '#EF4444',
+      badgeColor: COLORS.status.error,
       oneLineSummary: '피를 보거나 응급 시술을 하는 의료계에 종사함으로써 최고의 액땜(업상대체)을 이룸',
       hospitalImpact: '응급실(ER), 중환자실(ICU), 수술실(OR)에서 엄청난 순발력과 돌파력으로 위기 상황을 제압합니다.',
       clinicalAdvice: '평소에는 얌전하다가도 욱하는 기질이 튀어나올 수 있으니, 갈등 상황에서 3초 호흡법을 실천하세요.',
@@ -326,7 +327,7 @@ export function calculateShinsals(
       name: '괴강살',
       hanja: '魁罡煞',
       type: '특수성(特殊)',
-      badgeColor: '#1F2937',
+      badgeColor: NEUTRAL.gray800,
       oneLineSummary: '인차지 및 수간호사 리더십에 적합한 총명함과 강력한 병동 장악력',
       hospitalImpact: '위기 상황에서 우물쭈물하지 않고 확실하게 지시를 내리며 병동의 질서를 세웁니다.',
       clinicalAdvice: '완벽주의로 인해 후배들에게 엄격한 잣대를 들이대지 않도록 포용력 있는 피드백을 유지하세요.',
@@ -347,7 +348,7 @@ export function calculateShinsals(
       name: '도화살',
       hanja: '桃花煞',
       type: '길신(吉神)',
-      badgeColor: '#EC4899',
+      badgeColor: COLORS.primaryLight,
       oneLineSummary: '병동 분위기를 밝게 만드는 에너지와 환자·의사·동료 간의 탁월한 인맥 형성',
       hospitalImpact: '스테이션의 비타민 같은 존재로 동료들의 신뢰를 얻으며 원내 소통의 중심에 섭니다.',
       clinicalAdvice: '사소한 일로 병동 내 뒷말이나 시기 질투를 살 수 있으니 사생활 공유는 신중히 하세요.',
@@ -368,7 +369,7 @@ export function calculateShinsals(
       name: '역마살',
       hanja: '驛馬煞',
       type: '특수성(特殊)',
-      badgeColor: '#3B82F6',
+      badgeColor: COLORS.status.info,
       oneLineSummary: '가만히 앉아있는 업무보다 역동적인 병동 순회 및 해외 간호사(NCLEX) 진출 최상',
       hospitalImpact: '변화무쌍한 3교대 스케줄과 부서 이동에도 빠르게 적응하며 글로벌 커리어 확장에 유리합니다.',
       clinicalAdvice: '한 병원에 안주하기보다 2~3년 주기로 전문성을 레벨업하는 이직 전략이 길합니다.',
@@ -389,7 +390,7 @@ export function calculateShinsals(
       name: '화개살',
       hanja: '華蓋煞',
       type: '길신(吉神)',
-      badgeColor: '#D97706',
+      badgeColor: COLORS.status.warning,
       oneLineSummary: '깊이 있는 학구열과 정신적 통찰력으로 임상 전문간호사(APN) 및 연구직에 최적',
       hospitalImpact: '단순 반복 처치를 넘어 질환의 병태생리와 약리학적 메커니즘을 파고드는 학구파 간호사입니다.',
       clinicalAdvice: '마음의 고독감이 깊어질 수 있으니 업무 외에 깊은 대화를 나눌 수 있는 멘토를 곁에 두세요.',
@@ -416,7 +417,7 @@ export function calculateShinsals(
       name: '천을귀인',
       hanja: '天乙貴人',
       type: '길신(吉神)',
-      badgeColor: '#10B981',
+      badgeColor: COLORS.status.success,
       oneLineSummary: '인생과 커리어의 결정적 위기 순간마다 나를 구해주는 든든한 선배·조력자가 나타남',
       hospitalImpact: '투약 오류 위기나 까다로운 인수인계 상황에서도 조력자의 도움으로 무탈히 넘깁니다.',
       clinicalAdvice: '받은 은혜를 후배들에게 베풀수록 자신의 복록과 귀인 운이 배로 확장됩니다.',
@@ -442,7 +443,7 @@ export function calculateShinsals(
       name: '양인살',
       hanja: '羊刃煞',
       type: '특수성(特殊)',
-      badgeColor: '#B91C1C',
+      badgeColor: TINT_COLORS.statusRejectedText,
       oneLineSummary: '심폐소생술(CPR)이나 응급 프로토콜에서 한 치의 주저함도 없는 대담한 결단력',
       hospitalImpact: '급성 악화 환자 발생 시 침착하고 대담하게 중심을 잡고 처치를 이끌어냅니다.',
       clinicalAdvice: '동료에게 직설적인 화법으로 상처를 줄 수 있으니 의사 전달 시 쿠션어를 의식적으로 사용하세요.',
@@ -470,7 +471,7 @@ export function calculateShinsals(
       name: '원진살',
       hanja: '怨嗔煞',
       type: '흉살(凶煞)',
-      badgeColor: '#D97706',
+      badgeColor: COLORS.status.warning,
       oneLineSummary: '동료나 프리셉터와의 미묘한 오해 및 애증 관계로 인한 대인관계 스트레스',
       hospitalImpact: '좋아하면서도 사소한 일로 서운함이 생기기 쉬우며 인수인계 시 감정적 마찰 주의가 필요합니다.',
       clinicalAdvice: '추측으로 혼자 끙끙 앓지 말고, 의문이나 서운함은 업무적 사실(Fact) 중심으로 담백하게 소통하세요.',

@@ -10,6 +10,7 @@ import {
 import { friendsApi } from '../services/friendsApi';
 import { chatApi } from '../services/chatApi';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { COLORS } from '../constants/theme';
 
 interface FriendsState {
   friends: FriendDetail[];
@@ -74,7 +75,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
           id: f.id,
           name: f.name,
           avatarLetter: f.name.charAt(0) || '간',
-          avatarBg: '#FF507C',
+          avatarBg: COLORS.primary,
           hospital: f.hospital || '종합병원',
           ward: f.ward || '병동',
           role: `${f.experienceYears || 1}년차 • ${f.ward || '병동'}`,

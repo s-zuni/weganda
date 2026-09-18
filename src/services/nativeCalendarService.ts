@@ -1,6 +1,7 @@
 import * as Calendar from 'expo-calendar';
 import { Platform } from 'react-native';
 import { SHIFT_TYPES, ShiftCode } from '../constants/shiftTypes';
+import { COLORS } from '../constants/theme';
 
 const WEGANDA_CALENDAR_TITLE = '우간다 근무표 (Weganda)';
 
@@ -49,7 +50,7 @@ export const nativeCalendarService = {
 
       const newCalendarId = await Calendar.createCalendarAsync({
         title: WEGANDA_CALENDAR_TITLE,
-        color: '#FF507C',
+        color: COLORS.primary,
         entityType: Calendar.EntityTypes.EVENT,
         sourceId: defaultCalendarSource?.id,
         source: defaultCalendarSource,

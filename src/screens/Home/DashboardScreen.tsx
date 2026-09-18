@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { AppHeader } from '../../components/common/AppHeader';
-import { COLORS } from '../../constants/theme';
+import { COLORS, TINT_COLORS } from '../../constants/theme';
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
 import { ShiftCode, SHIFT_TYPES, ShiftInfo } from '../../constants/shiftTypes';
@@ -134,7 +134,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
       <AppHeader />
 
       <ScrollView
@@ -256,7 +256,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,
@@ -266,8 +266,8 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
   },
   errorBanner: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FCA5A5',
+    backgroundColor: TINT_COLORS.redTint,
+    borderColor: TINT_COLORS.redTintBorder,
     borderWidth: 1,
     borderRadius: 12,
     paddingVertical: 10,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorBannerText: {
-    color: '#B91C1C',
+    color: TINT_COLORS.statusRejectedText,
     fontSize: 13,
     fontWeight: '600',
   },

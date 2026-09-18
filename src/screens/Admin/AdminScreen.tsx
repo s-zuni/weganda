@@ -25,6 +25,7 @@ import { adminApi, DashboardStats } from '../../services/adminApi';
 import { AdminAnalytics } from '../../types/admin';
 import { useVerificationStore } from '../../store/useVerificationStore';
 import { useSupportStore } from '../../store/useSupportStore';
+import { COLORS, NEUTRAL } from '../../constants/theme';
 
 export interface AdminScreenProps {
   visible?: boolean;
@@ -152,7 +153,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+      <StatusBar barStyle="light-content" backgroundColor={NEUTRAL.gray900} />
 
       <View style={styles.container}>
         {/* ── 좌측 다크 네이비 사이드바 ── */}
@@ -178,7 +179,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           {/* 콘텐츠 뷰 분기 */}
           {isLoading ? (
             <View style={styles.loadingBox}>
-              <ActivityIndicator size="large" color="#FF507C" />
+              <ActivityIndicator size="large" color={COLORS.primary} />
             </View>
           ) : (
             <View style={styles.body}>
@@ -208,16 +209,16 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: NEUTRAL.gray900,
   },
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: NEUTRAL.gray50,
   },
   mainContent: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: NEUTRAL.gray50,
     flexDirection: 'column',
   },
   body: {

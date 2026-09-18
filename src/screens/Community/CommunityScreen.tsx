@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { AppHeader } from '../../components/common/AppHeader';
-import { COLORS } from '../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { PencilIcon, SearchIcon } from '../../components/common/Icon';
 import { useCommunityStore } from '../../store/useCommunityStore';
 import { useUserStore } from '../../store/useUserStore';
@@ -141,7 +141,7 @@ export const CommunityScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
       <AppHeader />
 
       <ScrollView
@@ -220,7 +220,7 @@ export const CommunityScreen: React.FC = () => {
             onPress={handlePressWrite}
             activeOpacity={0.85}
           >
-            <PencilIcon size={14} color="#FFFFFF" />
+            <PencilIcon size={14} color={COLORS.onPrimaryText} />
             <Text style={styles.writeButtonText}>글쓰기</Text>
           </TouchableOpacity>
         </View>
@@ -255,7 +255,7 @@ export const CommunityScreen: React.FC = () => {
                   onPress={handlePressWrite}
                   activeOpacity={0.85}
                 >
-                  <PencilIcon size={14} color="#FFFFFF" />
+                  <PencilIcon size={14} color={COLORS.onPrimaryText} />
                   <Text style={styles.emptyFeedBtnText}>첫 글 작성하기</Text>
                 </TouchableOpacity>
               )}
@@ -300,7 +300,7 @@ export const CommunityScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,
@@ -315,12 +315,12 @@ const styles = StyleSheet.create({
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: NEUTRAL.gray50,
     borderRadius: 14,
     paddingHorizontal: 14,
     height: 46,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     gap: 8,
   },
   searchInput: {
@@ -357,8 +357,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   errorBanner: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FCA5A5',
+    backgroundColor: TINT_COLORS.redTint,
+    borderColor: TINT_COLORS.redTintBorder,
     borderWidth: 1,
     borderRadius: 12,
     paddingVertical: 10,
@@ -367,12 +367,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorBannerText: {
-    color: '#B91C1C',
+    color: TINT_COLORS.statusRejectedText,
     fontSize: 13,
     fontWeight: '600',
   },
   writeButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.onPrimaryText,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -384,10 +384,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 48,
     paddingHorizontal: 24,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: NEUTRAL.gray50,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     borderStyle: 'dashed',
     marginVertical: 14,
   },
@@ -426,15 +426,15 @@ const styles = StyleSheet.create({
   emptyFeedBtnText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.onPrimaryText,
   },
   verificationBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: TINT_COLORS.pinkTintBorder,
     borderRadius: 16,
     padding: 14,
     marginBottom: 16,
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
   verificationBannerSub: {
     fontSize: 12,
-    color: '#6B7280',
+    color: COLORS.textSecondary,
     lineHeight: 16,
   },
   verificationBannerBadge: {
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   verificationBannerBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.onPrimaryText,
   },
 });
 

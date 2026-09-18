@@ -7,8 +7,9 @@ import { subscriptionApi, SubscriptionRow } from '../services/subscriptionApi';
 import { useFortuneStore } from './useFortuneStore';
 import { UserSubscriptionInfo } from '../types/membershipEvent';
 import type { Step1Data } from '../components/specific/Onboarding';
+import { AppThemeColor } from '../constants/theme';
 
-export type AppThemeColor = 'pink' | 'deepGreen' | 'deepBlue' | 'yellow' | 'purple';
+export type { AppThemeColor };
 
 export interface UserState {
   id: string | null;

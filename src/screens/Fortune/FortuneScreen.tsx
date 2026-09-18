@@ -28,6 +28,7 @@ import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
 import { SajuCategoryId } from '../../mocks/sajuCategories';
 import { FREE_LIMITS } from '../../constants/membership';
+import { COLORS } from '../../constants/theme';
 
 export const FortuneScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -69,7 +70,7 @@ export const FortuneScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
       <AppHeader />
 
       <ScrollView
@@ -171,7 +172,7 @@ export const FortuneScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,

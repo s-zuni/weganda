@@ -1,13 +1,15 @@
 import { create } from 'zustand';
 import { StudyGuideItem, MOCK_STUDY_GUIDES } from '../mocks/studyData';
 import { studyApi } from '../services/studyApi';
-import { aiChatApi } from '../services/aiChatApi';
+import { aiChatApi, ClinicalSourceItem } from '../services/aiChatApi';
+import { TINT_COLORS } from '../constants/theme';
 
 export interface AiChatMessage {
   id: string;
   sender: 'user' | 'ai';
   text: string;
   time: string;
+  sources?: ClinicalSourceItem[];
 }
 
 interface StudyState {
@@ -48,12 +50,12 @@ export const useStudyStore = create<StudyState>((set, get) => ({
           const iconType = (g.icon as any) || 'book';
           const iconBg =
             g.category === '약물 계산'
-              ? '#FFF1F4'
+              ? TINT_COLORS.pinkTint
               : g.category === '응급 간호'
-              ? '#FEF3C7'
+              ? TINT_COLORS.statusPendingBg
               : g.category === '임상 술기'
-              ? '#FEE2E2'
-              : '#E0E7FF';
+              ? TINT_COLORS.redTintBorder
+              : TINT_COLORS.blueTintBorder;
 
           return {
             id: g.id,
@@ -144,6 +146,7 @@ export const useStudyStore = create<StudyState>((set, get) => ({
             ? {
                 ...m,
                 text: finalAnswer,
+                sources: res.sources,
                 time: new Date().toLocaleTimeString('ko-KR', {
                   hour: '2-digit',
                   minute: '2-digit',

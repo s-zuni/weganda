@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { PostItem, CommentItem, ReplyItem, MOCK_POSTS_DATA } from '../mocks/communityData';
 import { communityApi } from '../services/communityApi';
 import { useUserStore } from './useUserStore';
+import { COLORS } from '../constants/theme';
 
 interface CommunityState {
   posts: PostItem[];
@@ -70,7 +71,7 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
           authorWard: '병동',
           authorExperience: '간호사',
           authorAvatarLetter: p.authorName ? p.authorName.charAt(0) : '간',
-          authorAvatarBg: '#FF507C',
+          authorAvatarBg: COLORS.primary,
           isVerifiedHospital: true,
           category: p.category as any,
           title: p.title,

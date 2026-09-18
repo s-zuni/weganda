@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { COLORS } from '../constants/theme';
 
 // 앱 포그라운드 상태에서도 푸시 알림 팝업 및 소리 재생
 Notifications.setNotificationHandler({
@@ -21,7 +22,7 @@ export const localNotificationService = {
           name: '우간다 알림',
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#FF507C',
+          lightColor: COLORS.primary,
         });
       }
 

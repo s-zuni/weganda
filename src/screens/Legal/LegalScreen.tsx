@@ -138,7 +138,7 @@ export const LegalScreen: React.FC<LegalScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,

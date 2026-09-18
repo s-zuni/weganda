@@ -10,6 +10,7 @@ import {
   Step1Data,
 } from '../../components/specific/Onboarding';
 import { VerificationSubmissionData } from '../../types/verification';
+import { COLORS } from '../../constants/theme';
 
 interface OnboardingFlowScreenProps {
   navigation: any;
@@ -153,7 +154,7 @@ export const OnboardingFlowScreen: React.FC<OnboardingFlowScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
   },
   body: {
     flex: 1,

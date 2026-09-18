@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import Constants from 'expo-constants';
-import { COLORS } from '../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
 import { authService } from '../../services/auth';
 import { AppleLogo, KakaoLogo, GoogleLogo } from '../../components/common/BrandIcons';
@@ -170,10 +170,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             accessibilityLabel="Apple로 계속하기"
           >
             {loadingProvider === 'apple' ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={COLORS.onPrimaryText} />
             ) : (
               <View style={styles.buttonInner}>
-                <AppleLogo size={19} color="#FFFFFF" />
+                <AppleLogo size={19} color={COLORS.onPrimaryText} />
                 <Text style={styles.appleButtonText}>Apple로 계속하기</Text>
               </View>
             )}
@@ -268,7 +268,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
   },
   topBar: {
     flexDirection: 'row',
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   },
   reviewerButtonText: {
     fontSize: 12,
-    color: '#D1D5DB', // 심사관 전용으로 은은하고 희미하게 노출
+    color: NEUTRAL.gray300, // 심사관 전용으로 은은하고 희미하게 노출
     fontWeight: '500',
   },
   content: {
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   badge: {
-    backgroundColor: '#FFF0F3',
+    backgroundColor: TINT_COLORS.pinkTint,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -327,12 +327,12 @@ const styles = StyleSheet.create({
   promoBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF5F7',
+    backgroundColor: TINT_COLORS.pinkTint,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#FFE4E9',
+    borderColor: TINT_COLORS.pinkTintBorder,
     gap: 8,
   },
   promoEmoji: {
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   appleButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.onPrimaryText,
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: -0.3,
@@ -394,13 +394,13 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   googleButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
     height: 54,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E8EB',
+    borderColor: COLORS.border,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
