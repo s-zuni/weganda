@@ -72,8 +72,7 @@ src/
 
 ## 7. 스타일링 규칙
 
-- NativeWind(`className`) 기본, 플랫폼 종속 레이아웃/정밀 동적 스타일은 `StyleSheet.create` 병용.
-- **그라디언트 절대 금지** — 솔리드 컬러만 사용 (Paywall 포함). PR에 `LinearGradient` 등장 시 지적.
+- **그라디언트 절대 금지** — 솔리드 컬러만 사용 (Paywall 포함). PR에 `LinearGradient` 등장 시 지적 (단, `src/components/common/WegandaLogo.tsx` 공식 브랜드 앱 로고 SVG 벡터 에셋은 Figma 원본 아이덴티티 보존을 위한 유일한 브랜드 자산 예외로 허용).
 - 카드/모달 그림자는 은은하게: `shadowOpacity: 0.04~0.08`, `shadowRadius: 6`.
 - 곡률: 카드 `16px`(`rounded-2xl`), 주요 액션 버튼은 Pill(`rounded-full`).
 - 색상 하드코딩 금지 — `src/constants/theme.ts`(`COLORS`, `THEME_PALETTES`, `getAppTheme()`, `useAppTheme` 훅) / `premiumTheme.ts` 참조. 리뷰 시 `#FF507C` 같은 리터럴이 컴포넌트에 새로 박혀 있으면 상수 참조로 바꾸도록 제안.
