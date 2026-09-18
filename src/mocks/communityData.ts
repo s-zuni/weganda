@@ -53,6 +53,13 @@ export const REPORT_REASONS = [
   '기타 서비스 운영 정책 위반',
 ];
 
+// ── 글쓰기 화면 예시 첨부 이미지 샘플 (실제 업로드 연동 전 임시 데이터) ──
+export const MOCK_SAMPLE_IMAGES = [
+  'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=500&auto=format&fit=crop&q=60',
+  'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=500&auto=format&fit=crop&q=60',
+  'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&auto=format&fit=crop&q=60',
+];
+
 // ── 커뮤니티 게시글 Mock Data ──
 export const MOCK_POSTS_DATA: PostItem[] = [
   {

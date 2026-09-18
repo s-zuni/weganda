@@ -15,7 +15,6 @@ import {
 import { COLORS } from '../../../constants/theme';
 import { useUserStore } from '../../../store/useUserStore';
 import { authService } from '../../../services/auth';
-import { supabase } from '../../../services/supabase';
 
 interface ReviewerLoginModalProps {
   visible: boolean;
@@ -57,10 +56,7 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
     try {
       // 1. Supabase Auth 연결 시도
       try {
-        await supabase.auth.signInWithPassword({
-          email: 'testuser@weganda.com',
-          password: trimmedPw,
-        });
+        await authService.signInWithPassword('testuser@weganda.com', trimmedPw);
       } catch (authErr) {
         console.log('Supabase reviewer fallback mode:', authErr);
       }

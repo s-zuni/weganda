@@ -13,7 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
-import { PostItem } from '../../../mocks/communityData';
+import { PostItem, MOCK_SAMPLE_IMAGES } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { ImageIcon, LockIcon } from '../../common/Icon';
@@ -38,13 +38,6 @@ const STUDENT_CATEGORIES: PostItem['category'][] = [
   '간호대생 라운지',
   '채용/취업 정보',
   '자유게시판',
-];
-
-// 예시 첨부 가능한 Mock 이미지 샘플들
-const MOCK_SAMPLE_IMAGES = [
-  'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=500&auto=format&fit=crop&q=60',
-  'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=500&auto=format&fit=crop&q=60',
-  'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&auto=format&fit=crop&q=60',
 ];
 
 export const PostWriteModal: React.FC<PostWriteModalProps> = ({

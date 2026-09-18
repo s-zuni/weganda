@@ -61,6 +61,13 @@ export const authService = {
     return user;
   },
 
+  // 🔐 이메일/비밀번호 로그인 (심사관 전용 계정 등)
+  async signInWithPassword(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  },
+
   // 🍏 Apple 네이티브 로그인 (Identity Token 방식)
   async signInWithApple() {
     try {
