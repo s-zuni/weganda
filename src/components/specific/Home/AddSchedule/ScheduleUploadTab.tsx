@@ -19,6 +19,7 @@ interface ScheduleUploadTabProps {
   onStartUpload: (type: 'pdf' | 'excel' | 'image') => void;
   onApplyScanResult: () => void;
   onGoToCustomCodeTab?: () => void;
+  onGoToManualTab?: () => void;
 }
 
 export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
@@ -31,16 +32,40 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
   onStartUpload,
   onApplyScanResult,
   onGoToCustomCodeTab,
+  onGoToManualTab,
 }) => {
   return (
     <View>
+      {/* 준비 중 안내 공지 배너 */}
+      <View style={styles.noticeBanner}>
+        <View style={styles.noticeBadge}>
+          <Text style={styles.noticeBadgeText}>기능 준비 중</Text>
+        </View>
+        <Text style={styles.noticeTitle}>
+          스마트 파일 자동 인식은 고도화 작업 중입니다
+        </Text>
+        <Text style={styles.noticeDesc}>
+          다양한 병원별 근무표 서식을 더욱 정밀하게 자동 판독하기 위해 열심히 준비하고 있어요.
+          현재는 [직접 퀵 입력] 탭을 이용해 주시면 빠르게 등록하실 수 있습니다!
+        </Text>
+        {onGoToManualTab && (
+          <TouchableOpacity
+            style={styles.goManualBtn}
+            onPress={onGoToManualTab}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.goManualBtnText}>직접 퀵 입력으로 이동하기 ›</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       <Text style={styles.tabDesc}>
-        병원에서 받은 근무표 파일이나 캡처 사진을 올리면 AI가 자동으로 스케줄을 인식합니다.
+        지원 예정인 파일 형식 (준비 중):
       </Text>
 
       <View style={styles.uploadButtonGroup}>
         <TouchableOpacity
-          style={styles.uploadOptionCard}
+          style={[styles.uploadOptionCard, styles.uploadOptionDisabled]}
           onPress={() => onStartUpload('image')}
           activeOpacity={0.8}
         >
@@ -48,13 +73,18 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
             <Text style={styles.uploadEmoji}>📷</Text>
           </View>
           <View style={styles.uploadInfo}>
-            <Text style={styles.uploadOptionTitle}>근무표 사진 / 캡처</Text>
-            <Text style={styles.uploadOptionSub}>갤러리 사진 또는 카메라 촬영</Text>
+            <View style={styles.optionTitleRow}>
+              <Text style={styles.uploadOptionTitle}>근무표 사진 / 캡처</Text>
+              <View style={styles.preparingTag}>
+                <Text style={styles.preparingTagText}>준비 중</Text>
+              </View>
+            </View>
+            <Text style={styles.uploadOptionSub}>갤러리 사진 또는 카메라 촬영 인식</Text>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.uploadOptionCard}
+          style={[styles.uploadOptionCard, styles.uploadOptionDisabled]}
           onPress={() => onStartUpload('excel')}
           activeOpacity={0.8}
         >
@@ -62,13 +92,18 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
             <Text style={styles.uploadEmoji}>📊</Text>
           </View>
           <View style={styles.uploadInfo}>
-            <Text style={styles.uploadOptionTitle}>Excel 파일 (.xlsx / .csv)</Text>
+            <View style={styles.optionTitleRow}>
+              <Text style={styles.uploadOptionTitle}>Excel 파일 (.xlsx / .csv)</Text>
+              <View style={styles.preparingTag}>
+                <Text style={styles.preparingTagText}>준비 중</Text>
+              </View>
+            </View>
             <Text style={styles.uploadOptionSub}>병동 엑셀 파일 표 추출</Text>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.uploadOptionCard}
+          style={[styles.uploadOptionCard, styles.uploadOptionDisabled]}
           onPress={() => onStartUpload('pdf')}
           activeOpacity={0.8}
         >
@@ -76,7 +111,12 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
             <Text style={styles.uploadEmoji}>📄</Text>
           </View>
           <View style={styles.uploadInfo}>
-            <Text style={styles.uploadOptionTitle}>PDF 문서</Text>
+            <View style={styles.optionTitleRow}>
+              <Text style={styles.uploadOptionTitle}>PDF 문서</Text>
+              <View style={styles.preparingTag}>
+                <Text style={styles.preparingTagText}>준비 중</Text>
+              </View>
+            </View>
             <Text style={styles.uploadOptionSub}>공식 인쇄용 듀티 PDF</Text>
           </View>
         </TouchableOpacity>
@@ -151,15 +191,81 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
 };
 
 const styles = StyleSheet.create({
+  noticeBanner: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 20,
+  },
+  noticeBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  noticeBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  noticeTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#191F28',
+    marginBottom: 6,
+  },
+  noticeDesc: {
+    fontSize: 13,
+    color: '#64748B',
+    lineHeight: 19,
+    marginBottom: 12,
+  },
+  goManualBtn: {
+    backgroundColor: '#FFF1F4',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+  },
+  goManualBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
   tabDesc: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    fontWeight: '700',
+    color: '#475569',
     lineHeight: 19,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   uploadButtonGroup: {
     gap: 10,
     marginBottom: 20,
+  },
+  optionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  preparingTag: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  preparingTagText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#94A3B8',
+  },
+  uploadOptionDisabled: {
+    opacity: 0.85,
   },
   uploadOptionCard: {
     flexDirection: 'row',

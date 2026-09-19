@@ -46,7 +46,15 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
   } = useShiftScheduleStore();
   const userId = useUserStore((s) => s.id);
 
-  const [activeTab, setActiveTab] = useState<TabType>('upload');
+  // 기본 탭: 직접 퀵 입력 모드 (파일 인식 기능 준비 중)
+  const [activeTab, setActiveTab] = useState<TabType>('manual');
+
+  // 모달이 열릴 때 항상 직접 퀵 입력 탭이 먼저 뜨도록 보장
+  React.useEffect(() => {
+    if (visible) {
+      setActiveTab('manual');
+    }
+  }, [visible]);
 
   // 파일 업로드 시뮬레이션 상태
   const [uploadingFileType, setUploadingFileType] = useState<string | null>(null);
@@ -54,7 +62,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
   const [scanResult, setScanResult] = useState<Record<string, string> | null>(null);
 
   // 직접 입력 모드 상태
-  const [selectedDay, setSelectedDay] = useState<number>(19);
+  const [selectedDay, setSelectedDay] = useState<number>(1);
 
   // 듀티 커스텀 코드 설정 상태
   const [editCode, setEditCode] = useState('F');
@@ -148,23 +156,13 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
     }
   };
 
-  const handleStartUpload = (type: 'pdf' | 'excel' | 'image') => {
-    if (type === 'image') {
-      Alert.alert('근무표 이미지 등록', '근무표 이미지를 어떻게 가져오시겠습니까?', [
-        { text: '📷 카메라로 직접 촬영', onPress: () => handlePickImage('camera') },
-        { text: '🖼️ 갤러리/앨범에서 선택', onPress: () => handlePickImage('library') },
-        { text: '취소', style: 'cancel' },
-      ]);
-      return;
-    }
-
-    // 엑셀 및 PDF 선택 시 투명한 가이드 제공 (가짜 데이터 임의 생성 금지)
+  const handleStartUpload = (_type: 'pdf' | 'excel' | 'image') => {
     Alert.alert(
-      `${type === 'excel' ? '엑셀(.xlsx)' : 'PDF 문서'} 업로드 안내`,
-      '모바일 환경에서는 캡처/촬영된 선명한 이미지를 통해 AI가 표를 가장 정확하게 판독합니다.\n\n해당 근무표 파일을 화면에 띄운 후 캡처(스크린샷)하여 [사진 / 캡처]로 올려주시면 병동 규칙대로 정밀 분석됩니다!',
+      '기능 준비 중 안내',
+      '근무표 사진, Excel 및 PDF 자동 인식 기능은 현재 고도화 준비 중입니다. 🚧\n\n현재는 [직접 퀵 입력] 탭을 통해 간편하고 빠르게 근무표를 등록하실 수 있습니다!',
       [
-        { text: '확인', style: 'cancel' },
-        { text: '🖼️ 캡처 사진 올리기', onPress: () => handlePickImage('library') },
+        { text: '확인', style: 'default' },
+        { text: '직접 입력하기', onPress: () => setActiveTab('manual') },
       ]
     );
   };
@@ -230,69 +228,70 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
         </TouchableOpacity>
       </View>
 
-          {/* 상단 3개 탭 네비게이션 */}
-          <View style={styles.tabBar}>
-            <TouchableOpacity
-              style={[styles.tabItem, activeTab === 'upload' && styles.tabItemActive]}
-              onPress={() => setActiveTab('upload')}
-            >
-              <Text style={[styles.tabText, activeTab === 'upload' && styles.tabTextActive]}>
-                스마트 파일 업로드
-              </Text>
-            </TouchableOpacity>
+      {/* 상단 3개 탭 네비게이션: 직접 입력 우선 배치 */}
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tabItem, activeTab === 'manual' && styles.tabItemActive]}
+          onPress={() => setActiveTab('manual')}
+        >
+          <Text style={[styles.tabText, activeTab === 'manual' && styles.tabTextActive]}>
+            직접 퀵 입력
+          </Text>
+        </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.tabItem, activeTab === 'manual' && styles.tabItemActive]}
-              onPress={() => setActiveTab('manual')}
-            >
-              <Text style={[styles.tabText, activeTab === 'manual' && styles.tabTextActive]}>
-                직접 퀵 입력
-              </Text>
-            </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabItem, activeTab === 'upload' && styles.tabItemActive]}
+          onPress={() => setActiveTab('upload')}
+        >
+          <Text style={[styles.tabText, activeTab === 'upload' && styles.tabTextActive]}>
+            스마트 파일 인식 (준비 중)
+          </Text>
+        </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.tabItem, activeTab === 'custom_code' && styles.tabItemActive]}
-              onPress={() => setActiveTab('custom_code')}
-            >
-              <Text style={[styles.tabText, activeTab === 'custom_code' && styles.tabTextActive]}>
-                듀티 코드 설정
-              </Text>
-            </TouchableOpacity>
-          </View>
+        <TouchableOpacity
+          style={[styles.tabItem, activeTab === 'custom_code' && styles.tabItemActive]}
+          onPress={() => setActiveTab('custom_code')}
+        >
+          <Text style={[styles.tabText, activeTab === 'custom_code' && styles.tabTextActive]}>
+            듀티 코드 설정
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={styles.scrollContent}
-          >
-            {activeTab === 'upload' && (
-              <ScheduleUploadTab
-                month={month}
-                year={year}
-                customCodes={customCodes}
-                isScanning={isScanning}
-                uploadingFileType={uploadingFileType}
-                scanResult={scanResult}
-                onStartUpload={handleStartUpload}
-                onApplyScanResult={handleApplyScanResult}
-                onGoToCustomCodeTab={() => setActiveTab('custom_code')}
-              />
-            )}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContent}
+      >
+        {activeTab === 'manual' && (
+          <ScheduleManualInputTab
+            month={month}
+            year={year}
+            daysInMonth={daysInMonth}
+            selectedDay={selectedDay}
+            schedules={schedules}
+            customCodes={customCodes}
+            onSelectDay={setSelectedDay}
+            onAssignShift={handleAssignShiftToDay}
+          />
+        )}
 
-            {activeTab === 'manual' && (
-              <ScheduleManualInputTab
-                month={month}
-                year={year}
-                daysInMonth={daysInMonth}
-                selectedDay={selectedDay}
-                schedules={schedules}
-                customCodes={customCodes}
-                onSelectDay={setSelectedDay}
-                onAssignShift={handleAssignShiftToDay}
-              />
-            )}
+        {activeTab === 'upload' && (
+          <ScheduleUploadTab
+            month={month}
+            year={year}
+            customCodes={customCodes}
+            isScanning={isScanning}
+            uploadingFileType={uploadingFileType}
+            scanResult={scanResult}
+            onStartUpload={handleStartUpload}
+            onApplyScanResult={handleApplyScanResult}
+            onGoToCustomCodeTab={() => setActiveTab('custom_code')}
+            onGoToManualTab={() => setActiveTab('manual')}
+          />
+        )}
 
-            {activeTab === 'custom_code' && (
+        {activeTab === 'custom_code' && (
               <ScheduleCustomCodeTab
                 customCodes={customCodes}
                 editCode={editCode}
