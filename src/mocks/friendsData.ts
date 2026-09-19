@@ -1,6 +1,6 @@
 import { ShiftCode } from '../constants/shiftTypes';
-import { FriendDetail, GroupChatMember, GroupChat, ChatMessage, ShiftSwapProposal } from '../types/friends';
-export type { FriendDetail, GroupChatMember, GroupChat, ChatMessage, ShiftSwapProposal };
+import { FriendDetail, GroupChatMember, GroupChat, ChatMessage, GroupChatMessage, ShiftSwapProposal } from '../types/friends';
+export type { FriendDetail, GroupChatMember, GroupChat, ChatMessage, GroupChatMessage, ShiftSwapProposal };
 
 // ── 31일 Mock 듀티 패턴 생성 헬퍼 ──
 const generateShifts = (pattern: ShiftCode[]): { day: number; shift: ShiftCode }[] => {
@@ -22,6 +22,7 @@ export const MOCK_FRIENDS_DETAILS: FriendDetail[] = [
     role: '7년차 • 51병동',
     todayShift: 'D',
     isFavorite: true,
+    isVerified: true,
     statusMessage: '오늘 데이 근무 파이팅! 끝나고 커피 한잔 ☕',
     matchingOffDaysCount: 4,
     monthlyShifts: generateShifts(['D', 'D', 'D', 'O', 'O', 'E', 'E', 'N', 'N', 'O', 'O']),
@@ -36,6 +37,7 @@ export const MOCK_FRIENDS_DETAILS: FriendDetail[] = [
     role: '3년차 • ICU',
     todayShift: 'N',
     isFavorite: true,
+    isVerified: true,
     statusMessage: '나이트 3연속 2일차 버티는 중 🔥',
     sleepStatus: '나이트 퇴근 후 취침 중 (10:00~17:00)',
     matchingOffDaysCount: 3,
@@ -51,6 +53,7 @@ export const MOCK_FRIENDS_DETAILS: FriendDetail[] = [
     role: '5년차 • 응급실',
     todayShift: 'O',
     isFavorite: true,
+    isVerified: true,
     statusMessage: '꿀 같은 오프날! 밀린 드라마 정주행 🎬',
     matchingOffDaysCount: 5,
     monthlyShifts: generateShifts(['O', 'O', 'D', 'D', 'E', 'E', 'N', 'N', 'O', 'O', 'D']),
@@ -65,6 +68,7 @@ export const MOCK_FRIENDS_DETAILS: FriendDetail[] = [
     role: '신규 • 51병동',
     todayShift: 'E',
     isFavorite: false,
+    isVerified: false,
     statusMessage: '이브닝 인계 준비 중입니다. 잘 부탁드립니다!',
     matchingOffDaysCount: 2,
     monthlyShifts: generateShifts(['E', 'E', 'O', 'D', 'D', 'N', 'N', 'O', 'O', 'E', 'E']),
@@ -79,6 +83,7 @@ export const MOCK_FRIENDS_DETAILS: FriendDetail[] = [
     role: '4년차 • 소아병동',
     todayShift: 'E',
     isFavorite: false,
+    isVerified: true,
     statusMessage: '아이들이 오늘은 제발 얌전하게 자주길 👶',
     matchingOffDaysCount: 3,
     monthlyShifts: generateShifts(['D', 'E', 'E', 'O', 'O', 'N', 'N', 'O', 'D', 'D', 'E']),
@@ -93,6 +98,7 @@ export const MOCK_FRIENDS_DETAILS: FriendDetail[] = [
     role: '2년차 • 51병동',
     todayShift: 'D',
     isFavorite: false,
+    isVerified: true,
     statusMessage: '오늘도 안전하게 투약 무사고 목표!',
     matchingOffDaysCount: 4,
     monthlyShifts: generateShifts(['D', 'D', 'E', 'E', 'O', 'O', 'N', 'N', 'O', 'D', 'D']),
@@ -107,6 +113,7 @@ export const MOCK_FRIENDS_DETAILS: FriendDetail[] = [
     role: '3년차 • 응급실',
     todayShift: 'E',
     isFavorite: false,
+    isVerified: true,
     statusMessage: '트리아지 듀티 화이팅...',
     matchingOffDaysCount: 2,
     monthlyShifts: generateShifts(['E', 'E', 'N', 'N', 'O', 'O', 'D', 'D', 'O', 'E', 'E']),
@@ -129,6 +136,7 @@ export const MOCK_GROUP_CHATS: GroupChat[] = [
         role: '나 • 51병동',
         avatarLetter: '나',
         avatarBg: '#FF507C',
+        isVerified: true,
         monthlyShifts: generateShifts(['D', 'D', 'D', 'O', 'O', 'E', 'N', 'N', 'O', 'O', 'D']),
       },
       {
@@ -137,6 +145,7 @@ export const MOCK_GROUP_CHATS: GroupChat[] = [
         role: '7년차 • 51병동',
         avatarLetter: '김',
         avatarBg: '#FFE8EE',
+        isVerified: true,
         monthlyShifts: generateShifts(['D', 'D', 'D', 'O', 'O', 'E', 'E', 'N', 'N', 'O', 'O']),
       },
       {
@@ -145,6 +154,7 @@ export const MOCK_GROUP_CHATS: GroupChat[] = [
         role: '신규 • 51병동',
         avatarLetter: '한',
         avatarBg: '#FEF3C7',
+        isVerified: false,
         monthlyShifts: generateShifts(['E', 'E', 'O', 'D', 'D', 'N', 'N', 'O', 'O', 'E', 'E']),
       },
       {
@@ -153,6 +163,7 @@ export const MOCK_GROUP_CHATS: GroupChat[] = [
         role: '2년차 • 51병동',
         avatarLetter: '송',
         avatarBg: '#DCFCE7',
+        isVerified: true,
         monthlyShifts: generateShifts(['D', 'D', 'E', 'E', 'O', 'O', 'N', 'N', 'O', 'D', 'D']),
       },
     ],
@@ -171,6 +182,7 @@ export const MOCK_GROUP_CHATS: GroupChat[] = [
         role: '나 • 응급실',
         avatarLetter: '나',
         avatarBg: '#FF507C',
+        isVerified: true,
         monthlyShifts: generateShifts(['D', 'D', 'D', 'O', 'O', 'E', 'N', 'N', 'O', 'O', 'D']),
       },
       {
@@ -179,6 +191,7 @@ export const MOCK_GROUP_CHATS: GroupChat[] = [
         role: '5년차 • 응급실',
         avatarLetter: '유',
         avatarBg: '#FFF0F3',
+        isVerified: true,
         monthlyShifts: generateShifts(['O', 'O', 'D', 'D', 'E', 'E', 'N', 'N', 'O', 'O', 'D']),
       },
       {
@@ -187,6 +200,7 @@ export const MOCK_GROUP_CHATS: GroupChat[] = [
         role: '3년차 • 응급실',
         avatarLetter: '강',
         avatarBg: '#F5F3FF',
+        isVerified: true,
         monthlyShifts: generateShifts(['E', 'E', 'N', 'N', 'O', 'O', 'D', 'D', 'O', 'E', 'E']),
       },
     ],
@@ -201,15 +215,28 @@ export const INITIAL_CHAT_MESSAGES: Record<string, ChatMessage[]> = {
     {
       id: 'm3',
       senderId: 'f1',
-      text: '혹시 다음 주 9월 12일(금) 제 이브닝이랑 선생님 데이 맞교환 가능하실까요?',
+      text: '혹시 다음 주 제 이브닝이랑 선생님 데이 맞교환 가능하실까요?',
       timestamp: '오후 1:15',
       isSwapRequest: true,
       swapDetails: {
-        myShift: '9/12(금) Day',
-        targetShift: '9/12(금) Evening',
+        myShift: 'Day',
+        targetShift: 'Evening',
         status: 'pending',
       },
     },
+  ],
+};
+
+// ── 단체 대화방 초기 Mock Messages (게스트/프리뷰 모드 폴백용) ──
+export const INITIAL_GROUP_CHAT_MESSAGES: Record<string, GroupChatMessage[]> = {
+  g1: [
+    { id: 'g1_1', senderId: 'f1', sender: '김민지', text: '선생님들 이번 주 회식 날짜 언제가 좋을까요?', time: '오후 1:10', isVerified: true },
+    { id: 'g1_2', senderId: 'f4', sender: '한준혁', text: '저는 이번 주말 다 좋습니다!', time: '오후 1:12', isVerified: false },
+    { id: 'g1_3', senderId: 'f6', sender: '송지원', text: '스케줄 매트릭스 보니까 공통 오프 날짜가 몇 개 있네요!', time: '오후 1:15', isVerified: true },
+  ],
+  g2: [
+    { id: 'g2_1', senderId: 'f3', sender: '유세리', text: '이번 주 토요일 둘 다 오프인 사람 손!', time: '오전 11:20', isVerified: true },
+    { id: 'g2_2', senderId: 'f7', sender: '강다은', text: '저 토요일 오프예요!', time: '오전 11:25', isVerified: true },
   ],
 };
 

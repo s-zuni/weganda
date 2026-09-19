@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,9 +14,11 @@ import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { GroupChat } from '../../../mocks/friendsData';
 import { CalendarIcon, SendIcon, UsersIcon } from '../../common/Icon';
+import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 import { useCommonSchedules, CommonScheduleItem } from '../../../hooks/useCommonSchedules';
 import { CommonScheduleList } from './CommonScheduleList';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
+import { useFriendsStore } from '../../../store/useFriendsStore';
 
 interface GroupChatDetailModalProps {
   visible: boolean;
@@ -35,16 +37,30 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const [activeTab, setActiveTab] = useState<TabMode>('matrix');
   const [messageText, setMessageText] = useState('');
-  const [messages, setMessages] = useState<
-    { id: string; sender: string; text: string; time: string; isMe?: boolean }[]
-  >([
-    { id: '1', sender: '김민지', text: '선생님들 이번 주 회식 날짜 언제가 좋을까요?', time: '오후 1:10' },
-    { id: '2', sender: '한준혁', text: '저는 이번 주말 다 좋습니다!', time: '오후 1:12' },
-    { id: '3', sender: '송지원', text: '스케줄 매트릭스 보니까 14일이랑 20일이 다 오프네요!', time: '오후 1:15' },
-  ]);
+
+  const {
+    groupChatMessages,
+    fetchGroupChatMessages,
+    sendGroupChatMessage,
+    subscribeRealtimeGroupChat,
+    unsubscribeRealtimeGroupChat,
+  } = useFriendsStore();
 
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth(); // 0-indexed
+
+  // 그룹 채팅 메시지 가져오기 및 실시간 구독 (서비스 계층 경유)
+  useEffect(() => {
+    if (visible && groupChat) {
+      fetchGroupChatMessages(groupChat.id);
+      subscribeRealtimeGroupChat(groupChat.id);
+      return () => {
+        unsubscribeRealtimeGroupChat(groupChat.id);
+      };
+    }
+  }, [visible, groupChat?.id]);
+
+  const messages = (groupChat && groupChatMessages[groupChat.id]) || [];
 
   // 커스텀 훅으로 추출된 공통 스케줄 로직
   const {
@@ -54,34 +70,37 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
     setFilter: setCommonScheduleFilter,
   } = useCommonSchedules(groupChat, currentYear, currentMonth);
 
+  // 골든 오프(전원 휴무일) 또는 다수 오프 추천 날짜 동적 계산
+  const goldenOffs = useMemo(() => {
+    return commonSchedules.filter((s) => s.type === 'golden_off');
+  }, [commonSchedules]);
+
+  const multiOffs = useMemo(() => {
+    return commonSchedules.filter((s) => s.type === 'off');
+  }, [commonSchedules]);
+
+  const goldenOffDatesText = useMemo(() => {
+    if (goldenOffs.length > 0) {
+      return goldenOffs.slice(0, 2).map((g) => `${currentMonth + 1}월 ${g.day}일(${g.dayOfWeek})`);
+    }
+    if (multiOffs.length > 0) {
+      return multiOffs.slice(0, 2).map((m) => `${currentMonth + 1}월 ${m.day}일(${m.dayOfWeek})`);
+    }
+    return [];
+  }, [goldenOffs, multiOffs, currentMonth]);
+
   const handleShareCommonSchedule = (item: CommonScheduleItem) => {
     setActiveTab('chat');
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `gmsg_${Date.now()}`,
-        sender: '나',
-        text: `📢 [공통 스케줄] ${currentMonth + 1}월 ${item.day}일(${item.dayOfWeek}) : ${item.title} (${item.memberNames.join(', ')})`,
-        time: '방금 전',
-        isMe: true,
-      },
-    ]);
+    if (!groupChat) return;
+    const shareText = `📢 [공통 스케줄] ${currentMonth + 1}월 ${item.day}일(${item.dayOfWeek}) : ${item.title} (${item.memberNames.join(', ')})`;
+    sendGroupChatMessage(groupChat.id, shareText, '나 (간호사)', 'me', true);
   };
 
   if (!groupChat) return null;
 
   const handleSendMessage = () => {
     if (!messageText.trim()) return;
-    setMessages([
-      ...messages,
-      {
-        id: Date.now().toString(),
-        sender: '나',
-        text: messageText.trim(),
-        time: '방금',
-        isMe: true,
-      },
-    ]);
+    sendGroupChatMessage(groupChat.id, messageText.trim(), '나 (간호사)', 'me', true);
     setMessageText('');
   };
 
@@ -153,9 +172,23 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
           <ScrollView style={styles.matrixScroll} contentContainerStyle={styles.matrixContent}>
             {/* 골든 오프(전원 휴무일) 추천 배너 */}
             <View style={[styles.goldenOffCard, { backgroundColor: theme.primaryTint, borderLeftColor: theme.primary }]}>
-              <Text style={[styles.goldenOffTitle, { color: theme.primary }]}>회식 & 모임 추천일 (Golden Off)</Text>
+              <Text style={[styles.goldenOffTitle, { color: theme.primary }]}>
+                {goldenOffs.length > 0 ? '회식 & 모임 추천일 (Golden Off)' : '모임 추천일 (동시 휴무)'}
+              </Text>
               <Text style={styles.goldenOffDesc}>
-                <Text style={{ color: theme.primary, fontWeight: '800' }}>9월 14일(일)</Text>과 <Text style={{ color: theme.primary, fontWeight: '800' }}>9월 20일(토)</Text>에 전원 또는 과반수가 쉬는 날입니다!
+                {goldenOffDatesText.length > 0 ? (
+                  <>
+                    {goldenOffDatesText.map((dText, idx) => (
+                      <React.Fragment key={dText}>
+                        {idx > 0 && '과 '}
+                        <Text style={{ color: theme.primary, fontWeight: '800' }}>{dText}</Text>
+                      </React.Fragment>
+                    ))}
+                    에 {goldenOffs.length > 0 ? '전원이 쉬는 날입니다! 🎉' : '과반수 이상의 단원이 쉬는 날입니다!'}
+                  </>
+                ) : (
+                  '이번 달 겹치는 휴무 일정을 분석 중입니다.'
+                )}
               </Text>
             </View>
 
@@ -199,9 +232,12 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                         <View style={[styles.miniAvatar, { backgroundColor: member.avatarBg }]}>
                           <Text style={styles.miniAvatarText}>{member.avatarLetter}</Text>
                         </View>
-                        <Text style={styles.memberNameText} numberOfLines={1}>
-                          {member.name}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 2 }}>
+                          <Text style={styles.memberNameText} numberOfLines={1}>
+                            {member.name}
+                          </Text>
+                          {member.isVerified && <VerifiedNurseBadge size={12} />}
+                        </View>
                       </View>
 
                       {member.monthlyShifts.map((s) => {
@@ -278,7 +314,12 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                     </View>
                   )}
                   <View style={[styles.msgContent, m.isMe && { alignItems: 'flex-end' }]}>
-                    {!m.isMe && <Text style={styles.msgSender}>{m.sender}</Text>}
+                    {!m.isMe && (
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+                        <Text style={styles.msgSender}>{m.sender}</Text>
+                        {m.isVerified && <VerifiedNurseBadge size={11} />}
+                      </View>
+                    )}
                     <View
                       style={[
                         styles.bubble,

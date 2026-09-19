@@ -6,15 +6,16 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { COLORS } from '../../../../constants/theme';
+import { COLORS, TINT_COLORS } from '../../../../constants/theme';
 import { ShiftCode, ShiftInfo, SHIFT_TYPES } from '../../../../constants/shiftTypes';
+import { CustomShiftCode } from '../../../../types/shift';
 import { nativeCalendarService } from '../../../../services/nativeCalendarService';
 import Svg, { Path } from 'react-native-svg';
 
 interface HomeMonthlyCalendarProps {
   currentDate: Date;
   schedules: Record<string, string>;
-  customCodes: Record<string, any>;
+  customCodes: Record<string, CustomShiftCode>;
   onMonthChange: (offset: number) => void;
   onSelectDate?: (dateKey: string) => void;
   selectedDateKey?: string | null;
@@ -78,7 +79,7 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
     const code = schedules[dateKey];
     const nativeCount = nativeEventsMap[dateKey] || 0;
 
-    let shiftInfo: ShiftInfo | null = null;
+    let shiftInfo: ShiftInfo | CustomShiftCode | null = null;
     if (code) {
       if (customCodes[code]) {
         shiftInfo = customCodes[code];
@@ -216,7 +217,7 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
             accessibilityLabel="이전 달"
           >
             <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-              <Path d="M15 19L8 12L15 5" stroke="#3182F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M15 19L8 12L15 5" stroke={COLORS.shift.day} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </TouchableOpacity>
           <TouchableOpacity
@@ -227,7 +228,7 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
             accessibilityLabel="다음 달"
           >
             <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-              <Path d="M9 5L16 12L9 19" stroke="#3182F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M9 5L16 12L9 19" stroke={COLORS.shift.day} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </TouchableOpacity>
         </View>
@@ -257,7 +258,7 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
     marginBottom: 20,
     marginTop: 4,
   },
@@ -271,7 +272,7 @@ const styles = StyleSheet.create({
   monthTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#191F28',
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
   navBtnRow: {
@@ -283,7 +284,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#F0F6FF',
+    backgroundColor: TINT_COLORS.blueTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -300,10 +301,10 @@ const styles = StyleSheet.create({
   weekDayHeaderText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#8B95A1',
+    color: COLORS.textMuted,
   },
   sundayHeaderText: {
-    color: '#8B95A1',
+    color: COLORS.textMuted,
   },
   gridContainer: {
     width: '100%',
@@ -328,16 +329,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   todayNumberBox: {
-    backgroundColor: '#E8F3FF', // 시안 13일의 연한 하늘색 라운드 박스
+    backgroundColor: TINT_COLORS.blueTint, // 시안 13일의 연한 하늘색 라운드 박스
   },
   dayNumberText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#191F28',
+    color: COLORS.textPrimary,
     letterSpacing: -0.2,
   },
   todayNumberText: {
-    color: '#191F28',
+    color: COLORS.textPrimary,
     fontWeight: '700',
   },
   dutyContainer: {
@@ -364,7 +365,7 @@ const styles = StyleSheet.create({
   standaloneCountText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#3182F6',
+    color: COLORS.shift.day,
   },
   emptyDutyPlaceholder: {
     height: 14,

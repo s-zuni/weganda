@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import { COLORS } from '../../../constants/theme';
 import { SHIFT_TYPES, ShiftCode } from '../../../constants/shiftTypes';
 import { FriendDetail } from '../../../mocks/friendsData';
 import { useFriendsStore } from '../../../store/useFriendsStore';
+import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import {
   StarIcon,
   RepeatIcon,
@@ -19,6 +20,7 @@ import {
   CommentIcon,
 } from '../../common/Icon';
 import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 
 interface FriendProfileModalProps {
   visible: boolean;
@@ -28,13 +30,6 @@ interface FriendProfileModalProps {
   onProposeSwap: (friend: FriendDetail) => void;
 }
 
-// 임시 내 31일 스케줄 패턴 (비교용)
-const MY_SHIFTS: ShiftCode[] = [
-  'D', 'D', 'D', 'O', 'O', 'E', 'N', 'N', 'O', 'O', 'D',
-  'D', 'E', 'E', 'O', 'O', 'N', 'N', 'O', 'D', 'D',
-  'E', 'E', 'O', 'O', 'N', 'N', 'O', 'O', 'D', 'D',
-];
-
 export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
   visible,
   friend,
@@ -43,8 +38,24 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
   onProposeSwap,
 }) => {
   const { toggleFavorite } = useFriendsStore();
+  const { schedules, customCodes } = useShiftScheduleStore();
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth();
+
+  const matchingOffDaysCount = useMemo(() => {
+    if (!friend?.monthlyShifts) return 0;
+    return friend.monthlyShifts.filter((s) => {
+      const yyyy = currentYear;
+      const mm = String(currentMonth + 1).padStart(2, '0');
+      const dd = String(s.day).padStart(2, '0');
+      const dateKey = `${yyyy}-${mm}-${dd}`;
+      const myShiftCode = schedules[dateKey] || 'O';
+      const customInfo = customCodes[myShiftCode];
+      const isMyOff = myShiftCode === 'O' || myShiftCode === 'OFF' || myShiftCode === '/' || myShiftCode === 'F' || myShiftCode === 'V' || customInfo?.isOff;
+      const isFriendOff = s.shift === 'O' || s.shift === 'OFF' || s.shift === '/' || s.shift === 'F' || s.shift === 'V';
+      return isMyOff && isFriendOff;
+    }).length;
+  }, [friend?.monthlyShifts, schedules, customCodes, currentYear, currentMonth]);
 
   if (!friend) return null;
 
@@ -96,6 +107,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
                 <View style={styles.profileInfo}>
                   <View style={styles.nameDutyRow}>
                     <Text style={styles.friendName}>{friend.name}</Text>
+                    {friend.isVerified && <VerifiedNurseBadge size={14} />}
                     <View style={[styles.dutyBadge, { backgroundColor: shiftInfo.color }]}>
                       <Text style={styles.dutyBadgeText}>오늘 {shiftInfo.shortName} ({shiftInfo.code})</Text>
                     </View>
@@ -125,7 +137,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
             <View style={styles.offSyncBanner}>
               <View style={styles.offSyncLeft}>
                 <Text style={styles.offSyncTitle}>
-                  이번 달 둘 다 쉬는 날 <Text style={styles.boldPink}>{friend.matchingOffDaysCount}일</Text> 겹쳐요!
+                  이번 달 둘 다 쉬는 날 <Text style={styles.boldPink}>{matchingOffDaysCount}일</Text> 겹쳐요!
                 </Text>
                 <Text style={styles.offSyncSub}>함께 힐링 나들이나 카페 약속을 계획해보세요.</Text>
               </View>
@@ -135,7 +147,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
             <View style={styles.scheduleHeaderRow}>
               <View style={styles.scheduleTitleGroup}>
                 <CalendarIcon size={18} color={COLORS.primary} />
-                <Text style={styles.sectionHeading}>9월 듀티 스케줄 대조</Text>
+                <Text style={styles.sectionHeading}>{currentMonth + 1}월 듀티 스케줄 대조</Text>
               </View>
               <Text style={styles.scrollHint}>좌우 스크롤</Text>
             </View>
@@ -189,17 +201,24 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
                     <View style={styles.rowLabelCell}>
                       <Text style={[styles.rowLabelText, { color: COLORS.primary }]}>나</Text>
                     </View>
-                    {friend.monthlyShifts.map((s, idx) => {
-                      const myShift = MY_SHIFTS[idx % MY_SHIFTS.length];
-                      const color = SHIFT_TYPES[myShift]?.color || '#9CA3AF';
-                      const isBothOff = s.shift === 'O' && myShift === 'O';
+                    {friend.monthlyShifts.map((s) => {
+                      const yyyy = currentYear;
+                      const mm = String(currentMonth + 1).padStart(2, '0');
+                      const dd = String(s.day).padStart(2, '0');
+                      const dateKey = `${yyyy}-${mm}-${dd}`;
+                      const myShiftCode = schedules[dateKey] || 'O';
+                      const customInfo = customCodes[myShiftCode];
+                      const color = customInfo?.color || SHIFT_TYPES[myShiftCode as ShiftCode]?.color || '#9CA3AF';
+                      const isMyOff = myShiftCode === 'O' || myShiftCode === 'OFF' || myShiftCode === '/' || myShiftCode === 'F' || myShiftCode === 'V' || customInfo?.isOff;
+                      const isFriendOff = s.shift === 'O' || s.shift === 'OFF' || s.shift === '/' || s.shift === 'F' || s.shift === 'V';
+                      const isBothOff = isMyOff && isFriendOff;
                       return (
                         <View
                           key={`my_shift_${s.day}`}
                           style={[styles.cellShift, isBothOff && styles.bothOffCell]}
                         >
                           <View style={[styles.shiftDot, { backgroundColor: color }]}>
-                            <Text style={styles.shiftDotText}>{myShift === 'O' ? 'OFF' : myShift}</Text>
+                            <Text style={styles.shiftDotText}>{isMyOff ? 'OFF' : myShiftCode}</Text>
                           </View>
                         </View>
                       );

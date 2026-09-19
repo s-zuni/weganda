@@ -17,6 +17,7 @@ import { FriendDetail, ChatMessage } from '../../../mocks/friendsData';
 import { useFriendsStore } from '../../../store/useFriendsStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { SendIcon, RepeatIcon } from '../../common/Icon';
+import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 
 interface ChatRoomModalProps {
@@ -65,13 +66,25 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
   };
 
   const handleQuickSwap = () => {
+    // 오늘 기준 3일 뒤 또는 다음 근무일 동적 계산
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 3);
+    const month = targetDate.getMonth() + 1;
+    const date = targetDate.getDate();
+    const dayName = ['일', '월', '화', '수', '목', '금', '토'][targetDate.getDay()];
+    const dateLabel = `${month}월 ${date}일(${dayName})`;
+    const dateIso = targetDate.toISOString().split('T')[0];
+
     sendMessage(
       friend.id,
-      `선생님, 혹시 다음 주 9월 12일(금) 제 Day 근무와 선생님 Evening 맞교환 가능할까요?`,
+      `선생님, 혹시 다음 주 ${dateLabel} 제 Day 근무와 선생님 Evening 맞교환 가능할까요?`,
       true,
       {
-        myShift: '9/12(금) Day',
-        targetShift: '9/12(금) Evening',
+        myDate: dateIso,
+        myShift: `${dateLabel} Day`,
+        theirDate: dateIso,
+        theirShift: `${dateLabel} Evening`,
+        targetShift: `${dateLabel} Evening`,
         status: 'pending',
       },
       myUserId || undefined
@@ -95,6 +108,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
           <View style={styles.headerCenter}>
             <View style={styles.headerTitleRow}>
               <Text style={styles.headerTitle}>{friend.name}</Text>
+              {friend.isVerified && <VerifiedNurseBadge size={14} />}
               <View style={[styles.dutyBadge, { backgroundColor: shiftInfo.color }]}>
                 <Text style={styles.dutyBadgeText}>{shiftInfo.shortName} ({shiftInfo.code})</Text>
               </View>

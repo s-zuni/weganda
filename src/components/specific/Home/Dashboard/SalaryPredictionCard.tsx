@@ -108,12 +108,12 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
 
 const styles = StyleSheet.create({
   salaryCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
     borderRadius: 20,
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
@@ -134,19 +134,19 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#191F28',
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
   calcLinkText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#8B95A1',
+    color: COLORS.textMuted,
     letterSpacing: -0.2,
   },
   amountText: {
     fontSize: 28,
     fontWeight: '900',
-    color: '#191F28',
+    color: COLORS.textPrimary,
     letterSpacing: -0.5,
   },
 });

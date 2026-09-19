@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { ShiftCode } from '../constants/shiftTypes';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { INITIAL_GROUP_CHAT_MESSAGES } from '../mocks/friendsData';
 
 export interface ChatMessageItem {
   id: string;
@@ -17,6 +18,16 @@ export interface ChatMessageItem {
     status: 'pending' | 'accepted' | 'rejected';
   };
   createdAt: string;
+}
+
+export interface GroupChatMessageItem {
+  id: string;
+  groupId: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  createdAt: string;
+  isVerified?: boolean;
 }
 
 export const chatApi = {
@@ -240,6 +251,109 @@ export const chatApi = {
   // 채널 구독 해제
   unsubscribeChannel(channel: RealtimeChannel) {
     supabase.removeChannel(channel);
+  },
+
+  // 단체 대화방 메시지 기록 조회 (CH7 - 서비스 계층 경유 및 게스트 폴백)
+  async getGroupChatMessages(
+    groupId: string,
+    limit: number = 50
+  ): Promise<GroupChatMessageItem[]> {
+    try {
+      const { data, error } = await supabase
+        .from('group_chat_messages')
+        .select('*')
+        .eq('group_id', groupId)
+        .order('created_at', { ascending: true })
+        .limit(limit);
+
+      if (!error && data && data.length > 0) {
+        return data.map((row) => ({
+          id: row.id,
+          groupId: row.group_id,
+          senderId: row.sender_id,
+          senderName: row.sender_name || '동료 간호사',
+          content: row.content,
+          createdAt: row.created_at || new Date().toISOString(),
+          isVerified: row.is_verified ?? true,
+        }));
+      }
+    } catch {
+      // Supabase 테이블 미존재 또는 오프라인 시 폴백 진행
+    }
+
+    const mockList = INITIAL_GROUP_CHAT_MESSAGES[groupId] || [];
+    return mockList.map((m) => ({
+      id: m.id,
+      groupId,
+      senderId: m.senderId,
+      senderName: m.sender,
+      content: m.text,
+      createdAt: new Date().toISOString(),
+      isVerified: m.isVerified ?? true,
+    }));
+  },
+
+  // 단체 대화방 메시지 발송 (CH8)
+  async sendGroupChatMessage(params: {
+    groupId: string;
+    senderId: string;
+    senderName: string;
+    content: string;
+    isVerified?: boolean;
+  }): Promise<string> {
+    try {
+      const { data, error } = await supabase
+        .from('group_chat_messages')
+        .insert({
+          group_id: params.groupId,
+          sender_id: params.senderId,
+          sender_name: params.senderName,
+          content: params.content,
+          is_verified: params.isVerified ?? true,
+        })
+        .select('id')
+        .single();
+
+      if (!error && data?.id) {
+        return data.id;
+      }
+    } catch {
+      // 테이블 미존재 시 로컬 id 반환
+    }
+    return `gmsg_${Date.now()}`;
+  },
+
+  // 단체 대화방 실시간 수신 구독 (CH9)
+  subscribeToGroupChatMessages(
+    groupId: string,
+    onNewMessage: (msg: GroupChatMessageItem) => void
+  ): RealtimeChannel {
+    const channel = supabase
+      .channel(`group_chat_messages:${groupId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'group_chat_messages',
+          filter: `group_id=eq.${groupId}`,
+        },
+        (payload: any) => {
+          const row = payload.new;
+          onNewMessage({
+            id: row.id,
+            groupId: row.group_id,
+            senderId: row.sender_id,
+            senderName: row.sender_name || '동료 간호사',
+            content: row.content,
+            createdAt: row.created_at || new Date().toISOString(),
+            isVerified: row.is_verified ?? true,
+          });
+        }
+      )
+      .subscribe();
+
+    return channel;
   },
 };
 

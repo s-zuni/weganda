@@ -1,6 +1,4 @@
 export * from './GreetingBanner';
-export * from './ShiftGridRow';
-export * from './WeeklyCalendarStrip';
 export * from './HomeMonthlyCalendar';
 export * from './ScheduleActionButtons';
 export * from './DailyNoteSection';

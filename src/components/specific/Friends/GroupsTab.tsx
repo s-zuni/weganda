@@ -41,6 +41,61 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
     Alert.alert('개설 완료', `'${name}' 모임 방이 성공적으로 생성되었습니다!`);
   };
 
+  const handleAiRecommendMeeting = () => {
+    if (groupChats.length === 0) {
+      Alert.alert('AI 모임 날짜 추천', '참여 중인 단체 모임이 없습니다. 먼저 모임을 개설해 보세요!');
+      return;
+    }
+
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    const targetGroup = groupChats[0];
+    const members = targetGroup.members || [];
+    if (members.length === 0) {
+      Alert.alert('AI 모임 날짜 추천', '모임 구성원의 근무표 정보가 없습니다.');
+      return;
+    }
+
+    // 1일부터 31일까지 각 날짜별 OFF인 멤버 수 카운트
+    const daysOffCounts: { day: number; dayOfWeek: string; offCount: number; isGolden: boolean }[] = [];
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+    for (let d = 1; d <= 31; d++) {
+      const dateObj = new Date(currentYear, currentMonth, d);
+      const dayOfWeek = dayNames[dateObj.getDay()];
+      const offMembers = members.filter((m) => {
+        const s = m.monthlyShifts?.find((x) => x.day === d);
+        return s?.shift === 'O';
+      });
+      daysOffCounts.push({
+        day: d,
+        dayOfWeek,
+        offCount: offMembers.length,
+        isGolden: offMembers.length === members.length && members.length > 1,
+      });
+    }
+
+    // 골든 오프 우선, 없으면 오프 수가 가장 많은 날짜 정렬
+    daysOffCounts.sort((a, b) => {
+      if (a.isGolden !== b.isGolden) return a.isGolden ? -1 : 1;
+      return b.offCount - a.offCount;
+    });
+
+    const best = daysOffCounts[0];
+    const month = currentMonth + 1;
+
+    let message = '';
+    if (best && best.isGolden) {
+      message = `'${targetGroup.name}' 단원들의 듀티를 분석하여 최적의 공통 오프 날짜를 찾았습니다!\n\n✨ 추천 날짜: ${month}월 ${best.day}일 (${best.dayOfWeek}) 전원 휴무 (Golden Off 🎉)`;
+    } else if (best && best.offCount > 1) {
+      message = `'${targetGroup.name}' 단원들의 듀티를 분석한 결과 가장 많은 분이 쉬는 날입니다!\n\n✨ 추천 날짜: ${month}월 ${best.day}일 (${best.dayOfWeek}) ${best.offCount}명 동시 휴무 🌿`;
+    } else {
+      message = `'${targetGroup.name}' 단원들의 이번 달 듀티를 교차 분석 중입니다. 스케줄 비교 탭에서 상세 일정을 확인해보세요!`;
+    }
+
+    Alert.alert('AI 모임 날짜 추천', message);
+  };
+
   return (
     <View style={styles.groupContainer}>
       <View style={styles.groupNoticeCard}>
@@ -130,12 +185,7 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
       {/* AI 모임 날짜 추천 (전면 무료) */}
       <TouchableOpacity
         style={styles.aiRecommendBtn}
-        onPress={() => {
-          Alert.alert(
-            'AI 모임 날짜 추천',
-            '단원들의 듀티를 분석하여 최적의 공통 오프 날짜를 찾았습니다!\n\n✨ 추천 날짜: 9월 14일 (일) 전원 휴무 (Golden Off)'
-          );
-        }}
+        onPress={handleAiRecommendMeeting}
         activeOpacity={0.8}
       >
         <View style={styles.aiRecommendContent}>

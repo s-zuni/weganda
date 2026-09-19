@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { StarIcon, CommentIcon } from '../../common/Icon';
+import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 import { FriendDetail } from '../../../types/friends';
 
 interface FriendCardProps {
@@ -33,6 +34,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
       <View style={styles.friendInfo}>
         <View style={styles.nameShiftRow}>
           <Text style={styles.friendName}>{item.name}</Text>
+          {item.isVerified && <VerifiedNurseBadge size={14} />}
           <View style={[styles.shiftCodeBadge, { backgroundColor: shift.color }]}>
             <Text style={styles.shiftCodeText}>{shift.code}</Text>
           </View>

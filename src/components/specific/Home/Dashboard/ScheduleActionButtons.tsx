@@ -23,8 +23,8 @@ export const ScheduleActionButtons: React.FC<ScheduleActionButtonsProps> = ({
         activeOpacity={0.7}
       >
         <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" style={styles.btnIcon}>
-          <Rect x="3" y="4" width="18" height="18" rx="2" stroke="#FF507C" strokeWidth="2" />
-          <Path d="M16 2V6M8 2V6M3 10H21" stroke="#FF507C" strokeWidth="2" strokeLinecap="round" />
+          <Rect x="3" y="4" width="18" height="18" rx="2" stroke={theme.primary} strokeWidth="2" />
+          <Path d="M16 2V6M8 2V6M3 10H21" stroke={theme.primary} strokeWidth="2" strokeLinecap="round" />
         </Svg>
         <Text style={styles.friendBtnText}>친구 캘린더 보기</Text>
       </TouchableOpacity>
@@ -36,8 +36,8 @@ export const ScheduleActionButtons: React.FC<ScheduleActionButtonsProps> = ({
         activeOpacity={0.7}
       >
         <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" style={styles.btnIcon}>
-          <Rect x="3" y="3" width="18" height="18" rx="4" fill="#FF507C" />
-          <Path d="M12 8V16M8 12H16" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" />
+          <Rect x="3" y="3" width="18" height="18" rx="4" fill={theme.primary} />
+          <Path d="M12 8V16M8 12H16" stroke={COLORS.background} strokeWidth="2.2" strokeLinecap="round" />
         </Svg>
         <Text style={[styles.addBtnText, { color: theme.primary }]}>근무표 직접 등록</Text>
       </TouchableOpacity>
@@ -54,10 +54,10 @@ const styles = StyleSheet.create({
   actionBtn: {
     flex: 1,
     height: 50,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   friendBtnText: {
-    color: '#191F28',
+    color: COLORS.textPrimary,
     fontSize: 14,
     fontWeight: '700',
     letterSpacing: -0.2,

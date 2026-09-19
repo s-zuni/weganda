@@ -14,6 +14,7 @@ export interface FriendDetail {
   sleepStatus?: string; // e.g. '나이트 퇴근 후 취침 중 (10:00~17:00 방해금지)'
   matchingOffDaysCount: number; // 이번 달 둘 다 쉬는 날 수
   monthlyShifts: { day: number; shift: ShiftCode }[];
+  isVerified?: boolean; // 공식 간호사 인증 여부
 }
 
 export interface GroupChatMember {
@@ -23,6 +24,7 @@ export interface GroupChatMember {
   avatarLetter: string;
   avatarBg: string;
   monthlyShifts: { day: number; shift: ShiftCode }[];
+  isVerified?: boolean;
 }
 
 export interface GroupChat {
@@ -51,5 +53,15 @@ export interface ChatMessage {
   timestamp: string;
   isSwapRequest?: boolean;
   swapDetails?: ShiftSwapProposal;
+}
+
+export interface GroupChatMessage {
+  id: string;
+  senderId: string;
+  sender: string;
+  text: string;
+  time: string;
+  isMe?: boolean;
+  isVerified?: boolean;
 }
 

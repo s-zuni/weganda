@@ -3,9 +3,11 @@ import {
   FriendDetail,
   GroupChat,
   ChatMessage,
+  GroupChatMessage,
   MOCK_FRIENDS_DETAILS,
   MOCK_GROUP_CHATS,
   INITIAL_CHAT_MESSAGES,
+  INITIAL_GROUP_CHAT_MESSAGES,
 } from '../mocks/friendsData';
 import { friendsApi } from '../services/friendsApi';
 import { chatApi } from '../services/chatApi';
@@ -16,13 +18,16 @@ interface FriendsState {
   friends: FriendDetail[];
   groupChats: GroupChat[];
   chatMessages: Record<string, ChatMessage[]>;
+  groupChatMessages: Record<string, GroupChatMessage[]>;
   isLoading: boolean;
   error: string | null;
   activeChatChannel?: RealtimeChannel;
+  activeGroupChatChannels?: Record<string, RealtimeChannel>;
 
   // Actions
   fetchFriends: (userId: string) => Promise<void>;
   fetchChatMessages: (myUserId: string, friendUserId: string) => Promise<void>;
+  fetchGroupChatMessages: (groupId: string) => Promise<void>;
   toggleFavorite: (friendId: string) => Promise<void>;
   sendMessage: (
     friendId: string,
@@ -31,16 +36,27 @@ interface FriendsState {
     swapDetails?: ChatMessage['swapDetails'],
     myUserId?: string
   ) => Promise<void>;
+  sendGroupChatMessage: (
+    groupId: string,
+    text: string,
+    senderName?: string,
+    myUserId?: string,
+    isVerified?: boolean
+  ) => Promise<void>;
   respondToSwap: (friendId: string, messageId: string, accept: boolean) => Promise<void>;
   createGroupChat: (name: string, category: string, members: FriendDetail[]) => void;
   subscribeRealtimeChat: (myUserId: string) => void;
   unsubscribeRealtimeChat: () => void;
+  subscribeRealtimeGroupChat: (groupId: string) => void;
+  unsubscribeRealtimeGroupChat: (groupId: string) => void;
 }
 
 export const useFriendsStore = create<FriendsState>((set, get) => ({
   friends: [],
   groupChats: [],
   chatMessages: {},
+  groupChatMessages: INITIAL_GROUP_CHAT_MESSAGES,
+  activeGroupChatChannels: {},
   isLoading: false,
   error: null,
 
@@ -257,6 +273,114 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
     if (existing) {
       chatApi.unsubscribeChannel(existing);
       set({ activeChatChannel: undefined });
+    }
+  },
+
+  // 단체 톡방 대화 기록 조회 (서비스 계층 경유)
+  fetchGroupChatMessages: async (groupId: string) => {
+    try {
+      const messages = await chatApi.getGroupChatMessages(groupId);
+      if (messages && messages.length > 0) {
+        const mapped: GroupChatMessage[] = messages.map((m) => ({
+          id: m.id,
+          senderId: m.senderId,
+          sender: m.senderName,
+          text: m.content,
+          time: new Date(m.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+          isMe: m.senderId === 'me',
+          isVerified: m.isVerified,
+        }));
+        set((state) => ({
+          groupChatMessages: {
+            ...state.groupChatMessages,
+            [groupId]: mapped,
+          },
+        }));
+      }
+    } catch (e) {
+      console.error('Error fetching group chat messages:', e);
+    }
+  },
+
+  // 단체 톡방 메시지 발송 (낙관적 UI + 서비스 계층 경유)
+  sendGroupChatMessage: async (groupId, text, senderName = '나 (간호사)', myUserId = 'me', isVerified = true) => {
+    const currentList = get().groupChatMessages[groupId] || [];
+    const localId = `gmsg_${Date.now()}`;
+    const newMsg: GroupChatMessage = {
+      id: localId,
+      senderId: myUserId,
+      sender: senderName,
+      text,
+      time: '방금',
+      isMe: true,
+      isVerified,
+    };
+
+    set((state) => ({
+      groupChatMessages: {
+        ...state.groupChatMessages,
+        [groupId]: [...currentList, newMsg],
+      },
+    }));
+
+    try {
+      await chatApi.sendGroupChatMessage({
+        groupId,
+        senderId: myUserId,
+        senderName,
+        content: text,
+        isVerified,
+      });
+    } catch (e) {
+      console.error('Failed to send group chat message:', e);
+    }
+  },
+
+  // 단체 톡방 실시간 구독
+  subscribeRealtimeGroupChat: (groupId: string) => {
+    const existing = get().activeGroupChatChannels?.[groupId];
+    if (existing) {
+      chatApi.unsubscribeChannel(existing);
+    }
+
+    const channel = chatApi.subscribeToGroupChatMessages(groupId, (newMsg) => {
+      if (newMsg.senderId === 'me') return;
+      const currentList = get().groupChatMessages[groupId] || [];
+      const item: GroupChatMessage = {
+        id: newMsg.id,
+        senderId: newMsg.senderId,
+        sender: newMsg.senderName,
+        text: newMsg.content,
+        time: new Date(newMsg.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+        isMe: false,
+        isVerified: newMsg.isVerified,
+      };
+
+      set((state) => ({
+        groupChatMessages: {
+          ...state.groupChatMessages,
+          [groupId]: [...currentList, item],
+        },
+      }));
+    });
+
+    set((state) => ({
+      activeGroupChatChannels: {
+        ...state.activeGroupChatChannels,
+        [groupId]: channel,
+      },
+    }));
+  },
+
+  unsubscribeRealtimeGroupChat: (groupId: string) => {
+    const channel = get().activeGroupChatChannels?.[groupId];
+    if (channel) {
+      chatApi.unsubscribeChannel(channel);
+      set((state) => {
+        const updated = { ...state.activeGroupChatChannels };
+        delete updated[groupId];
+        return { activeGroupChatChannels: updated };
+      });
     }
   },
 }));

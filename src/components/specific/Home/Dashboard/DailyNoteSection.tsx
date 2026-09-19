@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../../constants/theme';
 import { useDailyNoteStore } from '../../../../store/useDailyNoteStore';
 import Svg, { Path, Rect } from 'react-native-svg';
 
@@ -11,12 +11,14 @@ interface DailyNoteSectionProps {
 export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
   onOpenDailyNoteModal,
 }) => {
+  const theme = useAppTheme();
   const notes = useDailyNoteStore((s) => s.notes);
   const latestNote = notes.length > 0 ? notes[0] : null;
 
-  const notePreviewText = latestNote
-    ? `${latestNote.patient ? `${latestNote.patient} ` : ''}${latestNote.note}`
-    : '302호 Foley 교체 완료, BST 140 체크';
+  const hasNote = Boolean(latestNote && latestNote.note && latestNote.note.trim().length > 0);
+  const notePreviewText = hasNote
+    ? `${latestNote!.patient ? `${latestNote!.patient} ` : ''}${latestNote!.note}`
+    : '아직 등록된 인수인계 메모가 없어요';
 
   return (
     <TouchableOpacity
@@ -36,14 +38,22 @@ export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
       {/* 중앙 텍스트 */}
       <View style={styles.textCol}>
         <Text style={styles.memoTitle}>오늘의 인수인계 메모</Text>
-        <Text style={styles.memoPreview} numberOfLines={1}>
+        <Text
+          style={[
+            styles.memoPreview,
+            !hasNote && styles.memoEmptyPreview,
+          ]}
+          numberOfLines={1}
+        >
           {notePreviewText}
         </Text>
       </View>
 
-      {/* 우측 수정 뱃지 버튼 */}
-      <View style={styles.editBadge}>
-        <Text style={styles.editText}>수정 ›</Text>
+      {/* 우측 수정/작성 뱃지 버튼 */}
+      <View style={[styles.editBadge, { backgroundColor: theme.primaryTint }]}>
+        <Text style={[styles.editText, { color: theme.primary }]}>
+          {hasNote ? '수정 ›' : '작성 ›'}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -51,14 +61,14 @@ export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
 
 const styles = StyleSheet.create({
   memoCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
     borderRadius: 18,
     paddingVertical: 14,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
@@ -82,18 +92,20 @@ const styles = StyleSheet.create({
   memoTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#191F28',
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
   memoPreview: {
     fontSize: 13,
-    color: '#8B95A1',
+    color: COLORS.textSecondary,
     marginTop: 3,
     fontWeight: '500',
     letterSpacing: -0.2,
   },
+  memoEmptyPreview: {
+    color: COLORS.textMuted,
+  },
   editBadge: {
-    backgroundColor: '#FFF1F4',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
@@ -104,7 +116,6 @@ const styles = StyleSheet.create({
   editText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary, // #FF507C
   },
 });
 
