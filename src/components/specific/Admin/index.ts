@@ -7,3 +7,6 @@ export * from './ServiceMetricsTab';
 export * from './AdminPaymentsTab';
 export * from './AdminSettingsTab';
 export * from './AdminWaitlistTab';
+export * from './AdminVerificationTab';
+export * from './AdminInquiriesTab';
+export * from './AdminLoginView';

@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/theme';
-import { LeafIcon } from '../../common/Icon';
 
 interface AdviceCardProps {
   advice?: string;
@@ -12,9 +11,6 @@ export const AdviceCard: React.FC<AdviceCardProps> = ({
 }) => {
   return (
     <View style={styles.adviceCard}>
-      <View style={styles.adviceIconWrapper}>
-        <LeafIcon size={20} color={COLORS.primary} />
-      </View>
       <View style={styles.adviceContent}>
         <Text style={styles.adviceTitle}>🌿 오늘의 힐링 조언</Text>
         <Text style={styles.adviceDesc}>{advice}</Text>
@@ -29,19 +25,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF1F4',
     borderRadius: 18,
     padding: 16,
-    gap: 12,
     alignItems: 'center',
     marginBottom: 20,
     borderWidth: 1,
     borderColor: '#FFE4EA',
-  },
-  adviceIconWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   adviceContent: {
     flex: 1,

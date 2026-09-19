@@ -1,26 +1,26 @@
 import { LegalDocument, LegalTabKey } from './types';
 import { TERMS_OF_SERVICE } from './termsOfService';
 import { PRIVACY_POLICY } from './privacyPolicy';
-import { PAID_TERMS } from './paidTerms';
-import { COMMUNITY_POLICY } from './communityPolicy';
+import { MEMBERSHIP_TERMS } from './membershipTerms';
+import { COMMUNITY_TERMS } from './communityTerms';
 
 export * from './types';
 export * from './termsOfService';
 export * from './privacyPolicy';
-export * from './paidTerms';
-export * from './communityPolicy';
+export * from './membershipTerms';
+export * from './communityTerms';
 
 export const LEGAL_DOCUMENTS: Record<LegalTabKey, LegalDocument> = {
-  service: TERMS_OF_SERVICE,
+  terms: TERMS_OF_SERVICE,
   privacy: PRIVACY_POLICY,
-  paid: PAID_TERMS,
-  community: COMMUNITY_POLICY,
+  membership: MEMBERSHIP_TERMS,
+  community: COMMUNITY_TERMS,
 };
 
 export const LEGAL_TABS: { key: LegalTabKey; label: string; path: string }[] = [
-  { key: 'service', label: '서비스 이용약관', path: '/terms?tab=service' },
-  { key: 'privacy', label: '개인정보 처리방침', path: '/terms?tab=privacy' },
-  { key: 'paid', label: '유료서비스 및 환불규정', path: '/terms?tab=paid' },
-  { key: 'community', label: '커뮤니티 운영원칙', path: '/terms?tab=community' },
+  { key: 'terms', label: '서비스 이용약관', path: '/terms' },
+  { key: 'privacy', label: '개인정보처리방침', path: '/privacy' },
+  { key: 'membership', label: '우간다+ 멤버십 이용약관', path: '/membership' },
+  { key: 'community', label: '커뮤니티 이용약관', path: '/community' },
 ];
 

@@ -1,8 +1,42 @@
-export const COLORS = {
-  primary: '#FF507C',
-  primaryLight: '#FF6B8E',
-  primaryMuted: '#FFAEC0',
-  primaryTint: '#FFE8EE',
+export type AppThemeColor = 'pink' | 'deepGreen' | 'deepBlue' | 'yellow' | 'purple';
+
+export interface ThemeColors {
+  primary: string;
+  primaryLight: string;
+  primaryMuted: string;
+  primaryTint: string;
+  onPrimaryText: string;
+  background: string;
+  offWhite: string;
+  cardBackground: string;
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  border: string;
+  divider: string;
+  shift: {
+    day: string;
+    evening: string;
+    night: string;
+    off: string;
+    vacation: string;
+  };
+  status: {
+    success: string;
+    warning: string;
+    error: string;
+    info: string;
+  };
+  subBeige: string;
+  subBeigeLight: string;
+  subBeigeBorder: string;
+  subBeigeText: string;
+  subBeigeMuted: string;
+  subBeigeBtn: string;
+  subBeigeBadge: string;
+}
+
+const COMMON_BASE = {
   background: '#FFFFFF',
   offWhite: '#F8F9FA',
   cardBackground: '#FFFFFF',
@@ -24,7 +58,108 @@ export const COLORS = {
     error: '#EF4444',
     info: '#3B82F6',
   },
+  subBeige: '#F7F3EE',
+  subBeigeLight: '#FAF7F2',
+  subBeigeBorder: '#E5DCD1',
+  subBeigeText: '#5A4A3E',
+  subBeigeMuted: '#8C7B6F',
+  subBeigeBtn: '#6D5D50',
+  subBeigeBadge: '#EDE5DA',
 };
+
+export const THEME_PALETTES: Record<AppThemeColor, ThemeColors> = {
+  pink: {
+    ...COMMON_BASE,
+    primary: '#FF507C',
+    primaryLight: '#FF6B8E',
+    primaryMuted: '#FFAEC0',
+    primaryTint: '#FFF1F4',
+    onPrimaryText: '#FFFFFF',
+  },
+  deepGreen: {
+    ...COMMON_BASE,
+    primary: '#1B4332',
+    primaryLight: '#2D6A4F',
+    primaryMuted: '#52B788',
+    primaryTint: '#E8F5EE',
+    onPrimaryText: '#FFFFFF',
+  },
+  deepBlue: {
+    ...COMMON_BASE,
+    primary: '#1E3A5F',
+    primaryLight: '#2E5B88',
+    primaryMuted: '#6C92BF',
+    primaryTint: '#EBF3FA',
+    onPrimaryText: '#FFFFFF',
+  },
+  yellow: {
+    ...COMMON_BASE,
+    primary: '#D97706',
+    primaryLight: '#F59E0B',
+    primaryMuted: '#FCD34D',
+    primaryTint: '#FEF3C7',
+    onPrimaryText: '#1A1A1A', // 옐로 테마에서는 텍스트 검정색으로 가독성 확보
+  },
+  purple: {
+    ...COMMON_BASE,
+    primary: '#5B2C8E',
+    primaryLight: '#7A3EB5',
+    primaryMuted: '#B794DE',
+    primaryTint: '#F3E8FF',
+    onPrimaryText: '#FFFFFF',
+  },
+};
+
+// 기본 호환용 COLORS 객체 (핑크 테마 기본)
+export const COLORS: ThemeColors = THEME_PALETTES.pink;
+
+// 테마 조회 헬퍼 함수
+export function getAppTheme(color: AppThemeColor = 'pink'): ThemeColors {
+  return THEME_PALETTES[color] || THEME_PALETTES.pink;
+}
+
+export { useAppTheme } from '../hooks/useAppTheme';
+
+// 테마 비의존적 뉴트럴(슬레이트) 스케일 — 다크 푸터, 보조 텍스트 등에 사용
+export const NEUTRAL = {
+  gray50: '#F9FAFB',
+  gray100: '#F1F5F9',
+  gray200: '#E2E8F0',
+  gray300: '#CBD5E1',
+  gray400: '#94A3B8',
+  gray500: '#64748B',
+  gray600: '#475569',
+  gray700: '#334155',
+  gray800: '#1E293B',
+  gray900: '#0F172A',
+  gray950: '#090D16',
+} as const;
+
+// 상태/배지용 보조 틴트 컬러 (테마 비의존적)
+export const TINT_COLORS = {
+  pinkTint: '#FFF1F4',
+  pinkTintBorder: '#FFE4E6',
+  pinkTintSoft: '#FFF0F3',
+  redTint: '#FEF2F2',
+  redTintBorder: '#FECACA',
+  blueTint: '#EFF6FF',
+  blueTintBorder: '#BFDBFE',
+  orangeTint: '#FFF7ED',
+  orangeAccent: '#F97316',
+  greenTint: '#F0FDF4',
+  greenTintBorder: '#86EFAC',
+  greenTintStrong: '#DCFCE7',
+  greenTextDark: '#14532D',
+  greenTextMid: '#166534',
+  greenIcon: '#16A34A',
+  statusVerifiedBg: '#DEF7EC',
+  statusVerifiedText: '#03543F',
+  statusPendingBg: '#FEF3C7',
+  statusPendingText: '#92400E',
+  statusRejectedBg: '#FDE8E8',
+  statusRejectedText: '#9B1C1C',
+} as const;
+
 
 export const TYPOGRAPHY = {
   // [대주제] 메인 헤딩, 히어로 수치/코드, 화면 최상단 타이틀

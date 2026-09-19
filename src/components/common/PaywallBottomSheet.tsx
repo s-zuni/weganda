@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   View,
@@ -6,9 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   TouchableWithoutFeedback,
+  Linking,
+  Alert,
+  ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { COLORS } from '../../constants/theme';
 import { CrownIcon } from './Icon';
+import { inAppPurchaseService } from '../../services/inAppPurchaseService';
+import { SwipeableBottomSheet } from './SwipeableBottomSheet';
 
 interface PaywallBottomSheetProps {
   visible: boolean;
@@ -27,23 +33,29 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
   featureTitle,
   featureDescription,
 }) => {
+  const [isRestoring, setIsRestoring] = useState(false);
+
+  const handleRestore = async () => {
+    setIsRestoring(true);
+    try {
+      // restorePurchases()가 서버 검증까지 마친 뒤 store를 직접 갱신하므로,
+      // 여기서는 결과 메시지만 안내한다(클라이언트가 임의로 프리미엄을 부여하지 않는다).
+      const result = await inAppPurchaseService.restorePurchases();
+      if (result.success) {
+        Alert.alert('구매 복원 완료', '이전 구독 내역이 성공적으로 복원되었습니다.');
+        onClose();
+      } else {
+        Alert.alert('복원 내역 없음', result.errorMessage || '복원할 수 있는 활성 구독 내역을 찾을 수 없습니다.');
+      }
+    } catch (e: any) {
+      Alert.alert('복원 실패', e.message || '구매 내역 복원 중 오류가 발생했습니다.');
+    } finally {
+      setIsRestoring(false);
+    }
+  };
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <TouchableOpacity
-        style={styles.backdrop}
-        activeOpacity={1}
-        onPressOut={onClose}
-      >
-        <TouchableWithoutFeedback>
-          <View style={styles.sheetContainer}>
-            <View style={styles.handleContainer}>
-              <View style={styles.handle} />
-            </View>
+    <SwipeableBottomSheet visible={visible} onClose={onClose}>
+      <View style={styles.sheetContainer}>
 
             <View style={styles.contentContainer}>
               <View style={styles.iconContainer}>
@@ -75,9 +87,11 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
                 style={styles.primaryButton}
                 onPress={onSubscribe}
                 activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="우간다+ 구독하기 (월 5,900원~)"
               >
                 <Text style={styles.primaryButtonText}>
-                  우간다+ 구독하기 (월 7,800원)
+                  우간다+ 구독하기 (월 5,900원~)
                 </Text>
               </TouchableOpacity>
 
@@ -85,16 +99,66 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
                 style={styles.secondaryButton}
                 onPress={onLearnMore}
                 activeOpacity={0.6}
+                accessibilityRole="button"
+                accessibilityLabel="자세히 알아보기"
               >
                 <Text style={styles.secondaryButtonText}>
                   자세히 알아보기 {'>'}
                 </Text>
               </TouchableOpacity>
+
+              {/* 🔄 구매 복원 버튼 (Apple Guideline 3.1.1 필수 요건) */}
+              <TouchableOpacity
+                style={styles.restoreButton}
+                onPress={handleRestore}
+                disabled={isRestoring}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="구매 내역 복원"
+              >
+                {isRestoring ? (
+                  <ActivityIndicator size="small" color="#6B7280" />
+                ) : (
+                  <Text style={styles.restoreButtonText}>
+                    이미 구독 중이신가요? 구매 내역 복원
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              <View style={styles.legalRow}>
+                <TouchableOpacity
+                  onPress={() => {
+                    const url = 'https://www.weganda.kr/membership';
+                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                      window.open(url, '_blank');
+                    } else {
+                      Linking.openURL(url).catch((err) => console.warn(err));
+                    }
+                  }}
+                  accessibilityRole="link"
+                  accessibilityLabel="멤버십 이용약관"
+                >
+                  <Text style={styles.legalLinkText}>멤버십 이용약관</Text>
+                </TouchableOpacity>
+                <Text style={styles.legalDot}>•</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    const url = 'https://www.weganda.kr/privacy';
+                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                      window.open(url, '_blank');
+                    } else {
+                      Linking.openURL(url).catch((err) => console.warn(err));
+                    }
+                  }}
+                  accessibilityRole="link"
+                  accessibilityLabel="개인정보 처리방침"
+                >
+                  <Text style={styles.legalLinkText}>개인정보 처리방침</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </TouchableWithoutFeedback>
-      </TouchableOpacity>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 
@@ -196,6 +260,36 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontSize: 15,
     fontWeight: '500',
+  },
+  restoreButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  restoreButtonText: {
+    color: '#6B7280',
+    fontSize: 13,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  legalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+  },
+  legalLinkText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    textDecorationLine: 'underline',
+  },
+  legalDot: {
+    fontSize: 12,
+    color: '#D1D5DB',
   },
 });
 

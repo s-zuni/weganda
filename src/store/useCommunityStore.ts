@@ -1,11 +1,14 @@
 import { create } from 'zustand';
 import { PostItem, CommentItem, ReplyItem, MOCK_POSTS_DATA } from '../mocks/communityData';
 import { communityApi } from '../services/communityApi';
+import { useUserStore } from './useUserStore';
+import { COLORS } from '../constants/theme';
 
 interface CommunityState {
   posts: PostItem[];
   blockedUserIds: string[];
   isLoading: boolean;
+  error: string | null;
 
   // Actions
   fetchPosts: (category?: string, userId?: string) => Promise<void>;
@@ -51,22 +54,24 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
   posts: [],
   blockedUserIds: [],
   isLoading: false,
+  error: null,
 
   // 게시글 목록 DB 조회
   fetchPosts: async (category?: string, userId?: string) => {
     try {
-      set({ isLoading: true });
+      set({ isLoading: true, error: null });
       const serverPosts = await communityApi.getPosts({ category, userId });
       if (serverPosts && serverPosts.length > 0) {
         const mapped: PostItem[] = serverPosts.map((p) => ({
           id: p.id,
           authorId: p.authorId,
-          authorName: p.authorName,
-          authorHospital: p.authorHospital || '종합병원',
+          authorName: p.authorName || (p.isAnonymous ? '익명' : '간호사'),
+          authorRole: '간호사',
+          authorHospital: p.authorHospital || '병원',
           authorWard: '병동',
           authorExperience: '간호사',
-          authorAvatarLetter: p.authorName.charAt(0) || '간',
-          authorAvatarBg: '#FF507C',
+          authorAvatarLetter: p.authorName ? p.authorName.charAt(0) : '간',
+          authorAvatarBg: COLORS.primary,
           isVerifiedHospital: true,
           category: p.category as any,
           title: p.title,
@@ -83,13 +88,21 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
           images: p.images,
           comments: [],
         }));
-        set({ posts: mapped, isLoading: false });
+        set({ posts: mapped, isLoading: false, error: null });
       } else {
-        set({ isLoading: false });
+        const userState = useUserStore.getState();
+        const isGuest = userState.isGuest || userState.id === 'guest_user_preview';
+        set({ posts: isGuest ? MOCK_POSTS_DATA : [], isLoading: false, error: null });
       }
-    } catch (e) {
-      console.error('Error fetching posts from backend:', e);
-      set({ isLoading: false });
+    } catch (e: any) {
+      console.warn('Notice fetching posts from backend:', e);
+      const userState = useUserStore.getState();
+      const isGuest = userState.isGuest || userState.id === 'guest_user_preview';
+      set({
+        posts: isGuest ? MOCK_POSTS_DATA : [],
+        isLoading: false,
+        error: isGuest ? null : '게시글 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      });
     }
   },
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/theme';
-import { PaletteIcon, HashIcon, CompassIcon } from '../../common/Icon';
 
 interface LuckyItemsSectionProps {
   color?: string;
@@ -23,9 +22,6 @@ export const LuckyItemsSection: React.FC<LuckyItemsSectionProps> = ({
         {/* 행운 컬러 */}
         <View style={styles.luckyRow}>
           <View style={styles.luckyLeft}>
-            <View style={styles.luckyIconWrapper}>
-              <PaletteIcon size={18} color={COLORS.primary} />
-            </View>
             <Text style={styles.luckyLabel}>🎨 행운의 컬러</Text>
           </View>
           <View style={styles.luckyRight}>
@@ -39,9 +35,6 @@ export const LuckyItemsSection: React.FC<LuckyItemsSectionProps> = ({
         {/* 행운 숫자 */}
         <View style={styles.luckyRow}>
           <View style={styles.luckyLeft}>
-            <View style={styles.luckyIconWrapper}>
-              <HashIcon size={18} color={COLORS.primary} />
-            </View>
             <Text style={styles.luckyLabel}>🔢 행운의 숫자</Text>
           </View>
           <Text style={styles.luckyValueText}>{number}</Text>
@@ -52,9 +45,6 @@ export const LuckyItemsSection: React.FC<LuckyItemsSectionProps> = ({
         {/* 행운 방향 */}
         <View style={styles.luckyRow}>
           <View style={styles.luckyLeft}>
-            <View style={styles.luckyIconWrapper}>
-              <CompassIcon size={18} color={COLORS.primary} />
-            </View>
             <Text style={styles.luckyLabel}>🧭 행운의 방향</Text>
           </View>
           <Text style={styles.luckyValueText}>{direction}</Text>
@@ -98,14 +88,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-  },
-  luckyIconWrapper: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#FFF1F4',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   luckyLabel: {
     fontSize: 16,

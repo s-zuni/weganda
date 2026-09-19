@@ -30,7 +30,7 @@
   2. **운세 서비스**: 무료 회원 월 5회 초과 시 `PremiumLockOverlay`로 잠금 및 Paywall 유도.
   3. **월급/수당 예측기**: 무료 회원은 잠금 카드 및 Paywall 바텀시트, 프리미엄 회원에게만 D/E/N 수당 통계 분석 노출.
   4. **약물 계산기 & Ask AI**: 무료 회원 횟수 제한, 프리미엄 회원 무제한.
-  5. **공유 캘린더 & AI 모임 추천**: 무료 회원 최대 3명 연동 제한, AI 모임 날짜 추천 기능 잠금.
+  5. **스마트 듀티 건강 & 번아웃 위험도 분석**: 무료 회원은 기본 캘린더만 노출, 프리미엄 회원에게만 N-O-D 및 수면부채 위험 지수 분석 제공. (참고: 공유 캘린더 & AI 모임 추천은 전면 무료)
 - **인앱 결제(In-App Purchase, IAP) 연동 거버넌스 (`react-native-iap`)**:
   - Apple App Store(iOS StoreKit) 및 Google Play 결제 정책을 준수하기 위해 `react-native-iap` 기반의 인앱 결제 아키텍처(`src/services/inAppPurchaseService.ts`)를 표준으로 합니다.
   - **결제 생명주기 및 5대 필수 원칙 준수**:

@@ -80,25 +80,13 @@ export const adminApi = {
     } catch (e) {
       console.error('Error in getDashboardStats:', e);
       return {
-        today_visitors: 1,
-        total_users: 1,
+        today_visitors: 0,
+        total_users: 0,
         total_revenue: 0,
         pending_reports: 0,
         today_users: 0,
-        total_posts: 1,
-        recent_users: [
-          {
-            id: '33072254-77c4-461a-a83f-8402b9df33c4',
-            name: '이승준',
-            email: 'admin@weganda.com',
-            role: 'admin',
-            tier: 'admin',
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            hospitalName: '종합병원',
-            wardName: '병동',
-          },
-        ],
+        total_posts: 0,
+        recent_users: [],
       };
     }
   },
@@ -339,10 +327,23 @@ export const adminApi = {
     adminNickname?: string
   ): Promise<boolean> {
     try {
+      let resolvedUserId = adminUserId;
+      if (!resolvedUserId) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        resolvedUserId = session?.user?.id;
+      }
+
+      if (!resolvedUserId) {
+        console.error('adminApi.createNoticePost error: No authenticated admin user found');
+        return false;
+      }
+
       const { error } = await supabase.from('posts').insert({
         title: title.trim(),
         content: content.trim(),
-        author_id: adminUserId || '33072254-77c4-461a-a83f-8402b9df33c4',
+        author_id: resolvedUserId,
         category: '공지',
         is_notice: true,
         is_hidden: false,

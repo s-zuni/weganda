@@ -9,7 +9,7 @@ import {
   LandingDownloadCta,
   LandingFooter,
 } from '../../components/specific/Landing';
-import { LegalTabKey } from '../../constants/legal/types';
+import { LegalTabKey } from '../../constants/legal';
 
 interface LandingScreenProps {
   onNavigateAdmin?: () => void;

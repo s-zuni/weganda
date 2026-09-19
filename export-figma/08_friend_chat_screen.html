@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우간다 - 친구와 채팅 & 듀티 교환</title>
+  <!-- Pretendard & Inter Web Fonts -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#FF507C', // Viva Coral Pink
+            brandLight: '#FFF1F4',
+            brandBorder: '#FFE4EA',
+            shiftDay: '#4F98CA',
+            shiftEve: '#E2703A',
+            bgGray: '#F8F9FA',
+            borderGray: '#E5E7EB',
+            textPrimary: '#1A1A1A',
+            textSecondary: '#6B7280',
+            textMuted: '#9CA3AF',
+          },
+          fontFamily: {
+            sans: ['Pretendard', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 2px 10px rgba(0, 0, 0, 0.04)',
+            card: '0 4px 16px rgba(0, 0, 0, 0.05)',
+            btn: '0 4px 12px rgba(255, 80, 124, 0.25)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #F3F4F6;
+      margin: 0;
+      padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mobile-frame {
+      width: 390px;
+      min-height: 844px;
+      background-color: #F8F9FA;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body>
+  <div class="mobile-frame" id="friend-chat-screen">
+    
+    <!-- 1. 시스템 상태바 -->
+    <div class="w-full px-7 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-textPrimary bg-white">
+      <span>09:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z"/></svg>
+        <div class="w-5 h-2.5 border border-textPrimary rounded-sm p-0.5 flex items-center">
+          <div class="w-full h-full bg-textPrimary rounded-2xs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 네비게이션 헤더 -->
+    <header class="w-full px-5 py-3 flex justify-between items-center bg-white sticky top-0 z-30 border-b border-borderGray/50">
+      <button class="text-sm font-bold text-textPrimary flex items-center gap-0.5">
+        ‹ 뒤로
+      </button>
+      <div class="text-center">
+        <div class="flex items-center justify-center gap-1.5">
+          <h1 class="text-base font-bold text-textPrimary">김민서</h1>
+          <span class="bg-shiftDay text-white text-3xs font-extrabold px-1.5 py-0.5 rounded">
+            주간 (D)
+          </span>
+        </div>
+        <p class="text-2xs text-textMuted mt-0.5">서울대병원 • 71병동 ICU</p>
+      </div>
+      <button class="text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </button>
+    </header>
+
+    <!-- 3. 퀵 액션 칩 바 -->
+    <div class="bg-white border-b border-borderGray/50 px-4 py-2 flex gap-2 overflow-x-auto no-scrollbar">
+      <button class="bg-bgGray border border-borderGray text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-brandLight hover:text-brand">
+        ☕ 커피 쏠게
+      </button>
+      <button class="bg-brandLight border border-brandBorder text-brand text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap flex items-center gap-1">
+        <span>🔄</span> 듀티 맞교환 제안
+      </button>
+      <button class="bg-bgGray border border-borderGray text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-brandLight hover:text-brand">
+        📝 인수인계 메모
+      </button>
+    </div>
+
+    <!-- 4. 채팅 메시지 리스트 -->
+    <main class="flex-1 px-4 py-3 overflow-y-auto no-scrollbar space-y-3">
+      
+      <!-- 날짜 구분선 -->
+      <div class="text-center my-2">
+        <span class="bg-borderGray/50 text-textMuted text-3xs font-semibold px-3 py-1 rounded-full">
+          2026년 9월 15일 월요일
+        </span>
+      </div>
+
+      <!-- 상대방 메시지 -->
+      <div class="flex items-start gap-2 max-w-[80%]">
+        <div class="w-8 h-8 rounded-full bg-pink-100 text-pink-700 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">
+          김
+        </div>
+        <div>
+          <span class="text-2xs text-textMuted font-medium ml-1">김민서</span>
+          <div class="bg-white border border-borderGray rounded-2xl rounded-tl-sm p-3 mt-1 shadow-soft">
+            <p class="text-xs text-textPrimary leading-relaxed">
+              선생님 오늘 71병동 ICU 인계 받으셨나요? 502호 혈압 노티 관련해서 여쭤보려구요!
+            </p>
+          </div>
+          <span class="text-3xs text-textMuted ml-1 mt-0.5 block">오전 09:12</span>
+        </div>
+      </div>
+
+      <!-- 나의 메시지 -->
+      <div class="flex flex-col items-end max-w-[80%] ml-auto">
+        <div class="bg-brand text-white rounded-2xl rounded-tr-sm p-3 shadow-soft">
+          <p class="text-xs leading-relaxed">
+            네 선생님! 노르에피네프린 5mcg 유지 중이고 혈압 115/70으로 안정화되었습니다 :)
+          </p>
+        </div>
+        <span class="text-3xs text-textMuted mr-1 mt-0.5 block">오전 09:15</span>
+      </div>
+
+      <!-- 나의 메시지 (🔄 듀티 맞교환 제안 카드) -->
+      <div class="flex flex-col items-end max-w-[85%] ml-auto">
+        <div class="bg-white border-2 border-brand rounded-2xl rounded-tr-sm p-3.5 shadow-card w-full">
+          <div class="flex items-center gap-1.5 text-brand font-black text-xs mb-1.5">
+            <span>🔄</span> 듀티 맞교환 제안서
+          </div>
+          <p class="text-xs font-bold text-textPrimary">
+            9월 19일(금) 근무 맞교환 요청
+          </p>
+          <div class="bg-brandLight border border-brandBorder rounded-xl p-2.5 my-2 space-y-1 text-xs">
+            <div class="flex justify-between">
+              <span class="text-textMuted">내 근무</span>
+              <span class="font-bold text-shiftDay">9/19(금) Day (주간)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-textMuted">상대 근무</span>
+              <span class="font-bold text-shiftEve">9/19(금) Evening (저녁)</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center text-3xs text-textMuted">
+            <span>상태: 상대방 수락 대기중</span>
+            <span class="text-brand font-bold">변경 취소</span>
+          </div>
+        </div>
+        <span class="text-3xs text-textMuted mr-1 mt-0.5 block">오전 09:18</span>
+      </div>
+
+      <!-- 상대방 메시지 (수락 완료) -->
+      <div class="flex items-start gap-2 max-w-[80%]">
+        <div class="w-8 h-8 rounded-full bg-pink-100 text-pink-700 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">
+          김
+        </div>
+        <div>
+          <span class="text-2xs text-textMuted font-medium ml-1">김민서</span>
+          <div class="bg-white border border-borderGray rounded-2xl rounded-tl-sm p-3 mt-1 shadow-soft">
+            <p class="text-xs text-textPrimary leading-relaxed">
+              와 대박! 저 금요일 이브닝 너무 바꾸고 싶었는데 제안 수락했습니다 🎉 감사합니다 선생님!
+            </p>
+          </div>
+          <span class="text-3xs text-textMuted ml-1 mt-0.5 block">오전 09:20</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- 5. 하단 메시지 입력창 -->
+    <div class="bg-white border-t border-borderGray px-4 py-2.5 flex items-center gap-2 sticky bottom-0">
+      <button class="w-9 h-9 rounded-full bg-bgGray flex items-center justify-center text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+      <div class="flex-1 bg-bgGray border border-borderGray rounded-2xl px-3.5 py-2 flex items-center">
+        <input type="text" placeholder="메시지 또는 듀티 제안 입력..." class="bg-transparent text-xs text-textPrimary placeholder-textMuted outline-none w-full" />
+      </div>
+      <button class="w-9 h-9 rounded-full bg-brand flex items-center justify-center text-white shadow-btn shrink-0">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+
+  </div>
+</body>
+</html>
+

@@ -2,6 +2,8 @@ import { supabase } from './supabase';
 import { ShiftCode } from '../constants/shiftTypes';
 import { Tables, TablesInsert } from '../types/database';
 import { withClockSkewRetry } from '../utils/supabaseRetry';
+import { useUserStore } from '../store/useUserStore';
+import { MOCK_SCHEDULES } from '../mocks/shifts';
 
 export interface ScheduleItem {
   id?: string;
@@ -23,11 +25,23 @@ export interface CustomShiftCodeItem {
   name: string;
   color: string;
   textColor?: string;
+  isOff?: boolean;
 }
 
 export const scheduleApi = {
   // 특정 월의 근무 일정 조회 (S1)
   async getMonthlySchedule(userId: string, yearMonth: string): Promise<ScheduleItem[]> {
+    if (userId === 'guest_user_preview' || useUserStore.getState().isGuest) {
+      return MOCK_SCHEDULES.filter((s) => s.date.startsWith(yearMonth)).map((s, idx) => ({
+        id: `mock_sched_${idx}`,
+        userId: 'guest_user_preview',
+        date: s.date,
+        shiftCode: s.shiftCode,
+        memo: s.memo,
+        source: 'manual',
+      }));
+    }
+
     return withClockSkewRetry(async () => {
       const startDate = `${yearMonth}-01`;
       const endDate = `${yearMonth}-31`;
@@ -61,6 +75,10 @@ export const scheduleApi = {
 
   // 근무 일정 추가/수정 (단일 Upsert - S2)
   async saveSchedule(schedule: ScheduleItem): Promise<boolean> {
+    if (schedule.userId === 'guest_user_preview' || useUserStore.getState().isGuest) {
+      return true;
+    }
+
     return withClockSkewRetry(async () => {
       const { error } = await supabase.from('schedules').upsert(
         {
@@ -87,6 +105,9 @@ export const scheduleApi = {
   // 일괄 저장 (OCR 또는 한 달치 근무표 일괄 입력 - S3)
   async saveBulkSchedule(schedules: ScheduleItem[]): Promise<boolean> {
     if (!schedules.length) return true;
+    if (useUserStore.getState().isGuest || schedules[0]?.userId === 'guest_user_preview') {
+      return true;
+    }
 
     return withClockSkewRetry(async () => {
       const rows = schedules.map((item) => ({
@@ -112,8 +133,12 @@ export const scheduleApi = {
     });
   },
 
-  // 근무 삭제 (S4)
+  // 근무 일정 삭제 (S4)
   async deleteSchedule(userId: string, date: string): Promise<boolean> {
+    if (userId === 'guest_user_preview' || useUserStore.getState().isGuest) {
+      return true;
+    }
+
     return withClockSkewRetry(async () => {
       const { error } = await supabase
         .from('schedules')
@@ -167,6 +192,7 @@ export const scheduleApi = {
         name: row.name,
         color: row.color,
         textColor: row.text_color || undefined,
+        isOff: row.is_off || false,
       }));
     });
   },
@@ -181,6 +207,7 @@ export const scheduleApi = {
           name: item.name,
           color: item.color,
           text_color: item.textColor || null,
+          is_off: item.isOff ?? false,
         },
         { onConflict: 'user_id, code' }
       );

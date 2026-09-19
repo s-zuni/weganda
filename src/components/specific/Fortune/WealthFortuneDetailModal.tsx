@@ -36,9 +36,9 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
         <View style={styles.headerTitleRow}>
           <CoinsIcon size={20} color="#F59E0B" />
           <View>
-            <Text style={styles.headerTitle}>💰 🪙 금전운 & 사주 재테크 전략</Text>
+            <Text style={styles.headerTitle}>💰 금전운 & 사주 재테크 전략</Text>
             <Text style={styles.headerSubtitle}>
-              간호사 수당 관리 및 재물 대운세 분석
+              사주 기반 재물 흐름 및 자산 포트폴리오
             </Text>
           </View>
         </View>
@@ -63,7 +63,7 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <FortuneUnlockView
             fortuneType="wealth"
-            title="💰 🪙 금전운 & 사주 재테크 전략"
+            title="💰 금전운 & 사주 재테크 전략"
             subtitle="사주 풀이 기반 4대 소비 성향, 간호사 맞춤형 자산 배분 포트폴리오, 재물 대운 타임라인 정밀 분석"
             icon={<CoinsIcon size={28} color="#F59E0B" />}
             previewItems={[

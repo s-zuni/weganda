@@ -18,6 +18,10 @@ import {
   SajuTopicItem,
 } from '../../mocks/sajuCategories';
 import { SajuTopicInputModal } from '../../components/specific/Fortune/SajuTopicInputModal';
+import { useUserStore } from '../../store/useUserStore';
+import { FREE_LIMITS } from '../../constants/membership';
+import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
+import { MembershipScreen } from '../MyPage/MembershipScreen';
 
 type RouteParams = {
   SajuCategoryTopics: {
@@ -37,14 +41,28 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
 
   const [selectedTopic, setSelectedTopic] = useState<SajuTopicItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [paywallVisible, setPaywallVisible] = useState(false);
+  const [membershipVisible, setMembershipVisible] = useState(false);
 
   const handleSelectTopic = (topic: SajuTopicItem) => {
+    const { isPremium, monthlyFortuneCount } = useUserStore.getState();
+    if (!isPremium && monthlyFortuneCount >= FREE_LIMITS.maxMonthlyFortune) {
+      setPaywallVisible(true);
+      return;
+    }
     setSelectedTopic(topic);
     setModalVisible(true);
   };
 
   const handleAnalysisSubmit = async (data: any) => {
     if (!selectedTopic) return;
+
+    const { isPremium, monthlyFortuneCount } = useUserStore.getState();
+    if (!isPremium && monthlyFortuneCount >= FREE_LIMITS.maxMonthlyFortune) {
+      setModalVisible(false);
+      setPaywallVisible(true);
+      return;
+    }
 
     const report = await runManseryeokAnalysis(
       selectedTopic,
@@ -53,6 +71,9 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
     );
 
     if (report) {
+      if (!isPremium) {
+        useUserStore.getState().incrementFortuneCount();
+      }
       setModalVisible(false);
       navigation.navigate('SajuDetailResult', {
         topicId: selectedTopic.id,
@@ -161,6 +182,26 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
         onClose={() => setModalVisible(false)}
         onSubmit={handleAnalysisSubmit}
         isLoading={isAnalyzingManseryeok}
+      />
+
+      <PaywallBottomSheet
+        visible={paywallVisible}
+        onClose={() => setPaywallVisible(false)}
+        onSubscribe={() => {
+          setPaywallVisible(false);
+          setMembershipVisible(true);
+        }}
+        onLearnMore={() => {
+          setPaywallVisible(false);
+          setMembershipVisible(true);
+        }}
+        featureTitle="사주 서비스"
+        featureDescription="매달 횟수 제한 없이 간호 운세와 정밀 사주를 확인하세요"
+      />
+
+      <MembershipScreen
+        visible={membershipVisible}
+        onClose={() => setMembershipVisible(false)}
       />
     </SafeAreaView>
   );

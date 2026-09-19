@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우간다 - 마이페이지 & 프로필 설정</title>
+  <!-- Pretendard & Inter Web Fonts -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#FF507C', // Viva Coral Pink
+            brandLight: '#FFF1F4',
+            brandBorder: '#FFE4EA',
+            forest: '#024833',
+            gold: '#D4A853',
+            bgGray: '#F8F9FA',
+            borderGray: '#E5E7EB',
+            textPrimary: '#1A1A1A',
+            textSecondary: '#6B7280',
+            textMuted: '#9CA3AF',
+          },
+          fontFamily: {
+            sans: ['Pretendard', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 2px 10px rgba(0, 0, 0, 0.04)',
+            card: '0 4px 16px rgba(0, 0, 0, 0.05)',
+            btn: '0 4px 12px rgba(255, 80, 124, 0.25)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #F3F4F6;
+      margin: 0;
+      padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mobile-frame {
+      width: 390px;
+      min-height: 844px;
+      background-color: #FFFFFF;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body>
+  <div class="mobile-frame" id="mypage-screen">
+    
+    <!-- 1. 스마트폰 시스템 상태바 -->
+    <div class="w-full px-7 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-textPrimary bg-white">
+      <span>09:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z"/></svg>
+        <div class="w-5 h-2.5 border border-textPrimary rounded-sm p-0.5 flex items-center">
+          <div class="w-full h-full bg-textPrimary rounded-2xs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 네비게이션 헤더 -->
+    <header class="w-full px-5 py-3.5 flex justify-between items-center bg-white sticky top-0 z-30 border-b border-borderGray/40">
+      <button class="text-sm font-bold text-brand flex items-center gap-0.5">
+        ‹ 닫기
+      </button>
+      <h1 class="text-base font-extrabold text-textPrimary">마이페이지 & 프로필 설정</h1>
+      <div class="w-8"></div>
+    </header>
+
+    <!-- 3. 메인 콘텐츠 -->
+    <main class="flex-1 px-5 pb-12 overflow-y-auto no-scrollbar space-y-4 pt-3">
+      
+      <!-- 프로필 카드 -->
+      <section class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-brandLight flex items-center justify-center text-brand">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-lg font-bold text-textPrimary">김간호</span>
+                <span class="bg-bgGray border border-borderGray text-2xs font-semibold px-2 py-0.5 rounded-full text-textSecondary flex items-center gap-1 cursor-pointer">
+                  #W-89312 <span class="text-3xs text-brand font-bold">복사</span>
+                </span>
+              </div>
+              <p class="text-xs text-textMuted mt-0.5">
+                서울아산병원 • 51병동 (소화기내과) 3년차
+              </p>
+            </div>
+          </div>
+          <button class="text-xs font-bold text-brand bg-brandLight px-2.5 py-1.5 rounded-xl">
+            수정
+          </button>
+        </div>
+      </section>
+
+      <!-- 간호 전문직 서류 인증 상태 카드 -->
+      <section class="bg-sky-50 border border-sky-100 rounded-2xl p-3.5 flex items-center justify-between shadow-soft">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-sky-500 text-white font-bold flex items-center justify-center text-sm">
+            ✓
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h3 class="text-sm font-bold text-textPrimary">간호사 면허 인증 완료</h3>
+              <span class="bg-sky-100 text-sky-700 text-3xs font-extrabold px-1.5 py-0.5 rounded">인증됨</span>
+            </div>
+            <p class="text-xs text-textSecondary mt-0.5">
+              커뮤니티 및 임상 전용 권한이 모두 활성화되어 있습니다.
+            </p>
+          </div>
+        </div>
+        <span class="text-xs text-sky-600 font-bold">›</span>
+      </section>
+
+      <!-- 🩺 스마트 듀티 건강 & 번아웃 위험도 분석 배너 -->
+      <section class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl p-4 shadow-soft">
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="bg-emerald-600 text-white text-3xs font-extrabold px-1.5 py-0.5 rounded">스마트 케어</span>
+          <span class="text-xs font-bold text-emerald-700">심층 분석 ›</span>
+        </div>
+        <h4 class="text-sm font-bold text-textPrimary">
+          나이트 듀티 건강 & 수면부채 위험 지수
+        </h4>
+        <p class="text-xs text-textSecondary mt-1 leading-relaxed">
+          연속 N근무 후 생체 리듬 회복도와 번아웃 위험도를 정밀 진단합니다.
+        </p>
+      </section>
+
+      <!-- weganda+ 멤버십 관리 카드 -->
+      <section class="bg-slate-900 text-white rounded-2xl p-4 shadow-card">
+        <div class="flex justify-between items-center mb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-gold text-sm">👑</span>
+            <h3 class="text-sm font-extrabold text-white">weganda+ 멤버십</h3>
+          </div>
+          <span class="bg-emerald-500 text-white text-3xs font-black px-2 py-0.5 rounded-full">
+            구독 중
+          </span>
+        </div>
+        <p class="text-xs text-slate-300">
+          월 5,900원 (얼리버드 평생 특가) · 무제한 사주 및 월급 예측 이용 중
+        </p>
+        <div class="mt-3 pt-2.5 border-t border-slate-700 flex justify-between items-center text-xs">
+          <span class="text-slate-400">다음 자동 결제일: 2026. 10. 15</span>
+          <span class="text-slate-300 font-semibold underline cursor-pointer">구독 관리</span>
+        </div>
+      </section>
+
+      <!-- 사주 탄생 정보 연동 섹션 -->
+      <section class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft">
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="text-sm font-bold text-textPrimary flex items-center gap-1.5">
+            <span>🔮</span> 사주 탄생 정보 (운세 연계)
+          </h4>
+          <span class="text-xs font-bold text-brand">수정 ›</span>
+        </div>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between">
+            <span class="text-textMuted">생년월일</span>
+            <span class="font-semibold text-textPrimary">1996. 08. 15 (음력)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-textMuted">출생 시각</span>
+            <span class="font-semibold text-textPrimary">08:30 (진시)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-textMuted">성별</span>
+            <span class="font-semibold text-textPrimary">여성</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 앱 테마 컬러 설정 -->
+      <section class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft">
+        <h4 class="text-sm font-bold text-textPrimary mb-3 flex items-center gap-1.5">
+          <span>🎨</span> 앱 테마 컬러
+        </h4>
+        <div class="grid grid-cols-5 gap-2 text-center">
+          <!-- 1. 비바 코랄 (기본) -->
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 rounded-full bg-brand border-2 border-brand flex items-center justify-center text-white text-xs font-bold">
+              ✓
+            </div>
+            <span class="text-2xs font-bold text-brand mt-1">코랄</span>
+          </div>
+          <!-- 2. 딥 그린 (PRO) -->
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center text-white text-xs"></div>
+            <span class="text-2xs text-textMuted mt-1">포레스트</span>
+          </div>
+          <!-- 3. 딥 블루 (PRO) -->
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 rounded-full bg-blue-900 flex items-center justify-center text-white text-xs"></div>
+            <span class="text-2xs text-textMuted mt-1">네이비</span>
+          </div>
+          <!-- 4. 옐로 (PRO) -->
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs"></div>
+            <span class="text-2xs text-textMuted mt-1">골드</span>
+          </div>
+          <!-- 5. 퍼플 (PRO) -->
+          <div class="flex flex-col items-center">
+            <div class="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center text-white text-xs"></div>
+            <span class="text-2xs text-textMuted mt-1">퍼플</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 앱 알림 & 고객센터 & 계정 -->
+      <section class="bg-white border border-borderGray rounded-2xl divide-y divide-borderGray/60 shadow-soft">
+        <div class="p-3.5 flex justify-between items-center text-xs font-medium text-textPrimary">
+          <span>근무 D-1시간 리마인더 알림</span>
+          <div class="w-9 h-5 bg-brand rounded-full p-0.5 flex justify-end items-center">
+            <div class="w-4 h-4 bg-white rounded-full"></div>
+          </div>
+        </div>
+        <div class="p-3.5 flex justify-between items-center text-xs font-medium text-textPrimary cursor-pointer">
+          <span>고객센터 & 1:1 문의</span>
+          <span class="text-textMuted">›</span>
+        </div>
+        <div class="p-3.5 flex justify-between items-center text-xs font-medium text-textPrimary cursor-pointer">
+          <span>서비스 이용약관 및 개인정보처리방침</span>
+          <span class="text-textMuted">›</span>
+        </div>
+        <div class="p-3.5 flex justify-between items-center text-xs font-medium text-red-500 cursor-pointer">
+          <span>로그아웃</span>
+          <span class="text-textMuted">›</span>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+</body>
+</html>
+

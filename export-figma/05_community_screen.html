@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우간다 - 커뮤니티 (Community)</title>
+  <!-- Pretendard & Inter Web Fonts -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#FF507C', // Viva Coral Pink
+            brandLight: '#FFF1F4',
+            brandBorder: '#FFE4EA',
+            bgGray: '#F8F9FA',
+            borderGray: '#E5E7EB',
+            textPrimary: '#1A1A1A',
+            textSecondary: '#6B7280',
+            textMuted: '#9CA3AF',
+          },
+          fontFamily: {
+            sans: ['Pretendard', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 2px 10px rgba(0, 0, 0, 0.04)',
+            card: '0 4px 16px rgba(0, 0, 0, 0.05)',
+            btn: '0 4px 12px rgba(255, 80, 124, 0.25)',
+            fab: '0 6px 20px rgba(255, 80, 124, 0.35)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #F3F4F6;
+      margin: 0;
+      padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mobile-frame {
+      width: 390px;
+      min-height: 844px;
+      background-color: #FFFFFF;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body>
+  <div class="mobile-frame" id="community-screen">
+    
+    <!-- 1. 스마트폰 시스템 상태바 -->
+    <div class="w-full px-7 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-textPrimary bg-white">
+      <span>09:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z"/></svg>
+        <div class="w-5 h-2.5 border border-textPrimary rounded-sm p-0.5 flex items-center">
+          <div class="w-full h-full bg-textPrimary rounded-2xs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. AppHeader -->
+    <header class="w-full px-5 py-3.5 flex justify-between items-center bg-white sticky top-0 z-30">
+      <div class="flex items-center gap-2">
+        <svg class="w-6 h-6 text-brand" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 16h5l3-8 6 16 4-10 3 5h5" />
+        </svg>
+        <h1 class="text-2xl font-black tracking-tight text-brand">우간다</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-bgGray">
+          <svg class="w-5 h-5 text-textPrimary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        </button>
+        <button class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-bgGray">
+          <svg class="w-5 h-5 text-textPrimary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 3. 메인 콘텐츠 -->
+    <main class="flex-1 px-5 pb-24 overflow-y-auto no-scrollbar space-y-4">
+      
+      <!-- 실시간 간호 HOT 토픽 (HotTopicsBanner) -->
+      <section class="mt-1 space-y-2.5">
+        <div class="flex justify-between items-center px-0.5">
+          <div class="flex items-center gap-1.5">
+            <span class="text-base text-brand">🔥</span>
+            <h2 class="text-base font-extrabold text-textPrimary">실시간 간호 HOT 토픽</h2>
+          </div>
+          <span class="text-xs font-semibold text-brand">오늘 추천 급상승</span>
+        </div>
+
+        <!-- 가로 캐러셀 카드 -->
+        <div class="flex gap-3 overflow-x-auto no-scrollbar -mx-5 px-5">
+          <!-- HOT 1 -->
+          <div class="w-56 bg-white border border-borderGray rounded-2xl p-3.5 shadow-soft shrink-0 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="bg-brand text-white text-3xs font-extrabold px-1.5 py-0.5 rounded">1위</span>
+                <span class="text-2xs text-textMuted font-medium">임상/질문</span>
+              </div>
+              <h3 class="text-sm font-bold text-textPrimary line-clamp-2 leading-snug">
+                신규 간호사 첫 나이트 인계 꿀팁 모음
+              </h3>
+            </div>
+            <div class="flex items-center gap-3 mt-3 text-xs text-textMuted font-semibold">
+              <span class="flex items-center gap-1 text-brand">❤️ 42</span>
+              <span class="flex items-center gap-1">💬 18</span>
+            </div>
+          </div>
+
+          <!-- HOT 2 -->
+          <div class="w-56 bg-white border border-borderGray rounded-2xl p-3.5 shadow-soft shrink-0 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="bg-brand text-white text-3xs font-extrabold px-1.5 py-0.5 rounded">2위</span>
+                <span class="text-2xs text-textMuted font-medium">교대근무 고민</span>
+              </div>
+              <h3 class="text-sm font-bold text-textPrimary line-clamp-2 leading-snug">
+                3교대 수면 패턴 붕괴 극복한 현실 루틴
+              </h3>
+            </div>
+            <div class="flex items-center gap-3 mt-3 text-xs text-textMuted font-semibold">
+              <span class="flex items-center gap-1 text-brand">❤️ 38</span>
+              <span class="flex items-center gap-1">💬 25</span>
+            </div>
+          </div>
+
+          <!-- HOT 3 -->
+          <div class="w-56 bg-white border border-borderGray rounded-2xl p-3.5 shadow-soft shrink-0 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="bg-brand text-white text-3xs font-extrabold px-1.5 py-0.5 rounded">3위</span>
+                <span class="text-2xs text-textMuted font-medium">이직/커리어</span>
+              </div>
+              <h3 class="text-sm font-bold text-textPrimary line-clamp-2 leading-snug">
+                빅5 상급종합병원 경력직 이직 면접 후기
+              </h3>
+            </div>
+            <div class="flex items-center gap-3 mt-3 text-xs text-textMuted font-semibold">
+              <span class="flex items-center gap-1 text-brand">❤️ 29</span>
+              <span class="flex items-center gap-1">💬 14</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 카테고리 필터 탭 (CategoryFilterTabs) -->
+      <section class="flex gap-1.5 overflow-x-auto no-scrollbar -mx-5 px-5 pt-1">
+        <button class="bg-brand text-white text-xs font-bold px-3 py-1.5 rounded-xl shrink-0 shadow-btn">
+          전체
+        </button>
+        <button class="bg-bgGray border border-borderGray text-textSecondary text-xs font-semibold px-3 py-1.5 rounded-xl shrink-0 hover:bg-brandLight">
+          간호대생 라운지
+        </button>
+        <button class="bg-bgGray border border-borderGray text-textSecondary text-xs font-semibold px-3 py-1.5 rounded-xl shrink-0 hover:bg-brandLight">
+          임상/질문
+        </button>
+        <button class="bg-bgGray border border-borderGray text-textSecondary text-xs font-semibold px-3 py-1.5 rounded-xl shrink-0 hover:bg-brandLight">
+          교대근무 고민
+        </button>
+        <button class="bg-bgGray border border-borderGray text-textSecondary text-xs font-semibold px-3 py-1.5 rounded-xl shrink-0 hover:bg-brandLight">
+          이직/커리어
+        </button>
+        <button class="bg-bgGray border border-borderGray text-textSecondary text-xs font-semibold px-3 py-1.5 rounded-xl shrink-0 hover:bg-brandLight">
+          자유게시판
+        </button>
+      </section>
+
+      <!-- 검색창 바 -->
+      <section class="flex items-center gap-2 bg-bgGray border border-borderGray rounded-xl px-3.5 h-10">
+        <svg class="w-4 h-4 text-textMuted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="궁금한 간호 고민이나 병원을 검색해보세요" class="bg-transparent text-xs text-textPrimary placeholder-textMuted outline-none w-full" />
+      </section>
+
+      <!-- 게시글 피드 목록 (PostCardItem) -->
+      <section class="space-y-3">
+        <!-- 포스트 1 -->
+        <article class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft">
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="bg-bgGray text-textSecondary text-3xs font-semibold px-1.5 py-0.5 rounded">임상/질문</span>
+              <span class="bg-sky-50 text-sky-600 border border-sky-100 text-3xs font-extrabold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                ✓ 병원인증 서울아산병원
+              </span>
+            </div>
+            <span class="text-2xs text-textMuted">15분 전</span>
+          </div>
+          <h4 class="text-base font-bold text-textPrimary leading-snug">
+            중환자실 CRRT 프라이밍 시 헤파린 믹스 주의사항 공유
+          </h4>
+          <p class="text-xs text-textSecondary mt-1 line-clamp-2 leading-relaxed">
+            신규 때 가장 헷갈렸던 CRRT 헤파린 처리 프로토콜 정리해봤습니다. 챔버 에어 빼는 순서랑 필터 응고 방지 팁 도움 되시길 바라요...
+          </p>
+          <div class="flex justify-between items-center mt-3 pt-2.5 border-t border-borderGray/60">
+            <span class="text-2xs text-textMuted">ICU 3년차 • 서울아산병원</span>
+            <div class="flex items-center gap-3 text-xs text-textMuted">
+              <span class="flex items-center gap-1 text-brand font-semibold">❤️ 24</span>
+              <span class="flex items-center gap-1">💬 8</span>
+              <span class="flex items-center gap-1">👁️ 156</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- 포스트 2 -->
+        <article class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft">
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="bg-bgGray text-textSecondary text-3xs font-semibold px-1.5 py-0.5 rounded">교대근무 고민</span>
+              <span class="bg-sky-50 text-sky-600 border border-sky-100 text-3xs font-extrabold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                ✓ 병원인증 서울대병원
+              </span>
+            </div>
+            <span class="text-2xs text-textMuted">1시간 전</span>
+          </div>
+          <h4 class="text-base font-bold text-textPrimary leading-snug">
+            연속 4나이트 끝난 오프날 다들 어떻게 보내시나요?
+          </h4>
+          <p class="text-xs text-textSecondary mt-1 line-clamp-2 leading-relaxed">
+            햇빛 보고 가볍게 산책 가야 할지, 그냥 암막 커튼 치고 하루 종일 누워있어야 할지 항상 고민이네요 ㅠㅠ 다들 체력 회복 루틴 있으신가요?
+          </p>
+          <div class="flex justify-between items-center mt-3 pt-2.5 border-t border-borderGray/60">
+            <span class="text-2xs text-textMuted">병동간호사 • 서울대병원</span>
+            <div class="flex items-center gap-3 text-xs text-textMuted">
+              <span class="flex items-center gap-1 text-brand font-semibold">❤️ 19</span>
+              <span class="flex items-center gap-1">💬 31</span>
+              <span class="flex items-center gap-1">👁️ 280</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- 포스트 3 -->
+        <article class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft">
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="bg-bgGray text-textSecondary text-3xs font-semibold px-1.5 py-0.5 rounded">간호대생 라운지</span>
+            </div>
+            <span class="text-2xs text-textMuted">2시간 전</span>
+          </div>
+          <h4 class="text-base font-bold text-textPrimary leading-snug">
+            기본간호학 실습 바이탈 체크 꿀팁 있을까요?
+          </h4>
+          <p class="text-xs text-textSecondary mt-1 line-clamp-2 leading-relaxed">
+            다음 주 첫 병원 임상실습 나가는데 수동 혈압계 커프 감는 법과 맥박 촉지가 아직 손에 안 익어서 너무 긴장됩니다 선배님들 조언 부탁드려요!
+          </p>
+          <div class="flex justify-between items-center mt-3 pt-2.5 border-t border-borderGray/60">
+            <span class="text-2xs text-textMuted">SN 3학년 • 간호학과</span>
+            <div class="flex items-center gap-3 text-xs text-textMuted">
+              <span class="flex items-center gap-1 text-brand font-semibold">❤️ 12</span>
+              <span class="flex items-center gap-1">💬 15</span>
+              <span class="flex items-center gap-1">👁️ 95</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+    </main>
+
+    <!-- 플로팅 글쓰기 버튼 (FAB) -->
+    <button class="absolute bottom-16 right-5 bg-brand text-white font-bold px-4 py-2.5 rounded-full flex items-center gap-1.5 shadow-fab z-40 hover:scale-105 transition-transform">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <span class="text-xs">글쓰기</span>
+    </button>
+
+    <!-- 4. 하단 탭바 -->
+    <nav class="w-full bg-white border-t border-borderGray px-4 py-2 flex justify-around items-center absolute bottom-0 left-0 z-30">
+      <!-- 1. 홈 -->
+      <button class="flex flex-col items-center gap-1 text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span class="text-2xs font-semibold">홈</span>
+      </button>
+      <!-- 2. 운세 -->
+      <button class="flex flex-col items-center gap-1 text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="text-2xs font-semibold">운세</span>
+      </button>
+      <!-- 3. 친구 -->
+      <button class="flex flex-col items-center gap-1 text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="text-2xs font-semibold">친구</span>
+      </button>
+      <!-- 4. 교육 -->
+      <button class="flex flex-col items-center gap-1 text-textMuted hover:text-textPrimary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span class="text-2xs font-semibold">교육</span>
+      </button>
+      <!-- 5. 커뮤니티 (Active) -->
+      <button class="flex flex-col items-center gap-1 text-brand">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="text-2xs font-bold">커뮤니티</span>
+      </button>
+    </nav>
+
+  </div>
+</body>
+</html>
+

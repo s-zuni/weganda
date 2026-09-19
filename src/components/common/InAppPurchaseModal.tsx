@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -17,6 +17,12 @@ export interface InAppPurchaseModalProps {
   onClose: () => void;
   onPaymentSuccess: () => void;
   sku?: string;
+  options?: {
+    planType?: 'monthly' | 'yearly';
+    price?: number;
+    isTrial?: boolean;
+    isEarlybird?: boolean;
+  };
 }
 
 export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
@@ -24,9 +30,15 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
   onClose,
   onPaymentSuccess,
   sku,
+  options,
 }) => {
   const [step, setStep] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const handleConfirmSuccess = () => {
+    onPaymentSuccess();
+    onClose();
+  };
 
   useEffect(() => {
     if (visible) {
@@ -34,11 +46,10 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
       setErrorMessage('');
 
       inAppPurchaseService
-        .requestSubscription(sku)
+        .requestSubscription(sku, options)
         .then((result) => {
           if (result.success) {
             setStep('success');
-            onPaymentSuccess();
           } else {
             setStep('error');
             setErrorMessage(result.errorMessage || '인앱 결제를 완료할 수 없습니다.');
@@ -51,7 +62,7 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
     } else {
       setStep('idle');
     }
-  }, [visible, sku, onPaymentSuccess]);
+  }, [visible, sku]);
 
   const storeName = Platform.select({
     ios: 'App Store (Apple StoreKit)',
@@ -73,10 +84,14 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
               <View style={styles.indicatorContainer}>
                 <ActivityIndicator size="large" color={COLORS.primary || '#FF507C'} />
               </View>
-              <Text style={styles.titleText}>스토어 결제 진행 중</Text>
+              <Text style={styles.titleText}>
+                {options?.isTrial ? '1개월 무료 체험 등록 중' : '스토어 결제 진행 중'}
+              </Text>
               <Text style={styles.subText}>{storeName}</Text>
               <Text style={styles.captionText}>
-                구독 승인 및 영수증 유효성을 검증하고 있습니다. 잠시만 기다려주세요.
+                {options?.isTrial
+                  ? `지금 0원 결제 승인 후 30일 뒤 ${options?.planType === 'yearly' ? '연 59,000원' : '월 5,900원'} 정기 결제로 전환됩니다. (언제든 해지 가능)`
+                  : '구독 승인 및 영수증 유효성을 검증하고 있습니다. 잠시만 기다려주세요.'}
               </Text>
               <TouchableOpacity
                 style={styles.cancelButton}
@@ -93,16 +108,20 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
               <View style={styles.iconContainer}>
                 <ShieldCheckIcon color="#10B981" size={56} />
               </View>
-              <Text style={styles.successTitle}>🎉 구독이 완료되었습니다!</Text>
+              <Text style={styles.successTitle}>
+                {options?.isTrial ? '🎉 1개월 무료 체험 시작!' : '🎉 구독이 완료되었습니다!'}
+              </Text>
               <Text style={styles.successDescription}>
-                weganda+ 프리미엄 멤버십의 5대 핵심 혜택을 지금 바로 경험해보세요.
+                {options?.isTrial
+                  ? '30일 동안 우간다+의 모든 프리미엄 기능을 마음껏 경험해보세요. 마이페이지에서 언제든 구독 상태를 관리하거나 해지할 수 있습니다.'
+                  : 'weganda+ 프리미엄 멤버십의 5대 핵심 혜택을 지금 바로 경험해보세요.'}
               </Text>
               <TouchableOpacity
                 style={styles.confirmButton}
-                onPress={onClose}
+                onPress={handleConfirmSuccess}
                 activeOpacity={0.8}
               >
-                <Text style={styles.confirmButtonText}>시작하기</Text>
+                <Text style={styles.confirmButtonText}>혜택 시작하기</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -126,7 +145,6 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
                       .then((res) => {
                         if (res.success) {
                           setStep('success');
-                          onPaymentSuccess();
                         } else {
                           setStep('error');
                           setErrorMessage(res.errorMessage || '결제를 완료할 수 없습니다.');

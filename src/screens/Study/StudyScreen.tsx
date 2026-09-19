@@ -7,9 +7,10 @@ import {
   ScrollView,
   StatusBar,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { AppHeader } from '../../components/common/AppHeader';
-import { COLORS } from '../../constants/theme';
+import { COLORS, useAppTheme } from '../../constants/theme';
 import { SearchIcon } from '../../components/common/Icon';
 import { useStudyStore } from '../../store/useStudyStore';
 import { StudyGuideItem } from '../../types/study';
@@ -27,7 +28,8 @@ import {
 } from '../../components/specific/Study';
 
 export const StudyScreen: React.FC = () => {
-  const { studyGuides, fetchStudyGuides, toggleBookmarkGuide } = useStudyStore();
+  const theme = useAppTheme();
+  const { studyGuides, fetchStudyGuides, toggleBookmarkGuide, isLoadingGuides } = useStudyStore();
 
   React.useEffect(() => {
     fetchStudyGuides();
@@ -133,7 +135,7 @@ export const StudyScreen: React.FC = () => {
         />
 
         {/* 오늘의 추천 학습 카드 */}
-        {selectedCategory === '전체' && !searchText && (
+        {selectedCategory === '전체' && !searchText && studyGuides.length > 1 && studyGuides[1] && (
           <StudyFeaturedCard
             guide={studyGuides[1]}
             onPress={() => handleOpenDetail(studyGuides[1])}
@@ -148,7 +150,14 @@ export const StudyScreen: React.FC = () => {
         </View>
 
         <View style={styles.guideList}>
-          {filteredGuides.length === 0 ? (
+          {isLoadingGuides && filteredGuides.length === 0 ? (
+            <View style={[styles.emptyBox, { paddingVertical: 36 }]}>
+              <ActivityIndicator size="small" color={theme.primary} />
+              <Text style={[styles.emptyText, { marginTop: 10 }]}>
+                임상 지침을 불러오는 중입니다...
+              </Text>
+            </View>
+          ) : filteredGuides.length === 0 ? (
             <View style={styles.emptyBox}>
               <Text style={styles.emptyText}>
                 {selectedCategory === '북마크 보관함'

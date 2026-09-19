@@ -12,7 +12,12 @@ import {
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { useStudyStore } from '../../../store/useStudyStore';
+import { useUserStore } from '../../../store/useUserStore';
+import { FREE_LIMITS } from '../../../constants/membership';
+import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
+import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { BotIcon, SendIcon } from '../../common/Icon';
+import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 
 interface AskAiModalProps {
   visible: boolean;
@@ -32,20 +37,40 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
   onClose,
   initialQuestion,
 }) => {
+  const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const { aiMessages, askAi } = useStudyStore();
+  const { isPremium, dailyAiCount, incrementDailyAiCount } = useUserStore();
   const [inputText, setInputText] = useState('');
+  const [paywallVisible, setPaywallVisible] = useState(false);
+  const [membershipVisible, setMembershipVisible] = useState(false);
 
   // 검색창에서 전달된 질문이 있을 경우 자동 질문 전송
   React.useEffect(() => {
     if (visible && initialQuestion && initialQuestion.trim()) {
+      if (!isPremium && dailyAiCount >= FREE_LIMITS.maxDailyAiQueries) {
+        setPaywallVisible(true);
+        return;
+      }
       askAi(initialQuestion.trim());
+      if (!isPremium) {
+        incrementDailyAiCount();
+      }
     }
   }, [visible, initialQuestion]);
 
   const handleSend = (textToSend?: string) => {
     const text = textToSend || inputText;
     if (!text.trim()) return;
+
+    if (!isPremium && dailyAiCount >= FREE_LIMITS.maxDailyAiQueries) {
+      setPaywallVisible(true);
+      return;
+    }
+
     askAi(text.trim());
+    if (!isPremium) {
+      incrementDailyAiCount();
+    }
     setInputText('');
   };
 
@@ -53,6 +78,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={keyboardOffset}
         style={styles.container}
       >
         {/* 헤더 */}
@@ -64,6 +90,11 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
           <View style={styles.headerTitleRow}>
             <BotIcon size={18} color={COLORS.primary} />
             <Text style={styles.headerTitle}>임상 간호 AI 멘토</Text>
+            {!isPremium && (
+              <View style={styles.limitBadge}>
+                <Text style={styles.limitBadgeText}>{dailyAiCount}/3회</Text>
+              </View>
+            )}
           </View>
 
           <View style={{ width: 40 }} />
@@ -90,6 +121,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
           style={styles.chatScroll}
           contentContainerStyle={styles.chatContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {aiMessages.map((msg) => {
             const isMe = msg.sender === 'user';
@@ -109,6 +141,26 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
                     <Text style={[styles.bubbleText, isMe ? styles.bubbleTextMe : styles.bubbleTextAi]}>
                       {msg.text}
                     </Text>
+
+                    {/* 🏷️ 공식 임상 지침 출처 (Grounding Badge) */}
+                    {!isMe && msg.sources && msg.sources.length > 0 && (
+                      <View style={styles.sourcesContainer}>
+                        <View style={styles.sourceHeaderRow}>
+                          <Text style={styles.sourceHeaderIcon}>🏷️</Text>
+                          <Text style={styles.sourceHeaderText}>공식 표준 임상 출처 (Grounding)</Text>
+                        </View>
+                        {msg.sources.map((src, sIdx) => (
+                          <View key={sIdx} style={styles.sourceBadge}>
+                            <View style={styles.agencyPill}>
+                              <Text style={styles.agencyPillText}>{src.sourceAgency}</Text>
+                            </View>
+                            <Text style={styles.sourceBadgeTitle} numberOfLines={1}>
+                              {src.title}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
                   </View>
                   <Text style={[styles.timeText, isMe ? { textAlign: 'right' } : { textAlign: 'left' }]}>
                     {msg.time}
@@ -127,6 +179,8 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
             onChangeText={setInputText}
             placeholder="임상 프로토콜, 약물 투약법을 질문하세요..."
             placeholderTextColor={COLORS.textMuted}
+            returnKeyType="send"
+            onSubmitEditing={() => handleSend()}
           />
           <TouchableOpacity
             style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
@@ -137,6 +191,26 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
             <SendIcon size={16} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
+
+        <PaywallBottomSheet
+          visible={paywallVisible}
+          onClose={() => setPaywallVisible(false)}
+          onSubscribe={() => {
+            setPaywallVisible(false);
+            setMembershipVisible(true);
+          }}
+          onLearnMore={() => {
+            setPaywallVisible(false);
+            setMembershipVisible(true);
+          }}
+          featureTitle="Ask AI 무제한 질문"
+          featureDescription="무료 일일 3회 초과 시 weganda+로 무제한 임상 멘토링을 이용하세요"
+        />
+
+        <MembershipScreen
+          visible={membershipVisible}
+          onClose={() => setMembershipVisible(false)}
+        />
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -281,6 +355,68 @@ const styles = StyleSheet.create({
   },
   sendBtnDisabled: {
     backgroundColor: '#E5E7EB',
+  },
+  limitBadge: {
+    backgroundColor: '#FFF1F4',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: 6,
+  },
+  limitBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  sourcesContainer: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    gap: 6,
+  },
+  sourceHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 2,
+  },
+  sourceHeaderIcon: {
+    fontSize: 12,
+  },
+  sourceHeaderText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: -0.2,
+  },
+  sourceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 6,
+  },
+  agencyPill: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  agencyPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#2563EB',
+  },
+  sourceBadgeTitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#334155',
+    flex: 1,
   },
 });
 

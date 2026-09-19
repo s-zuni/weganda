@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS } from '../../../constants/theme';
-import { CalculatorIcon } from '../../common/Icon';
 
 interface StudyDrugCalcBannerProps {
   onPress: () => void;
 }
+
+import { WegandaPlusTag } from '../../common/WegandaPlusTag';
+import Svg, { Path, Rect } from 'react-native-svg';
 
 export const StudyDrugCalcBanner: React.FC<StudyDrugCalcBannerProps> = ({ onPress }) => {
   return (
@@ -15,11 +17,18 @@ export const StudyDrugCalcBanner: React.FC<StudyDrugCalcBannerProps> = ({ onPres
       activeOpacity={0.85}
     >
       <View style={styles.calcCardLeft}>
-        <View style={styles.calcIconWrapper}>
-          <CalculatorIcon size={22} color="#FFFFFF" />
+        <View style={styles.iconBox}>
+          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+            <Rect x="4" y="2" width="16" height="20" rx="3" stroke="#4E5968" strokeWidth="2" />
+            <Rect x="7" y="5" width="10" height="4" rx="1" fill="#E2E8F0" />
+            <Path d="M8 12H10M14 12H16M8 16H10M14 16H16" stroke="#4E5968" strokeWidth="2" strokeLinecap="round" />
+          </Svg>
         </View>
         <View style={styles.calcTexts}>
-          <Text style={styles.calcTitle}>💊 🧮 임상 약물 gtt / cc 계산기</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.calcTitle}>임상 약물 gtt / cc 계산기</Text>
+            <WegandaPlusTag />
+          </View>
           <Text style={styles.calcSub}>승압제 · 수액 처방 용량(mcg) ↔ 주입 속도 환산</Text>
         </View>
       </View>
@@ -50,24 +59,28 @@ const styles = StyleSheet.create({
   calcCardLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
     flex: 1,
   },
-  calcIconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.primary,
+  iconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#F8F9FA',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 12,
   },
   calcTexts: {
     flex: 1,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   calcTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: '#191F28',
   },
   calcSub: {
     fontSize: 13,

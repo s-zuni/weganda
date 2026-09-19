@@ -4,9 +4,9 @@ import { Platform } from 'react-native';
 
 // 🔒 보안: 공개 가능한 anon key만 사용 (RLS가 실제 보안을 담당)
 // AI API 키(OpenAI, Gemini)는 Edge Function 환경변수에서만 관리
-const SUPABASE_URL =
+export const SUPABASE_URL =
   process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://vegtlnhgfjxdntnxbztb.supabase.co';
-const SUPABASE_ANON_KEY =
+export const SUPABASE_ANON_KEY =
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ3RsbmhnZmp4ZG50bnhienRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NjU2NzUsImV4cCI6MjEwNDE0MTY3NX0.BouXAkcbuwwUvIBWxpP6Rxs7BhzN9evcEQMJiIwqo2g';
 

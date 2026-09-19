@@ -17,29 +17,32 @@ interface InputProps extends TextInputProps {
   inputStyle?: TextStyle;
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input = React.forwardRef<TextInput, InputProps>(({
   label,
   error,
   containerStyle,
   inputStyle,
   ...props
-}) => {
+}, ref) => {
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TextInput
+        ref={ref}
         style={[
           styles.input,
           error ? styles.inputError : null,
           inputStyle,
         ]}
         placeholderTextColor={COLORS.textMuted}
+        accessibilityLabel={props.accessibilityLabel || label || props.placeholder}
+        accessibilityHint={props.accessibilityHint || (error ? `오류: ${error}` : undefined)}
         {...props}
       />
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

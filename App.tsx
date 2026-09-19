@@ -1,23 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { Platform, AppState, AppStateStatus } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { LandingScreen } from './src/screens/Landing/LandingScreen';
 import { AdminScreen } from './src/screens/Admin/AdminScreen';
+import { AdminLoginView } from './src/components/specific/Admin';
 import { LegalScreen } from './src/screens/Legal/LegalScreen';
 import { LegalTabKey } from './src/constants/legal/types';
 import { useUserStore } from './src/store/useUserStore';
+import { useMembershipEventStore } from './src/store/useMembershipEventStore';
 import { supabase } from './src/services/supabase';
-import { COLORS } from './src/constants/theme';
+import ErrorBoundary from './src/components/common/ErrorBoundary';
+import SplashScreenView from './src/components/common/SplashScreenView';
+import { crashLogger } from './src/services/crashLogger';
+import { inAppPurchaseService } from './src/services/inAppPurchaseService';
 
 export default function App() {
   const initializeAuth = useUserStore((state) => state.initializeAuth);
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
   const clearUser = useUserStore((state) => state.clearUser);
   const isLoading = useUserStore((state) => state.isLoading);
+  const isAuthenticated = useUserStore((state) => state.isAuthenticated);
+  const role = useUserStore((state) => state.role);
 
-  // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs /admin vs /terms /privacy vs /app)
+  // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs /admin vs /terms /privacy /membership /community vs /app)
   const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin' | 'app' | 'legal'>(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       const p = window.location.pathname;
@@ -25,9 +32,10 @@ export default function App() {
       if (
         p.startsWith('/terms') ||
         p.startsWith('/privacy') ||
+        p.startsWith('/membership') ||
+        p.startsWith('/community') ||
         p.startsWith('/paid-terms') ||
-        p.startsWith('/refund') ||
-        p.startsWith('/community-terms')
+        p.startsWith('/refund')
       ) {
         return 'legal';
       }
@@ -42,16 +50,32 @@ export default function App() {
       const p = window.location.pathname;
       const search = new URLSearchParams(window.location.search);
       const tab = search.get('tab') as LegalTabKey;
-      if (tab && ['service', 'privacy', 'paid', 'community'].includes(tab)) return tab;
+      if (tab && ['terms', 'privacy', 'membership', 'community'].includes(tab)) return tab;
       if (p.startsWith('/privacy')) return 'privacy';
-      if (p.startsWith('/paid-terms') || p.startsWith('/refund')) return 'paid';
-      if (p.startsWith('/community-terms')) return 'community';
-      return 'service';
+      if (p.startsWith('/membership') || p.startsWith('/paid') || p.startsWith('/refund')) return 'membership';
+      if (p.startsWith('/community')) return 'community';
+      return 'terms';
     }
-    return 'service';
+    return 'terms';
   });
 
+  // 스플래시 화면(3번 사진) 안정적 표출 타이머 (모바일 앱 환경에서만 1.8초 표출)
+  const [isSplashVisible, setIsSplashVisible] = useState(() => Platform.OS !== 'web');
+
   useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const timer = setTimeout(() => {
+      setIsSplashVisible(false);
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const showSplash = Platform.OS !== 'web' && (isLoading || isSplashVisible);
+
+  useEffect(() => {
+    // 0. 무료체험/얼리버드 할인 프로모션 설정을 서버(관리자 설정)에서 조회 — 로그인 여부와 무관하게 전체 사용자 공통.
+    useMembershipEventStore.getState().fetchConfig();
+
     // 1. 앱 기동 시 SecureStore에 저장된 세션 복원
     initializeAuth();
 
@@ -60,37 +84,51 @@ export default function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
+        crashLogger.setUserId(session.user.id);
         await syncUserFromSession(session);
       } else if (event === 'SIGNED_OUT') {
+        crashLogger.setUserId(null);
         clearUser();
       }
     });
 
-    // 3. 웹 환경 브라우저 뒤로가기/앞으로가기 히스토리 이벤트 리스너
+    // 3. 앱 포그라운드 복귀 시 토큰 갱신 및 세션 유효성 재확인 (1시간 초과 만료 방지)
+    const appStateSub = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        supabase.auth.startAutoRefresh();
+        initializeAuth();
+      } else {
+        supabase.auth.stopAutoRefresh();
+      }
+    });
+
+    // 4. 웹 환경 브라우저 뒤로가기/앞으로가기 히스토리 이벤트 리스너
+    let handlePopState: (() => void) | undefined;
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      const handlePopState = () => {
+      handlePopState = () => {
         const p = window.location.pathname;
         if (p.startsWith('/admin')) {
           setCurrentWebRoute('admin');
         } else if (
           p.startsWith('/terms') ||
           p.startsWith('/privacy') ||
+          p.startsWith('/membership') ||
+          p.startsWith('/community') ||
           p.startsWith('/paid-terms') ||
-          p.startsWith('/refund') ||
-          p.startsWith('/community-terms')
+          p.startsWith('/refund')
         ) {
           const search = new URLSearchParams(window.location.search);
           const tab = search.get('tab') as LegalTabKey;
-          if (tab && ['service', 'privacy', 'paid', 'community'].includes(tab)) {
+          if (tab && ['terms', 'privacy', 'membership', 'community'].includes(tab)) {
             setLegalInitialTab(tab);
           } else if (p.startsWith('/privacy')) {
             setLegalInitialTab('privacy');
-          } else if (p.startsWith('/paid-terms') || p.startsWith('/refund')) {
-            setLegalInitialTab('paid');
-          } else if (p.startsWith('/community-terms')) {
+          } else if (p.startsWith('/membership') || p.startsWith('/paid') || p.startsWith('/refund')) {
+            setLegalInitialTab('membership');
+          } else if (p.startsWith('/community')) {
             setLegalInitialTab('community');
           } else {
-            setLegalInitialTab('service');
+            setLegalInitialTab('terms');
           }
           setCurrentWebRoute('legal');
         } else if (p.startsWith('/app') || window.location.search.includes('app=true')) {
@@ -100,31 +138,92 @@ export default function App() {
         }
       };
       window.addEventListener('popstate', handlePopState);
-      return () => {
-        subscription.unsubscribe();
-        window.removeEventListener('popstate', handlePopState);
-      };
     }
 
     return () => {
       subscription.unsubscribe();
+      appStateSub.remove();
+      if (handlePopState && typeof window !== 'undefined') {
+        window.removeEventListener('popstate', handlePopState);
+      }
     };
   }, [initializeAuth, syncUserFromSession, clearUser]);
+
+  // 5. In-App Purchase (IAP) 생명주기 초기화 및 미완료 트랜잭션 리스너 등록 (스토어 필수 요건)
+  useEffect(() => {
+    inAppPurchaseService.init().then(() => {
+      inAppPurchaseService.setupPurchaseListeners(
+        (purchase) => {
+          console.log('[IAP] In-app purchase transaction processed:', purchase?.productId);
+        },
+        (error) => {
+          console.warn('[IAP] In-app purchase listener error:', error);
+        }
+      );
+    });
+
+    return () => {
+      inAppPurchaseService.removePurchaseListeners();
+    };
+  }, []);
 
   // ── 웹(Browser) 환경 렌더링 ──
   if (Platform.OS === 'web') {
     if (currentWebRoute === 'admin') {
+      // 🔒 Authorization Guard: 관리자 권한(role === 'admin') 및 인증 여부 확인
+      if (!isAuthenticated || role !== 'admin') {
+        return (
+          <SafeAreaProvider>
+            <StatusBar style="light" />
+            <ErrorBoundary>
+              <AdminLoginView
+                onSuccess={() => {
+                  // userStore 업데이트 시 React 리렌더링으로 즉시 AdminScreen 전환
+                }}
+                onGoHome={() => {
+                  if (typeof window !== 'undefined') {
+                    window.history.pushState({}, '', '/');
+                  }
+                  setCurrentWebRoute('landing');
+                }}
+              />
+            </ErrorBoundary>
+          </SafeAreaProvider>
+        );
+      }
+
+      return (
+        <SafeAreaProvider>
+          <StatusBar style="light" />
+          <ErrorBoundary>
+            <AdminScreen
+              onClose={() => {
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({}, '', '/');
+                }
+                setCurrentWebRoute('landing');
+              }}
+            />
+          </ErrorBoundary>
+        </SafeAreaProvider>
+      );
+    }
+
+    if (currentWebRoute === 'legal') {
       return (
         <SafeAreaProvider>
           <StatusBar style="dark" />
-          <AdminScreen
-            onClose={() => {
-              if (typeof window !== 'undefined') {
-                window.history.pushState({}, '', '/');
-              }
-              setCurrentWebRoute('landing');
-            }}
-          />
+          <ErrorBoundary>
+            <LegalScreen
+              initialTab={legalInitialTab}
+              onNavigateHome={() => {
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({}, '', '/');
+                }
+                setCurrentWebRoute('landing');
+              }}
+            />
+          </ErrorBoundary>
         </SafeAreaProvider>
       );
     }
@@ -150,22 +249,24 @@ export default function App() {
       return (
         <SafeAreaProvider>
           <StatusBar style="dark" />
-          <LandingScreen
-            onNavigateAdmin={() => {
-              if (typeof window !== 'undefined') {
-                window.history.pushState({}, '', '/admin');
-              }
-              setCurrentWebRoute('admin');
-            }}
-            onNavigateLegal={(tab) => {
-              if (typeof window !== 'undefined') {
-                const targetUrl = tab ? `/terms?tab=${tab}` : '/terms';
-                window.history.pushState({}, '', targetUrl);
-              }
-              if (tab) setLegalInitialTab(tab);
-              setCurrentWebRoute('legal');
-            }}
-          />
+          <ErrorBoundary>
+            <LandingScreen
+              onNavigateAdmin={() => {
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({}, '', '/admin');
+                }
+                setCurrentWebRoute('admin');
+              }}
+              onNavigateLegal={(tab) => {
+                if (typeof window !== 'undefined') {
+                  const path = tab === 'terms' ? '/terms' : tab === 'privacy' ? '/privacy' : tab === 'membership' ? '/membership' : '/community';
+                  window.history.pushState({}, '', path);
+                }
+                if (tab) setLegalInitialTab(tab);
+                setCurrentWebRoute('legal');
+              }}
+            />
+          </ErrorBoundary>
         </SafeAreaProvider>
       );
     }
@@ -175,22 +276,14 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      ) : (
-        <RootNavigator />
-      )}
+      <ErrorBoundary>
+        {showSplash ? (
+          <SplashScreenView />
+        ) : (
+          <RootNavigator />
+        )}
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

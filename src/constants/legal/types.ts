@@ -1,4 +1,4 @@
-export type LegalTabKey = 'service' | 'privacy' | 'paid' | 'community';
+export type LegalTabKey = 'terms' | 'privacy' | 'membership' | 'community';
 
 export interface LegalArticle {
   articleNumber?: string; // 예: "제1조 (목적)"
@@ -19,6 +19,7 @@ export interface LegalDocument {
   id: LegalTabKey;
   title: string;
   shortTitle: string;
+  path: string;
   effectiveDate: string; // 예: "2026년 9월 1일 시행"
   lastUpdatedDate?: string;
   version: string;

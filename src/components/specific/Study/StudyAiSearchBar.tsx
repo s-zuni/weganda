@@ -37,14 +37,11 @@ export const StudyAiSearchBar: React.FC<StudyAiSearchBarProps> = ({ onSearch }) 
 
   return (
     <View style={styles.container}>
-      {/* 타이틀 및 뱃지 */}
+      {/* 타이틀 */}
       <View style={styles.titleRow}>
         <View style={styles.titleLeft}>
           <BotIcon size={18} color={COLORS.primary} />
-          <Text style={styles.titleText}>임상 지식 AI 검색</Text>
-        </View>
-        <View style={styles.aiBadge}>
-          <Text style={styles.aiBadgeText}>OpenAI 실시간 답변 🩺</Text>
+          <Text style={styles.titleText}>간호 AI</Text>
         </View>
       </View>
 
@@ -122,17 +119,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.textPrimary,
     letterSpacing: -0.3,
-  },
-  aiBadge: {
-    backgroundColor: '#FFF1F4',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  aiBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.primary,
   },
   searchBar: {
     flexDirection: 'row',

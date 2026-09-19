@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import { useUserStore } from '../store/useUserStore';
+import { subscriptionApi, VerifyPurchaseResult } from './subscriptionApi';
 import { IAP_SKUS } from '../constants/membership';
 
 export interface IapProduct {
@@ -25,7 +26,40 @@ let purchaseUpdateSubscription: any = null;
 let purchaseErrorSubscription: any = null;
 let isConnected = false;
 
+function isNitroAvailable(): boolean {
+  if (Platform.OS !== 'ios' && Platform.OS !== 'android') return false;
+
+  try {
+    // 1. Expo Go 환경인지 체크 (Expo Go는 커스텀 C++ NativeModule 미지원)
+    const Constants = require('expo-constants').default;
+    if (
+      Constants?.appOwnership === 'expo' ||
+      Constants?.executionEnvironment === 'storeClient'
+    ) {
+      return false;
+    }
+  } catch {
+    // expo-constants 없으면 통과
+  }
+
+  try {
+    // 2. React Native TurboModuleRegistry에서 NitroModules 존재 여부 안전 검사
+    const { TurboModuleRegistry } = require('react-native');
+    if (TurboModuleRegistry && typeof TurboModuleRegistry.get === 'function') {
+      const nitro = TurboModuleRegistry.get('NitroModules');
+      return !!nitro;
+    }
+  } catch {
+    return false;
+  }
+
+  return false;
+}
+
 function getNativeIap(): any {
+  if (!isNitroAvailable()) {
+    return null;
+  }
   try {
     const pkg = 'react-native-iap';
     return require(pkg);
@@ -47,6 +81,36 @@ function getNativeIap(): any {
 class InAppPurchaseService {
   private isNativeSupported(): boolean {
     return Platform.OS === 'ios' || Platform.OS === 'android';
+  }
+
+  // 네이티브 구매 객체를 서버(App Store Server API / Play Developer API)로 검증하고,
+  // 검증에 성공한 경우에만 프리미엄을 부여한다. 절대 클라이언트 판단만으로 isPremium을 true로 만들지 않는다.
+  private async verifyAndApplyPurchase(purchase: any): Promise<VerifyPurchaseResult | null> {
+    const platform: 'ios' | 'android' | null =
+      Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : null;
+    const productId: string | undefined = purchase?.productId || purchase?.id || purchase?.sku;
+    const transactionId: string | undefined =
+      purchase?.transactionId || purchase?.id || purchase?.originalTransactionIdIOS;
+    const purchaseToken: string | undefined = purchase?.purchaseToken || purchase?.purchaseTokenAndroid;
+
+    if (!platform || !productId) {
+      console.warn('[IAP] Missing platform/productId, cannot verify purchase server-side.');
+      return null;
+    }
+
+    try {
+      const result = await subscriptionApi.verifyPurchase({ platform, productId, transactionId, purchaseToken });
+      // applyServerSubscription은 subscription이 없거나 비활성 상태면 isPremium을 false로 되돌린다 —
+      // 서버가 검증한 결과만 그대로 반영할 뿐, 클라이언트가 임의로 true를 만들 수 없다.
+      useUserStore.getState().applyServerSubscription(result.subscription ?? null);
+      if (!result.verified || !result.isPremium) {
+        console.warn('[IAP] Purchase verification did not grant premium:', result.reason);
+      }
+      return result;
+    } catch (verifyErr) {
+      console.warn('[IAP] Server-side purchase verification failed:', verifyErr);
+      return null;
+    }
   }
 
   public async init(): Promise<boolean> {
@@ -97,7 +161,8 @@ class InAppPurchaseService {
             console.log('[IAP] finishTransaction completed successfully.');
           }
 
-          useUserStore.getState().subscribeToPremium();
+          // 서버 검증 통과 시에만 프리미엄 부여 (클라이언트 신뢰 방식 폐기)
+          await this.verifyAndApplyPurchase(purchase);
 
           if (onSuccess) onSuccess(purchase);
         } catch (ackErr) {
@@ -138,17 +203,22 @@ class InAppPurchaseService {
       const RNIap = getNativeIap();
       if (RNIap && typeof RNIap.fetchProducts === 'function' && this.isNativeSupported()) {
         const products = await RNIap.fetchProducts({
-          skus: [sku],
+          skus: [
+            IAP_SKUS.MONTHLY_STANDARD,
+            IAP_SKUS.MONTHLY_EARLYBIRD,
+            IAP_SKUS.YEARLY_STANDARD,
+            IAP_SKUS.YEARLY_EARLYBIRD,
+          ],
           type: 'subs',
         });
         if (products && products.length > 0) {
           return products.map((item: any) => ({
-            productId: item.id || sku,
-            price: item.price || '7800',
+            productId: item.id || item.productId,
+            price: item.price || '5900',
             currency: item.currency || 'KRW',
             title: item.title || 'weganda+ 정기구독',
             description: item.description || '3교대 간호사를 위한 프리미엄 라이프스타일 혜택',
-            localizedPrice: item.localizedPrice || '₩7,800',
+            localizedPrice: item.localizedPrice || (item.id?.includes('yearly') ? '₩59,000' : '₩5,900'),
             type: 'subs',
           }));
         }
@@ -159,30 +229,64 @@ class InAppPurchaseService {
 
     return [
       {
-        productId: sku,
-        price: '7800',
+        productId: IAP_SKUS.MONTHLY_EARLYBIRD,
+        price: '5900',
         currency: 'KRW',
-        title: 'weganda+ (우간다 플러스) 월간 구독',
+        title: 'weganda+ 월간 멤버십 (출시 얼리버드 평생할인)',
         description: '사주 무제한, 월급/수당 예측기, AI 무제한, 듀티 공유',
-        localizedPrice: '월 7,800원',
+        localizedPrice: '월 5,900원 (평생)',
+        type: 'subs',
+      },
+      {
+        productId: IAP_SKUS.YEARLY_EARLYBIRD,
+        price: '59000',
+        currency: 'KRW',
+        title: 'weganda+ 연간 멤버십 (출시 얼리버드 평생할인)',
+        description: '사주 무제한, 월급/수당 예측기, AI 무제한 (월 4,916원 꼴)',
+        localizedPrice: '연 59,000원 (평생)',
+        type: 'subs',
+      },
+      {
+        productId: IAP_SKUS.MONTHLY_STANDARD,
+        price: '7900',
+        currency: 'KRW',
+        title: 'weganda+ 월간 멤버십 (정상가)',
+        description: '사주 무제한, 월급/수당 예측기, AI 무제한, 듀티 공유',
+        localizedPrice: '월 7,900원',
+        type: 'subs',
+      },
+      {
+        productId: IAP_SKUS.YEARLY_STANDARD,
+        price: '70000',
+        currency: 'KRW',
+        title: 'weganda+ 연간 멤버십 (정상가)',
+        description: '사주 무제한, 월급/수당 예측기, AI 무제한, 듀티 공유',
+        localizedPrice: '연 70,000원',
         type: 'subs',
       },
     ];
   }
 
-  public async requestSubscription(sku?: string): Promise<IapPurchaseResult> {
-    const targetSku =
-      sku ||
-      Platform.select({
-        ios: IAP_SKUS.SUBSCRIPTION_MONTHLY_IOS,
-        android: IAP_SKUS.SUBSCRIPTION_MONTHLY_ANDROID,
-        default: IAP_SKUS.SUBSCRIPTION_MONTHLY_IOS,
-      });
+  public async requestSubscription(
+    sku?: string,
+    options?: {
+      planType?: 'monthly' | 'yearly';
+      price?: number;
+      isTrial?: boolean;
+      isEarlybird?: boolean;
+    }
+  ): Promise<IapPurchaseResult> {
+    const targetSku = sku || IAP_SKUS.MONTHLY_EARLYBIRD;
+    const planType = options?.planType || (targetSku.includes('yearly') ? 'yearly' : 'monthly');
+    const isEarlybird = options?.isEarlybird !== undefined ? options.isEarlybird : targetSku.includes('earlybird');
+    const price = options?.price || (planType === 'yearly' ? (isEarlybird ? 59000 : 70000) : (isEarlybird ? 5900 : 7900));
+    const isTrial = options?.isTrial !== undefined ? options.isTrial : true;
 
-    try {
-      const RNIap = getNativeIap();
+    const isNative = this.isNativeSupported();
+    const RNIap = isNative ? getNativeIap() : null;
 
-      if (RNIap && typeof RNIap.requestPurchase === 'function' && this.isNativeSupported()) {
+    if (isNative && RNIap && typeof RNIap.requestPurchase === 'function') {
+      try {
         console.log('[IAP] Invoking native requestPurchase for SKU:', targetSku);
 
         const requestPayload = {
@@ -201,17 +305,40 @@ class InAppPurchaseService {
           productId: targetSku,
           transactionId: 'tx-' + Date.now(),
         };
+      } catch (error: any) {
+        if (error?.code === 'E_USER_CANCELLED') {
+          return { success: false, errorMessage: '결제를 취소하셨습니다.' };
+        }
+        console.warn('[IAP] Native purchase error:', error?.message);
+        return {
+          success: false,
+          errorMessage: error?.message || '결제 진행 중 오류가 발생했습니다. 다시 시도해주세요.',
+        };
       }
-    } catch (error: any) {
-      if (error?.code === 'E_USER_CANCELLED') {
-        return { success: false, errorMessage: '결제를 취소하셨습니다.' };
-      }
-      console.warn('[IAP] Native purchase error, falling back to mock flow:', error?.message);
     }
 
-    // Mock Flow: Simulate network delay (1.5s) and confirm subscription
+    // Mock Flow: 웹 또는 네이티브 IAP 모듈이 없는 모의/개발 환경에서만 시뮬레이션 동작
+    // (실제 iOS / Android 프로덕션 환경에서는 결제 실패 시 무료 승급이 절대 발생하지 않음)
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    useUserStore.getState().subscribeToPremium();
+
+    // 계산된 구독 정보로 전역 스토어 업데이트
+    const now = new Date();
+    const trialEnd = new Date(now);
+    trialEnd.setDate(trialEnd.getDate() + (isTrial ? 30 : 0));
+    const billingDate = trialEnd.toISOString().slice(0, 10);
+
+    useUserStore.getState().subscribeToPremiumWithDetails({
+      planType,
+      isEarlybird,
+      price,
+      isTrial,
+      trialStartDate: now.toISOString().slice(0, 10),
+      trialEndDate: isTrial ? billingDate : undefined,
+      nextBillingDate: billingDate,
+      subscribedAt: now.toISOString(),
+      status: isTrial ? 'trial' : 'active',
+      storeSku: targetSku,
+    });
 
     return {
       success: true,
@@ -238,12 +365,19 @@ class InAppPurchaseService {
               p.id === IAP_SKUS.SUBSCRIPTION_MONTHLY_ANDROID
           ) || purchases[0];
 
-          useUserStore.getState().subscribeToPremium();
+          // 서버 검증을 통과한 경우에만 복원 성공으로 처리 (클라이언트 신뢰 방식 폐기)
+          const result = await this.verifyAndApplyPurchase(activeSub);
+          if (result?.verified && result.isPremium) {
+            return {
+              success: true,
+              productId: activeSub.productId || activeSub.id,
+              transactionId: activeSub.transactionId || activeSub.id,
+              isRestored: true,
+            };
+          }
           return {
-            success: true,
-            productId: activeSub.productId || activeSub.id,
-            transactionId: activeSub.transactionId || activeSub.id,
-            isRestored: true,
+            success: false,
+            errorMessage: result?.reason || '유효한 구독을 확인하지 못해 복원할 수 없습니다.',
           };
         } else {
           return {
@@ -254,15 +388,6 @@ class InAppPurchaseService {
       }
     } catch (error: any) {
       console.warn('[IAP] restorePurchases failed:', error);
-    }
-
-    const isAlreadyPremium = useUserStore.getState().isPremium;
-    if (isAlreadyPremium) {
-      return {
-        success: true,
-        productId: IAP_SKUS.SUBSCRIPTION_MONTHLY_IOS,
-        isRestored: true,
-      };
     }
 
     return {

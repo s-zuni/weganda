@@ -1,6 +1,7 @@
 import * as Calendar from 'expo-calendar';
 import { Platform } from 'react-native';
 import { SHIFT_TYPES, ShiftCode } from '../constants/shiftTypes';
+import { COLORS } from '../constants/theme';
 
 const WEGANDA_CALENDAR_TITLE = '우간다 근무표 (Weganda)';
 
@@ -49,7 +50,7 @@ export const nativeCalendarService = {
 
       const newCalendarId = await Calendar.createCalendarAsync({
         title: WEGANDA_CALENDAR_TITLE,
-        color: '#FF507C',
+        color: COLORS.primary,
         entityType: Calendar.EntityTypes.EVENT,
         sourceId: defaultCalendarSource?.id,
         source: defaultCalendarSource,
@@ -239,6 +240,52 @@ export const nativeCalendarService = {
     } catch (e) {
       console.warn('Error fetching native calendar events:', e);
       return { hasEvents: false, summaryText: '스케줄 추가 가능 +', eventsCount: 0 };
+    }
+  },
+
+  // 5. 시스템 기본 캘린더에서 지정 월의 날짜별 개인 일정 개수 집계
+  async getMonthlyNativeEventsCount(
+    year: number,
+    month: number // 0-indexed (0: 1월 ~ 11: 12월)
+  ): Promise<Record<string, number>> {
+    const counts: Record<string, number> = {};
+    try {
+      const hasPermission = await this.requestPermissions();
+      if (!hasPermission || Platform.OS === 'web') {
+        // 모의 환경/웹: 사용자 시안 테스트를 위해 13일 등에 데모 일정 1건 제공
+        const ym = `${year}-${String(month + 1).padStart(2, '0')}`;
+        return {
+          [`${ym}-13`]: 1, // 시안의 13일 'E+1' 반영
+        };
+      }
+
+      const startOfMonth = new Date(year, month, 1, 0, 0, 0);
+      const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
+
+      const allCalendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      const personalCalendarIds = allCalendars
+        .filter((c) => c.title !== WEGANDA_CALENDAR_TITLE)
+        .map((c) => c.id);
+
+      if (personalCalendarIds.length === 0) {
+        return counts;
+      }
+
+      const events = await Calendar.getEventsAsync(personalCalendarIds, startOfMonth, endOfMonth);
+
+      for (const ev of events) {
+        const evDate = new Date(ev.startDate);
+        const y = evDate.getFullYear();
+        const m = String(evDate.getMonth() + 1).padStart(2, '0');
+        const d = String(evDate.getDate()).padStart(2, '0');
+        const key = `${y}-${m}-${d}`;
+        counts[key] = (counts[key] || 0) + 1;
+      }
+
+      return counts;
+    } catch (e) {
+      console.warn('Error fetching monthly native calendar event counts:', e);
+      return counts;
     }
   },
 };

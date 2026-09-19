@@ -16,6 +16,7 @@ export interface ProfileItem {
   calendarType?: 'solar' | 'lunar';
   gender?: 'female' | 'male';
   pushToken?: string;
+  userCode?: string;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -53,6 +54,7 @@ export const profileApi = {
         calendarType: (data.calendar_type as any) || 'solar',
         gender: (data.gender as any) || undefined,
         pushToken: data.push_token || undefined,
+        userCode: (data as any).user_code || undefined,
         isActive: data.is_active ?? true,
         createdAt: data.created_at || undefined,
         updatedAt: data.updated_at || undefined,
@@ -61,18 +63,56 @@ export const profileApi = {
   },
 
   // 프로필 수정 (P2)
-  async updateProfile(userId: string, updates: Partial<ProfileItem>): Promise<boolean> {
+  async updateProfile(
+    userIdOrUpdates: string | (Partial<ProfileItem> & {
+      hospital_name?: string;
+      ward_name?: string;
+      experience_years?: number;
+    }),
+    maybeUpdates?: Partial<ProfileItem> & {
+      hospital_name?: string;
+      ward_name?: string;
+      experience_years?: number;
+    }
+  ): Promise<boolean> {
     return withClockSkewRetry(async () => {
+      let userId: string = '';
+      let updates: Omit<Partial<ProfileItem>, 'role'> & {
+        hospital_name?: string;
+        ward_name?: string;
+        experience_years?: number;
+      };
+
+      if (typeof userIdOrUpdates === 'string') {
+        userId = userIdOrUpdates;
+        updates = maybeUpdates || {};
+      } else {
+        updates = userIdOrUpdates || {};
+        const { data } = await supabase.auth.getUser();
+        userId = data?.user?.id || '';
+      }
+
+      if (!userId) {
+        console.warn('profileApi.updateProfile: No userId available to update profile');
+        return false;
+      }
+
       const rowUpdates: TablesUpdate<'profiles'> = {
         updated_at: new Date().toISOString(),
       };
 
       if (updates.name !== undefined) rowUpdates.name = updates.name;
-      if (updates.nickname !== undefined) rowUpdates.nickname = updates.nickname;
+      if (updates.nickname !== undefined) {
+        rowUpdates.nickname = updates.nickname;
+        if (!rowUpdates.name) rowUpdates.name = updates.nickname;
+      }
       if (updates.hospitalName !== undefined) rowUpdates.hospital_name = updates.hospitalName;
+      if (updates.hospital_name !== undefined) rowUpdates.hospital_name = updates.hospital_name;
       if (updates.wardName !== undefined) rowUpdates.ward_name = updates.wardName;
+      if (updates.ward_name !== undefined) rowUpdates.ward_name = updates.ward_name;
       if (updates.experienceYears !== undefined) rowUpdates.experience_years = updates.experienceYears;
-      if (updates.role !== undefined) rowUpdates.role = updates.role;
+      if (updates.experience_years !== undefined) rowUpdates.experience_years = updates.experience_years;
+      // 🔒 role 필드는 보안상 클라이언트 updateProfile에서 갱신 불가 (DB 트리거 및 서버 관리자 전용)
       if (updates.avatarUrl !== undefined) rowUpdates.avatar_url = updates.avatarUrl;
       if (updates.birthDate !== undefined) rowUpdates.birth_date = updates.birthDate;
       if (updates.birthTime !== undefined) rowUpdates.birth_time = updates.birthTime;
@@ -80,14 +120,26 @@ export const profileApi = {
       if (updates.gender !== undefined) rowUpdates.gender = updates.gender;
       if (updates.pushToken !== undefined) rowUpdates.push_token = updates.pushToken;
 
-      const { error } = await supabase
+      // 먼저 update 시도, 행이 없거나 수신에 실패하면 upsert 수행
+      const { error: updateError, count } = await supabase
         .from('profiles')
         .update(rowUpdates)
         .eq('id', userId);
 
-      if (error) {
-        console.error('Error updating profile:', error);
-        throw error;
+      if (updateError) {
+        // RLS나 다른 사유로 update가 에러인 경우 upsert로 폴백
+        const { error: upsertError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: userId,
+            name: rowUpdates.name || '간호사',
+            ...rowUpdates,
+          });
+
+        if (upsertError) {
+          console.error('Error updating profile:', upsertError);
+          throw upsertError;
+        }
       }
       return true;
     });

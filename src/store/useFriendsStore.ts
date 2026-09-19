@@ -10,12 +10,14 @@ import {
 import { friendsApi } from '../services/friendsApi';
 import { chatApi } from '../services/chatApi';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { COLORS } from '../constants/theme';
 
 interface FriendsState {
   friends: FriendDetail[];
   groupChats: GroupChat[];
   chatMessages: Record<string, ChatMessage[]>;
   isLoading: boolean;
+  error: string | null;
   activeChatChannel?: RealtimeChannel;
 
   // Actions
@@ -30,6 +32,7 @@ interface FriendsState {
     myUserId?: string
   ) => Promise<void>;
   respondToSwap: (friendId: string, messageId: string, accept: boolean) => Promise<void>;
+  createGroupChat: (name: string, category: string, members: FriendDetail[]) => void;
   subscribeRealtimeChat: (myUserId: string) => void;
   unsubscribeRealtimeChat: () => void;
 }
@@ -39,18 +42,40 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   groupChats: [],
   chatMessages: {},
   isLoading: false,
+  error: null,
+
+  createGroupChat: (name: string, category: string, members: FriendDetail[]) => {
+    const newGroup: GroupChat = {
+      id: `group_${Date.now()}`,
+      name,
+      category,
+      unreadCount: 0,
+      lastMessage: '단체 모임이 개설되었습니다.',
+      lastTime: '방금',
+      members: members.map((m) => ({
+        id: m.id,
+        name: m.name,
+        role: m.role,
+        avatarLetter: m.avatarLetter,
+        avatarBg: m.avatarBg,
+        todayShift: m.todayShift,
+        monthlyShifts: m.monthlyShifts,
+      })),
+    };
+    set((state) => ({ groupChats: [newGroup, ...state.groupChats] }));
+  },
 
   // 친구 목록 DB 조회
   fetchFriends: async (userId: string) => {
     try {
-      set({ isLoading: true });
+      set({ isLoading: true, error: null });
       const serverFriends = await friendsApi.getFriends(userId);
       if (serverFriends && serverFriends.length > 0) {
         const mapped: FriendDetail[] = serverFriends.map((f) => ({
           id: f.id,
           name: f.name,
           avatarLetter: f.name.charAt(0) || '간',
-          avatarBg: '#FF507C',
+          avatarBg: COLORS.primary,
           hospital: f.hospital || '종합병원',
           ward: f.ward || '병동',
           role: `${f.experienceYears || 1}년차 • ${f.ward || '병동'}`,
@@ -60,13 +85,13 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
           matchingOffDaysCount: f.matchingOffDaysCount || 0,
           monthlyShifts: [],
         }));
-        set({ friends: mapped, isLoading: false });
+        set({ friends: mapped, isLoading: false, error: null });
       } else {
-        set({ isLoading: false });
+        set({ isLoading: false, error: null });
       }
     } catch (e) {
       console.error('Error fetching friends from backend:', e);
-      set({ isLoading: false });
+      set({ isLoading: false, error: '동기 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.' });
     }
   },
 

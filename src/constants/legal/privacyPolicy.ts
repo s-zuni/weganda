@@ -4,6 +4,7 @@ export const PRIVACY_POLICY: LegalDocument = {
   id: 'privacy',
   title: '우간다 개인정보 처리방침',
   shortTitle: '개인정보 처리방침',
+  path: '/privacy',
   effectiveDate: '2026년 9월 1일 시행',
   version: 'v1.0',
   summary:
@@ -106,8 +107,8 @@ export const PRIVACY_POLICY: LegalDocument = {
       title: '정보주체의 권리·의무 및 행사방법',
       paragraphs: [
         '1. 회원은 언제든지 서비스 내 [설정 > 내 정보]에서 자신의 개인정보를 조회하거나 수정할 수 있습니다.',
-        '2. 회원은 언제든지 [설정 > 계정 관리 > 회원탈퇴]를 통해 개인정보 수집 및 이용에 대한 동의를 철회할 수 있습니다.',
-        '3. 회원은 개인정보 보호책임자에게 서면, 전자우편(contact@weganda.kr)을 통해 개인정보 열람, 정정, 삭제, 처리정지를 요구할 수 있으며, 회사는 이에 대해 지체 없이 조치합니다.',
+        '2. 회원은 언제든지 [설정 > 내 정보 > 회원탈퇴]를 통해 개인정보 수집 및 이용에 대한 동의를 철회할 수 있습니다.',
+        '3. 회원은 개인정보 보호책임자에게 서면, 전자우편(buiszuni@gmail.com)을 통해 개인정보 열람, 정정, 삭제, 처리정지를 요구할 수 있으며, 회사는 이에 대해 지체 없이 조치합니다.',
       ],
     },
     {
@@ -136,8 +137,9 @@ export const PRIVACY_POLICY: LegalDocument = {
         {
           items: [
             '• 개인정보 보호책임자: 이승준',
-            '• 소속 및 직책: 우간다 (Weganda) 대표',
-            '• 문의 이메일: contact@weganda.kr',
+            '• 소속 및 직책: 스즈니(SZUNI) 대표',
+            '• 문의 이메일: buiszuni@gmail.com',
+            '• 고객센터 연락처: 070-8095-3075',
           ],
         },
       ],

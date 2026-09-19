@@ -8,14 +8,13 @@ import {
   TouchableOpacity,
   StatusBar,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { useFriendsStore } from '../../store/useFriendsStore';
 import { useUserStore } from '../../store/useUserStore';
 import { FriendDetail, GroupChat } from '../../types/friends';
-import { FREE_LIMITS } from '../../constants/membership';
-
 // 분리된 서브 모달 및 컴포넌트들
 import {
   FriendProfileModal,
@@ -25,15 +24,14 @@ import {
   SharedShiftBanner,
   FriendsListTab,
   GroupsTab,
+  AddFriendModal,
 } from '../../components/specific/Friends';
-import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
-import { MembershipScreen } from '../MyPage/MembershipScreen';
 
 type FriendsTabType = 'list' | 'groups';
 
 export const FriendsScreen: React.FC = () => {
   const { id: userId, isPremium } = useUserStore((s) => ({ id: s.id, isPremium: s.isPremium }));
-  const { friends, groupChats, fetchFriends } = useFriendsStore();
+  const { friends, groupChats, fetchFriends, isLoading, error } = useFriendsStore();
 
   useEffect(() => {
     if (userId) {
@@ -55,8 +53,7 @@ export const FriendsScreen: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<GroupChat | null>(null);
   const [groupModalVisible, setGroupModalVisible] = useState(false);
   const [sharedShiftModalVisible, setSharedShiftModalVisible] = useState(false);
-  const [paywallVisible, setPaywallVisible] = useState(false);
-  const [membershipVisible, setMembershipVisible] = useState(false);
+  const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
 
   // 친구 검색 필터
   const filteredFriends = friends.filter(
@@ -92,21 +89,7 @@ export const FriendsScreen: React.FC = () => {
   };
 
   const handleAddFriend = () => {
-    if (!isPremium && friends.length >= FREE_LIMITS.maxSharedCalendarFriends) {
-      Alert.alert(
-        '공유 캘린더 제한',
-        `무료 회원은 최대 ${FREE_LIMITS.maxSharedCalendarFriends}명까지 공유 캘린더를 연동할 수 있어요.`,
-        [
-          { text: '확인', style: 'cancel' },
-          { text: 'weganda+ 알아보기', onPress: () => setPaywallVisible(true) },
-        ]
-      );
-      return;
-    }
-    Alert.alert(
-      '친구 추가',
-      '사내 메신저 연동 또는 사번/연락처로 동기를 검색하여 친구를 추가할 수 있습니다.'
-    );
+    setAddFriendModalVisible(true);
   };
 
   return (
@@ -119,6 +102,17 @@ export const FriendsScreen: React.FC = () => {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        {/* 네트워크/데이터 로딩 에러 알림 배너 */}
+        {error && (
+          <TouchableOpacity
+            style={styles.errorBanner}
+            onPress={() => userId && fetchFriends(userId)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
+          </TouchableOpacity>
+        )}
+
         {/* 겹치는 근무 요약 상단 배너 */}
         <SharedShiftBanner
           friendsCount={friends.length}
@@ -170,16 +164,23 @@ export const FriendsScreen: React.FC = () => {
 
         {/* TAB 1: 친구 목록 */}
         {activeTab === 'list' && (
-          <FriendsListTab
-            searchText={searchText}
-            onSearchTextChange={setSearchText}
-            filteredFriends={filteredFriends}
-            favoriteFriends={favoriteFriends}
-            regularFriends={regularFriends}
-            onAddFriend={handleAddFriend}
-            onOpenProfile={handleOpenProfile}
-            onOpenChat={handleOpenChat}
-          />
+          isLoading && friends.length === 0 ? (
+            <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+              <ActivityIndicator color={COLORS.primary} size="large" />
+              <Text style={{ marginTop: 12, color: COLORS.textMuted, fontSize: 14 }}>친구 목록을 불러오는 중입니다...</Text>
+            </View>
+          ) : (
+            <FriendsListTab
+              searchText={searchText}
+              onSearchTextChange={setSearchText}
+              filteredFriends={filteredFriends}
+              favoriteFriends={favoriteFriends}
+              regularFriends={regularFriends}
+              onAddFriend={handleAddFriend}
+              onOpenProfile={handleOpenProfile}
+              onOpenChat={handleOpenChat}
+            />
+          )
         )}
 
         {/* TAB 2: 단체 톡방 & 전원 스케줄 일괄 비교 */}
@@ -188,7 +189,6 @@ export const FriendsScreen: React.FC = () => {
             groupChats={groupChats}
             isPremium={isPremium}
             onOpenGroup={handleOpenGroup}
-            onOpenPaywall={() => setPaywallVisible(true)}
           />
         )}
       </ScrollView>
@@ -224,23 +224,10 @@ export const FriendsScreen: React.FC = () => {
         onOpenChat={(f) => handleOpenChat(f)}
       />
 
-      <PaywallBottomSheet
-        visible={paywallVisible}
-        onClose={() => setPaywallVisible(false)}
-        onSubscribe={() => {
-          setPaywallVisible(false);
-          setMembershipVisible(true);
-        }}
-        onLearnMore={() => {
-          setPaywallVisible(false);
-          setMembershipVisible(true);
-        }}
-        featureTitle="공유 캘린더 & AI 모임 추천"
-        featureDescription="친구 수 제한 없이 듀티를 공유하고 AI가 최적의 모임 날짜를 추천"
-      />
-      <MembershipScreen
-        visible={membershipVisible}
-        onClose={() => setMembershipVisible(false)}
+      {/* 👥 동료 간호사 친구 추가 모달 (7자리 고유번호 & 연락처 수동 추가) */}
+      <AddFriendModal
+        visible={addFriendModalVisible}
+        onClose={() => setAddFriendModalVisible(false)}
       />
     </SafeAreaView>
   );
@@ -287,6 +274,21 @@ const styles = StyleSheet.create({
   tabSegmentTextActive: {
     color: COLORS.primary,
     fontWeight: '800',
+  },
+  errorBanner: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FCA5A5',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  errorBannerText: {
+    color: '#B91C1C',
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
 

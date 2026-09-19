@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
-import { COLORS } from '../../constants/theme';
+import { useAppTheme } from '../../constants/theme';
 
 interface ButtonProps {
   title: string;
@@ -9,6 +9,7 @@ interface ButtonProps {
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   disabled?: boolean;
+  accessibilityLabel?: string;
   style?: ViewStyle;
   textStyle?: TextStyle;
 }
@@ -20,9 +21,12 @@ export const Button: React.FC<ButtonProps> = ({
   size = 'md',
   loading = false,
   disabled = false,
+  accessibilityLabel,
   style,
   textStyle,
 }) => {
+  const theme = useAppTheme();
+
   const getContainerStyle = () => {
     const base: ViewStyle = { ...styles.button };
 
@@ -31,10 +35,20 @@ export const Button: React.FC<ButtonProps> = ({
     if (size === 'lg') Object.assign(base, styles.lg);
 
     // Variant
-    if (variant === 'primary') Object.assign(base, styles.primary);
-    if (variant === 'secondary') Object.assign(base, styles.secondary);
-    if (variant === 'outline') Object.assign(base, styles.outline);
-    if (variant === 'ghost') Object.assign(base, styles.ghost);
+    if (variant === 'primary') {
+      base.backgroundColor = theme.primary;
+    }
+    if (variant === 'secondary') {
+      base.backgroundColor = theme.primaryTint;
+    }
+    if (variant === 'outline') {
+      base.backgroundColor = 'transparent';
+      base.borderWidth = 1;
+      base.borderColor = theme.primary;
+    }
+    if (variant === 'ghost') {
+      base.backgroundColor = 'transparent';
+    }
 
     if (disabled) Object.assign(base, styles.disabled);
 
@@ -47,10 +61,10 @@ export const Button: React.FC<ButtonProps> = ({
     if (size === 'sm') base.fontSize = 12;
     if (size === 'lg') base.fontSize = 16;
 
-    if (variant === 'primary') base.color = '#FFFFFF';
-    if (variant === 'secondary') base.color = COLORS.primary;
-    if (variant === 'outline') base.color = COLORS.primary;
-    if (variant === 'ghost') base.color = COLORS.textSecondary;
+    if (variant === 'primary') base.color = theme.onPrimaryText;
+    if (variant === 'secondary') base.color = theme.primary;
+    if (variant === 'outline') base.color = theme.primary;
+    if (variant === 'ghost') base.color = theme.textSecondary;
 
     if (disabled) base.color = '#9CA3AF';
 
@@ -63,9 +77,12 @@ export const Button: React.FC<ButtonProps> = ({
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityState={{ disabled: disabled || loading, busy: loading }}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#FFF' : COLORS.primary} />
+        <ActivityIndicator color={variant === 'primary' ? theme.onPrimaryText : theme.primary} />
       ) : (
         <Text style={[getTextStyle(), textStyle]}>{title}</Text>
       )}
@@ -89,16 +106,14 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 24,
   },
-  primary: {
-    backgroundColor: COLORS.primary,
-  },
+  primary: {},
   secondary: {
     backgroundColor: '#E6F0EC',
   },
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: '#E5E7EB',
   },
   ghost: {
     backgroundColor: 'transparent',

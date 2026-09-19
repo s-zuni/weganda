@@ -278,6 +278,7 @@ export type Database = {
           color: string
           created_at: string | null
           id: string
+          is_off: boolean | null
           name: string
           text_color: string | null
           user_id: string
@@ -287,6 +288,7 @@ export type Database = {
           color: string
           created_at?: string | null
           id?: string
+          is_off?: boolean | null
           name: string
           text_color?: string | null
           user_id: string
@@ -296,6 +298,7 @@ export type Database = {
           color?: string
           created_at?: string | null
           id?: string
+          is_off?: boolean | null
           name?: string
           text_color?: string | null
           user_id?: string
@@ -574,6 +577,7 @@ export type Database = {
           push_token: string | null
           role: string | null
           updated_at: string | null
+          user_code: string | null
           ward_name: string | null
         }
         Insert: {
@@ -592,6 +596,7 @@ export type Database = {
           push_token?: string | null
           role?: string | null
           updated_at?: string | null
+          user_code?: string | null
           ward_name?: string | null
         }
         Update: {
@@ -610,6 +615,7 @@ export type Database = {
           push_token?: string | null
           role?: string | null
           updated_at?: string | null
+          user_code?: string | null
           ward_name?: string | null
         }
         Relationships: []

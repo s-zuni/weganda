@@ -28,7 +28,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
   onClose,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('transfer');
-  const { colleagueInfo, setColleagueInfo, unlockedFortunes, resetFortune } = useFortuneStore();
+  const { birthInfo, colleagueInfo, setColleagueInfo, unlockedFortunes, resetFortune } = useFortuneStore();
   const isUnlocked = unlockedFortunes.career;
 
   const [colleagueName, setColleagueName] = useState(colleagueInfo.name || '');
@@ -62,9 +62,9 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
         <View style={styles.headerTitleRow}>
           <BriefcaseIcon size={20} color={COLORS.primary} />
           <View>
-            <Text style={styles.headerTitle}>💼 📈 직업운 & 이직·동료 케미</Text>
+            <Text style={styles.headerTitle}>💼 직업운 & 이직·동료 케미</Text>
             <Text style={styles.headerSubtitle}>
-              10년 사주 대운 및 병원 이직 타이밍 분석
+              {birthInfo.birthDate || '1998-05-14'} 기준 만세력 대운수 분석
             </Text>
           </View>
         </View>
@@ -89,7 +89,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <FortuneUnlockView
             fortuneType="career"
-            title="💼 📈 직업운 & 이직·동료 케미"
+            title="💼 직업운 & 이직·동료 케미"
             subtitle="10년 사주 커리어 대운 흐름 그래프, 사주 오행 매칭 병원 추천, 동료 간호사 듀티 케미 정밀 분석"
             icon={<BriefcaseIcon size={28} color={COLORS.primary} />}
             previewItems={[

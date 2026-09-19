@@ -20,10 +20,10 @@ graph TD
     Auth --> Login[LoginScreen]
     Auth --> Onboarding[OnboardingScreen]
     
-    Main --> Tab1[HomeTab: DashboardScreen]
-    Main --> Tab2[FortuneTab: FortuneScreen]
-    Main --> Tab3[StudyTab: Center FAB Button]
-    Main --> Tab4[FriendsTab: FriendsScreen]
+    Main --> Tab1[FortuneTab: FortuneScreen]
+    Main --> Tab2[FriendsTab: FriendsScreen]
+    Main --> Tab3[HomeTab: Center FAB DashboardScreen]
+    Main --> Tab4[StudyTab: StudyScreen]
     Main --> Tab5[CommunityTab: CommunityScreen]
 ```
 

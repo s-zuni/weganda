@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useUserStore } from '../../../store/useUserStore';
 
 export type AdminMenuKey =
   | 'dashboard'
   | 'waitlist'
   | 'users'
+  | 'inquiries'
+  | 'verification'
   | 'community'
   | 'analytics'
   | 'payments'
@@ -14,6 +17,8 @@ interface AdminSidebarProps {
   activeMenu: AdminMenuKey;
   onSelectMenu: (menu: AdminMenuKey) => void;
   pendingReportsCount?: number;
+  pendingVerificationsCount?: number;
+  pendingInquiriesCount?: number;
   onGoMain: () => void;
 }
 
@@ -21,6 +26,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   activeMenu,
   onSelectMenu,
   pendingReportsCount = 0,
+  pendingVerificationsCount = 0,
+  pendingInquiriesCount = 0,
   onGoMain,
 }) => {
   const menuItems: {
@@ -34,13 +41,25 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { key: 'waitlist', label: '사전예약 대기자 (Waitlist)', icon: '📬' },
     { key: 'users', label: '회원 관리', icon: '👥' },
     {
+      key: 'inquiries',
+      label: '고객 문의 센터',
+      icon: '🎧',
+      badge: pendingInquiriesCount > 0 ? pendingInquiriesCount : undefined,
+    },
+    {
+      key: 'verification',
+      label: '간호 서류 인증 심사',
+      icon: '📋',
+      badge: pendingVerificationsCount > 0 ? pendingVerificationsCount : undefined,
+    },
+    {
       key: 'community',
       label: '커뮤니티 관리',
       icon: '💬',
       badge: pendingReportsCount > 0 ? pendingReportsCount : undefined,
     },
     { key: 'analytics', label: '서비스 활성도 & 체류시간', icon: '📈' },
-    { key: 'payments', label: '결제/수익 관리', icon: '💳', isPending: true },
+    { key: 'payments', label: '멤버십 & 이벤트 결제 관리', icon: '💳' },
     { key: 'settings', label: '시스템 설정', icon: '⚙️' },
   ];
 
@@ -94,8 +113,19 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       {/* ── 하단 메인 사이트 복귀 / 로그아웃 ── */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerBtn} onPress={onGoMain} activeOpacity={0.7}>
-          <Text style={styles.footerIcon}>[→]</Text>
+          <Text style={styles.footerIcon}>🏠</Text>
           <Text style={styles.footerText}>메인 사이트 (weganda.kr)</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.footerBtn, { marginTop: 6 }]}
+          onPress={() => {
+            useUserStore.getState().setUser({ role: 'user', isAuthenticated: false });
+            onGoMain();
+          }}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.footerIcon}>🔒</Text>
+          <Text style={styles.footerText}>관리자 로그아웃</Text>
         </TouchableOpacity>
       </View>
     </View>

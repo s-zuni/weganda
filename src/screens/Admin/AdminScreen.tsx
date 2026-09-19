@@ -18,9 +18,14 @@ import {
   AdminPaymentsTab,
   AdminSettingsTab,
   AdminWaitlistTab,
+  AdminVerificationTab,
+  AdminInquiriesTab,
 } from '../../components/specific/Admin';
 import { adminApi, DashboardStats } from '../../services/adminApi';
 import { AdminAnalytics } from '../../types/admin';
+import { useVerificationStore } from '../../store/useVerificationStore';
+import { useSupportStore } from '../../store/useSupportStore';
+import { COLORS, NEUTRAL } from '../../constants/theme';
 
 export interface AdminScreenProps {
   visible?: boolean;
@@ -99,6 +104,16 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           title: '회원 관리',
           subtitle: 'Supabase profiles 실데이터 연동 · 유저 역할(Admin/User/Plus) 및 계정 상태 제어',
         };
+      case 'inquiries':
+        return {
+          title: '고객 문의 센터',
+          subtitle: '간호사 회원 1:1 서비스 및 결제/버그 문의 확인 · 관리자 공식 답변 작성 및 상태 제어',
+        };
+      case 'verification':
+        return {
+          title: '간호 서류 인증 심사',
+          subtitle: '간호사 및 간호학생 자격 증빙 서류 심사 · 수락(승인) 및 반려(사유 작성)',
+        };
       case 'community':
         return {
           title: '커뮤니티 관리',
@@ -111,8 +126,8 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
         };
       case 'payments':
         return {
-          title: '결제/수익 관리',
-          subtitle: '토스페이먼츠 PG 정산 연동 및 구독 결제 파이프라인 관리',
+          title: '멤버십 & 런칭 이벤트 결제 관리',
+          subtitle: '인앱결제(Apple/Google) 3대 프로모션 이벤트 기간 및 평생할인가 제어 콘솔',
         };
       case 'settings':
         return {
@@ -124,11 +139,21 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     }
   };
 
+  const { adminRequests } = useVerificationStore();
+  const pendingVerificationsCount = adminRequests.filter((r) => r.status === 'pending').length;
+
+  const { inquiries, fetchAllInquiries } = useSupportStore();
+  const pendingInquiriesCount = inquiries.filter((i) => i.status === 'pending').length;
+
+  useEffect(() => {
+    fetchAllInquiries();
+  }, [fetchAllInquiries]);
+
   const menuInfo = getMenuInfo(activeMenu);
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+      <StatusBar barStyle="light-content" backgroundColor={NEUTRAL.gray900} />
 
       <View style={styles.container}>
         {/* ── 좌측 다크 네이비 사이드바 ── */}
@@ -136,6 +161,8 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           activeMenu={activeMenu}
           onSelectMenu={setActiveMenu}
           pendingReportsCount={stats.pending_reports}
+          pendingVerificationsCount={pendingVerificationsCount}
+          pendingInquiriesCount={pendingInquiriesCount}
           onGoMain={handleGoMain}
         />
 
@@ -152,7 +179,7 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
           {/* 콘텐츠 뷰 분기 */}
           {isLoading ? (
             <View style={styles.loadingBox}>
-              <ActivityIndicator size="large" color="#FF507C" />
+              <ActivityIndicator size="large" color={COLORS.primary} />
             </View>
           ) : (
             <View style={styles.body}>
@@ -165,6 +192,8 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
               )}
               {activeMenu === 'waitlist' && <AdminWaitlistTab />}
               {activeMenu === 'users' && <UserManagementTab />}
+              {activeMenu === 'inquiries' && <AdminInquiriesTab />}
+              {activeMenu === 'verification' && <AdminVerificationTab />}
               {activeMenu === 'community' && <CommunityManagementTab />}
               {activeMenu === 'analytics' && <ServiceMetricsTab />}
               {activeMenu === 'payments' && <AdminPaymentsTab />}
@@ -180,16 +209,16 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: NEUTRAL.gray900,
   },
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: NEUTRAL.gray50,
   },
   mainContent: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: NEUTRAL.gray50,
     flexDirection: 'column',
   },
   body: {

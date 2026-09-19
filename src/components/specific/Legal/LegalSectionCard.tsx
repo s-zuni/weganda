@@ -8,7 +8,7 @@ interface LegalSectionCardProps {
   index: number;
 }
 
-export const LegalSectionCard: React.FC<LegalSectionCardProps> = ({ article, index }) => {
+export const LegalSectionCard: React.FC<LegalSectionCardProps> = ({ article }) => {
   return (
     <View style={styles.cardContainer}>
       {/* Header / Article Title */}

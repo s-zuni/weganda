@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 import { fortuneApi } from '../services/fortuneApi';
 import { manseryeokService, SajuAnalysisResult } from '../services/manseryeokService';
 import { sajuAnalysisGenerator, GeneratedSajuReport } from '../utils/sajuAnalysisGenerator';
+import { sajuEngine } from '../services/sajuEngine';
 import { SajuCategoryId, SajuTopicItem } from '../mocks/sajuCategories';
 import { ExpoSecureStoreAdapter } from '../services/supabase';
 
@@ -19,6 +20,14 @@ export interface PartnerInfo {
   birthDate: string;
   birthTime: string;
   mbti: string;
+}
+
+export interface PartnerBirthData {
+  name?: string;
+  birthDate: string;
+  birthTime: string;
+  calendarType?: 'solar' | 'lunar';
+  gender?: 'female' | 'male';
 }
 
 export interface ColleagueInfo {
@@ -40,6 +49,7 @@ interface FortuneState {
   selectedCategoryId: SajuCategoryId;
   selectedTopic?: SajuTopicItem;
   currentManseryeokAnalysis?: SajuAnalysisResult;
+  currentPartnerAnalysis?: SajuAnalysisResult;
   currentManseryeokReport?: GeneratedSajuReport;
   isAnalyzingManseryeok: boolean;
 
@@ -56,7 +66,7 @@ interface FortuneState {
   runManseryeokAnalysis: (
     topic: SajuTopicItem,
     birthInfo: BirthInfo,
-    partnerData?: { name?: string; birthDate?: string; birthTime?: string }
+    partnerData?: PartnerBirthData
   ) => Promise<GeneratedSajuReport | null>;
   fetchAiFortune: (type?: 'daily' | 'saju' | 'love' | 'career' | 'wealth') => Promise<any>;
   unlockFortune: (type: SubFortuneType) => Promise<boolean>;
@@ -67,11 +77,11 @@ export const useFortuneStore = create<FortuneState>()(
   persist(
     (set, get) => ({
   birthInfo: {
-    birthDate: '1996-05-18', // 기본 모의 데이터
-    birthTime: '07:30',
+    birthDate: '',
+    birthTime: '미상',
     calendarType: 'solar',
     gender: 'female',
-    isRegistered: true,
+    isRegistered: false,
   },
   partnerInfo: {
     birthDate: '',
@@ -107,7 +117,8 @@ export const useFortuneStore = create<FortuneState>()(
 
   setBirthInfo: (info) =>
     set((state) => ({
-      birthInfo: { ...state.birthInfo, ...info, isRegistered: true },
+      birthInfo: { ...state.birthInfo, ...info, isRegistered: Boolean(info.birthDate ?? state.birthInfo.birthDate) },
+      ...(info.birthDate && info.birthDate !== state.birthInfo.birthDate ? { currentFortune: undefined } : {}),
     })),
 
   setPartnerInfo: (info) =>
@@ -142,16 +153,16 @@ export const useFortuneStore = create<FortuneState>()(
         partnerSaju = manseryeokService.calculateSaju({
           birthDate: partnerData.birthDate,
           birthTime: partnerData.birthTime || '12:00',
-          calendarType: 'solar',
-          gender: 'female',
+          calendarType: partnerData.calendarType || 'solar',
+          gender: partnerData.gender || 'female',
         });
       }
 
       // 인위적 대기 시간 (정밀 감정 느낌을 주는 1초 딜레이)
       await new Promise((resolve) => setTimeout(resolve, 900));
 
-      // 1,000자+ 심층 리포트 생성
-      const report = sajuAnalysisGenerator.generateReport({
+      // SAJU_ANALYSIS_GUIDE.md 파이프라인 엔진을 거쳐 1,000자+ 심층 리포트 생성
+      const report = await sajuEngine.analyzeSaju({
         topic,
         userSaju,
         partnerSaju,
@@ -160,6 +171,7 @@ export const useFortuneStore = create<FortuneState>()(
 
       set({
         currentManseryeokAnalysis: userSaju,
+        currentPartnerAnalysis: partnerSaju,
         currentManseryeokReport: report,
         selectedTopic: topic,
         isAnalyzingManseryeok: false,

@@ -61,6 +61,13 @@ export const authService = {
     return user;
   },
 
+  // 🔐 이메일/비밀번호 로그인 (심사관 전용 계정 등)
+  async signInWithPassword(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  },
+
   // 🍏 Apple 네이티브 로그인 (Identity Token 방식)
   async signInWithApple() {
     try {
@@ -168,7 +175,7 @@ export const authService = {
       // 사용자가 브라우저를 닫은 경우
       return null;
     } catch (e: any) {
-      console.error(`${providerName} login error:`, e);
+      console.error(`${providerName} login error:`, e?.message || 'Unknown error');
       throw e;
     }
   },
@@ -177,5 +184,15 @@ export const authService = {
   async signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+  },
+
+  // 회원 탈퇴 (Apple Guideline 5.1.1(v) 필수 요건)
+  async deleteAccount() {
+    const { error } = await supabase.rpc('delete_user_account');
+    if (error) {
+      console.error('Delete account RPC error:', error);
+      throw error;
+    }
+    await supabase.auth.signOut();
   },
 };

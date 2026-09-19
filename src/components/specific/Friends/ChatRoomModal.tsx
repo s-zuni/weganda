@@ -17,6 +17,7 @@ import { FriendDetail, ChatMessage } from '../../../mocks/friendsData';
 import { useFriendsStore } from '../../../store/useFriendsStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { SendIcon, RepeatIcon } from '../../common/Icon';
+import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 
 interface ChatRoomModalProps {
   visible: boolean;
@@ -29,6 +30,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
   friend,
   onClose,
 }) => {
+  const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const myUserId = useUserStore((s) => s.id);
   const { chatMessages, fetchChatMessages, sendMessage, respondToSwap } = useFriendsStore();
   const [inputText, setInputText] = useState('');
@@ -81,6 +83,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={keyboardOffset}
         style={styles.container}
       >
         {/* 헤더 */}
@@ -129,6 +132,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
           style={styles.chatScroll}
           contentContainerStyle={styles.chatContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {messages.map((msg) => {
             const isMe = msg.senderId === 'me';
@@ -226,6 +230,8 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
             placeholder="메시지를 입력하세요..."
             placeholderTextColor={COLORS.textMuted}
             multiline={false}
+            returnKeyType="send"
+            onSubmitEditing={handleSend}
           />
           <TouchableOpacity
             style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}

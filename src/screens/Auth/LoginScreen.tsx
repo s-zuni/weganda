@@ -8,21 +8,48 @@ import {
   Alert,
   ActivityIndicator,
   Linking,
+  Platform,
 } from 'react-native';
-import { COLORS } from '../../constants/theme';
+import Constants from 'expo-constants';
+import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
 import { authService } from '../../services/auth';
 import { AppleLogo, KakaoLogo, GoogleLogo } from '../../components/common/BrandIcons';
 import { WegandaLogo } from '../../components/common/WegandaLogo';
+import { ReviewerLoginModal } from '../../components/specific/Auth/ReviewerLoginModal';
 
 interface LoginScreenProps {
   navigation: any;
 }
 
-export const LoginScreen: React.FC<LoginScreenProps> = () => {
+const getFriendlyAuthErrorMessage = (error: any, provider: string): string => {
+  const msg = error?.message || '';
+  if (
+    msg.includes('취소') ||
+    msg.includes('canceled') ||
+    msg.includes('dismissed') ||
+    error?.code === 'ERR_REQUEST_CANCELED'
+  ) {
+    return '';
+  }
+  if (msg.includes('Network') || msg.includes('network') || msg.includes('timeout')) {
+    return '네트워크 연결이 원활하지 않습니다. 인터넷 연결을 확인한 후 다시 시도해 주세요.';
+  }
+  if (msg.includes('rate limit') || msg.includes('too many')) {
+    return '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.';
+  }
+  return `${provider} 로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.`;
+};
+
+export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
   const setUser = useUserStore((state) => state.setUser);
+
+  // 🔒 심사관 전용 계정은 개발 환경(__DEV__) 또는 EAS 빌드 설정(reviewerLoginEnabled)에서만 노출
+  const isReviewerLoginEnabled =
+    __DEV__ || Boolean(Constants.expoConfig?.extra?.reviewerLoginEnabled);
 
   // 🍏 Apple 로그인
   const handleAppleLogin = async () => {
@@ -31,11 +58,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
       const result = await authService.signInWithApple();
       if (result?.session) {
         await syncUserFromSession(result.session);
+        const state = useUserStore.getState();
+        if (!state.hasCompletedOnboarding) {
+          navigation.navigate('Onboarding');
+        }
       }
     } catch (error: any) {
-      // 인증 취소는 조용히 무시
-      if (!error.message?.includes('취소') && !error.message?.includes('canceled')) {
-        Alert.alert('Apple 로그인', error.message || '로그인 중 오류가 발생했습니다.');
+      const friendly = getFriendlyAuthErrorMessage(error, 'Apple');
+      if (friendly) {
+        Alert.alert('로그인 안내', friendly);
       }
     } finally {
       setLoadingProvider(null);
@@ -49,10 +80,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
       const result = await authService.signInWithKakao();
       if (result?.session) {
         await syncUserFromSession(result.session);
+        const state = useUserStore.getState();
+        if (!state.hasCompletedOnboarding) {
+          navigation.navigate('Onboarding');
+        }
       }
     } catch (error: any) {
-      if (!error.message?.includes('취소') && !error.message?.includes('dismissed')) {
-        Alert.alert('카카오 로그인', error.message || '카카오 로그인 중 오류가 발생했습니다.');
+      const friendly = getFriendlyAuthErrorMessage(error, '카카오');
+      if (friendly) {
+        Alert.alert('로그인 안내', friendly);
       }
     } finally {
       setLoadingProvider(null);
@@ -66,10 +102,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
       const result = await authService.signInWithGoogle();
       if (result?.session) {
         await syncUserFromSession(result.session);
+        const state = useUserStore.getState();
+        if (!state.hasCompletedOnboarding) {
+          navigation.navigate('Onboarding');
+        }
       }
     } catch (error: any) {
-      if (!error.message?.includes('취소') && !error.message?.includes('dismissed')) {
-        Alert.alert('Google 로그인', error.message || 'Google 로그인 중 오류가 발생했습니다.');
+      const friendly = getFriendlyAuthErrorMessage(error, 'Google');
+      if (friendly) {
+        Alert.alert('로그인 안내', friendly);
       }
     } finally {
       setLoadingProvider(null);
@@ -78,6 +119,24 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* 🔒 앱스토어 / 구글플레이 심사관 전용 로그인 (프로덕션 빌드에서는 제외) */}
+      {isReviewerLoginEnabled && (
+        <View style={styles.topBar}>
+          <View style={{ flex: 1 }} />
+          <TouchableOpacity
+            style={[styles.reviewerButton, loadingProvider !== null && { opacity: 0.4 }]}
+            onPress={() => setReviewerModalVisible(true)}
+            disabled={loadingProvider !== null}
+            activeOpacity={0.5}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            accessibilityRole="button"
+            accessibilityLabel="심사 전용 로그인"
+          >
+            <Text style={styles.reviewerButtonText}>심사 계정</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       <View style={styles.content}>
         {/* 상단 브랜딩 영역 */}
         <View style={styles.heroSection}>
@@ -89,9 +148,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
           <Text style={styles.subtitle}>
             교대근무 캘린더부터 임상 운세,{'\n'}동기 톡과 익명 커뮤니티까지 한곳에서
           </Text>
+
+          {/* 🎁 1개월 무료 체험 혜택 프로모션 안내 배지 */}
+          <View style={styles.promoBadge}>
+            <Text style={styles.promoEmoji}>🎁</Text>
+            <Text style={styles.promoText}>
+              첫 소셜 로그인 시 <Text style={styles.promoBold}>weganda+ 1개월 무료체험</Text> 자동 제공
+            </Text>
+          </View>
         </View>
 
-        {/* 하단 공식 규격 소셜 로그인 버튼 그룹 */}
+        {/* 하단 공식 규격 소셜 로그인 버튼 그룹 (애플/카카오/구글 전용) */}
         <View style={styles.buttonGroup}>
           {/* 🍏 Apple 로그인 */}
           <TouchableOpacity
@@ -99,12 +166,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
             onPress={handleAppleLogin}
             disabled={loadingProvider !== null}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Apple로 계속하기"
           >
             {loadingProvider === 'apple' ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={COLORS.onPrimaryText} />
             ) : (
               <View style={styles.buttonInner}>
-                <AppleLogo size={19} color="#FFFFFF" />
+                <AppleLogo size={19} color={COLORS.onPrimaryText} />
                 <Text style={styles.appleButtonText}>Apple로 계속하기</Text>
               </View>
             )}
@@ -116,6 +185,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
             onPress={handleKakaoLogin}
             disabled={loadingProvider !== null}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="카카오로 시작하기"
           >
             {loadingProvider === 'kakao' ? (
               <ActivityIndicator color="#191919" />
@@ -133,6 +204,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
             onPress={handleGoogleLogin}
             disabled={loadingProvider !== null}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Google로 시작하기"
           >
             {loadingProvider === 'google' ? (
               <ActivityIndicator color="#1F1F1F" />
@@ -144,38 +217,37 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
             )}
           </TouchableOpacity>
 
-          {/* 게스트 둘러보기 버튼 */}
-          <TouchableOpacity
-            style={styles.guestButton}
-            onPress={() => {
-              setUser({
-                id: 'guest_user_preview',
-                name: '간호사',
-                nickname: '나이팅게일',
-                hospitalName: '우간다 서울병원',
-                wardName: '71병동',
-                experienceYears: 3,
-                isAuthenticated: true,
-              });
-            }}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.guestButtonText}>로그인 없이 앱 둘러보기 ›</Text>
-          </TouchableOpacity>
-
           {/* 이용약관 안내 */}
           <Text style={styles.legalNotice}>
             계속 진행함으로써 우간다의{' '}
             <Text
               style={styles.legalLink}
-              onPress={() => Linking.openURL('https://weganda.kr/terms?tab=service')}
+              onPress={() => {
+                const url = 'https://www.weganda.kr/terms';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
+              accessibilityRole="link"
+              accessibilityLabel="서비스 이용약관"
             >
               서비스 이용약관
             </Text>{' '}
             및{' '}
             <Text
               style={styles.legalLink}
-              onPress={() => Linking.openURL('https://weganda.kr/terms?tab=privacy')}
+              onPress={() => {
+                const url = 'https://www.weganda.kr/privacy';
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.open(url, '_blank');
+                } else {
+                  Linking.openURL(url).catch((err) => console.warn(err));
+                }
+              }}
+              accessibilityRole="link"
+              accessibilityLabel="개인정보 처리방침"
             >
               개인정보 처리방침
             </Text>
@@ -183,6 +255,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
           </Text>
         </View>
       </View>
+
+      {/* 🔐 심사관 전용 로그인 모달 */}
+      <ReviewerLoginModal
+        visible={reviewerModalVisible}
+        onClose={() => setReviewerModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -190,20 +268,37 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
+  },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  reviewerButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  reviewerButtonText: {
+    fontSize: 12,
+    color: NEUTRAL.gray300, // 심사관 전용으로 은은하고 희미하게 노출
+    fontWeight: '500',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
     justifyContent: 'space-between',
-    paddingTop: 80,
-    paddingBottom: 40,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 24,
   },
   heroSection: {
     alignItems: 'flex-start',
   },
   badge: {
-    backgroundColor: '#FFF0F3',
+    backgroundColor: TINT_COLORS.pinkTint,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -217,16 +312,40 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontSize: 44,
     fontWeight: '900',
-    color: '#191F28',
+    color: COLORS.textPrimary,
     letterSpacing: -1.5,
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 17,
     lineHeight: 26,
-    color: '#4E5968',
+    color: COLORS.textSecondary,
     fontWeight: '500',
     letterSpacing: -0.3,
+    marginBottom: 18,
+  },
+  promoBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: TINT_COLORS.pinkTint,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: TINT_COLORS.pinkTintBorder,
+    gap: 8,
+  },
+  promoEmoji: {
+    fontSize: 16,
+  },
+  promoText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+  promoBold: {
+    color: COLORS.primary,
+    fontWeight: '700',
   },
   buttonGroup: {
     width: '100%',
@@ -251,7 +370,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   appleButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.onPrimaryText,
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: -0.3,
@@ -275,13 +394,13 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   googleButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
     height: 54,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E8EB',
+    borderColor: COLORS.border,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -289,7 +408,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   googleButtonText: {
-    color: '#191F28',
+    color: COLORS.textPrimary,
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: -0.3,
@@ -297,23 +416,13 @@ const styles = StyleSheet.create({
   legalNotice: {
     fontSize: 12,
     lineHeight: 18,
-    color: '#8B95A1',
+    color: COLORS.textMuted,
     textAlign: 'center',
     marginTop: 8,
     paddingHorizontal: 16,
   },
   legalLink: {
-    color: '#4E5968',
+    color: COLORS.textSecondary,
     textDecorationLine: 'underline',
-  },
-  guestButton: {
-    paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  guestButtonText: {
-    color: '#6B7280',
-    fontSize: 14,
-    fontWeight: '600',
   },
 });

@@ -1,4 +1,5 @@
-export type ShiftCode = 'D' | 'E' | 'N' | 'O' | 'V';
+export type StandardShiftCode = 'D' | 'E' | 'N' | 'O' | 'V';
+export type ShiftCode = StandardShiftCode | string;
 
 export interface ShiftInfo {
   code: ShiftCode;
@@ -12,12 +13,12 @@ export interface ShiftInfo {
   isOff?: boolean;
 }
 
-export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
+export const SHIFT_TYPES: Record<string, ShiftInfo> = {
   D: {
     code: 'D',
     name: '데이 (Day)',
     shortName: '데이',
-    color: '#4F98CA',
+    color: '#3182F6',
     textColor: '#FFFFFF',
     defaultStartTime: '07:00',
     defaultEndTime: '15:30',
@@ -27,8 +28,8 @@ export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
   E: {
     code: 'E',
     name: '이브닝 (Evening)',
-    shortName: '이브ニング',
-    color: '#E2703A',
+    shortName: '이브닝',
+    color: '#10B981',
     textColor: '#FFFFFF',
     defaultStartTime: '15:00',
     defaultEndTime: '23:00',
@@ -39,7 +40,7 @@ export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
     code: 'N',
     name: '나이트 (Night)',
     shortName: '나이트',
-    color: '#272727',
+    color: '#1E293B',
     textColor: '#FFFFFF',
     defaultStartTime: '22:30',
     defaultEndTime: '07:30',
@@ -50,7 +51,7 @@ export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
     code: 'O',
     name: '오프 (Off)',
     shortName: '오프',
-    color: '#E84A5F',
+    color: '#FF507C',
     textColor: '#FFFFFF',
     description: '휴무',
     isOff: true,
@@ -59,7 +60,7 @@ export const SHIFT_TYPES: Record<ShiftCode, ShiftInfo> = {
     code: 'V',
     name: '휴가 (Vacation)',
     shortName: '휴가',
-    color: '#9B51E0',
+    color: '#8B5CF6',
     textColor: '#FFFFFF',
     description: '연차 / 휴가',
     isOff: true,

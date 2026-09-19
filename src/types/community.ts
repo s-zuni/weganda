@@ -2,6 +2,8 @@ export type PostCategory =
   | '임상/질문'
   | '교대근무 고민'
   | '이직/커리어'
+  | '간호대생 라운지'
+  | '채용/취업 정보'
   | '자유게시판';
 
 export interface ReplyItem {

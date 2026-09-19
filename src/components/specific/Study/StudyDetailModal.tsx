@@ -34,7 +34,7 @@ export const StudyDetailModal: React.FC<StudyDetailModalProps> = ({
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `[우간다 임상 족보] ${currentGuide.title}\nhttps://weganda.app/study/${currentGuide.id}`,
+        message: `[우간다 임상 족보] ${currentGuide.title}\nhttps://weganda.kr/study/${currentGuide.id}`,
       });
     } catch {
       Alert.alert('공유 완료', '프로토콜 링크가 복사되었습니다.');

@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { COLORS } from '../constants/theme';
 
 // 앱 포그라운드 상태에서도 푸시 알림 팝업 및 소리 재생
 Notifications.setNotificationHandler({
@@ -16,6 +17,15 @@ export const localNotificationService = {
   // 알림 권한 확인 및 요청
   async requestPermissions(): Promise<boolean> {
     try {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: '우간다 알림',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: COLORS.primary,
+        });
+      }
+
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       if (existingStatus !== 'granted') {

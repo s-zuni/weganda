@@ -11,6 +11,7 @@ import {
 import { COLORS } from '../../../constants/theme';
 import { FriendDetail } from '../../../mocks/friendsData';
 import { CommentIcon } from '../../common/Icon';
+import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
 
 interface SharedShiftModalProps {
   visible: boolean;
@@ -37,14 +38,9 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
   const displayed = activeTab === 'same_day' ? sameDayFriends : handoverFriends;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          {/* 핸들바 */}
-          <View style={styles.handleBar} />
-
-          {/* 헤더 */}
-          <View style={styles.header}>
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height="85%" maxHeight="90%">
+      {/* 헤더 */}
+      <View style={styles.header}>
             <View>
               <Text style={styles.headerTitle}>오늘 나와 겹치는 근무 동기</Text>
               <Text style={styles.headerSub}>
@@ -149,9 +145,7 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
               )}
             </View>
           </ScrollView>
-        </View>
-      </View>
-    </Modal>
+    </SwipeableBottomSheet>
   );
 };
 

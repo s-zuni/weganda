@@ -1,37 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Modal,
+  TextInput,
+  ScrollView,
+  Platform,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import {
   PlusIcon,
   UsersIcon,
   CalendarIcon,
   LockIcon,
 } from '../../common/Icon';
-import { GroupChat } from '../../../types/friends';
+import { GroupChat, FriendDetail } from '../../../types/friends';
+import { useFriendsStore } from '../../../store/useFriendsStore';
+import { CreateGroupModal } from './CreateGroupModal';
 
 interface GroupsTabProps {
   groupChats: GroupChat[];
-  isPremium: boolean;
+  isPremium?: boolean;
   onOpenGroup: (group: GroupChat) => void;
-  onOpenPaywall: () => void;
+  onOpenPaywall?: () => void;
 }
 
 export const GroupsTab: React.FC<GroupsTabProps> = ({
   groupChats,
-  isPremium,
   onOpenGroup,
-  onOpenPaywall,
 }) => {
+  const theme = useAppTheme();
+  const { friends, createGroupChat } = useFriendsStore();
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+
+  const handleCreateGroup = (name: string, category: string, chosenFriends: typeof friends) => {
+    createGroupChat(name, category, chosenFriends);
+    Alert.alert('개설 완료', `'${name}' 모임 방이 성공적으로 생성되었습니다!`);
+  };
+
   return (
     <View style={styles.groupContainer}>
       <View style={styles.groupNoticeCard}>
-        <Text style={styles.groupNoticeTitle}>구성원 스케줄 한눈에 비교하기</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+          <Text style={styles.groupNoticeTitle}>구성원 스케줄 한눈에 비교하기</Text>
+          {groupChats.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setCreateModalVisible(true)}
+              style={[styles.smallCreateBtn, { backgroundColor: theme.primary }]}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.smallCreateBtnText, { color: theme.onPrimaryText }]}>+ 모임 개설</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         <Text style={styles.groupNoticeSub}>
           단체 톡방을 터치하면 단원들의 이번 달 듀티(D/E/N/O)를 한 표에서 교차 대조할 수 있습니다.
         </Text>
@@ -45,17 +69,12 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
             병동이나 동기 모임을 만들어 여러 명의 스케줄을 한눈에 비교해보세요!
           </Text>
           <TouchableOpacity
-            style={styles.emptyAddBtn}
-            onPress={() =>
-              Alert.alert(
-                '모임 방 만들기',
-                '새로운 동기 모임이나 병동 스케줄 공유방을 개설할 수 있습니다.'
-              )
-            }
+            style={[styles.emptyAddBtn, { backgroundColor: theme.primary }]}
+            onPress={() => setCreateModalVisible(true)}
             activeOpacity={0.85}
           >
-            <PlusIcon size={14} color="#FFFFFF" />
-            <Text style={styles.emptyAddBtnText}>새 모임 만들기</Text>
+            <PlusIcon size={14} color={COLORS.background} />
+            <Text style={[styles.emptyAddBtnText, { color: theme.onPrimaryText }]}>새 모임 만들기</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -99,8 +118,8 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
                   {group.lastMessage}
                 </Text>
                 <View style={styles.matrixBtnBadge}>
-                  <CalendarIcon size={12} color={COLORS.primary} />
-                  <Text style={styles.matrixBtnText}>스케줄 비교 ›</Text>
+                  <CalendarIcon size={12} color={theme.primary} />
+                  <Text style={[styles.matrixBtnText, { color: theme.primary }]}>스케줄 비교 ›</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -108,36 +127,31 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
         </View>
       )}
 
-      {/* AI 모임 날짜 추천 (weganda+ 전용) */}
+      {/* AI 모임 날짜 추천 (전면 무료) */}
       <TouchableOpacity
-        style={[
-          styles.aiRecommendBtn,
-          !isPremium && styles.aiRecommendBtnLocked,
-        ]}
+        style={styles.aiRecommendBtn}
         onPress={() => {
-          if (isPremium) {
-            Alert.alert(
-              'AI 모임 날짜 추천',
-              '최적의 공통 오프 날짜를 분석 중입니다...\n\n추천 날짜: 9월 15일 (목) 휴무'
-            );
-          } else {
-            onOpenPaywall();
-          }
+          Alert.alert(
+            'AI 모임 날짜 추천',
+            '단원들의 듀티를 분석하여 최적의 공통 오프 날짜를 찾았습니다!\n\n✨ 추천 날짜: 9월 14일 (일) 전원 휴무 (Golden Off)'
+          );
         }}
         activeOpacity={0.8}
       >
         <View style={styles.aiRecommendContent}>
-          {!isPremium && <LockIcon size={14} color="#9CA3AF" />}
-          <Text
-            style={[
-              styles.aiRecommendText,
-              !isPremium && styles.aiRecommendTextLocked,
-            ]}
-          >
-            {isPremium ? '✨ AI 모임 날짜 추천하기' : '🔒 AI 모임 날짜 추천 (weganda+)'}
+          <Text style={styles.aiRecommendText}>
+            ✨ AI 모임 날짜 추천하기
           </Text>
         </View>
       </TouchableOpacity>
+
+      {/* ── 단체 모임 개설 모달 ── */}
+      <CreateGroupModal
+        visible={createModalVisible}
+        onClose={() => setCreateModalVisible(false)}
+        friends={friends}
+        onCreateGroup={handleCreateGroup}
+      />
     </View>
   );
 };
@@ -147,7 +161,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   groupNoticeCard: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     borderRadius: 16,
     padding: 14,
     borderLeftWidth: 4,
@@ -169,11 +183,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   groupCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -194,7 +208,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -210,7 +224,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   groupCategoryBadge: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
@@ -233,11 +247,11 @@ const styles = StyleSheet.create({
   unreadBadgeText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   groupDivider: {
     height: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
     marginVertical: 12,
   },
   groupBottomRow: {
@@ -255,7 +269,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: TINT_COLORS.pinkTint,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
@@ -270,10 +284,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 48,
     paddingHorizontal: 24,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.offWhite,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.border,
     borderStyle: 'dashed',
     marginVertical: 14,
   },
@@ -312,10 +326,10 @@ const styles = StyleSheet.create({
   emptyAddBtnText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   aiRecommendBtn: {
-    backgroundColor: '#FF507C',
+    backgroundColor: COLORS.primary,
     borderRadius: 16,
     paddingVertical: 15,
     paddingHorizontal: 20,
@@ -324,7 +338,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   aiRecommendBtnLocked: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: COLORS.divider,
   },
   aiRecommendContent: {
     flexDirection: 'row',
@@ -334,10 +348,21 @@ const styles = StyleSheet.create({
   aiRecommendText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.background,
   },
   aiRecommendTextLocked: {
-    color: '#9CA3AF',
+    color: COLORS.textMuted,
+  },
+  smallCreateBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  smallCreateBtnText: {
+    fontSize: 12,
+    fontWeight: '800',
   },
 });
+
+export default GroupsTab;
 
