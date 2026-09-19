@@ -108,12 +108,12 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
     onSelectDate?.(dateKey);
   };
 
-  const renderCells = () => {
-    const cells = [];
+  const renderCalendarWeeks = () => {
+    const allCells: React.ReactNode[] = [];
 
     // 1일 이전 빈칸 패딩
     for (let i = 0; i < firstDayIndex; i++) {
-      cells.push(<View key={`empty-${i}`} style={styles.dayCell} />);
+      allCells.push(<View key={`empty-start-${i}`} style={styles.dayCell} />);
     }
 
     // 1일 ~ 말일 셀
@@ -129,7 +129,7 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
       // 근무 코드 색상 결정 (D: 파랑, E: 초록, N: 네이비, O: 핑크)
       const codeColor = shiftInfo ? shiftInfo.color : COLORS.textMuted;
 
-      cells.push(
+      allCells.push(
         <TouchableOpacity
           key={dateKey}
           style={styles.dayCell}
@@ -176,7 +176,27 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
       );
     }
 
-    return cells;
+    // 마지막 주 빈칸 패딩 (7의 배수로 맞추기)
+    const remainder = allCells.length % 7;
+    if (remainder > 0) {
+      const emptyCount = 7 - remainder;
+      for (let i = 0; i < emptyCount; i++) {
+        allCells.push(<View key={`empty-end-${i}`} style={styles.dayCell} />);
+      }
+    }
+
+    // 7개씩 행 단위(weekRow)로 묶기
+    const weekRows = [];
+    for (let i = 0; i < allCells.length; i += 7) {
+      const weekCells = allCells.slice(i, i + 7);
+      weekRows.push(
+        <View key={`week-${i / 7}`} style={styles.calendarWeekRow}>
+          {weekCells}
+        </View>
+      );
+    }
+
+    return weekRows;
   };
 
   return (
@@ -229,8 +249,8 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
         ))}
       </View>
 
-      {/* 날짜 그리드 */}
-      <View style={styles.gridContainer}>{renderCells()}</View>
+      {/* 날짜 그리드 (주 단위 행 묶음) */}
+      <View style={styles.gridContainer}>{renderCalendarWeeks()}</View>
     </View>
   );
 };
@@ -286,13 +306,18 @@ const styles = StyleSheet.create({
     color: '#8B95A1',
   },
   gridContainer: {
+    width: '100%',
+  },
+  calendarWeekRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
+    width: '100%',
   },
   dayCell: {
-    width: `${100 / 7}%`,
+    flex: 1,
     minHeight: 52,
     alignItems: 'center',
+    justifyContent: 'flex-start',
     paddingVertical: 3,
   },
   dateNumberBox: {
