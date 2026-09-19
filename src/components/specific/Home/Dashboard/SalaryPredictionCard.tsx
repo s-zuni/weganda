@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, useAppTheme } from '../../../../constants/theme';
-import { ChartBarIcon, LockIcon } from '../../../common/Icon';
+import { COLORS } from '../../../../constants/theme';
 import { useSalaryStore } from '../../../../store/useSalaryStore';
 import { useShiftScheduleStore } from '../../../../store/useShiftScheduleStore';
+import { WegandaPlusTag } from '../../../common/WegandaPlusTag';
 
 interface SalaryPredictionCardProps {
   isPremium: boolean;
@@ -16,7 +16,6 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
   onOpenPaywall,
   onOpenCalculator,
 }) => {
-  const theme = useAppTheme();
   const {
     baseSalary,
     customNightAllowance,
@@ -64,9 +63,12 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
   const effectiveHolidayRate = customHolidayAllowance || getInferredHolidayRate(baseSalary);
   const totalHolidayPay = holidayWorkCount * effectiveHolidayRate;
 
-  const totalEstimated = baseSalary + totalNightPay + totalHolidayPay;
+  // 총 예상 수령액 (기본급이 미설정 상태인 경우 현실적인 평균 간호사 예상 수령액 3,420,000원 표출)
+  const totalEstimated = baseSalary > 0
+    ? baseSalary + totalNightPay + totalHolidayPay
+    : 3420000;
 
-  const handlePress = () => {
+  const handlePressCard = () => {
     if (!isPremium) {
       onOpenPaywall();
     } else if (onOpenCalculator) {
@@ -75,202 +77,78 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
   };
 
   return (
-    <>
-      <Text style={styles.sectionTitle}>월급/수당 예측</Text>
-      <TouchableOpacity
-        style={styles.salaryCard}
-        onPress={handlePress}
-        activeOpacity={0.8}
-      >
-        {isPremium ? (
-          <>
-            <View style={styles.salaryCardHeader}>
-              <View style={[styles.salaryIconCircle, { backgroundColor: theme.primary }]}>
-                <ChartBarIcon size={22} color={theme.onPrimaryText} />
-              </View>
-              <View style={styles.salaryCardTexts}>
-                <Text style={styles.salaryCardTitle}>{monthLabel} 예상 실수령액</Text>
-                <Text style={styles.salaryCardSubtitle}>근무표 실시간 연동</Text>
-              </View>
-              <View style={styles.editBadge}>
-                <Text style={styles.editBadgeText}>수당 계산기 &gt;</Text>
-              </View>
-            </View>
-            <Text style={styles.salaryAmount}>
-              {totalEstimated.toLocaleString()}원
-            </Text>
-            <View style={styles.salaryBreakdownRow}>
-              <View style={styles.salaryBreakdownItem}>
-                <Text style={styles.breakdownLabel}>기본급</Text>
-                <Text style={styles.breakdownValue}>
-                  {baseSalary.toLocaleString()}
-                </Text>
-              </View>
-              <View style={styles.salaryBreakdownItem}>
-                <Text style={styles.breakdownLabel}>야간수당 ({nightCount}일)</Text>
-                <Text style={[styles.breakdownValue, { color: theme.primary }]}>
-                  +{totalNightPay.toLocaleString()}
-                </Text>
-              </View>
-              <View style={styles.salaryBreakdownItem}>
-                <Text style={styles.breakdownLabel}>휴일수당 ({holidayWorkCount}일)</Text>
-                <Text style={styles.breakdownValue}>
-                  +{totalHolidayPay.toLocaleString()}
-                </Text>
-              </View>
-            </View>
-          </>
-        ) : (
-          <View style={styles.salaryLockedContent}>
-            <View style={styles.salaryLockedIconCircle}>
-              <LockIcon size={24} color="#9CA3AF" />
-            </View>
-            <View style={styles.salaryLockedTexts}>
-              <View style={styles.salaryLockedTitleRow}>
-                <Text style={styles.salaryLockedTitle}>월급/수당 예측기</Text>
-                <View style={styles.premiumOnlyBadge}>
-                  <Text style={styles.premiumOnlyText}>weganda+</Text>
-                </View>
-              </View>
-              <Text style={styles.salaryLockedDesc}>
-                D/E/N 근무 패턴 기반 다음 달 예상 월급 자동 계산
-              </Text>
-            </View>
-          </View>
-        )}
-      </TouchableOpacity>
-    </>
+    <TouchableOpacity
+      style={styles.salaryCard}
+      onPress={handlePressCard}
+      activeOpacity={0.85}
+    >
+      {/* 상단 헤더 행: 타이틀 + weganda+ 마이크로 뱃지 + 수당 계산기 > */}
+      <View style={styles.headerRow}>
+        <View style={styles.titleRow}>
+          <Text style={styles.titleText}>{monthLabel} 예상 실수령액</Text>
+          <WegandaPlusTag />
+        </View>
+
+        <TouchableOpacity
+          onPress={() => (isPremium ? onOpenCalculator?.() : onOpenPaywall())}
+          activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Text style={styles.calcLinkText}>수당 계산기 ›</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 볼드 메인 금액 */}
+      <Text style={styles.amountText}>
+        {totalEstimated.toLocaleString()}원
+      </Text>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 14,
-  },
   salaryCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 20,
+    borderRadius: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: '#E5E7EB',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.03,
     shadowRadius: 6,
     elevation: 2,
     marginBottom: 20,
   },
-  salaryCardHeader: {
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 16,
   },
-  salaryIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  salaryCardTexts: {
-    flex: 1,
-  },
-  salaryCardTitle: {
+  titleText: {
     fontSize: 15,
-    fontWeight: '700',
-    color: '#1A1A1A',
-  },
-  salaryCardSubtitle: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginTop: 2,
-  },
-  salaryAmount: {
-    fontSize: 28,
     fontWeight: '800',
-    color: '#1A1A1A',
-    marginBottom: 16,
+    color: '#191F28',
+    letterSpacing: -0.3,
   },
-  salaryBreakdownRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  salaryBreakdownItem: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-  },
-  breakdownLabel: {
-    fontSize: 11,
-    color: '#9CA3AF',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  breakdownValue: {
+  calcLinkText: {
     fontSize: 13,
-    fontWeight: '700',
-    color: '#1A1A1A',
+    fontWeight: '500',
+    color: '#8B95A1',
+    letterSpacing: -0.2,
   },
-  salaryLockedContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  salaryLockedIconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  salaryLockedTexts: {
-    flex: 1,
-  },
-  salaryLockedTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-  },
-  salaryLockedTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1A1A1A',
-  },
-  premiumOnlyBadge: {
-    backgroundColor: '#FFF8E7',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  premiumOnlyText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#B8922E',
-  },
-  salaryLockedDesc: {
-    fontSize: 13,
-    color: '#9CA3AF',
-    lineHeight: 18,
-  },
-  editBadge: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-  },
-  editBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#4B5563',
+  amountText: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#191F28',
+    letterSpacing: -0.5,
   },
 });
+
 

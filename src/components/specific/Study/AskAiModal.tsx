@@ -141,6 +141,26 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
                     <Text style={[styles.bubbleText, isMe ? styles.bubbleTextMe : styles.bubbleTextAi]}>
                       {msg.text}
                     </Text>
+
+                    {/* 🏷️ 공식 임상 지침 출처 (Grounding Badge) */}
+                    {!isMe && msg.sources && msg.sources.length > 0 && (
+                      <View style={styles.sourcesContainer}>
+                        <View style={styles.sourceHeaderRow}>
+                          <Text style={styles.sourceHeaderIcon}>🏷️</Text>
+                          <Text style={styles.sourceHeaderText}>공식 표준 임상 출처 (Grounding)</Text>
+                        </View>
+                        {msg.sources.map((src, sIdx) => (
+                          <View key={sIdx} style={styles.sourceBadge}>
+                            <View style={styles.agencyPill}>
+                              <Text style={styles.agencyPillText}>{src.sourceAgency}</Text>
+                            </View>
+                            <Text style={styles.sourceBadgeTitle} numberOfLines={1}>
+                              {src.title}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
                   </View>
                   <Text style={[styles.timeText, isMe ? { textAlign: 'right' } : { textAlign: 'left' }]}>
                     {msg.time}
@@ -347,6 +367,56 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: COLORS.primary,
+  },
+  sourcesContainer: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    gap: 6,
+  },
+  sourceHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 2,
+  },
+  sourceHeaderIcon: {
+    fontSize: 12,
+  },
+  sourceHeaderText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: -0.2,
+  },
+  sourceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 6,
+  },
+  agencyPill: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  agencyPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#2563EB',
+  },
+  sourceBadgeTitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#334155',
+    flex: 1,
   },
 });
 

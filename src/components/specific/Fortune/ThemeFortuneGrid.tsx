@@ -74,15 +74,15 @@ export const ThemeFortuneGrid: React.FC<ThemeFortuneGridProps> = ({
               activeOpacity={0.8}
             >
               <View style={styles.subCardHeader}>
-                <View style={[styles.iconCircle, { backgroundColor: cat.bgLightColor }]}>
+                <View style={styles.iconCircle}>
                   <MaterialCommunityIcons
                     name={cat.icon as any}
                     size={20}
-                    color={cat.themeColor}
+                    color="#4E5968"
                   />
                 </View>
-                <View style={[styles.subBadge, { backgroundColor: cat.bgLightColor }]}>
-                  <Text style={[styles.subBadgeText, { color: cat.themeColor }]}>
+                <View style={styles.subBadge}>
+                  <Text style={styles.subBadgeText}>
                     {cat.highlightTag}
                   </Text>
                 </View>
@@ -175,25 +175,28 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: '#F8F9FA',
     alignItems: 'center',
     justifyContent: 'center',
   },
   subBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 6,
   },
   subBadgeText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
+    color: '#475569',
   },
   subCardTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#191F28',
     marginBottom: 4,
   },
   subCardDesc: {

@@ -4,7 +4,6 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  Alert,
   TouchableOpacity,
   View,
   Text,
@@ -17,18 +16,15 @@ import { MembershipScreen } from '../MyPage/MembershipScreen';
 import { ShiftCode, SHIFT_TYPES, ShiftInfo } from '../../constants/shiftTypes';
 import { useUserStore } from '../../store/useUserStore';
 import { useShiftScheduleStore } from '../../store/useShiftScheduleStore';
-import { nativeCalendarService } from '../../services/nativeCalendarService';
+import { useFriendsStore } from '../../store/useFriendsStore';
+import { SharedShiftModal } from '../../components/specific/Friends';
 
-// 분리된 서브 모달 및 대시보드 컴포넌트들
+// 대시보드 컴포넌트들
 import {
-  ClinicalAlarmModal,
-  FullScheduleModal,
   AddScheduleModal,
   DailyNoteModal,
   GreetingBanner,
-  ShiftGridRow,
-  WeeklyCalendarStrip,
-  WeekDayItem,
+  HomeMonthlyCalendar,
   ScheduleActionButtons,
   DailyNoteSection,
   SalaryPredictionCard,
@@ -40,53 +36,46 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const userName = useUserStore((s) => s.name);
   const userNickname = useUserStore((s) => s.nickname);
   const { isPremium } = useUserStore();
-  const displayName = userNickname || userName || '회원';
-  const { schedules, customCodes, fetchMonthlySchedule, isLoading, error } = useShiftScheduleStore();
+  const displayName = userNickname || userName || '김간호사';
 
-  const [tomorrowCalendarEvent, setTomorrowCalendarEvent] = useState<string>('');
-  const [isSyncingCalendar, setIsSyncingCalendar] = useState(false);
+  const {
+    currentDate,
+    schedules,
+    customCodes,
+    fetchMonthlySchedule,
+    changeMonth,
+    isLoading,
+    error,
+  } = useShiftScheduleStore();
 
-  useEffect(() => {
-    if (userId) {
-      fetchMonthlySchedule(userId);
-    }
-    // 스마트폰 기본 캘린더의 내일 개인 일정 읽어오기
-    nativeCalendarService.getTomorrowNativeEvents().then((res) => {
-      if (res.hasEvents) {
-        setTomorrowCalendarEvent(res.summaryText);
-      }
-    });
-  }, [userId, fetchMonthlySchedule]);
+  const { friends, fetchFriends } = useFriendsStore();
 
-  const handleQuickSyncCalendar = async () => {
-    setIsSyncingCalendar(true);
-    const res = await nativeCalendarService.syncDutyScheduleToNativeCalendar(schedules);
-    setIsSyncingCalendar(false);
-    Alert.alert(res.success ? '캘린더 동기화 완료 🗓️' : '동기화 알림', res.message);
-  };
-
-  // 4대 디테일 메뉴 모달 상태
-  const [alarmModalVisible, setAlarmModalVisible] = useState(false);
-  const [fullScheduleModalVisible, setFullScheduleModalVisible] = useState(false);
+  // 모달 제어 상태
   const [addScheduleModalVisible, setAddScheduleModalVisible] = useState(false);
   const [dailyNoteModalVisible, setDailyNoteModalVisible] = useState(false);
   const [salaryCalculatorModalVisible, setSalaryCalculatorModalVisible] = useState(false);
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
+  const [sharedShiftModalVisible, setSharedShiftModalVisible] = useState(false);
 
-  // 오늘 / 내일 동적 날짜 계산
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
+  useEffect(() => {
+    if (userId) {
+      fetchMonthlySchedule(userId);
+      fetchFriends(userId);
+    }
+  }, [userId, fetchMonthlySchedule, fetchFriends]);
 
-  const formatDateKey = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
-  const todayKey = formatDateKey(today);
-  const tomorrowKey = formatDateKey(tomorrow);
+  // 오늘 날짜 계산
+  const today = useMemo(() => new Date(), []);
+  const todayKey = useMemo(
+    () =>
+      `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(
+        today.getDate()
+      ).padStart(2, '0')}`,
+    [today]
+  );
 
   const todayShift = schedules[todayKey] || null;
-  const tomorrowShift = schedules[tomorrowKey] || null;
 
   const getShiftInfo = (code: string | null): ShiftInfo | null => {
     if (!code) return null;
@@ -105,36 +94,22 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   };
 
   const todayShiftInfo = getShiftInfo(todayShift);
-  const tomorrowShiftInfo = getShiftInfo(tomorrowShift);
 
-  // 오늘 기준 이전 30일 ~ 이후 30일 스케줄 타임라인 데이터 (총 61일)
-  const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-  const timelineDaysOffset = 30;
-  const weekData = useMemo(() => {
-    const list: WeekDayItem[] = [];
-    for (let offset = -timelineDaysOffset; offset <= timelineDaysOffset; offset++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + offset);
-      const key = formatDateKey(d);
-      const dayName = weekDays[d.getDay()];
-      const shiftCode = schedules[key] || null;
-      const shiftInfo = getShiftInfo(shiftCode);
-      list.push({
-        day: dayName,
-        date: d.getDate(),
-        month: d.getMonth() + 1,
-        dateKey: key,
-        shift: shiftCode,
-        shiftInfo: shiftInfo,
-        isToday: key === todayKey,
-      });
+  const handleMonthChange = (offset: number) => {
+    changeMonth(offset, userId || undefined);
+  };
+
+  const handleOpenFriendsCalendar = () => {
+    if (friends.length > 0) {
+      setSharedShiftModalVisible(true);
+    } else {
+      navigation?.navigate('FriendsTab');
     }
-    return list;
-  }, [schedules, customCodes, todayKey]);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <AppHeader />
 
       <ScrollView
@@ -161,42 +136,33 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
           </View>
         )}
 
-        {/* 인사 배너 */}
+        {/* 1. 상단 인사 배너 (시안 100% 일치) */}
         <GreetingBanner
           displayName={displayName}
           todayShift={todayShift}
           todayShiftInfo={todayShiftInfo}
         />
 
-        {/* 오늘 / 내일 근무 카드 2열 그리드 */}
-        <ShiftGridRow
-          today={today}
-          tomorrow={tomorrow}
-          todayShift={todayShift}
-          tomorrowShift={tomorrowShift}
-          todayShiftInfo={todayShiftInfo}
-          tomorrowShiftInfo={tomorrowShiftInfo}
-          tomorrowCalendarEvent={tomorrowCalendarEvent}
-          onOpenAlarmModal={() => setAlarmModalVisible(true)}
-          onQuickSyncCalendar={handleQuickSyncCalendar}
-          onNavigateFortune={() => navigation?.navigate('FortuneTab')}
+        {/* 2. 월간 캘린더 (복잡한 그리드 대체, 시안 100% 일치) */}
+        <HomeMonthlyCalendar
+          currentDate={currentDate}
+          schedules={schedules}
+          customCodes={customCodes}
+          onMonthChange={handleMonthChange}
         />
 
-        {/* 주간 캘린더 스트립 카드 */}
-        <WeeklyCalendarStrip weekData={weekData} />
-
-        {/* 스케줄 CTA Pill 버튼 2개 */}
+        {/* 3. 2대 액션 버튼: 친구 캘린더 보기 & 근무표 직접 등록 */}
         <ScheduleActionButtons
-          onOpenFullSchedule={() => setFullScheduleModalVisible(true)}
+          onOpenFriendsCalendar={handleOpenFriendsCalendar}
           onOpenAddSchedule={() => setAddScheduleModalVisible(true)}
         />
 
-        {/* 데일리 노트 */}
+        {/* 4. 오늘의 인수인계 메모 (단일 가로형 카드) */}
         <DailyNoteSection
           onOpenDailyNoteModal={() => setDailyNoteModalVisible(true)}
         />
 
-        {/* 월급/수당 예측 (weganda+ 프리미엄) */}
+        {/* 5. 9월 예상 실수령액 (weganda+ 마이크로 뱃지 포함) */}
         <SalaryPredictionCard
           isPremium={isPremium}
           onOpenPaywall={() => setPaywallVisible(true)}
@@ -204,18 +170,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
         />
       </ScrollView>
 
-      {/* 4대 디테일 메뉴 모달들 */}
-      <ClinicalAlarmModal
-        visible={alarmModalVisible}
-        onClose={() => setAlarmModalVisible(false)}
-      />
-
-      <FullScheduleModal
-        visible={fullScheduleModalVisible}
-        onClose={() => setFullScheduleModalVisible(false)}
-        onOpenAddSchedule={() => setAddScheduleModalVisible(true)}
-      />
-
+      {/* 모달 관리 */}
       <AddScheduleModal
         visible={addScheduleModalVisible}
         onClose={() => setAddScheduleModalVisible(false)}
@@ -229,6 +184,16 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
       <SalaryCalculatorModal
         visible={salaryCalculatorModalVisible}
         onClose={() => setSalaryCalculatorModalVisible(false)}
+      />
+
+      <SharedShiftModal
+        visible={sharedShiftModalVisible}
+        friends={friends}
+        onClose={() => setSharedShiftModalVisible(false)}
+        onOpenChat={() => {
+          setSharedShiftModalVisible(false);
+          navigation?.navigate('FriendsTab');
+        }}
       />
 
       <PaywallBottomSheet
@@ -245,6 +210,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
         featureTitle="월급/수당 예측기"
         featureDescription="D/E/N 근무 패턴 기반으로 다음 달 예상 월급을 자동 계산"
       />
+
       <MembershipScreen
         visible={membershipVisible}
         onClose={() => setMembershipVisible(false)}

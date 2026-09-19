@@ -13,3 +13,5 @@ export * from './SwipeableBottomSheet';
 export * from './ErrorBoundary';
 export * from './SplashScreenView';
 export * from './DocumentPickerActionSheet';
+export * from './VerifiedNurseBadge';
+export * from './WegandaPlusTag';

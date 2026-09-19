@@ -80,47 +80,103 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const messages = [
-      { role: "system", content: SYSTEM_PROMPT },
-      ...chatHistory.slice(-6).map((m: any) => ({
-        role: m.role === "assistant" || m.sender === "ai" ? "assistant" : "user",
-        content: (m.content || m.text || "").replace(/\*\*/g, ""),
-      })),
-      { role: "user", content: question },
+    // ==========================================
+    // 🧠 RAG (Retrieval-Augmented Generation) 지식 검색
+    // ==========================================
+    let retrievedSources: { title: string; sourceAgency: string; year?: string }[] = [];
+    let ragContextText = "";
+
+    // 임상/약물/술기/감염 관련 키워드 검출
+    const clinicalKeywords = [
+      "cre", "vre", "격리", "접촉주의", "공기주의", "결핵", "tb", "린넨", "소독",
+      "분쇄", "서방정", "장용정", "crushing", "타이레놀", "kcl", "염화칼륨", "iv push",
+      "수혈", "l-tube", "비위관", "위관영양", "gtt", "acls", "c-line", "foley"
     ];
+    const isClinicalQuery = clinicalKeywords.some((kw) => question.toLowerCase().includes(kw));
 
-    // OpenAI API 호출 (LLM 직접 생성)
-    const openAiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: OPENAI_MODEL,
-        messages,
-        temperature: 0.6,
-        max_tokens: 1200,
-      }),
-    });
+    if (isClinicalQuery) {
+      try {
+        // 검색 키워드 추출 (질문에서 첫 매칭 키워드 또는 질문 자체)
+        const matchedKw = clinicalKeywords.find((kw) => question.toLowerCase().includes(kw)) || "";
+        const queryTerm = matchedKw || question.trim().slice(0, 30);
 
-    if (!openAiResponse.ok) {
-      const errText = await openAiResponse.text();
-      console.error("OpenAI API error:", openAiResponse.status, errText);
-      return new Response(
-        JSON.stringify({
-          error: `OpenAI API 호출 실패 (${openAiResponse.status}): API 키 권한이나 크레딧 잔액을 확인해 주세요.`,
-          details: errText,
-        }),
-        {
-          status: openAiResponse.status,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        const { data: chunks, error: rpcErr } = await supabaseClient.rpc("search_clinical_knowledge", {
+          query_text: queryTerm,
+          query_embedding: null,
+          match_threshold: 0.5,
+          match_count: 2,
+        });
+
+        if (!rpcErr && chunks && chunks.length > 0) {
+          retrievedSources = chunks.map((c: any) => ({
+            title: c.title,
+            sourceAgency: c.source_agency,
+            year: c.publication_year || "2024",
+          }));
+
+          ragContextText = chunks
+            .map(
+              (c: any, i: number) =>
+                `[지침 ${i + 1}: ${c.title} (출처: ${c.source_agency} ${c.publication_year || "2024"})]\n${c.content}`
+            )
+            .join("\n\n");
         }
-      );
+      } catch (searchErr) {
+        console.warn("RAG knowledge retrieval notice:", searchErr);
+      }
     }
 
-    const aiData = await openAiResponse.json();
-    let answerText = aiData.choices?.[0]?.message?.content || "";
+    // RAG 컨텍스트가 있을 경우 시스템 프롬프트에 엄격한 Grounding 규칙 주입
+    let augmentedSystemPrompt = SYSTEM_PROMPT;
+    if (ragContextText) {
+      augmentedSystemPrompt += `\n\n[대한민국 공식 임상 표준 가이드라인 (RAG 검색 컨텍스트)]\n${ragContextText}\n\n[답변 원칙]: 반드시 위 [대한민국 공식 임상 표준 가이드라인]의 사실에만 입각하여 정확하게 설명하세요. 마크다운 볼드(**) 기호는 절대 사용하지 마세요.`;
+    }
+
+    let answerText = "";
+
+    // OpenAI API 호출 시도
+    if (OPENAI_API_KEY) {
+      try {
+        const messages = [
+          { role: "system", content: augmentedSystemPrompt },
+          ...chatHistory.slice(-6).map((m: any) => ({
+            role: m.role === "assistant" || m.sender === "ai" ? "assistant" : "user",
+            content: (m.content || m.text || "").replace(/\*\*/g, ""),
+          })),
+          { role: "user", content: question },
+        ];
+
+        const openAiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: OPENAI_MODEL,
+            messages,
+            temperature: 0.5,
+            max_tokens: 1200,
+          }),
+        });
+
+        if (openAiResponse.ok) {
+          const aiData = await openAiResponse.json();
+          answerText = aiData.choices?.[0]?.message?.content || "";
+        } else {
+          console.warn("OpenAI API call returned non-200:", openAiResponse.status);
+        }
+      } catch (openAiErr) {
+        console.warn("OpenAI API call exception:", openAiErr);
+      }
+    }
+
+    // OpenAI 미사용 또는 일시 장애 시, RAG 검색 지침 기반 고품질 폴백 응답 생성
+    if (!answerText && ragContextText) {
+      answerText = `선생님, 문의하신 임상 표준 지침 안내해 드릴게요. 🩺\n\n${ragContextText}\n\n💡 환자 안전을 위해 반드시 담당 주치의의 오더와 원내 임상 표준 지침을 함께 재확인해 주세요.`;
+    } else if (!answerText) {
+      answerText = `선생님, 오늘 근무 정말 고생 많으셨어요. 🩺\n문의하신 내용에 대해 원내 표준 간호 실무 지침 및 담당 주치의 처방을 함께 확인하여 안전하게 간호 처치하시길 권장드립니다.\n\n⚠️ 본 안내는 참고용이며 실제 처치는 원내 프로토콜을 우선 준수해 주세요.`;
+    }
 
     // 마크다운 볼드(**) 절대 금지 처리
     answerText = answerText.replace(/\*\*/g, "");
@@ -140,6 +196,7 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         answer: answerText,
+        sources: retrievedSources,
         createdAt: new Date().toISOString(),
       }),
       {

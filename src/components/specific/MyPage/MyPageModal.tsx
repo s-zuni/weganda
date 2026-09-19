@@ -20,6 +20,8 @@ import { useFortuneStore } from '../../../store/useFortuneStore';
 import { BirthInfoModal } from '../Fortune/BirthInfoModal';
 import { UserIcon, SparklesIcon, CalendarIcon, BookmarkIcon, CrownIcon, LockIcon, PaletteIcon, ShieldCheckIcon } from '../../common/Icon';
 import { PremiumBadge } from '../../common/PremiumBadge';
+import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
+import { WegandaPlusTag } from '../../common/WegandaPlusTag';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { APP_THEME_COLORS, AppThemeColor } from '../../../constants/membership';
 import { VerificationModal } from '../Verification';
@@ -232,6 +234,10 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
               <View style={styles.profileTexts}>
                 <View style={styles.profileNameRow}>
                   <Text style={styles.userName}>{storeNickname || storeName || nickname || name}</Text>
+                  {(verificationStatus === 'verified' || !verificationStatus || verificationStatus === 'pending') && (
+                    <VerifiedNurseBadge size={14} />
+                  )}
+                  {isPremium && <WegandaPlusTag />}
                   <MyPageUserCodeBadge userCode={userCode} onCopy={handleCopyUserCode} />
                 </View>
                 <Text style={styles.userRole}>

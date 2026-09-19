@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우간다 - 사주 운세 정밀 분석 결과</title>
+  <!-- Pretendard & Inter Web Fonts -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#FF507C',
+            brandLight: '#FFF1F4',
+            brandBorder: '#FFE4EA',
+            sajuGold: '#D4A853',
+            woodGreen: '#10B981',
+            fireRed: '#EF4444',
+            earthYellow: '#F59E0B',
+            metalGray: '#6B7280',
+            waterBlue: '#3B82F6',
+            bgGray: '#F8F9FA',
+            borderGray: '#E5E7EB',
+            textPrimary: '#1A1A1A',
+            textSecondary: '#6B7280',
+            textMuted: '#9CA3AF',
+          },
+          fontFamily: {
+            sans: ['Pretendard', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 2px 10px rgba(0, 0, 0, 0.04)',
+            card: '0 4px 16px rgba(0, 0, 0, 0.05)',
+            btn: '0 4px 12px rgba(255, 80, 124, 0.25)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #F3F4F6;
+      margin: 0;
+      padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mobile-frame {
+      width: 390px;
+      min-height: 844px;
+      background-color: #FFFFFF;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body>
+  <div class="mobile-frame" id="fortune-analysis-screen">
+    
+    <!-- 1. 시스템 상태바 -->
+    <div class="w-full px-7 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-textPrimary bg-white">
+      <span>09:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z"/></svg>
+        <div class="w-5 h-2.5 border border-textPrimary rounded-sm p-0.5 flex items-center">
+          <div class="w-full h-full bg-textPrimary rounded-2xs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 네비게이션 헤더 -->
+    <header class="w-full px-5 py-3.5 flex justify-between items-center bg-white sticky top-0 z-30 border-b border-borderGray/40">
+      <button class="text-sm font-bold text-textPrimary flex items-center gap-0.5">
+        ‹ 뒤로
+      </button>
+      <h1 class="text-sm font-extrabold text-textPrimary truncate max-w-[200px]">
+        간호 & 병동 적합도 심층 판정
+      </h1>
+      <button class="text-textPrimary hover:text-brand">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+      </button>
+    </header>
+
+    <!-- 3. 메인 콘텐츠 -->
+    <main class="flex-1 px-5 pb-12 overflow-y-auto no-scrollbar space-y-4 pt-3">
+      
+      <!-- 상단 50년 명인 인증 배너 -->
+      <section class="bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 border border-amber-200/70 rounded-2xl p-4 shadow-soft">
+        <div class="flex justify-between items-center mb-2">
+          <span class="bg-amber-100 text-amber-900 border border-amber-300 text-3xs font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
+            🏅 50년 명인 정밀 사주 감정서
+          </span>
+          <span class="text-3xs text-amber-800 font-semibold">심층 분석 1,600자 수록</span>
+        </div>
+        <h2 class="text-lg font-black text-textPrimary mt-1">
+          간호 & 병동 적합도 심층 판정
+        </h2>
+        <p class="text-xs font-bold text-amber-900 mt-2 p-2.5 bg-white/80 rounded-xl leading-relaxed border border-amber-200/50">
+          "불의 기운(火)이 강하여 응급실(ER)과 중환자실(ICU)의 긴박한 중재에서 탁월한 기량을 발휘할 천부적인 간호 사주입니다."
+        </p>
+      </section>
+
+      <!-- 사주 원국표 (8글자 사주 기둥) -->
+      <section class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-sm font-extrabold text-textPrimary">사주 원국표 (四柱)</h3>
+          <span class="text-2xs text-brand font-bold">丙子(병자) 일주</span>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2 text-center">
+          <!-- 시주 -->
+          <div class="bg-bgGray rounded-xl p-2 border border-borderGray/70">
+            <span class="text-3xs font-bold text-textMuted block">시주</span>
+            <div class="w-8 h-8 rounded-full bg-waterBlue text-white font-black text-sm flex items-center justify-center mx-auto my-1">
+              壬
+            </div>
+            <span class="text-xs font-bold text-textPrimary block">임수 (수)</span>
+            <div class="w-8 h-8 rounded-full bg-earthYellow text-white font-black text-sm flex items-center justify-center mx-auto my-1">
+              辰
+            </div>
+            <span class="text-xs font-bold text-textPrimary block">진토 (토)</span>
+          </div>
+
+          <!-- 일주 (나) -->
+          <div class="bg-brandLight rounded-xl p-2 border-2 border-brand">
+            <span class="text-3xs font-black text-brand block">일주 (나)</span>
+            <div class="w-8 h-8 rounded-full bg-fireRed text-white font-black text-sm flex items-center justify-center mx-auto my-1 shadow-sm">
+              丙
+            </div>
+            <span class="text-xs font-black text-brand block">병화 (화)</span>
+            <div class="w-8 h-8 rounded-full bg-waterBlue text-white font-black text-sm flex items-center justify-center mx-auto my-1">
+              子
+            </div>
+            <span class="text-xs font-bold text-textPrimary block">자수 (수)</span>
+          </div>
+
+          <!-- 월주 -->
+          <div class="bg-bgGray rounded-xl p-2 border border-borderGray/70">
+            <span class="text-3xs font-bold text-textMuted block">월주</span>
+            <div class="w-8 h-8 rounded-full bg-fireRed text-white font-black text-sm flex items-center justify-center mx-auto my-1">
+              丙
+            </div>
+            <span class="text-xs font-bold text-textPrimary block">병화 (화)</span>
+            <div class="w-8 h-8 rounded-full bg-metalGray text-white font-black text-sm flex items-center justify-center mx-auto my-1">
+              申
+            </div>
+            <span class="text-xs font-bold text-textPrimary block">신금 (금)</span>
+          </div>
+
+          <!-- 년주 -->
+          <div class="bg-bgGray rounded-xl p-2 border border-borderGray/70">
+            <span class="text-3xs font-bold text-textMuted block">년주</span>
+            <div class="w-8 h-8 rounded-full bg-fireRed text-white font-black text-sm flex items-center justify-center mx-auto my-1">
+              丙
+            </div>
+            <span class="text-xs font-bold text-textPrimary block">병화 (화)</span>
+            <div class="w-8 h-8 rounded-full bg-waterBlue text-white font-black text-sm flex items-center justify-center mx-auto my-1">
+              子
+            </div>
+            <span class="text-xs font-bold text-textPrimary block">자수 (수)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 오행 밸런스 분석 바 -->
+      <section class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft">
+        <h3 class="text-sm font-extrabold text-textPrimary mb-2.5">오행 에너지 밸런스</h3>
+        <div class="space-y-2 text-xs">
+          <!-- 화(火) -->
+          <div>
+            <div class="flex justify-between font-semibold mb-1">
+              <span class="text-fireRed">화 (火) - 행동력/순발력</span>
+              <span class="font-bold">45% (매우 강함)</span>
+            </div>
+            <div class="w-full h-2 bg-bgGray rounded-full overflow-hidden">
+              <div class="h-full bg-fireRed rounded-full" style="width: 45%"></div>
+            </div>
+          </div>
+          <!-- 수(水) -->
+          <div>
+            <div class="flex justify-between font-semibold mb-1">
+              <span class="text-waterBlue">수 (水) - 유연성/침착함</span>
+              <span class="font-bold">25% (균형)</span>
+            </div>
+            <div class="w-full h-2 bg-bgGray rounded-full overflow-hidden">
+              <div class="h-full bg-waterBlue rounded-full" style="width: 25%"></div>
+            </div>
+          </div>
+          <!-- 토(土) -->
+          <div>
+            <div class="flex justify-between font-semibold mb-1">
+              <span class="text-earthYellow">토 (土) - 포용력/안정감</span>
+              <span class="font-bold">15% (보통)</span>
+            </div>
+            <div class="w-full h-2 bg-bgGray rounded-full overflow-hidden">
+              <div class="h-full bg-earthYellow rounded-full" style="width: 15%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4단계 심층 분석 리포트 -->
+      <section class="bg-white border border-borderGray rounded-2xl p-4 shadow-soft space-y-3">
+        <h3 class="text-sm font-black text-textPrimary">임상 심층 판정 리포트</h3>
+
+        <!-- 항목 1: 최적 부서 추천 -->
+        <div class="border-l-3 border-brand pl-3 py-0.5">
+          <h4 class="text-xs font-bold text-brand">1. 천직 부서 추천</h4>
+          <p class="text-xs font-bold text-textPrimary mt-0.5">응급중환자실(EICU) & 권역외상센터 (적합도 98%)</p>
+          <p class="text-xs text-textSecondary mt-1 leading-relaxed">
+            화(火)의 결단력과 백호대살의 기운이 결합하여 돌발 어레스트(CPR) 상황에서도 얼어붙지 않고 신속 정확한 약물 투여를 수행합니다.
+          </p>
+        </div>
+
+        <!-- 항목 2: 교대근무 및 체질 -->
+        <div class="border-l-3 border-waterBlue pl-3 py-0.5">
+          <h4 class="text-xs font-bold text-waterBlue">2. 3교대 적응 체질</h4>
+          <p class="text-xs font-bold text-textPrimary mt-0.5">나이트 근무 후 두통 및 수면 관리 필수</p>
+          <p class="text-xs text-textSecondary mt-1 leading-relaxed">
+            지지의 자수(子水)가 화기를 식히는 구조이므로 야간 근무 후 암막 커튼과 마그네슘 섭취를 통한 수면 질 확보가 핵심 처방입니다.
+          </p>
+        </div>
+
+        <!-- 항목 3: 대인관계 및 프리셉터 -->
+        <div class="border-l-3 border-woodGreen pl-3 py-0.5">
+          <h4 class="text-xs font-bold text-woodGreen">3. 동료 및 윗년차 케미</h4>
+          <p class="text-xs font-bold text-textPrimary mt-0.5">금(金) 기운의 꼼꼼한 프리셉터와 환상 시너지</p>
+          <p class="text-xs text-textSecondary mt-1 leading-relaxed">
+            자신의 빠른 손과 동료의 차분한 차팅 검증이 맞물려 인수인계 미스를 원천 차단하는 최상의 듀티 메이트가 됩니다.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+</body>
+</html>
+

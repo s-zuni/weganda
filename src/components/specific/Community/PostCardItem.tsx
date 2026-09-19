@@ -15,6 +15,7 @@ import {
   BookmarkIcon,
   BadgeCheckIcon,
 } from '../../common/Icon';
+import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 import { PostItem } from '../../../types/community';
 
 interface PostCardItemProps {
@@ -39,13 +40,6 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
             <View style={styles.cardCategoryBadge}>
               <Text style={styles.cardCategoryText}>{post.category}</Text>
             </View>
-            {/* 병원 인증 뱃지 */}
-            {post.isVerifiedHospital && !post.isAnonymous && (
-              <View style={styles.verifiedBadge}>
-                <BadgeCheckIcon size={12} color="#0284C7" />
-                <Text style={styles.verifiedBadgeText}>병원인증</Text>
-              </View>
-            )}
           </View>
 
           <Text style={styles.postTimeText}>{post.timeAgo}</Text>
@@ -70,9 +64,17 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
 
         {/* 작성자 & 인터랙션 통계 바 */}
         <View style={styles.postFooter}>
-          <Text style={styles.authorInfoText}>
-            {post.authorName} • {post.authorHospital}
-          </Text>
+          <View style={styles.authorRow}>
+            <Text style={styles.authorInfoText}>
+              {post.authorName}
+            </Text>
+            {post.isVerifiedHospital && !post.isAnonymous && (
+              <VerifiedNurseBadge size={13} />
+            )}
+            <Text style={styles.hospitalText}>
+              {' '}• {post.authorHospital}
+            </Text>
+          </View>
 
           <View style={styles.statsGroup}>
             {/* 추천 (좋아요 토글) */}
@@ -208,7 +210,16 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#F3F4F6',
   },
+  authorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   authorInfoText: {
+    fontSize: 13,
+    color: '#191F28',
+    fontWeight: '700',
+  },
+  hospitalText: {
     fontSize: 13,
     color: COLORS.textMuted,
     fontWeight: '500',
