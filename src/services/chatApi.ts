@@ -30,6 +30,9 @@ export interface GroupChatMessageItem {
   isVerified?: boolean;
 }
 
+const isValidUUID = (id?: string | null): boolean =>
+  !!id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
 export const chatApi = {
   // 1:1 채팅 메시지 기록 조회 (CH1)
   async getChatMessages(
@@ -37,6 +40,10 @@ export const chatApi = {
     friendUserId: string,
     limit: number = 50
   ): Promise<ChatMessageItem[]> {
+    if (!isValidUUID(myUserId) || !isValidUUID(friendUserId)) {
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('chat_messages')
       .select('*')
@@ -73,6 +80,10 @@ export const chatApi = {
 
   // 일반 텍스트 메시지 발송 (CH2)
   async sendTextMessage(senderId: string, receiverId: string, content: string): Promise<string> {
+    if (!isValidUUID(senderId) || !isValidUUID(receiverId)) {
+      return `mock_msg_${Date.now()}`;
+    }
+
     const { data, error } = await supabase
       .from('chat_messages')
       .insert({
@@ -102,6 +113,9 @@ export const chatApi = {
     theirDate: string;
     theirShift: string;
   }): Promise<string> {
+    if (!isValidUUID(params.senderId) || !isValidUUID(params.receiverId)) {
+      return `mock_swap_${Date.now()}`;
+    }
     const messageContent = `[듀티 맞교환 제안]\n내 근무: ${params.myDate}(${params.myShift}) ⇄ 동료 근무: ${params.theirDate}(${params.theirShift})`;
 
     const { data, error } = await supabase

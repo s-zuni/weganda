@@ -13,6 +13,10 @@ import { friendsApi } from '../services/friendsApi';
 import { chatApi } from '../services/chatApi';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { COLORS } from '../constants/theme';
+import { useUserStore } from './useUserStore';
+
+const isValidUUID = (id?: string | null): id is string =>
+  !!id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
 interface FriendsState {
   friends: FriendDetail[];
@@ -88,7 +92,8 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       const serverFriends = await friendsApi.getFriends(userId);
       if (serverFriends && serverFriends.length > 0) {
         const mapped: FriendDetail[] = serverFriends.map((f) => ({
-          id: f.id,
+          id: f.friendUserId || f.id,
+          friendshipId: f.id,
           name: f.name,
           avatarLetter: f.name.charAt(0) || '간',
           avatarBg: COLORS.primary,
@@ -113,6 +118,10 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
   // 특정 친구와의 대화 기록 조회
   fetchChatMessages: async (myUserId: string, friendUserId: string) => {
+    if (!isValidUUID(myUserId) || !isValidUUID(friendUserId)) {
+      return;
+    }
+
     try {
       const messages = await chatApi.getChatMessages(myUserId, friendUserId);
       if (messages) {
@@ -162,7 +171,8 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
     });
 
     try {
-      await friendsApi.toggleFavorite(friendId, nextVal);
+      const targetFriendshipId = friend?.friendshipId || friendId;
+      await friendsApi.toggleFavorite(targetFriendshipId, nextVal);
     } catch (e) {
       console.error('Failed to toggle favorite on backend:', e);
     }
@@ -176,7 +186,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       id: localId,
       senderId: 'me',
       text,
-      timestamp: '방금 전',
+      timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
       isSwapRequest,
       swapDetails,
     };
@@ -188,20 +198,21 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       },
     }));
 
-    if (myUserId) {
+    const senderId = myUserId || useUserStore.getState().id;
+    if (isValidUUID(senderId) && isValidUUID(friendId)) {
       try {
         if (isSwapRequest && swapDetails) {
           await chatApi.sendSwapRequest({
-            senderId: myUserId,
+            senderId,
             receiverId: friendId,
-            senderName: '나 (간호사)',
+            senderName: useUserStore.getState().name || '간호사',
             myDate: swapDetails.myDate || new Date().toISOString().split('T')[0],
             myShift: swapDetails.myShift,
             theirDate: swapDetails.theirDate || new Date().toISOString().split('T')[0],
             theirShift: swapDetails.theirShift || swapDetails.targetShift || 'O',
           });
         } else {
-          await chatApi.sendTextMessage(myUserId, friendId, text);
+          await chatApi.sendTextMessage(senderId, friendId, text);
         }
       } catch (e) {
         console.error('Failed to send message to backend:', e);

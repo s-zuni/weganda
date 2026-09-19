@@ -1,7 +1,8 @@
 import { ShiftCode } from './shift';
 
 export interface FriendDetail {
-  id: string;
+  id: string; // friend's user id (profiles.id)
+  friendshipId?: string; // friendship record id
   name: string;
   avatarLetter: string;
   avatarBg: string;
