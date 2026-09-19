@@ -228,23 +228,6 @@ export default function App() {
       );
     }
 
-    if (currentWebRoute === 'legal') {
-      return (
-        <SafeAreaProvider>
-          <StatusBar style="dark" />
-          <LegalScreen
-            initialTab={legalInitialTab}
-            onNavigateHome={() => {
-              if (typeof window !== 'undefined') {
-                window.history.pushState({}, '', '/');
-              }
-              setCurrentWebRoute('landing');
-            }}
-          />
-        </SafeAreaProvider>
-      );
-    }
-
     if (currentWebRoute === 'landing') {
       return (
         <SafeAreaProvider>

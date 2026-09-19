@@ -59,20 +59,6 @@ export const SajuDetailResultScreen: React.FC = () => {
     currentManseryeokAnalysis;
   const report = currentManseryeokReport;
 
-  // 음양(陰陽) 비율 계산
-  const yangCount = [
-    pillars.year.stemYinYang,
-    pillars.year.branchYinYang,
-    pillars.month.stemYinYang,
-    pillars.month.branchYinYang,
-    pillars.day.stemYinYang,
-    pillars.day.branchYinYang,
-    pillars.hour.stemYinYang,
-    pillars.hour.branchYinYang,
-  ].filter((v) => v === '양').length;
-  const yangRatio = Math.round((yangCount / 8) * 100);
-  const yinRatio = 100 - yangRatio;
-
   const handleShare = async () => {
     try {
       await Share.share({
@@ -138,7 +124,7 @@ export const SajuDetailResultScreen: React.FC = () => {
             accessibilityRole="button"
             accessibilityLabel="다른 주제 둘러보기"
           >
-            <Text style={styles.reselectBtnText}>다른 사주 주제 둘러보기</Text>
+            <Text style={styles.reselectBtnText}>다른 주제 둘러보기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -196,8 +182,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 60,
+    paddingTop: 16,
+    paddingBottom: 50,
   },
   footerActions: {
     gap: 12,

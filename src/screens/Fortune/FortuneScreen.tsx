@@ -22,8 +22,6 @@ import {
   ThemeFortuneGrid,
   LuckyItemsSection,
   AdviceCard,
-  DailyDutyFortuneCard,
-  DailyDutyMateChemistryCard,
 } from '../../components/specific/Fortune';
 
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
@@ -86,23 +84,7 @@ export const FortuneScreen: React.FC = () => {
           onPress={() => setBirthModalVisible(true)}
         />
 
-        {/* 1. 오늘의 듀티 운세 & 3대 바이오리듬 카드 (최상단 배치) */}
-        <DailyDutyFortuneCard
-          onPressDetail={() => {
-            setSelectedCategory('nurse');
-            navigation.navigate('SajuCategoryTopics', { categoryId: 'nurse' });
-          }}
-        />
-
-        {/* 2. 오늘의 듀티 메이트 궁합 카드 (최상단 배치) */}
-        <DailyDutyMateChemistryCard
-          onPressFullSaju={() => {
-            setSelectedCategory('chemistry');
-            navigation.navigate('SajuCategoryTopics', { categoryId: 'chemistry' });
-          }}
-        />
-
-        {/* 3. 종합 일일 운세 카드 */}
+        {/* 메인 운세 카드 */}
         <HeroFortuneCard
           formattedToday={formattedToday}
           overallScore={currentFortune?.overallScore ?? 92}
