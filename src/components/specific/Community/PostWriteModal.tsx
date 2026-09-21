@@ -37,7 +37,7 @@ const ALL_CATEGORIES: PostItem['category'][] = [
 const STUDENT_CATEGORIES: PostItem['category'][] = [
   '간호대생 라운지',
   '채용/취업 정보',
-  '자유게시판',
+  '임상/질문',
 ];
 
 export const PostWriteModal: React.FC<PostWriteModalProps> = ({
@@ -49,7 +49,8 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
   const { id: userId, role, verificationRole } = useUserStore();
   const { createPost, updatePost } = useCommunityStore();
 
-  const isStudent = role === 'student' || verificationRole === 'student';
+  const isNurse = role === 'admin' || role === 'nurse' || verificationRole === 'nurse';
+  const isStudent = !isNurse && (role === 'student' || verificationRole === 'student');
   const availableCategories = isStudent ? STUDENT_CATEGORIES : ALL_CATEGORIES;
 
   const [title, setTitle] = useState('');
@@ -97,6 +98,14 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
     }
     if (!content.trim()) {
       Alert.alert('입력 확인', '글 내용을 입력해 주세요.');
+      return;
+    }
+
+    if (isStudent && !STUDENT_CATEGORIES.includes(category)) {
+      Alert.alert(
+        '게시판 권한 안내',
+        '간호학생은 간호대생 라운지, 채용/취업 정보, 임상/질문 게시판에만 글을 작성할 수 있습니다.'
+      );
       return;
     }
 

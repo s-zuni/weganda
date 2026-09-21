@@ -4,3 +4,4 @@ export * from './ReportModal';
 export * from './HotTopicsBanner';
 export * from './CategoryFilterTabs';
 export * from './PostCardItem';
+export * from './CommunityLockGate';

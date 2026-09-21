@@ -57,8 +57,10 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     toggleLikeReply,
     blockUser,
   } = useCommunityStore();
-  const { id: userId, role, verificationStatus } = useUserStore();
-  const isVerified = verificationStatus === 'verified' || role === 'admin' || role === 'nurse';
+  const { id: userId, role, verificationStatus, verificationRole } = useUserStore();
+  const isNurse = role === 'admin' || role === 'nurse' || (verificationStatus === 'verified' && verificationRole === 'nurse');
+  const isStudent = !isNurse && (role === 'student' || verificationRole === 'student');
+  const isVerified = isNurse || (verificationStatus === 'verified' && isStudent);
 
   // 최신 동기화된 post 가져오기
   const currentPost = posts.find((p) => p.id === post?.id) || post;
@@ -214,6 +216,15 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
 
     if (!commentText.trim()) return;
+
+    const STUDENT_ALLOWED_CATEGORIES: string[] = ['간호대생 라운지', '채용/취업 정보', '임상/질문'];
+    if (isStudent && !STUDENT_ALLOWED_CATEGORIES.includes(currentPost.category)) {
+      Alert.alert(
+        '댓글 작성 불가',
+        '간호학생은 간호대생 라운지, 채용/취업 정보, 임상/질문 게시글에만 댓글을 작성할 수 있습니다.'
+      );
+      return;
+    }
 
     if (replyingComment) {
       // 대댓글 등록

@@ -26,6 +26,7 @@ import {
   HotTopicsBanner,
   CategoryFilterTabs,
   PostCardItem,
+  CommunityLockGate,
 } from '../../components/specific/Community';
 
 export const CommunityScreen: React.FC = () => {
@@ -34,6 +35,7 @@ export const CommunityScreen: React.FC = () => {
     role,
     verificationStatus,
     verificationRole,
+    verificationRejectReason,
   } = useUserStore();
   const { posts, blockedUserIds, fetchPosts, toggleLikePost, toggleBookmarkPost, isLoading, error } = useCommunityStore();
 
@@ -50,17 +52,32 @@ export const CommunityScreen: React.FC = () => {
   const [writeModalVisible, setWriteModalVisible] = useState(false);
   const [verificationModalVisible, setVerificationModalVisible] = useState(false);
 
-  // 사용자 권한 계산
+  // 1. 사용자 권한 계산 (간호사는 모든 게시판 이용 가능, 간호학생은 3개 한정)
+  const isNurse =
+    role === 'admin' ||
+    role === 'nurse' ||
+    (verificationStatus === 'verified' && verificationRole === 'nurse');
+
+  const isStudent =
+    !isNurse &&
+    (verificationRole === 'student' || role === 'student');
+
+  // A안: 간호사 또는 인증된 간호학생만 커뮤니티 본문 이용 가능 (미인증 회원은 전면 잠금)
   const isVerified =
-    verificationStatus === 'verified' || role === 'admin' || role === 'nurse';
-  const effectiveRole = role === 'admin' ? 'admin' : (verificationRole || role);
-  const isStudent = effectiveRole === 'student';
+    role === 'admin' ||
+    role === 'nurse' ||
+    (verificationStatus === 'verified' && (verificationRole === 'nurse' || isStudent));
 
-  const NURSE_ONLY_CATEGORIES: PostCategory[] = ['임상/질문', '교대근무 고민', '이직/커리어'];
+  // 간호학생 허용 카테고리 3종 (간호대생 라운지, 채용/취업 정보, 임상/질문)
+  const STUDENT_ALLOWED_CATEGORIES: PostCategory[] = [
+    '간호대생 라운지',
+    '채용/취업 정보',
+    '임상/질문',
+  ];
 
-  // 카테고리 탭 목록 (간호학생은 전문 라운지 우선 및 간호사 전용 제외)
+  // 카테고리 탭 목록 (간호학생은 3개 허용 게시판 + 북마크 / 간호사는 전체 6개 게시판 + 북마크)
   const categories = isStudent
-    ? ['전체', '간호대생 라운지', '채용/취업 정보', '자유게시판', '북마크 보관함']
+    ? ['전체', '간호대생 라운지', '채용/취업 정보', '임상/질문', '북마크 보관함']
     : [
         '전체',
         '간호대생 라운지',
@@ -74,7 +91,7 @@ export const CommunityScreen: React.FC = () => {
 
   // 실시간 인기글 (HOT 토픽) 동적 계산 (간호학생인 경우 간호사 전용 토픽 제외)
   const visiblePostsForTopics = isStudent
-    ? posts.filter((p) => !NURSE_ONLY_CATEGORIES.includes(p.category))
+    ? posts.filter((p) => STUDENT_ALLOWED_CATEGORIES.includes(p.category))
     : posts;
 
   const hotTopics: HotTopic[] = [...visiblePostsForTopics]
@@ -94,8 +111,8 @@ export const CommunityScreen: React.FC = () => {
   const filteredPosts = posts.filter((p) => {
     if (blockedUserIds.includes(p.authorId)) return false;
 
-    // 간호학생은 간호사 전용 글 열람 불가 (학생 전문 커뮤니티 + 채용/자유게시판만 가능)
-    if (isStudent && NURSE_ONLY_CATEGORIES.includes(p.category)) {
+    // 간호학생은 3개 허용 게시판(간호대생 라운지, 채용/취업 정보, 임상/질문)만 열람 가능
+    if (isStudent && !STUDENT_ALLOWED_CATEGORIES.includes(p.category)) {
       return false;
     }
 
@@ -139,6 +156,26 @@ export const CommunityScreen: React.FC = () => {
     setWriteModalVisible(true);
   };
 
+  // ── A안: 미인증 회원은 커뮤니티 전면 잠금 게이트(CommunityLockGate) 렌더링 ──
+  if (!isVerified) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+        <AppHeader />
+        <CommunityLockGate
+          verificationStatus={verificationStatus}
+          rejectReason={verificationRejectReason}
+          onPressVerify={() => setVerificationModalVisible(true)}
+        />
+        <VerificationModal
+          visible={verificationModalVisible}
+          onClose={() => setVerificationModalVisible(false)}
+          onSuccess={() => setVerificationModalVisible(false)}
+        />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
@@ -149,29 +186,6 @@ export const CommunityScreen: React.FC = () => {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* 미인증 사용자 유도 배너 */}
-        {!isVerified && (
-          <TouchableOpacity
-            style={styles.verificationBanner}
-            onPress={() => setVerificationModalVisible(true)}
-            activeOpacity={0.85}
-          >
-            <View style={styles.verificationBannerLeft}>
-              <Text style={styles.verificationBannerIcon}>🔒</Text>
-              <View style={styles.verificationBannerTextBox}>
-                <Text style={styles.verificationBannerTitle}>
-                  간호 전문직 및 간호학생 인증 필요
-                </Text>
-                <Text style={styles.verificationBannerSub}>
-                  서류 인증 후 모든 게시판 글쓰기 및 댓글이 가능합니다.
-                </Text>
-              </View>
-            </View>
-            <View style={styles.verificationBannerBadge}>
-              <Text style={styles.verificationBannerBadgeText}>인증하기 &gt;</Text>
-            </View>
-          </TouchableOpacity>
-        )}
 
         {/* 실시간 인기글 (HOT 토픽) 가로 스크롤 배너 */}
         <HotTopicsBanner
