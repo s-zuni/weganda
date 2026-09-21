@@ -46,6 +46,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
     changeMonth,
     isLoading,
     error,
+    clearError,
   } = useShiftScheduleStore();
 
   const { friends, fetchFriends } = useFriendsStore();
@@ -117,15 +118,28 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* 네트워크/데이터 로딩 에러 알림 배너 */}
+        {/* 네트워크/데이터 로딩 에러 알림 배너 (스케줄 미존재 시 또는 수동 재시도 실패 시 노출, 닫기 가능) */}
         {error && (
-          <TouchableOpacity
-            style={styles.errorBanner}
-            onPress={() => userId && fetchMonthlySchedule(userId)}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
-          </TouchableOpacity>
+          <View style={styles.errorBannerContainer}>
+            <TouchableOpacity
+              style={styles.errorBanner}
+              onPress={() => userId && fetchMonthlySchedule(userId, undefined, true)}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="근무표 다시 불러오기"
+            >
+              <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.errorCloseBtn}
+              onPress={clearError}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              accessibilityRole="button"
+              accessibilityLabel="오류 알림 닫기"
+            >
+              <Text style={styles.errorCloseText}>✕</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         {/* 최초 근무표 로딩 인디케이터 */}
@@ -231,20 +245,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 90,
   },
-  errorBanner: {
+  errorBannerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: TINT_COLORS.redTint,
     borderColor: TINT_COLORS.redTintBorder,
     borderWidth: 1,
     borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
     marginBottom: 12,
-    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  errorBanner: {
+    flex: 1,
+    paddingVertical: 10,
+    justifyContent: 'center',
   },
   errorBannerText: {
     color: TINT_COLORS.statusRejectedText,
     fontSize: 13,
     fontWeight: '600',
+  },
+  errorCloseBtn: {
+    padding: 6,
+    marginLeft: 6,
+  },
+  errorCloseText: {
+    color: TINT_COLORS.statusRejectedText,
+    fontSize: 14,
+    fontWeight: '700',
   },
   loadingBanner: {
     flexDirection: 'row',

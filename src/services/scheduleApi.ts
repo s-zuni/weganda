@@ -55,7 +55,8 @@ export const scheduleApi = {
         .order('date', { ascending: true });
 
       if (error) {
-        throw error;
+        console.warn('Notice fetching monthly schedules from Supabase:', error.message || error);
+        return [];
       }
 
       return (data || []).map((row) => ({

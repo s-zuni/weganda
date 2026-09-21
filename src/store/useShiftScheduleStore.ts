@@ -54,8 +54,8 @@ interface ShiftScheduleState {
   isLoading: boolean;
   error: string | null;
 
-  // Actions
-  fetchMonthlySchedule: (userId?: string, yearMonth?: string) => Promise<void>;
+  clearError: () => void;
+  fetchMonthlySchedule: (userId?: string, yearMonth?: string, isManualRetry?: boolean) => Promise<void>;
   setShiftForDate: (dateStr: string, code: string, userId?: string) => Promise<void>;
   changeMonth: (offset: number, userId?: string) => void;
   setCurrentDate: (date: Date) => void;
@@ -77,8 +77,10 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
       isLoading: false,
       error: null,
 
+  clearError: () => set({ error: null }),
+
   // 특정 월의 스케줄 DB에서 불러오기
-  fetchMonthlySchedule: async (userId?: string, yearMonth?: string) => {
+  fetchMonthlySchedule: async (userId?: string, yearMonth?: string, isManualRetry = false) => {
     // userId가 없으면(게스트 또는 미로그인) 쿼리를 실행하지 않고 조기 리턴하여 개발자/타인 데이터 오염 방지
     if (!userId) {
       return;
@@ -97,7 +99,10 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
         items.forEach((item) => {
           scheduleMap[item.date] = item.shiftCode;
         });
-        set({ schedules: scheduleMap });
+        set({ schedules: scheduleMap, error: null });
+      } else {
+        // 원격 DB에 해당 월의 데이터가 없더라도 로컬/기본 스케줄이 정상 유지되므로 에러 없음
+        set({ error: null });
       }
 
       // 커스텀 근무 코드도 백엔드에서 동기화
@@ -121,7 +126,14 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
       }
     } catch (e: any) {
       console.warn('Notice in fetchMonthlySchedule:', e?.message || e);
-      set({ error: '근무표를 불러오지 못했습니다. 네트워크 상태를 확인해주세요.' });
+      // 로컬 스케줄 데이터가 이미 존재한다면 백그라운드 자동 동기화 실패 시 에러 배너를 노출하지 않음 (Stale-While-Revalidate)
+      // 화면에 표시할 스케줄이 아예 없거나, 사용자가 수동으로 재시도했을 때만 에러 배너 노출
+      const hasLocalSchedules = Object.keys(get().schedules).length > 0;
+      if (!hasLocalSchedules || isManualRetry) {
+        set({ error: '근무표를 불러오지 못했습니다. 네트워크 상태를 확인해주세요.' });
+      } else {
+        set({ error: null });
+      }
     } finally {
       set({ isLoading: false });
     }
