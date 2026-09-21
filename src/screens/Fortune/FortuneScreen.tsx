@@ -32,8 +32,14 @@ import { COLORS } from '../../constants/theme';
 
 export const FortuneScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { birthInfo, currentFortune, isLoading, fetchAiFortune, setSelectedCategory } =
-    useFortuneStore();
+  const {
+    birthInfo,
+    currentFortune,
+    isLoading,
+    fetchAiFortune,
+    setSelectedCategory,
+    checkDailyRefresh,
+  } = useFortuneStore();
   const { isPremium, monthlyFortuneCount, incrementFortuneCount } = useUserStore();
 
   // 오늘 날짜 동적 계산
@@ -42,10 +48,11 @@ export const FortuneScreen: React.FC = () => {
   const formattedToday = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()} (${daysOfWeek[today.getDay()]})`;
 
   useEffect(() => {
+    checkDailyRefresh();
     if (birthInfo.isRegistered && !currentFortune) {
       fetchAiFortune('daily');
     }
-  }, [birthInfo.isRegistered, currentFortune, fetchAiFortune]);
+  }, [birthInfo.isRegistered, currentFortune, fetchAiFortune, checkDailyRefresh]);
 
   // 모달 상태 관리
   const [birthModalVisible, setBirthModalVisible] = useState(false);
@@ -105,11 +112,13 @@ export const FortuneScreen: React.FC = () => {
           onOpenPaywall={() => setPaywallVisible(true)}
         />
 
-        {/* 오늘의 행운 (컬러, 숫자, 방향) */}
+        {/* 오늘의 행운 (컬러, 숫자, 방향, 임상 아이템) */}
         <LuckyItemsSection
           color={currentFortune?.lucky?.color}
           number={currentFortune?.lucky?.number}
           direction={currentFortune?.lucky?.direction}
+          item={currentFortune?.lucky?.item}
+          birthDate={birthInfo.birthDate}
         />
 
         {/* 오늘의 조언 */}

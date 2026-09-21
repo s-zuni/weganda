@@ -1,0 +1,99 @@
+/**
+ * 매일 자정 갱신되는 일일 행운(Lucky Items) 생성기
+ * 날짜(YYYY-MM-DD)와 생년월일 시드를 결합한 결정론적 알고리즘으로
+ * 하루 동안은 일관되고, 날짜가 바뀌면 매일 새로운 행운 데이터가 산출됩니다.
+ */
+
+export interface DailyLuckyInfo {
+  dateStr: string;
+  colorName: string;
+  colorHex: string;
+  number: number;
+  direction: string;
+  item: string;
+  element: string; // 오행 (목, 화, 토, 금, 수)
+}
+
+const LUCKY_COLORS = [
+  { name: '비바 코랄 핑크', hex: '#FF507C', element: '화(火)' },
+  { name: '스카이 세레니티', hex: '#3B82F6', element: '수(水)' },
+  { name: '포레스트 힐링 그린', hex: '#10B981', element: '목(木)' },
+  { name: '소프트 라벤더', hex: '#8B5CF6', element: '금(金)' },
+  { name: '써니 웜 옐로우', hex: '#F59E0B', element: '토(土)' },
+  { name: '클리어 아쿠아 민트', hex: '#06B6D4', element: '수(水)' },
+  { name: '소프트 로즈 블러쉬', hex: '#EC4899', element: '화(火)' },
+  { name: '피스풀 에메랄드', hex: '#059669', element: '목(木)' },
+  { name: '모던 딥 네이비', hex: '#1E3A8A', element: '수(水)' },
+  { name: '골든 앰버', hex: '#D97706', element: '토(土)' },
+];
+
+const LUCKY_DIRECTIONS = [
+  '간호 스테이션 동쪽 (목(木) 생기)',
+  '병동 남쪽 창가 (화(火) 활력)',
+  '처치실 서쪽 (금(金) 결단)',
+  '약제부 북쪽 (수(水) 평온)',
+  '중앙 라운지 (토(土) 안정)',
+  '스테이션 동남쪽 (목(木) 순풍)',
+  '휴게실 북서쪽 (금(金) 휴식)',
+  '엘리베이터 남서쪽 (토(土) 조화)',
+];
+
+const LUCKY_ITEMS = [
+  '부드러운 3색 볼펜',
+  '압박 스타킹',
+  '보온 텀블러',
+  '포켓 간호 가위',
+  '수액 타이머 & 알람',
+  '핸드크림 & 립밤',
+  '포도당 캔디 & 비타민',
+  '메디컬 테이프 커터',
+  '에어쿠션 간호화',
+  '미니 수첩 & 펜홀더',
+];
+
+/**
+ * 문자열 해시 함수
+ */
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0; // 32bit integer
+  }
+  return Math.abs(hash);
+}
+
+/**
+ * 오늘 날짜 기준 데일리 행운 정보 생성
+ */
+export function getDailyLuckyInfo(targetDate = new Date(), birthDate = ''): DailyLuckyInfo {
+  const yyyy = targetDate.getFullYear();
+  const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(targetDate.getDate()).padStart(2, '0');
+  const dateStr = `${yyyy}-${mm}-${dd}`;
+
+  // 날짜 + 생년월일 시드
+  const seedStr = `${dateStr}_${birthDate || 'weganda_nurse_daily'}`;
+  const baseHash = hashString(seedStr);
+
+  const colorIndex = baseHash % LUCKY_COLORS.length;
+  const directionIndex = (baseHash >> 2) % LUCKY_DIRECTIONS.length;
+  const itemIndex = (baseHash >> 4) % LUCKY_ITEMS.length;
+
+  // 행운의 숫자: 1 ~ 99 중 산출
+  const number = ((baseHash >> 1) % 99) + 1;
+
+  const colorObj = LUCKY_COLORS[colorIndex];
+
+  return {
+    dateStr,
+    colorName: colorObj.name,
+    colorHex: colorObj.hex,
+    number,
+    direction: LUCKY_DIRECTIONS[directionIndex],
+    item: LUCKY_ITEMS[itemIndex],
+    element: colorObj.element,
+  };
+}
+

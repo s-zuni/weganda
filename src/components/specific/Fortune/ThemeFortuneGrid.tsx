@@ -74,15 +74,15 @@ export const ThemeFortuneGrid: React.FC<ThemeFortuneGridProps> = ({
               activeOpacity={0.8}
             >
               <View style={styles.subCardHeader}>
-                <View style={styles.iconCircle}>
+                <View style={[styles.iconCircle, { backgroundColor: cat.bgLightColor }]}>
                   <MaterialCommunityIcons
                     name={cat.icon as any}
                     size={20}
-                    color="#4E5968"
+                    color={cat.themeColor}
                   />
                 </View>
-                <View style={styles.subBadge}>
-                  <Text style={styles.subBadgeText}>
+                <View style={[styles.subBadge, { backgroundColor: cat.bgLightColor }]}>
+                  <Text style={[styles.subBadgeText, { color: cat.themeColor }]}>
                     {cat.highlightTag}
                   </Text>
                 </View>
@@ -154,16 +154,17 @@ const styles = StyleSheet.create({
   subCard: {
     width: '48.5%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 14,
+    borderRadius: 18,
+    padding: 15,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#EBF0F5',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowRadius: 5,
     elevation: 2,
-    minHeight: 115,
+    minHeight: 120,
+    justifyContent: 'space-between',
   },
   fullWidthCard: {
     width: '100%',
@@ -172,36 +173,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   iconCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    backgroundColor: '#F8F9FA',
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   subBadge: {
-    backgroundColor: '#F1F5F9',
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingVertical: 3.5,
+    borderRadius: 8,
   },
   subBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#475569',
+    letterSpacing: -0.2,
   },
   subCardTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#191F28',
+    color: COLORS.textPrimary,
     marginBottom: 4,
+    letterSpacing: -0.3,
   },
   subCardDesc: {
-    fontSize: 13,
-    color: COLORS.textMuted,
-    lineHeight: 18,
+    fontSize: 12.5,
+    color: COLORS.textSecondary,
+    lineHeight: 17.5,
+    letterSpacing: -0.2,
   },
 });

@@ -45,30 +45,35 @@ export interface FortuneGenerateParams {
   };
 }
 
-// 오프라인 또는 일시적 오류 시 기본 제공 운세 폴백
-const DEFAULT_FORTUNE_FALLBACK: FortuneResult = {
-  title: '오늘의 간호 운세',
-  fortuneText: '동료와의 호흡이 편안하고 라운딩이 순조로운 날입니다. 침착한 처치로 환자들에게 신뢰를 얻겠어요.',
-  overallScore: 92,
-  scores: {
-    colleague: 90,
-    career: 93,
-    rest: 94,
-  },
-  biorhythm: {
-    injectionScore: 95,
-    communicationScore: 90,
-    mentalScore: 92,
-  },
-  lucky: {
-    item: '3색 볼펜',
-    color: '비바 코랄 핑크 (#FF507C)',
-    number: 7,
-    direction: '스테이션 동쪽',
-  },
-  advice: '스스로에게 따뜻한 칭찬 한마디를 건네보세요. 오늘도 수고 많으셨습니다.',
-  cached: true,
-};
+import { getDailyLuckyInfo } from '../utils/dailyFortuneGenerator';
+
+// 오프라인 또는 일시적 오류 시 기본 제공 운세 폴백 (매일 날짜 기반 자동 갱신)
+function getDefaultFortuneFallback(params?: FortuneGenerateParams): FortuneResult {
+  const dailyLucky = getDailyLuckyInfo(new Date(), params?.birthInfo?.birthDate);
+  return {
+    title: '오늘의 간호 운세',
+    fortuneText: '동료와의 호흡이 편안하고 라운딩이 순조로운 날입니다. 침착한 처치로 환자들에게 신뢰를 얻겠어요.',
+    overallScore: 92,
+    scores: {
+      colleague: 90,
+      career: 93,
+      rest: 94,
+    },
+    biorhythm: {
+      injectionScore: 95,
+      communicationScore: 90,
+      mentalScore: 92,
+    },
+    lucky: {
+      item: dailyLucky.item,
+      color: `${dailyLucky.colorName} (${dailyLucky.colorHex})`,
+      number: dailyLucky.number,
+      direction: dailyLucky.direction,
+    },
+    advice: '스스로에게 따뜻한 칭찬 한마디를 건네보세요. 오늘도 수고 많으셨습니다.',
+    cached: true,
+  };
+}
 
 const DIRECT_OPENAI_KEY =
   process.env.EXPO_PUBLIC_OPENAI_API_KEY ||
@@ -190,10 +195,10 @@ export const fortuneApi = {
         return directResult;
       }
 
-      return DEFAULT_FORTUNE_FALLBACK;
+      return getDefaultFortuneFallback(params);
     } catch (e) {
-      console.warn('Notice: using DEFAULT_FORTUNE_FALLBACK due to network or server state:', e);
-      return DEFAULT_FORTUNE_FALLBACK;
+      console.warn('Notice: using getDefaultFortuneFallback due to network or server state:', e);
+      return getDefaultFortuneFallback(params);
     }
   },
 };

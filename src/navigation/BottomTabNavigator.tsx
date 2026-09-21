@@ -65,6 +65,12 @@ export const BottomTabNavigator: React.FC = () => {
       <Tab.Navigator
       initialRouteName="HomeTab"
       backBehavior="initialRoute"
+      screenListeners={{
+        tabPress: () => {
+          closeMyPage();
+          closeNotifications();
+        },
+      }}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.primary,
@@ -151,9 +157,12 @@ export const BottomTabNavigator: React.FC = () => {
       visible={notificationModalVisible}
       onClose={closeNotifications}
     />
+    {/* 마이페이지: 바텀바가 보이도록 임베디드 오버레이 컨테이너로 렌더링 */}
     <MyPageModal
       visible={myPageModalVisible}
       onClose={closeMyPage}
+      isEmbedded={true}
+      bottomOffset={barHeight}
     />
   </View>
 );

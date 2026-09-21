@@ -6,6 +6,8 @@ import { WegandaLogo } from './WegandaLogo';
 import { useHeaderModalStore } from '../../store/useHeaderModalStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
 
+import { useNavigation } from '@react-navigation/native';
+
 interface AppHeaderProps {
   title?: string;
   subtitle?: string;
@@ -26,23 +28,42 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   style,
 }) => {
   const theme = useAppTheme();
+  const navigation = useNavigation<any>();
   const openNotifications = useHeaderModalStore((s) => s.openNotifications);
+  const closeNotifications = useHeaderModalStore((s) => s.closeNotifications);
   const openMyPage = useHeaderModalStore((s) => s.openMyPage);
+  const closeMyPage = useHeaderModalStore((s) => s.closeMyPage);
 
   const { unreadCount } = useNotificationStore();
 
   const handleNotification = onPressNotification || openNotifications;
   const handleProfile = onPressProfile || openMyPage;
 
+  const handlePressLogo = () => {
+    closeNotifications();
+    closeMyPage();
+    try {
+      navigation.navigate('HomeTab');
+    } catch (e) {
+      console.warn('Navigation to HomeTab failed or not supported in current stack:', e);
+    }
+  };
+
   return (
     <View style={[styles.container, style]}>
       <View style={styles.leftContainer}>
         {leftElement || (
           <View>
-            <View style={styles.brandRow}>
+            <TouchableOpacity
+              style={styles.brandRow}
+              onPress={handlePressLogo}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="홈 근무표 화면으로 이동"
+            >
               <WegandaLogo size={26} variant="full" primaryColor={theme.primary} />
               <Text style={[styles.brandTitle, { color: theme.primary }]}>{title}</Text>
-            </View>
+            </TouchableOpacity>
             {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
           </View>
         )}

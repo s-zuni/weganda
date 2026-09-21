@@ -24,10 +24,17 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   const {
     notifications,
     unreadCount,
+    loadNotifications,
     markAsRead,
     markAllAsRead,
     deleteNotification,
   } = useNotificationStore();
+
+  React.useEffect(() => {
+    if (visible) {
+      loadNotifications();
+    }
+  }, [visible, loadNotifications]);
 
   const getTypeBadge = (type: string) => {
     switch (type) {

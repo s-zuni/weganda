@@ -38,9 +38,16 @@ import { InquiryCategory, BUSINESS_INFO } from '../../../types/support';
 interface MyPageModalProps {
   visible: boolean;
   onClose: () => void;
+  isEmbedded?: boolean;
+  bottomOffset?: number;
 }
 
-export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) => {
+export const MyPageModal: React.FC<MyPageModalProps> = ({
+  visible,
+  onClose,
+  isEmbedded = false,
+  bottomOffset = 0,
+}) => {
   const theme = useAppTheme();
   const {
     name: storeName,
@@ -203,22 +210,25 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
     Alert.alert('고유번호 복사', `간호사 고유번호 #${userCode}가 클립보드에 복사되었습니다.\n동료 간호사에게 전달하여 친구를 맺어보세요!`);
   };
 
-  return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        {/* 헤더 */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={[styles.backText, { color: theme.primary }]}>‹ 닫기</Text>
-          </TouchableOpacity>
+  if (isEmbedded && !visible) {
+    return null;
+  }
 
-          <Text style={styles.headerTitle}>마이페이지 & 프로필 설정</Text>
+  const content = (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Text style={[styles.backText, { color: theme.primary }]}>‹ 닫기</Text>
+        </TouchableOpacity>
 
-          <View style={{ width: 40 }} />
-        </View>
+        <Text style={styles.headerTitle}>마이페이지 & 프로필 설정</Text>
+
+        <View style={{ width: 40 }} />
+      </View>
 
         <ScrollView
           style={styles.scroll}
@@ -306,86 +316,137 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
             )}
           </View>
 
-          {/* 간호 전문직 & 간호학생 인증 상태 카드 */}
-          <TouchableOpacity
-            style={[
-              styles.verificationCard,
-              verificationStatus === 'verified' && styles.verificationCardVerified,
-              verificationStatus === 'pending' && styles.verificationCardPending,
-              verificationStatus === 'rejected' && styles.verificationCardRejected,
-            ]}
-            onPress={() => setVerificationModalVisible(true)}
-            activeOpacity={0.85}
-          >
-            <View style={styles.verificationCardLeft}>
-              <Text style={styles.verificationCardIcon}>
-                {verificationStatus === 'verified'
-                  ? '✓'
-                  : verificationStatus === 'pending'
-                  ? '⏳'
-                  : verificationStatus === 'rejected'
-                  ? '✕'
-                  : '🔒'}
-              </Text>
-              <View style={styles.verificationCardTexts}>
-                <View style={styles.verificationTitleRow}>
-                  <Text style={styles.verificationCardTitle}>
-                    {verificationStatus === 'verified'
-                      ? `${verificationRole === 'student' ? '간호대생' : '간호사'} 인증 완료`
-                      : verificationStatus === 'pending'
-                      ? '서류 심사 진행 중'
-                      : verificationStatus === 'rejected'
-                      ? '인증 반려 (사유 확인)'
-                      : '간호사 & 간호대생 서류 인증'}
-                  </Text>
-                  <View
+          {/* 가로 2분할 카드 그리드: 간호사 인증 상태 & weganda+ 멤버십 */}
+          <View style={styles.twoColumnGrid}>
+            {/* 1. 간호 전문직 & 간호학생 인증 카드 (가로 1/2) */}
+            <TouchableOpacity
+              style={[
+                styles.splitCard,
+                verificationStatus === 'verified' && styles.splitCardVerified,
+                verificationStatus === 'pending' && styles.splitCardPending,
+                verificationStatus === 'rejected' && styles.splitCardRejected,
+              ]}
+              onPress={() => setVerificationModalVisible(true)}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="간호사 인증 상태 확인"
+            >
+              <View style={styles.splitCardHeader}>
+                <View
+                  style={[
+                    styles.splitIconBox,
+                    {
+                      backgroundColor:
+                        verificationStatus === 'verified'
+                          ? '#DCFCE7'
+                          : verificationStatus === 'pending'
+                          ? '#FEF3C7'
+                          : '#F3F4F6',
+                    },
+                  ]}
+                >
+                  <ShieldCheckIcon
+                    size={18}
+                    color={
+                      verificationStatus === 'verified'
+                        ? '#16A34A'
+                        : verificationStatus === 'pending'
+                        ? '#D97706'
+                        : COLORS.textSecondary
+                    }
+                  />
+                </View>
+                <View
+                  style={[
+                    styles.splitStatusTag,
+                    verificationStatus === 'verified' && { backgroundColor: TINT_COLORS.statusVerifiedBg },
+                    verificationStatus === 'pending' && { backgroundColor: TINT_COLORS.statusPendingBg },
+                    verificationStatus === 'rejected' && { backgroundColor: TINT_COLORS.statusRejectedBg },
+                  ]}
+                >
+                  <Text
                     style={[
-                      styles.verificationStatusTag,
-                      verificationStatus === 'verified' && { backgroundColor: TINT_COLORS.statusVerifiedBg },
-                      verificationStatus === 'pending' && { backgroundColor: TINT_COLORS.statusPendingBg },
-                      verificationStatus === 'rejected' && { backgroundColor: TINT_COLORS.statusRejectedBg },
+                      styles.splitStatusTagText,
+                      verificationStatus === 'verified' && { color: TINT_COLORS.statusVerifiedText },
+                      verificationStatus === 'pending' && { color: TINT_COLORS.statusPendingText },
+                      verificationStatus === 'rejected' && { color: TINT_COLORS.statusRejectedText },
                     ]}
                   >
-                    <Text
-                      style={[
-                        styles.verificationStatusTagText,
-                        verificationStatus === 'verified' && { color: TINT_COLORS.statusVerifiedText },
-                        verificationStatus === 'pending' && { color: TINT_COLORS.statusPendingText },
-                        verificationStatus === 'rejected' && { color: TINT_COLORS.statusRejectedText },
-                      ]}
-                    >
-                      {verificationStatus === 'verified'
-                        ? '인증됨'
-                        : verificationStatus === 'pending'
-                        ? '심사중'
-                        : verificationStatus === 'rejected'
-                        ? '반려'
-                        : '미인증'}
-                    </Text>
-                  </View>
+                    {verificationStatus === 'verified'
+                      ? '인증완료'
+                      : verificationStatus === 'pending'
+                      ? '심사중'
+                      : verificationStatus === 'rejected'
+                      ? '반려'
+                      : '미인증'}
+                  </Text>
                 </View>
-                <Text style={styles.verificationCardSub}>
-                  {verificationStatus === 'verified'
-                    ? '커뮤니티 및 전용 서비스를 모두 이용하실 수 있습니다.'
-                    : verificationStatus === 'pending'
-                    ? '관리자가 서류를 확인하고 있습니다. (최대 24시간 소요)'
-                    : verificationStatus === 'rejected'
-                    ? `반려 사유: ${verificationRejectReason || '서류 보완 필요'} (터치하여 재신청)`
-                    : '면허증 또는 학생증을 인증하고 커뮤니티 권한을 얻으세요.'}
-                </Text>
               </View>
-            </View>
-            <Text style={styles.verificationCardArrow}>›</Text>
-          </TouchableOpacity>
+
+              <Text style={styles.splitCardTitle} numberOfLines={1}>
+                {verificationStatus === 'verified'
+                  ? `${verificationRole === 'student' ? '간호대생' : '간호사'} 인증`
+                  : verificationStatus === 'pending'
+                  ? '서류 심사중'
+                  : '면허 서류인증'}
+              </Text>
+              <Text style={styles.splitCardSub} numberOfLines={1}>
+                {verificationStatus === 'verified'
+                  ? '전문직 권한 활성'
+                  : verificationStatus === 'pending'
+                  ? '24시간 내 승인'
+                  : '터치하여 등록 ›'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* 2. weganda+ 멤버십 카드 (가로 1/2) */}
+            <TouchableOpacity
+              style={[
+                styles.splitCard,
+                isPremium ? styles.splitCardPremium : styles.splitCardFree,
+              ]}
+              onPress={() => setMembershipVisible(true)}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="우간다 플러스 멤버십 관리"
+            >
+              <View style={styles.splitCardHeader}>
+                <View
+                  style={[
+                    styles.splitIconBox,
+                    { backgroundColor: isPremium ? '#FEF3C7' : '#FFF1F4' },
+                  ]}
+                >
+                  <CrownIcon size={18} color={isPremium ? '#D97706' : COLORS.primary} />
+                </View>
+                <View
+                  style={[
+                    styles.splitStatusTag,
+                    { backgroundColor: isPremium ? '#FEF3C7' : '#FFF1F4' },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.splitStatusTagText,
+                      { color: isPremium ? '#B45309' : COLORS.primary },
+                    ]}
+                  >
+                    {isPremium ? 'PRO 이용중' : 'FREE'}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={styles.splitCardTitle} numberOfLines={1}>
+                {isPremium ? 'weganda + 이용 중' : 'weganda + 멤버십'}
+              </Text>
+              <Text style={styles.splitCardSub} numberOfLines={1}>
+                {isPremium ? '모든 혜택 무제한' : '사주·수당 무제한 ›'}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {/* 🩺 스마트 듀티 건강 & 번아웃 위험도 분석 배너 카드 (유료 기능 안내 & 바로가기) */}
           <MyPageBurnoutBanner onPress={() => setBurnoutModalVisible(true)} />
-
-          {/* weganda+ 멤버십 배지 */}
-          <PremiumBadge
-            isPremium={isPremium}
-            onPress={() => setMembershipVisible(true)}
-          />
 
           {/* 프리미엄 회원 전용: 구독 관리 및 해지 카드 */}
           {isPremium && (
@@ -722,6 +783,19 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({ visible, onClose }) =>
           }}
         />
       </KeyboardAvoidingView>
+  );
+
+  if (isEmbedded) {
+    return (
+      <View style={[styles.embeddedWrapper, { bottom: bottomOffset }]}>
+        {content}
+      </View>
+    );
+  }
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+      {content}
     </Modal>
   );
 };
@@ -730,6 +804,86 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  embeddedWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: COLORS.background,
+    zIndex: 999,
+  },
+  twoColumnGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  splitCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 110,
+  },
+  splitCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  splitIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  splitStatusTag: {
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  splitStatusTagText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  splitCardTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  splitCardSub: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+  splitCardVerified: {
+    borderColor: '#BBF7D0',
+    backgroundColor: '#F0FDF4',
+  },
+  splitCardPending: {
+    borderColor: '#FED7AA',
+    backgroundColor: '#FFFBEB',
+  },
+  splitCardRejected: {
+    borderColor: '#FECACA',
+    backgroundColor: '#FEF2F2',
+  },
+  splitCardPremium: {
+    borderColor: '#FDE68A',
+    backgroundColor: '#FFFDF5',
+  },
+  splitCardFree: {
+    borderColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',

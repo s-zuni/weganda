@@ -68,6 +68,8 @@ interface FortuneState {
     birthInfo: BirthInfo,
     partnerData?: PartnerBirthData
   ) => Promise<GeneratedSajuReport | null>;
+  lastDailyDate?: string;
+  checkDailyRefresh: () => void;
   fetchAiFortune: (type?: 'daily' | 'saju' | 'love' | 'career' | 'wealth') => Promise<any>;
   unlockFortune: (type: SubFortuneType) => Promise<boolean>;
   resetFortune: (type: SubFortuneType) => void;
@@ -94,6 +96,7 @@ export const useFortuneStore = create<FortuneState>()(
     birthTime: '',
   },
   currentFortune: undefined,
+  lastDailyDate: undefined,
   isLoading: false,
 
   selectedCategoryId: 'nurse',
@@ -113,6 +116,15 @@ export const useFortuneStore = create<FortuneState>()(
     love: false,
     career: false,
     wealth: false,
+  },
+
+  checkDailyRefresh: () => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const { lastDailyDate } = get();
+    if (lastDailyDate && lastDailyDate !== todayStr) {
+      // 날짜가 바뀌었으므로 전날 캐시 리셋
+      set({ currentFortune: undefined, lastDailyDate: todayStr });
+    }
   },
 
   setBirthInfo: (info) =>
@@ -198,7 +210,8 @@ export const useFortuneStore = create<FortuneState>()(
         colleagueInfo,
       });
 
-      set({ currentFortune: result, isLoading: false });
+      const todayStr = new Date().toISOString().slice(0, 10);
+      set({ currentFortune: result, lastDailyDate: todayStr, isLoading: false });
       return result;
     } catch (e: any) {
       console.warn('Notice in fetchAiFortune:', e?.message || e);
