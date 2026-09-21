@@ -2,7 +2,7 @@
   "expo": {
     "name": "우간다",
     "slug": "weganda",
-    "version": "1.0.0",
+    "version": "1.0.5",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "weganda",
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.weganda.app",
-      "buildNumber": "1",
+      "buildNumber": "5",
       "usesAppleSignIn": true,
       "splash": {
         "image": "./src/assets/splash.png",
@@ -33,7 +33,7 @@
     },
     "android": {
       "package": "com.weganda.app",
-      "versionCode": 1,
+      "versionCode": 5,
       "splash": {
         "image": "./src/assets/splash.png",
         "backgroundColor": "#FFFFFF",
