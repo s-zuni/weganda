@@ -1,5 +1,6 @@
 # dependencies
 node_modules/
+.pnpm-store/
 
 # Expo
 .expo/
@@ -13,6 +14,8 @@ web-build/
 *.p12
 *.key
 *.mobileprovision
+android/
+ios/
 
 # Metro
 .metro-health-check*
@@ -21,9 +24,17 @@ web-build/
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+pnpm-debug.log*
 
-# macOS
+# macOS / OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
 *.pem
 
 # 🔒 보안 — 환경변수 파일 (절대 커밋 금지)
@@ -41,3 +52,35 @@ yarn-error.*
 
 # Scratch / Temp
 scratch/
+test-*.mjs
+check-*.mjs
+*.tmp
+*.log
+
+# 🖼️ 이미지 및 미디어 파일 (png, jpg, webp, svg 등 사진파일 ignore)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.ico
+*.bmp
+*.tiff
+*.avif
+
+# 📦 패키지 및 아카이브 파일 (zip, tgz, tar, apk, aab, ipa 등 패키지파일 ignore)
+*.zip
+*.tgz
+*.tar.gz
+*.tar
+*.gz
+*.rar
+*.7z
+*.apk
+*.aab
+*.ipa
+*.dmg
+*.pkg
+*.deb
+*.rpm
