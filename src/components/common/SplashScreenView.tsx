@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   Animated,
-  StatusBar,
   Dimensions,
 } from 'react-native';
 import { WegandaLogo } from './WegandaLogo';
@@ -47,8 +46,6 @@ export const SplashScreenView: React.FC<SplashScreenViewProps> = ({ onAnimationE
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent />
-
       {/* 기하학적 정중앙 컨텐츠 래퍼 */}
       <Animated.View
         style={[

@@ -16,6 +16,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -77,6 +78,7 @@ export const SwipeableBottomSheet: React.FC<SwipeableBottomSheetProps> = ({
   scrollOffset,
   onScrollOffsetChange,
 }) => {
+  const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   const scrollOffsetRef = useRef<number>(scrollOffset ?? 0);
@@ -248,6 +250,7 @@ export const SwipeableBottomSheet: React.FC<SwipeableBottomSheetProps> = ({
           style={[
             styles.sheetContainer,
             {
+              paddingBottom: Math.max(insets.bottom, 16) + 8,
               ...(height ? { height: height as any } : {}),
               maxHeight: maxHeight as any,
               transform: [{ translateY }],

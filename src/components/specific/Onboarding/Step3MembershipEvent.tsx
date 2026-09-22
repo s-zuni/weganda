@@ -20,8 +20,14 @@ export const Step3MembershipEvent: React.FC<Step3MembershipEventProps> = ({
   onComplete,
 }) => {
   const [showIapModal, setShowIapModal] = useState(false);
+  const config = useMembershipEventStore((state) => state.config);
   const getPlanPricing = useMembershipEventStore((state) => state.getPlanPricing);
   const monthlyPricing = getPlanPricing('monthly');
+
+  const trialDays = config.freeTrialEvent.trialDays || 30;
+  const promoTitle = config.freeTrialEvent.promoTitle || `첫 ${trialDays}일은 우간다가 쏩니다! 🎁`;
+  const heroTitle = config.freeTrialEvent.heroTitle || `첫 ${trialDays}일 100% 무료 체험`;
+  const ctaButtonText = config.freeTrialEvent.ctaButtonText || `${trialDays}일 무료 체험으로 시작하기`;
 
   const handleStartTrial = () => {
     setShowIapModal(true);
@@ -44,7 +50,7 @@ export const Step3MembershipEvent: React.FC<Step3MembershipEventProps> = ({
           <View style={styles.stepBadge}>
             <Text style={styles.stepBadgeText}>3단계 · 출시 기념 특별 혜택</Text>
           </View>
-          <Text style={styles.mainTitle}>첫 1개월은 우간다가 쏩니다! 🎁</Text>
+          <Text style={styles.mainTitle}>{promoTitle}</Text>
           <Text style={styles.subtitle}>
             대한민국 50만 간호사를 위한 프리미엄 멤버십 weganda+
           </Text>
@@ -61,7 +67,7 @@ export const Step3MembershipEvent: React.FC<Step3MembershipEventProps> = ({
             </View>
           </View>
 
-          <Text style={styles.heroTitle}>첫 30일 100% 무료 체험</Text>
+          <Text style={styles.heroTitle}>{heroTitle}</Text>
           <Text style={styles.heroDesc}>
             체험 후에도 평생{' '}
             <Text style={styles.highlightGold}>
@@ -108,11 +114,11 @@ export const Step3MembershipEvent: React.FC<Step3MembershipEventProps> = ({
         <View style={styles.trustBox}>
           <View style={styles.trustItem}>
             <Text style={styles.trustCheck}>✓</Text>
-            <Text style={styles.trustText}>30일 동안 무료로 언제든 터치 한 번으로 해지 가능</Text>
+            <Text style={styles.trustText}>{trialDays}일 동안 무료로 언제든 터치 한 번으로 해지 가능</Text>
           </View>
           <View style={styles.trustItem}>
             <Text style={styles.trustCheck}>✓</Text>
-            <Text style={styles.trustText}>체험 종료 7일 전 알림으로 미리 안내</Text>
+            <Text style={styles.trustText}>체험 종료 7일 전 앱 알림으로 미리 안내 (자동 결제 방지)</Text>
           </View>
           <View style={styles.trustItem}>
             <Text style={styles.trustCheck}>✓</Text>
@@ -123,7 +129,7 @@ export const Step3MembershipEvent: React.FC<Step3MembershipEventProps> = ({
         {/* 하단 CTA 버튼 그룹 */}
         <View style={styles.footerSection}>
           <Button
-            title="30일 무료 체험으로 시작하기"
+            title={ctaButtonText}
             onPress={handleStartTrial}
             style={styles.trialButton}
           />
@@ -149,6 +155,7 @@ export const Step3MembershipEvent: React.FC<Step3MembershipEventProps> = ({
           price: monthlyPricing.currentPrice,
           isTrial: true,
           isEarlybird: monthlyPricing.isDiscountActive,
+          trialDays,
         }}
         onClose={() => setShowIapModal(false)}
         onPaymentSuccess={handleIapSuccess}

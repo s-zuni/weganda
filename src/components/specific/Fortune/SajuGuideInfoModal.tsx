@@ -84,7 +84,7 @@ export const SajuGuideInfoModal: React.FC<SajuGuideInfoModalProps> = ({
 
             <View style={styles.guideExcerptBox}>
               <Text style={styles.guideExcerptTitle}>가이드 규격 전문 (발췌 요약)</Text>
-              <Text style={styles.guideExcerptText} numberOfLines={14}>
+              <Text style={styles.guideExcerptText} numberOfLines={14} ellipsizeMode="tail">
                 {SAJU_ANALYSIS_GUIDE_MD.slice(0, 750)}...
               </Text>
             </View>

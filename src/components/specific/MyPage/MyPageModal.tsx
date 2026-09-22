@@ -13,6 +13,7 @@ import {
   Platform,
   Linking,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, TINT_COLORS, NEUTRAL } from '../../../constants/theme';
 import * as Clipboard from 'expo-clipboard';
 import { useUserStore } from '../../../store/useUserStore';
@@ -71,6 +72,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
     deleteAccount,
   } = useUserStore();
   const { birthInfo } = useFortuneStore();
+  const insets = useSafeAreaInsets();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(storeName || '김간호');
@@ -220,7 +222,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
       style={styles.container}
     >
       {/* 헤더 */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
         <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Text style={[styles.backText, { color: theme.primary }]}>‹ 닫기</Text>
         </TouchableOpacity>
@@ -233,7 +235,10 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
         <ScrollView
           style={styles.scroll}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: isEmbedded ? 24 : Math.max(insets.bottom, 16) + 24 },
+          ]}
         >
           {/* 프로필 카드 */}
           <View style={styles.profileCard}>
@@ -383,14 +388,14 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                 </View>
               </View>
 
-              <Text style={styles.splitCardTitle} numberOfLines={1}>
+              <Text style={styles.splitCardTitle} numberOfLines={1} ellipsizeMode="tail">
                 {verificationStatus === 'verified'
                   ? `${verificationRole === 'student' ? '간호대생' : '간호사'} 인증`
                   : verificationStatus === 'pending'
                   ? '서류 심사중'
                   : '면허 서류인증'}
               </Text>
-              <Text style={styles.splitCardSub} numberOfLines={1}>
+              <Text style={styles.splitCardSub} numberOfLines={1} ellipsizeMode="tail">
                 {verificationStatus === 'verified'
                   ? '전문직 권한 활성'
                   : verificationStatus === 'pending'
@@ -436,10 +441,10 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                 </View>
               </View>
 
-              <Text style={styles.splitCardTitle} numberOfLines={1}>
+              <Text style={styles.splitCardTitle} numberOfLines={1} ellipsizeMode="tail">
                 {isPremium ? 'weganda + 이용 중' : 'weganda + 멤버십'}
               </Text>
-              <Text style={styles.splitCardSub} numberOfLines={1}>
+              <Text style={styles.splitCardSub} numberOfLines={1} ellipsizeMode="tail">
                 {isPremium ? '모든 혜택 무제한' : '사주·수당 무제한 ›'}
               </Text>
             </TouchableOpacity>
@@ -853,17 +858,20 @@ const styles = StyleSheet.create({
   splitStatusTagText: {
     fontSize: 11,
     fontWeight: '700',
+    lineHeight: 16,
   },
   splitCardTitle: {
     fontSize: 15,
     fontWeight: '800',
     color: COLORS.textPrimary,
     marginBottom: 4,
+    lineHeight: 22,
   },
   splitCardSub: {
     fontSize: 12,
     fontWeight: '600',
     color: COLORS.textSecondary,
+    lineHeight: 17,
   },
   splitCardVerified: {
     borderColor: '#BBF7D0',
@@ -951,11 +959,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
+    lineHeight: 28,
   },
   userRole: {
     fontSize: 14,
     color: COLORS.textSecondary,
     marginTop: 2,
+    lineHeight: 20,
   },
   editBtn: {
     backgroundColor: COLORS.divider,
@@ -967,6 +977,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: COLORS.textSecondary,
+    lineHeight: 18,
   },
   editForm: {
     marginTop: 16,

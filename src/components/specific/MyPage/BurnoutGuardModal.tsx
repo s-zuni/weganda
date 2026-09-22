@@ -6,9 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Platform,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme } from '../../../constants/theme';
 import { useBurnoutStore } from '../../../store/useBurnoutStore';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
@@ -56,6 +56,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
     }
   };
 
+  const insets = useSafeAreaInsets();
   const riskColor = getRiskColor(report.riskLevel);
 
   return (
@@ -70,7 +71,11 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
           <View style={{ width: 40 }} />
         </View>
 
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}
+          showsVerticalScrollIndicator={false}
+        >
           {/* 타이틀 배너 */}
           <View style={styles.bannerCard}>
             <View style={[styles.bannerIconCircle, { backgroundColor: theme.primaryTint }]}>

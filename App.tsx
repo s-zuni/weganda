@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar } from 'expo-status-bar';
 import { Platform, AppState, AppStateStatus, View, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SystemBars } from 'react-native-edge-to-edge';
 import RootNavigator from './src/navigation/RootNavigator';
 import { LandingScreen } from './src/screens/Landing/LandingScreen';
 import { AdminScreen } from './src/screens/Admin/AdminScreen';
@@ -175,7 +175,7 @@ export default function App() {
       if (!isAuthenticated || role !== 'admin') {
         return (
           <SafeAreaProvider>
-            <StatusBar style="light" />
+            <SystemBars style="light" />
             <ErrorBoundary>
               <AdminLoginView
                 onSuccess={() => {
@@ -195,7 +195,7 @@ export default function App() {
 
       return (
         <SafeAreaProvider>
-          <StatusBar style="light" />
+          <SystemBars style="light" />
           <ErrorBoundary>
             <AdminScreen
               onClose={() => {
@@ -213,7 +213,7 @@ export default function App() {
     if (currentWebRoute === 'legal') {
       return (
         <SafeAreaProvider>
-          <StatusBar style="dark" />
+          <SystemBars style="dark" />
           <ErrorBoundary>
             <LegalScreen
               initialTab={legalInitialTab}
@@ -232,7 +232,7 @@ export default function App() {
     if (currentWebRoute === 'landing') {
       return (
         <SafeAreaProvider>
-          <StatusBar style="dark" />
+          <SystemBars style="dark" />
           <ErrorBoundary>
             <LandingScreen
               onNavigateAdmin={() => {
@@ -259,7 +259,7 @@ export default function App() {
   // ── 모바일 앱(iOS / Android) 환경 렌더링 ──
   return (
     <SafeAreaProvider>
-      <StatusBar style="dark" />
+      <SystemBars style="dark" />
       <ErrorBoundary>
         <RootNavigator />
         {showSplash && (

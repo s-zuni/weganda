@@ -154,7 +154,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
                             <View style={styles.agencyPill}>
                               <Text style={styles.agencyPillText}>{src.sourceAgency}</Text>
                             </View>
-                            <Text style={styles.sourceBadgeTitle} numberOfLines={1}>
+                            <Text style={styles.sourceBadgeTitle} numberOfLines={1} ellipsizeMode="tail">
                               {src.title}
                             </Text>
                           </View>
@@ -411,11 +411,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: '#2563EB',
+    lineHeight: 14,
   },
   sourceBadgeTitle: {
     fontSize: 11,
     fontWeight: '600',
     color: '#334155',
+    lineHeight: 16,
     flex: 1,
   },
 });

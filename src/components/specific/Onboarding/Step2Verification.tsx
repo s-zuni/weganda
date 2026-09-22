@@ -217,7 +217,7 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
               <View style={styles.uploadedState}>
                 <Text style={styles.uploadedIcon}>📎</Text>
                 <View style={styles.uploadedInfo}>
-                  <Text style={styles.uploadedName} numberOfLines={1}>
+                  <Text style={styles.uploadedName} numberOfLines={1} ellipsizeMode="tail">
                     {attachedDocName}
                   </Text>
                   <Text style={styles.uploadedSuccess}>첨부 완료 (심사 준비 완료)</Text>
@@ -524,12 +524,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#191F28',
+    lineHeight: 18,
     marginBottom: 2,
   },
   uploadedSuccess: {
     fontSize: 12,
     color: '#10B981',
     fontWeight: '600',
+    lineHeight: 16,
   },
   removeDocButton: {
     paddingHorizontal: 12,

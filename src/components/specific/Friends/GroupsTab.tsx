@@ -169,7 +169,7 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
               <View style={styles.groupDivider} />
 
               <View style={styles.groupBottomRow}>
-                <Text style={styles.lastMessageText} numberOfLines={1}>
+                <Text style={styles.lastMessageText} numberOfLines={1} ellipsizeMode="tail">
                   {group.lastMessage}
                 </Text>
                 <View style={styles.matrixBtnBadge}>
@@ -312,6 +312,7 @@ const styles = StyleSheet.create({
   lastMessageText: {
     fontSize: 14,
     color: COLORS.textSecondary,
+    lineHeight: 18,
     flex: 1,
     marginRight: 10,
   },
@@ -328,6 +329,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: COLORS.primary,
+    lineHeight: 18,
   },
   emptyCardBox: {
     alignItems: 'center',

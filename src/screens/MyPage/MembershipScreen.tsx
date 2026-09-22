@@ -4,9 +4,9 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserStore } from '../../store/useUserStore';
 import { useMembershipEventStore } from '../../store/useMembershipEventStore';
 import { MembershipPlanKey } from '../../types/membershipEvent';
@@ -33,11 +33,12 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
   const [isRestoring, setIsRestoring] = useState(false);
 
   const isPremium = useUserStore((state) => state.isPremium);
-  const { getPlanPricing } = useMembershipEventStore();
+  const { getPlanPricing, config } = useMembershipEventStore();
 
   const currentPricing = getPlanPricing(selectedPlan);
   const monthlyPricing = getPlanPricing('monthly');
   const yearlyPricing = getPlanPricing('yearly');
+  const trialDays = config.freeTrialEvent.trialDays || 30;
 
   const handleSubscribe = () => {
     setPaymentVisible(true);
@@ -87,6 +88,7 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
             {/* 출시 이벤트 프로모션 배너 */}
             <MembershipLaunchPromoBanner
               isFreeTrialActive={currentPricing.isFreeTrialActive}
+              trialDays={trialDays}
             />
 
             {/* 플랜 선택기 (월간 vs 연간) */}
@@ -109,6 +111,7 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
             selectedPlan={selectedPlan}
             currentPricing={currentPricing}
             isRestoring={isRestoring}
+            trialDays={trialDays}
             onSubscribe={handleSubscribe}
             onRestore={handleRestorePurchases}
             onClose={onClose}
@@ -124,6 +127,7 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
               price: currentPricing.currentPrice,
               isTrial: currentPricing.isFreeTrialActive,
               isEarlybird: currentPricing.isDiscountActive,
+              trialDays,
             }}
             onClose={() => setPaymentVisible(false)}
             onPaymentSuccess={handlePaymentSuccess}

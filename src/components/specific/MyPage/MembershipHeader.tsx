@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CrownIcon } from '../../common/Icon';
 import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 import { COLORS } from '../../../constants/theme';
@@ -9,18 +10,20 @@ export interface MembershipHeaderProps {
 }
 
 export const MembershipHeader: React.FC<MembershipHeaderProps> = ({ onClose }) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <>
       <TouchableOpacity
         onPress={onClose}
-        style={styles.closeButton}
+        style={[styles.closeButton, { top: Math.max(insets.top, Platform.OS === 'ios' ? 10 : 20) }]}
         accessibilityRole="button"
         accessibilityLabel="닫기"
       >
         <Text style={styles.closeButtonText}>← 닫기</Text>
       </TouchableOpacity>
 
-      <View style={styles.heroSection}>
+      <View style={[styles.heroSection, { paddingBottom: Math.max(insets.bottom, 16) + 20 }]}>
         <View style={styles.crownContainer}>
           <CrownIcon size={48} color={PREMIUM_COLORS.gold} />
         </View>
@@ -56,7 +59,6 @@ const styles = StyleSheet.create({
   heroSection: {
     backgroundColor: PREMIUM_COLORS.heroBg,
     paddingTop: 80,
-    paddingBottom: 40,
     alignItems: 'center',
   },
   crownContainer: {

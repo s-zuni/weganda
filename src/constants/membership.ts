@@ -63,7 +63,6 @@ export const EARLYBIRD_PRICING = {
 
 export const PREMIUM_PRICE = '월 7,900원';
 export const PREMIUM_PRICE_NUMBER = 7900;
-export const PREMIUM_TRIAL_DAYS = 30; // 1개월 무료 체험 (30일)
 
 // In-App Purchase (IAP) SKUs & Product IDs for App Store & Google Play
 export const IAP_SKUS = {
@@ -85,13 +84,6 @@ export const STORE_SUBSCRIPTION_URLS = {
   ios: 'https://apps.apple.com/account/subscriptions',
   android: 'https://play.google.com/store/account/subscriptions',
   web: 'https://www.weganda.kr/membership',
-} as const;
-
-export const IAP_CONFIG = {
-  subscriptionSku: IAP_SKUS.MONTHLY_EARLYBIRD,
-  trialPeriodDays: 30,
-  storeTermsUrl: 'https://www.weganda.kr/membership',
-  privacyUrl: 'https://www.weganda.kr/privacy',
 } as const;
 
 // 출시일 기준 기본 이벤트 일정 계산 함수 (2026-09-11 기준)

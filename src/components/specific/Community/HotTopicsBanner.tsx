@@ -60,7 +60,7 @@ export const HotTopicsBanner: React.FC<HotTopicsBannerProps> = ({
                   <Text style={styles.hotCategoryText}>{hot.category}</Text>
                 </View>
 
-                <Text style={styles.hotCardTitle} numberOfLines={2}>
+                <Text style={styles.hotCardTitle} numberOfLines={2} ellipsizeMode="tail">
                   {hot.title}
                 </Text>
 

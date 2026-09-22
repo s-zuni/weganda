@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { AppHeader } from '../../components/common/AppHeader';
 import { useFortuneStore } from '../../store/useFortuneStore';
@@ -77,7 +76,6 @@ export const FortuneScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
       <AppHeader />
 
       <ScrollView

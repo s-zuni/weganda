@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -265,12 +265,12 @@ export const CommunityManagementTab: React.FC = () => {
                       작성자: {item.authorNickname || '익명 간호사'}
                     </Text>
                     {item.postTitle && (
-                      <Text style={styles.targetTitle} numberOfLines={1}>
+                      <Text style={styles.targetTitle} numberOfLines={1} ellipsizeMode="tail">
                         제목: {item.postTitle}
                       </Text>
                     )}
                     {item.postContent && (
-                      <Text style={styles.targetContent} numberOfLines={2}>
+                      <Text style={styles.targetContent} numberOfLines={2} ellipsizeMode="tail">
                         "{item.postContent}"
                       </Text>
                     )}
@@ -360,10 +360,10 @@ export const CommunityManagementTab: React.FC = () => {
                     </Text>
                   </View>
 
-                  <Text style={styles.postTitle} numberOfLines={1}>
+                  <Text style={styles.postTitle} numberOfLines={1} ellipsizeMode="tail">
                     {item.title}
                   </Text>
-                  <Text style={styles.postSnippet} numberOfLines={2}>
+                  <Text style={styles.postSnippet} numberOfLines={2} ellipsizeMode="tail">
                     {item.content}
                   </Text>
 
@@ -570,10 +570,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: '#111827',
+    lineHeight: 18,
   },
   targetContent: {
     fontSize: 12,
     color: '#4B5563',
+    lineHeight: 17,
     marginTop: 2,
   },
   reportDate: {
@@ -703,6 +705,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: '#111827',
+    lineHeight: 21,
     marginBottom: 4,
   },
   postSnippet: {

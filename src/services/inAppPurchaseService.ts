@@ -274,6 +274,7 @@ class InAppPurchaseService {
       price?: number;
       isTrial?: boolean;
       isEarlybird?: boolean;
+      trialDays?: number;
     }
   ): Promise<IapPurchaseResult> {
     const targetSku = sku || IAP_SKUS.MONTHLY_EARLYBIRD;
@@ -324,7 +325,8 @@ class InAppPurchaseService {
     // 계산된 구독 정보로 전역 스토어 업데이트
     const now = new Date();
     const trialEnd = new Date(now);
-    trialEnd.setDate(trialEnd.getDate() + (isTrial ? 30 : 0));
+    const activeTrialDays = options?.trialDays !== undefined ? options.trialDays : (isTrial ? 30 : 0);
+    trialEnd.setDate(trialEnd.getDate() + activeTrialDays);
     const billingDate = trialEnd.toISOString().slice(0, 10);
 
     useUserStore.getState().subscribeToPremiumWithDetails({

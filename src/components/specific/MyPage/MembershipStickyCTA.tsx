@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Linking } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MembershipPlanKey, CurrentPlanPricing } from '../../../types/membershipEvent';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
 import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
@@ -9,6 +10,7 @@ export interface MembershipStickyCTAProps {
   selectedPlan: MembershipPlanKey;
   currentPricing: CurrentPlanPricing;
   isRestoring: boolean;
+  trialDays?: number;
   onSubscribe: () => void;
   onRestore: () => void;
   onClose: () => void;
@@ -19,10 +21,13 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
   selectedPlan,
   currentPricing,
   isRestoring,
+  trialDays = 30,
   onSubscribe,
   onRestore,
   onClose,
 }) => {
+  const insets = useSafeAreaInsets();
+
   const handleOpenUrl = (url: string) => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       window.open(url, '_blank');
@@ -32,7 +37,7 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
   };
 
   return (
-    <View style={styles.stickyCTA}>
+    <View style={[styles.stickyCTA, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}>
       {!isPremium ? (
         <>
           <TouchableOpacity
@@ -44,14 +49,14 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
           >
             <Text style={styles.subscribeText}>
               {currentPricing.isFreeTrialActive
-                ? '1개월 무료 체험 시작하기'
+                ? `${trialDays}일 무료 체험 시작하기`
                 : `우간다+ 구독하기 (${selectedPlan === 'monthly' ? '월' : '연'} ${currentPricing.currentPrice.toLocaleString()}원)`}
             </Text>
           </TouchableOpacity>
           <View style={styles.captionRow}>
             <Text style={styles.ctaCaption}>
               {currentPricing.isFreeTrialActive
-                ? `1개월 무료 체험 후 ${selectedPlan === 'monthly' ? `월 ${currentPricing.currentPrice.toLocaleString()}원` : `연 ${currentPricing.currentPrice.toLocaleString()}원`} 자동 결제`
+                ? `${trialDays}일 무료 체험 후 ${selectedPlan === 'monthly' ? `월 ${currentPricing.currentPrice.toLocaleString()}원` : `연 ${currentPricing.currentPrice.toLocaleString()}원`} 자동 결제`
                 : '스토어 계정으로 안전하게 결제'}
             </Text>
             <Text style={styles.captionDot}>•</Text>
@@ -113,7 +118,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: Platform.OS === 'ios' ? 34 : 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.04,
@@ -139,10 +143,12 @@ const styles = StyleSheet.create({
     color: PREMIUM_COLORS.gold,
     fontSize: 17,
     fontWeight: '700',
+    lineHeight: 22,
   },
   ctaCaption: {
     fontSize: 13,
     color: COLORS.textMuted,
+    lineHeight: 18,
   },
   captionRow: {
     flexDirection: 'row',
@@ -159,6 +165,7 @@ const styles = StyleSheet.create({
     color: NEUTRAL.gray600,
     fontWeight: '600',
     textDecorationLine: 'underline',
+    lineHeight: 18,
   },
   legalRow: {
     flexDirection: 'row',
@@ -171,6 +178,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textMuted,
     textDecorationLine: 'underline',
+    lineHeight: 16,
   },
   legalDot: {
     fontSize: 12,
@@ -189,11 +197,13 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontSize: 16,
     fontWeight: '600',
+    lineHeight: 22,
   },
   cancelAnytimeNotice: {
     fontSize: 11,
     color: COLORS.textMuted,
     textAlign: 'center',
+    lineHeight: 16,
   },
 });
 

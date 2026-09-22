@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '800',
+    lineHeight: 24,
   },
   shiftStatsRow: {
     flexDirection: 'row',
@@ -179,10 +180,12 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 13,
+    lineHeight: 18,
   },
   statValue: {
     fontSize: 17,
     fontWeight: '800',
+    lineHeight: 22,
   },
   activityRow: {
     flexDirection: 'row',
@@ -195,10 +198,12 @@ const styles = StyleSheet.create({
   activityCount: {
     fontSize: 22,
     fontWeight: '900',
+    lineHeight: 28,
   },
   activityLabel: {
     fontSize: 13,
     marginTop: 2,
+    lineHeight: 18,
   },
   activityDivider: {
     width: 1,

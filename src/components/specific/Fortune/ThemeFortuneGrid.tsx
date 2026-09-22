@@ -88,7 +88,7 @@ export const ThemeFortuneGrid: React.FC<ThemeFortuneGridProps> = ({
                 </View>
               </View>
               <Text style={styles.subCardTitle}>{cat.title}</Text>
-              <Text style={styles.subCardDesc} numberOfLines={2}>
+              <Text style={styles.subCardDesc} numberOfLines={2} ellipsizeMode="tail">
                 {cat.subtitle}
               </Text>
             </TouchableOpacity>
@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: -0.2,
+    lineHeight: 16,
   },
   subCardTitle: {
     fontSize: 16,
@@ -198,6 +199,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     marginBottom: 4,
     letterSpacing: -0.3,
+    lineHeight: 22,
   },
   subCardDesc: {
     fontSize: 12.5,

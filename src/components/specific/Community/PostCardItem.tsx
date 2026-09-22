@@ -48,10 +48,10 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
         {/* 제목 & 본문 프리뷰 */}
         <View style={styles.postContentRow}>
           <View style={styles.postTextCol}>
-            <Text style={styles.postCardTitle} numberOfLines={1}>
+            <Text style={styles.postCardTitle} numberOfLines={1} ellipsizeMode="tail">
               {post.title}
             </Text>
-            <Text style={styles.postCardPreview} numberOfLines={2}>
+            <Text style={styles.postCardPreview} numberOfLines={2} ellipsizeMode="tail">
               {post.content}
             </Text>
           </View>
@@ -157,6 +157,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
     fontWeight: '600',
+    lineHeight: 18,
   },
   verifiedBadge: {
     flexDirection: 'row',
@@ -171,10 +172,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#0284C7',
     fontWeight: '700',
+    lineHeight: 16,
   },
   postTimeText: {
     fontSize: 13,
     color: COLORS.textMuted,
+    lineHeight: 18,
   },
   postContentRow: {
     flexDirection: 'row',
@@ -218,11 +221,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#191F28',
     fontWeight: '700',
+    lineHeight: 18,
   },
   hospitalText: {
     fontSize: 13,
     color: COLORS.textMuted,
     fontWeight: '500',
+    lineHeight: 18,
   },
   statsGroup: {
     flexDirection: 'row',
@@ -238,6 +243,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textMuted,
     fontWeight: '500',
+    lineHeight: 18,
   },
 });
 

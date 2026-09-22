@@ -512,10 +512,10 @@ export const SupportModal: React.FC<SupportModalProps> = ({
                           </View>
                         </View>
 
-                        <Text style={styles.inquiryCardTitle} numberOfLines={1}>
+                        <Text style={styles.inquiryCardTitle} numberOfLines={1} ellipsizeMode="tail">
                           {inq.title}
                         </Text>
-                        <Text style={styles.inquiryCardSnippet} numberOfLines={2}>
+                        <Text style={styles.inquiryCardSnippet} numberOfLines={2} ellipsizeMode="tail">
                           {inq.content}
                         </Text>
 
@@ -850,6 +850,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: '#0F172A',
+    lineHeight: 20,
     marginBottom: 4,
   },
   inquiryCardSnippet: {
@@ -866,6 +867,7 @@ const styles = StyleSheet.create({
   inquiryCardDate: {
     fontSize: 12,
     color: '#94A3B8',
+    lineHeight: 16,
   },
   replyCountBadge: {
     fontSize: 12,

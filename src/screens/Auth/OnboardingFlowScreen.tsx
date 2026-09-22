@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, SafeAreaView, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserStore } from '../../store/useUserStore';
 import { useVerificationStore } from '../../store/useVerificationStore';
 import {

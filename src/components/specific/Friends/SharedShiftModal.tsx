@@ -123,7 +123,7 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
                       </View>
                       <Text style={styles.roleText}>{item.hospital} • {item.role}</Text>
                       {item.statusMessage ? (
-                        <Text style={styles.statusText} numberOfLines={1}>
+                        <Text style={styles.statusText} numberOfLines={1} ellipsizeMode="tail">
                           "{item.statusMessage}"
                         </Text>
                       ) : null}
@@ -297,6 +297,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: COLORS.textPrimary,
+    lineHeight: 20,
   },
   shiftBadge: {
     paddingHorizontal: 6,
@@ -307,16 +308,19 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '800',
     color: '#FFFFFF',
+    lineHeight: 14,
   },
   roleText: {
     fontSize: 12,
     color: COLORS.textMuted,
+    lineHeight: 16,
   },
   statusText: {
     fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 2,
     fontStyle: 'italic',
+    lineHeight: 15,
   },
   chatActionBtn: {
     flexDirection: 'row',

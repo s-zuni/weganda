@@ -233,7 +233,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                           <Text style={styles.miniAvatarText}>{member.avatarLetter}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 2 }}>
-                          <Text style={styles.memberNameText} numberOfLines={1}>
+                          <Text style={styles.memberNameText} numberOfLines={1} ellipsizeMode="tail">
                             {member.name}
                           </Text>
                           {member.isVerified && <VerifiedNurseBadge size={12} />}
@@ -557,11 +557,13 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: COLORS.textPrimary,
+    lineHeight: 15,
   },
   memberNameText: {
     fontSize: 12,
     fontWeight: '700',
     color: COLORS.textPrimary,
+    lineHeight: 16,
     flex: 1,
   },
   shiftCell: {

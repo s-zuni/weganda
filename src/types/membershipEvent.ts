@@ -1,11 +1,15 @@
-﻿export type MembershipPlanKey = 'monthly' | 'yearly';
+export type MembershipPlanKey = 'monthly' | 'yearly';
 
 export interface FreeTrialEventConfig {
   isEnabled: boolean;
   durationMonths: number; // 이벤트 진행 기간 (3개월)
   trialMonths: number;    // 무료 체험 기간 (1개월)
+  trialDays: number;      // 무료 체험 일수 (30일)
   startDate: string;      // YYYY-MM-DD
   endDate: string;        // YYYY-MM-DD
+  promoTitle?: string;    // 프로모션 메인 문구
+  heroTitle?: string;     // 혜택 강조 문구
+  ctaButtonText?: string; // CTA 버튼 문구
 }
 
 export interface DiscountEventConfig {

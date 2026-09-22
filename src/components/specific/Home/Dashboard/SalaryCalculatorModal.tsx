@@ -264,13 +264,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
-  modalContainer: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '90%',
-    paddingBottom: Platform.OS === 'ios' ? 34 : 20,
-  },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',

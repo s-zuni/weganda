@@ -44,7 +44,7 @@ export const SajuHeaderBar: React.FC<SajuHeaderBarProps> = ({
         >
           <Ionicons name="chevron-back" size={24} color={NEUTRAL.gray800} />
         </TouchableOpacity>
-        <Text style={styles.navTitle} numberOfLines={1}>
+        <Text style={styles.navTitle} numberOfLines={1} ellipsizeMode="tail">
           {topicTitle}
         </Text>
         <TouchableOpacity
@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: NEUTRAL.gray900,
+    lineHeight: 22,
     flex: 1,
     textAlign: 'center',
     marginHorizontal: 10,

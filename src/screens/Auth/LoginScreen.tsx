@@ -3,13 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
   Linking,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';

@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
   TouchableOpacity,
   View,
   Text,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS, TINT_COLORS } from '../../constants/theme';
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
@@ -110,7 +109,6 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <AppHeader />
 
       <ScrollView

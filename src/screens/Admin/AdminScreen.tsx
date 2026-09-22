@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
-  SafeAreaView,
-  StatusBar,
   ActivityIndicator,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   AdminSidebar,
   AdminMenuKey,
@@ -153,8 +152,6 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={NEUTRAL.gray900} />
-
       <View style={styles.container}>
         {/* ── 좌측 다크 네이비 사이드바 ── */}
         <AdminSidebar

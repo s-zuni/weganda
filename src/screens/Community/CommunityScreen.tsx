@@ -3,14 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  StatusBar,
   TextInput,
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { PencilIcon, SearchIcon } from '../../components/common/Icon';
@@ -160,7 +159,6 @@ export const CommunityScreen: React.FC = () => {
   if (!isVerified) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
         <AppHeader />
         <CommunityLockGate
           verificationStatus={verificationStatus}
@@ -178,7 +176,6 @@ export const CommunityScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
       <AppHeader />
 
       <ScrollView

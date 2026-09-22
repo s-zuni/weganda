@@ -373,7 +373,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                           <Text style={styles.fileSelectedIcon}>📄</Text>
                         )}
                         <View style={styles.fileSelectedInfo}>
-                          <Text style={styles.fileSelectedName} numberOfLines={1}>
+                          <Text style={styles.fileSelectedName} numberOfLines={1} ellipsizeMode="tail">
                             {documentName || '첨부서류'}
                           </Text>
                           <Text style={styles.fileSelectedStatus}>✓ 파일 첨부 완료</Text>
@@ -755,11 +755,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#1F2937',
+    lineHeight: 18,
   },
   fileSelectedStatus: {
     fontSize: 12,
     color: '#059669',
     fontWeight: '600',
+    lineHeight: 16,
     marginTop: 2,
   },
   fileRemoveBtn: {

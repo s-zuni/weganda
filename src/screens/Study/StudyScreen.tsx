@@ -3,12 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
   TextInput,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS, useAppTheme } from '../../constants/theme';
 import { SearchIcon } from '../../components/common/Icon';
@@ -94,7 +93,6 @@ export const StudyScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <AppHeader />
 
       <ScrollView
@@ -242,6 +240,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
+    lineHeight: 28,
   },
   guideList: {
     gap: 12,

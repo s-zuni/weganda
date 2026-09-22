@@ -49,13 +49,17 @@ const createDefaultConfig = (): MembershipEventConfig => {
   const { startDate, end1m, end3m } = getDefaultEventDates();
 
   return {
-    // 이벤트 1: 출시 후 3개월간 가입 고객 1개월 무료 체험
+    // 이벤트 1: 출시 후 3개월간 가입 고객 1개월(30일) 무료 체험
     freeTrialEvent: {
       isEnabled: true,
       durationMonths: 3,
       trialMonths: 1,
+      trialDays: 30,
       startDate,
       endDate: end3m,
+      promoTitle: '첫 30일은 우간다가 쏩니다! 🎁',
+      heroTitle: '첫 30일 100% 무료 체험',
+      ctaButtonText: '30일 무료 체험으로 시작하기',
     },
     // 이벤트 2: 출시 후 1개월간 월간 5,900원 평생 할인 (정상가 7,900원)
     monthlyDiscountEvent: {

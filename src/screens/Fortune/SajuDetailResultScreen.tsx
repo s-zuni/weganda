@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  StatusBar,
   Share,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useFortuneStore } from '../../store/useFortuneStore';
@@ -71,8 +70,6 @@ export const SajuDetailResultScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
-
       {/* 상단 네비게이션 및 명인 인증 배너 */}
       <SajuHeaderBar
         topicTitle={report.topicTitle}

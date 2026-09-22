@@ -228,10 +228,10 @@ export const AdminInquiriesTab: React.FC = () => {
                   </View>
                 </View>
 
-                <Text style={styles.inquiryRowTitle} numberOfLines={1}>
+                <Text style={styles.inquiryRowTitle} numberOfLines={1} ellipsizeMode="tail">
                   {inq.title}
                 </Text>
-                <Text style={styles.inquiryRowSnippet} numberOfLines={2}>
+                <Text style={styles.inquiryRowSnippet} numberOfLines={2} ellipsizeMode="tail">
                   {inq.content}
                 </Text>
 
@@ -566,6 +566,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: '#F8FAFC',
+    lineHeight: 20,
     marginBottom: 4,
   },
   inquiryRowSnippet: {

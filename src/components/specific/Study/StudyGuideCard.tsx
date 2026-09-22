@@ -54,10 +54,10 @@ export const StudyGuideCard: React.FC<StudyGuideCardProps> = ({
             <Text style={styles.guideMeta}>{guide.meta}</Text>
           </View>
 
-          <Text style={styles.guideTitle} numberOfLines={1}>
+          <Text style={styles.guideTitle} numberOfLines={1} ellipsizeMode="tail">
             {guide.title}
           </Text>
-          <Text style={styles.guideSummary} numberOfLines={2}>
+          <Text style={styles.guideSummary} numberOfLines={2} ellipsizeMode="tail">
             {guide.summary}
           </Text>
         </View>
@@ -119,10 +119,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: COLORS.textSecondary,
+    lineHeight: 16,
   },
   guideMeta: {
     fontSize: 13,
     color: COLORS.textMuted,
+    lineHeight: 18,
   },
   guideTitle: {
     fontSize: 17,

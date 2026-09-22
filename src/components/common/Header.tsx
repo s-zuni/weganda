@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
           leftElement
         )}
       </View>
-      <Text style={styles.title} numberOfLines={1}>
+      <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
         {title}
       </Text>
       <View style={[styles.sideContainer, styles.rightAlign]}>
@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.textPrimary,
     textAlign: 'center',
+    lineHeight: 24,
     flex: 1,
   },
   backText: {
