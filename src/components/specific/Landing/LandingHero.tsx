@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
-  Platform,
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { waitlistApi } from '../../../services/waitlistApi';
@@ -184,24 +183,6 @@ export const LandingHero: React.FC = () => {
             })}
           </View>
 
-          {/* Phone Outer Frame with REAL UI Image */}
-          <View style={[styles.phoneOuter, isMobile && styles.phoneOuterMobile]}>
-            <View style={styles.phoneSpeakerBar}>
-              <View style={styles.speakerDot} />
-              <View style={styles.cameraDot} />
-            </View>
-
-            <View style={styles.phoneScreen}>
-              <Image
-                source={currentMeta.image}
-                style={styles.realAppImage}
-                resizeMode="cover"
-              />
-            </View>
-
-            <View style={styles.phoneHomeBar}>
-              <View style={styles.homeBar} />
-            </View>
           {/* Clean Real App Mockup Image (No Code-rendered Outer Frame) */}
           <View style={styles.imageContainer}>
             <Image
@@ -383,7 +364,6 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   rightCol: {
-    flex: 0.9,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -424,68 +404,15 @@ const styles = StyleSheet.create({
   switcherLabelActive: {
     color: '#FFFFFF',
   },
-  phoneOuter: {
-    width: 310,
-    height: 640,
-    backgroundColor: '#0F172A',
-    borderRadius: 44,
-    padding: 8,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.2,
-    shadowRadius: 36,
-    borderWidth: 4,
-    borderColor: '#1E293B',
-  },
-  phoneOuterMobile: {
-    width: 290,
-    height: 590,
-    borderRadius: 36,
-    padding: 6,
-  },
-  phoneSpeakerBar: {
-    height: 18,
   imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  speakerDot: {
-    width: 44,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#334155',
-  },
-  cameraDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#334155',
-  },
-  phoneScreen: {
-    flex: 1,
-    backgroundColor: '#FAFAFA',
-    borderRadius: 32,
-    overflow: 'hidden',
-  },
-  realAppImage: {
     width: '100%',
-    height: '100%',
   },
-  phoneHomeBar: {
-    height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
   mockupImage: {
     width: 370,
     height: 660,
   },
-  homeBar: {
-    width: 100,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#64748B',
   mockupImageMobile: {
     width: 300,
     height: 535,
