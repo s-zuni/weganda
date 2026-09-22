@@ -49,9 +49,23 @@ workflows:
           xcode-project use-profiles
       - name: 5. Build iOS IPA (App Store Distribution)
         script: |
-          xcode-project build-ipa \
-            --workspace "ios/weganda.xcworkspace" \
-            --scheme "weganda"
+          # 1. 생성된 workspace 및 project 파일 위치 확인
+          echo "=== Searching for Xcode workspace and project ==="
+          find . -maxdepth 3 \( -name "*.xcworkspace" -o -name "*.xcodeproj" \) -not -path "*/Pods/*"
+
+          # 2. ios 디렉터리 내의 .xcworkspace 우선 탐색 (Pods 내부 파일 제외)
+          WORKSPACE=$(find ios -maxdepth 2 -name "*.xcworkspace" -not -path "*/Pods/*" -not -path "*.xcodeproj/*" | head -n 1)
+          
+          if [ -n "$WORKSPACE" ]; then
+            SCHEME="weganda"
+            echo "Found workspace: $WORKSPACE, building scheme: $SCHEME"
+            xcode-project build-ipa --workspace "$WORKSPACE" --scheme "$SCHEME"
+          else
+            PROJECT=$(find ios -maxdepth 1 -name "*.xcodeproj" | head -n 1)
+            SCHEME="weganda"
+            echo "Workspace not found. Falling back to project: $PROJECT, scheme: $SCHEME"
+            xcode-project build-ipa --project "$PROJECT" --scheme "$SCHEME"
+          fi
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
