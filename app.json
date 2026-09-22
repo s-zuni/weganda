@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "우간다",
+    "name": "weganda",
     "slug": "weganda",
     "version": "1.0.6",
     "orientation": "portrait",
@@ -23,6 +23,7 @@
         "resizeMode": "contain"
       },
       "infoPlist": {
+        "CFBundleDisplayName": "우간다",
         "NSCalendarsUsageDescription": "근무표를 스마트폰 기본 캘린더에 동기화하기 위해 캘린더 접근 권한이 필요합니다.",
         "NSRemindersUsageDescription": "임상 알람을 리마인더에 등록하기 위해 접근 권한이 필요합니다.",
         "NSPhotoLibraryUsageDescription": "근무표 이미지를 업로드하거나 커뮤니티 게시글에 사진을 첨부하기 위해 사진 접근 권한이 필요합니다.",
