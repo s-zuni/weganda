@@ -33,6 +33,11 @@ export const LandingFeatureSpotlights: React.FC = () => {
               </View>
               <View style={styles.homeBar} />
             </View>
+            <Image
+              source={require('../../../assets/images/landing/screen_home.png')}
+              style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
+              resizeMode="contain"
+            />
           </View>
 
           <View style={[styles.contentCol, isMobile && styles.contentColMobile]}>
@@ -118,6 +123,11 @@ export const LandingFeatureSpotlights: React.FC = () => {
               </View>
               <View style={styles.homeBar} />
             </View>
+            <Image
+              source={require('../../../assets/images/landing/screen_friends.png')}
+              style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
+              resizeMode="contain"
+            />
           </View>
         </View>
 
@@ -137,6 +147,11 @@ export const LandingFeatureSpotlights: React.FC = () => {
               </View>
               <View style={styles.homeBar} />
             </View>
+            <Image
+              source={require('../../../assets/images/landing/screen_ai_chat.png')}
+              style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
+              resizeMode="contain"
+            />
           </View>
 
           <View style={[styles.contentCol, isMobile && styles.contentColMobile]}>
@@ -222,6 +237,11 @@ export const LandingFeatureSpotlights: React.FC = () => {
               </View>
               <View style={styles.homeBar} />
             </View>
+            <Image
+              source={require('../../../assets/images/landing/screen_study.png')}
+              style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
+              resizeMode="contain"
+            />
           </View>
         </View>
 
@@ -241,6 +261,11 @@ export const LandingFeatureSpotlights: React.FC = () => {
               </View>
               <View style={styles.homeBar} />
             </View>
+            <Image
+              source={require('../../../assets/images/landing/screen_community.png')}
+              style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
+              resizeMode="contain"
+            />
           </View>
 
           <View style={[styles.contentCol, isMobile && styles.contentColMobile]}>
@@ -326,6 +351,11 @@ export const LandingFeatureSpotlights: React.FC = () => {
               </View>
               <View style={styles.homeBar} />
             </View>
+            <Image
+              source={require('../../../assets/images/landing/screen_fortune.png')}
+              style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
+              resizeMode="contain"
+            />
           </View>
         </View>
       </View>
@@ -389,6 +419,14 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  mockupImage: {
+    width: 360,
+    height: 645,
+  },
+  mockupImageMobile: {
+    width: 290,
+    height: 520,
   },
   contentCol: {
     flex: 1,

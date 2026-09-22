@@ -202,6 +202,13 @@ export const LandingHero: React.FC = () => {
             <View style={styles.phoneHomeBar}>
               <View style={styles.homeBar} />
             </View>
+          {/* Clean Real App Mockup Image (No Code-rendered Outer Frame) */}
+          <View style={styles.imageContainer}>
+            <Image
+              source={currentMeta.image}
+              style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
+              resizeMode="contain"
+            />
           </View>
 
           <Text style={styles.previewCaption}>
@@ -377,6 +384,7 @@ const styles = StyleSheet.create({
   },
   rightCol: {
     flex: 0.9,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -437,6 +445,7 @@ const styles = StyleSheet.create({
   },
   phoneSpeakerBar: {
     height: 18,
+  imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -468,12 +477,18 @@ const styles = StyleSheet.create({
     height: 16,
     justifyContent: 'center',
     alignItems: 'center',
+  mockupImage: {
+    width: 370,
+    height: 660,
   },
   homeBar: {
     width: 100,
     height: 4,
     borderRadius: 2,
     backgroundColor: '#64748B',
+  mockupImageMobile: {
+    width: 300,
+    height: 535,
   },
   previewCaption: {
     fontSize: 12,
