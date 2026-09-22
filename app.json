@@ -17,6 +17,9 @@
       "bundleIdentifier": "com.weganda.app",
       "buildNumber": "6",
       "usesAppleSignIn": true,
+      "entitlements": {
+        "aps-environment": "production"
+      },
       "splash": {
         "image": "./src/assets/splash.png",
         "backgroundColor": "#FFFFFF",
