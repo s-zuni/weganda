@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFortuneStore, BirthInfo, PartnerBirthData } from '../../../store/useFortuneStore';
 import { SajuTopicItem } from '../../../mocks/sajuCategories';
 import { SajuBirthPicker } from './SajuBirthPicker';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 
 interface SajuTopicInputModalProps {
   visible: boolean;
@@ -111,7 +111,7 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView
+          <BottomSheetScrollView
             style={styles.scrollContent}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -177,7 +177,7 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
                 한국천문연구원(KASI) 정본 만세력 데이터를 기반으로 분 단위 절입 시각과 음양오행·신살을 오차 없이 계산합니다.
               </Text>
             </View>
-          </ScrollView>
+          </BottomSheetScrollView>
 
           {/* 하단 액션 버튼 */}
           <View style={styles.footer}>

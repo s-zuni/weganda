@@ -1,4 +1,5 @@
-export type AppThemeColor = 'pink' | 'deepGreen' | 'deepBlue' | 'yellow' | 'purple';
+import type { AppThemeColor } from '../constants/theme';
+export type { AppThemeColor };
 
 export interface UserProfile {
   id: string;

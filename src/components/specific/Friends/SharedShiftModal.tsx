@@ -11,7 +11,7 @@ import {
 import { COLORS } from '../../../constants/theme';
 import { FriendDetail } from '../../../mocks/friendsData';
 import { CommentIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 
 interface SharedShiftModalProps {
   visible: boolean;
@@ -75,7 +75,7 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {/* 상단 안내 박스 */}
             <View style={styles.infoBanner}>
               <Text style={styles.infoTitle}>
@@ -144,7 +144,7 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
                 ))
               )}
             </View>
-          </ScrollView>
+          </BottomSheetScrollView>
     </SwipeableBottomSheet>
   );
 };

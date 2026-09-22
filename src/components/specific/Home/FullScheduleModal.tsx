@@ -14,7 +14,7 @@ import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { nativeCalendarService } from '../../../services/nativeCalendarService';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 
 interface FullScheduleModalProps {
   visible: boolean;
@@ -152,7 +152,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {/* ── 월 네비게이션 ── */}
             <View style={styles.monthNavRow}>
               <TouchableOpacity
@@ -294,7 +294,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
                 </Text>
               )}
             </TouchableOpacity>
-          </ScrollView>
+      </BottomSheetScrollView>
     </SwipeableBottomSheet>
   );
 };

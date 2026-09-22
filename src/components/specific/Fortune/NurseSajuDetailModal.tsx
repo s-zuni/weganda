@@ -11,7 +11,7 @@ import { FiveElementsBar } from './FiveElementsBar';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { StethoscopeIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import {
   MOCK_FIVE_ELEMENTS,
   MOCK_WARD_RANKINGS,
@@ -67,7 +67,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
 
       {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
       {!isUnlocked ? (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <FortuneUnlockView
             fortuneType="saju"
             title="🔮 간호 사주 & 직장 궁합"
@@ -81,7 +81,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
             ]}
             onOpenBirthInfo={onOpenBirthInfo}
           />
-        </ScrollView>
+        </BottomSheetScrollView>
       ) : (
         <>
           {/* 3단 탭 네비게이션 */}
@@ -114,7 +114,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {/* ══════════ TAB 1: 내 직장과 나의 사주 오행 궁합 ══════════ */}
             {activeTab === 'elements' && (
               <View>
@@ -253,7 +253,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
                 </View>
               </View>
             )}
-          </ScrollView>
+          </BottomSheetScrollView>
         </>
       )}
     </SwipeableBottomSheet>

@@ -10,7 +10,7 @@ import { COLORS } from '../../../constants/theme';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { CoinsIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { MOCK_WEALTH_FORTUNE } from '../../../mocks/fortuneData';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 
@@ -60,7 +60,7 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
 
       {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
       {!isUnlocked ? (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <FortuneUnlockView
             fortuneType="wealth"
             title="💰 금전운 & 사주 재테크 전략"
@@ -73,7 +73,7 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
               '💎 부동산/금융 투자 시기 및 손실 방지 풍수 솔루션',
             ]}
           />
-        </ScrollView>
+        </BottomSheetScrollView>
       ) : (
         <>
           {/* 2단 탭 네비게이션 */}
@@ -98,7 +98,7 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
           </View>
 
 
-              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+              <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
             {/* ══════════ TAB 1: 사주 재테크 전략 & 자산 배분 ══════════ */}
             {activeTab === 'strategy' && (
@@ -209,7 +209,7 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
                 </View>
               </View>
             )}
-          </ScrollView>
+          </BottomSheetScrollView>
             </>
           )}
     </SwipeableBottomSheet>

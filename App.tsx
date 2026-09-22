@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Platform, AppState, AppStateStatus } from 'react-native';
+import { Platform, AppState, AppStateStatus, View, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { LandingScreen } from './src/screens/Landing/LandingScreen';
@@ -93,6 +93,7 @@ export default function App() {
     });
 
     // 3. 앱 포그라운드 복귀 시 토큰 갱신 및 세션 유효성 재확인 (1시간 초과 만료 방지)
+    // 3. 앱 포그라운드 복귀 시 토큰 갱신 (1시간 초과 만료 방지)
     const appStateSub = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
         supabase.auth.startAutoRefresh();
@@ -260,10 +261,11 @@ export default function App() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <ErrorBoundary>
-        {showSplash ? (
-          <SplashScreenView />
-        ) : (
-          <RootNavigator />
+        <RootNavigator />
+        {showSplash && (
+          <View style={StyleSheet.absoluteFill} pointerEvents="auto">
+            <SplashScreenView />
+          </View>
         )}
       </ErrorBoundary>
     </SafeAreaProvider>

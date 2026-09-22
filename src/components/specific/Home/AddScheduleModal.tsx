@@ -16,7 +16,7 @@ import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { ocrApi } from '../../../services/ocrApi';
 import { CustomShiftCode } from '../../../types/shift';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import {
   ScheduleUploadTab,
   ScheduleManualInputTab,
@@ -258,7 +258,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
         </TouchableOpacity>
       </View>
 
-      <ScrollView
+      <BottomSheetScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
@@ -307,7 +307,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
                 onSaveCustomCode={handleSaveCustomCode}
               />
             )}
-          </ScrollView>
+          </BottomSheetScrollView>
     </SwipeableBottomSheet>
   );
 };

@@ -1,4 +1,14 @@
-export type AppThemeColor = 'pink' | 'deepGreen' | 'deepBlue' | 'yellow' | 'purple';
+export type AppThemeColor =
+  | 'pink'
+  | 'deepBlue'
+  | 'deepGreen'
+  | 'yellow'
+  | 'purple'
+  | 'sageGreen'
+  | 'dustyRose'
+  | 'medicalTeal'
+  | 'midnightIndigo'
+  | 'matteCharcoal';
 
 export interface ThemeColors {
   primary: string;
@@ -106,6 +116,46 @@ export const THEME_PALETTES: Record<AppThemeColor, ThemeColors> = {
     primaryLight: '#7A3EB5',
     primaryMuted: '#B794DE',
     primaryTint: '#F3E8FF',
+    onPrimaryText: '#FFFFFF',
+  },
+  sageGreen: {
+    ...COMMON_BASE,
+    primary: '#4D6A5A',
+    primaryLight: '#658674',
+    primaryMuted: '#94AEA0',
+    primaryTint: '#EEF4F0',
+    onPrimaryText: '#FFFFFF',
+  },
+  dustyRose: {
+    ...COMMON_BASE,
+    primary: '#B35D72',
+    primaryLight: '#C9778B',
+    primaryMuted: '#E0A8B5',
+    primaryTint: '#FBF0F3',
+    onPrimaryText: '#FFFFFF',
+  },
+  medicalTeal: {
+    ...COMMON_BASE,
+    primary: '#0D7C85',
+    primaryLight: '#1CA3AE',
+    primaryMuted: '#79C9D0',
+    primaryTint: '#E8F6F7',
+    onPrimaryText: '#FFFFFF',
+  },
+  midnightIndigo: {
+    ...COMMON_BASE,
+    primary: '#4338CA',
+    primaryLight: '#5B4FDE',
+    primaryMuted: '#968EF0',
+    primaryTint: '#EEF2FF',
+    onPrimaryText: '#FFFFFF',
+  },
+  matteCharcoal: {
+    ...COMMON_BASE,
+    primary: '#333D4B',
+    primaryLight: '#4E5968',
+    primaryMuted: '#8B95A1',
+    primaryTint: '#F2F4F6',
     onPrimaryText: '#FFFFFF',
   },
 };

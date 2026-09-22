@@ -15,7 +15,7 @@ import { FREE_LIMITS } from '../../../constants/membership';
 import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { CalculatorIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 
 interface DrugCalculatorModalProps {
   visible: boolean;
@@ -152,7 +152,7 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
         </TouchableOpacity>
       </View>
 
-      <ScrollView
+      <BottomSheetScrollView
         style={styles.scroll}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
@@ -391,7 +391,7 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
               • 고위험 혈관수축제는 말초 유출 시 피부 괴사 위험이 있으므로 C-line 투여를 권장합니다.
             </Text>
           </View>
-        </ScrollView>
+        </BottomSheetScrollView>
 
         <PaywallBottomSheet
           visible={paywallVisible}

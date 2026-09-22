@@ -11,7 +11,7 @@ import {
 import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 import { PencilIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { useDailyNoteStore } from '../../../store/useDailyNoteStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { SbarSummaryModal } from './SbarSummaryModal';
@@ -112,7 +112,7 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
         </TouchableOpacity>
       </View>
 
-          <ScrollView
+          <BottomSheetScrollView
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.scrollContent}
@@ -234,7 +234,7 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
                 </View>
               ))
             )}
-          </ScrollView>
+          </BottomSheetScrollView>
 
       {/* 📋 원터치 AI SBAR 인수인계 요약 모달 */}
       <SbarSummaryModal

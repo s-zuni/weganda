@@ -421,7 +421,9 @@ export const useUserStore = create<UserState>()(
   // 앱 시작 시 기존 세션 및 프로필 복원 (자동 로그인)
   initializeAuth: async () => {
     try {
-      set({ isLoading: true });
+      if (!get().isAuthenticated) {
+        set({ isLoading: true });
+      }
       const {
         data: { session },
       } = await supabase.auth.getSession();

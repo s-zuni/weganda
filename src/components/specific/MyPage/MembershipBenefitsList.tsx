@@ -17,8 +17,8 @@ export const MEMBERSHIP_BENEFITS = [
   {
     key: 'theme',
     title: '앱 커스텀 컬러 설정',
-    description: '딥 그린, 딥 블루, 옐로, 퍼플 등\n나만의 앱 테마 컬러를 설정하세요',
-    freeLimit: '기본 핑크만 사용 가능',
+    description: '세이지, 더스티로즈, 차콜 등 8종\n나만의 프리미엄 테마 컬러를 설정하세요',
+    freeLimit: '핑크, 네이비 무료 제공',
     iconColor: '#9B51E0',
     Icon: PaletteIcon,
   },

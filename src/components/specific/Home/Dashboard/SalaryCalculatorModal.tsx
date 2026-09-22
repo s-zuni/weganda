@@ -15,7 +15,7 @@ import { COLORS, useAppTheme } from '../../../../constants/theme';
 import { useSalaryStore } from '../../../../store/useSalaryStore';
 import { useShiftScheduleStore } from '../../../../store/useShiftScheduleStore';
 import { ChartBarIcon } from '../../../common/Icon';
-import { SwipeableBottomSheet } from '../../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../../common/SwipeableBottomSheet';
 
 interface SalaryCalculatorModalProps {
   visible: boolean;
@@ -127,7 +127,7 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView
+          <BottomSheetScrollView
             style={styles.bodyScroll}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -242,7 +242,7 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
                 💡 병원 및 병동마다 수당 지침과 산정 방식(통상임금 기준, 야간간호관리료 지급 기준 등)이 상이합니다. 입력된 근무 및 급여 데이터가 적을수록 오차범위가 커지며, 데이터가 누적되고 실제 급여명세서를 반영할수록 예측 정확도는 높아집니다.
               </Text>
             </View>
-          </ScrollView>
+          </BottomSheetScrollView>
 
           {/* 하단 저장 버튼 */}
           <View style={styles.footerContainer}>

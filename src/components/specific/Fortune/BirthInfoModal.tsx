@@ -13,7 +13,7 @@ import { useFortuneStore } from '../../../store/useFortuneStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { profileApi } from '../../../services/profileApi';
 import { CalendarIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 
 export interface BirthInfoModalProps {
   visible: boolean;
@@ -181,7 +181,7 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
         </TouchableOpacity>
       </View>
 
-      <ScrollView
+      <BottomSheetScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
@@ -479,7 +479,7 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.85}>
               <Text style={styles.saveBtnText}>사주 정보 저장 및 정밀 분석하기</Text>
             </TouchableOpacity>
-          </ScrollView>
+          </BottomSheetScrollView>
     </SwipeableBottomSheet>
   );
 };

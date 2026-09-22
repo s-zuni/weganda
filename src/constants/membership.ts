@@ -1,5 +1,5 @@
-// App theme color type and options
-export type AppThemeColor = 'pink' | 'deepGreen' | 'deepBlue' | 'yellow' | 'purple';
+import type { AppThemeColor } from './theme';
+export type { AppThemeColor };
 
 export interface ThemeColorOption {
   key: AppThemeColor;
@@ -10,10 +10,15 @@ export interface ThemeColorOption {
 
 export const APP_THEME_COLORS: ThemeColorOption[] = [
   { key: 'pink', label: '비바 코랄 핑크 (기본)', hex: '#FF507C', isPremiumOnly: false },
+  { key: 'deepBlue', label: '네이비', hex: '#1E3A5F', isPremiumOnly: false },
   { key: 'deepGreen', label: '딥 그린', hex: '#1B4332', isPremiumOnly: true },
-  { key: 'deepBlue', label: '딥 블루', hex: '#1E3A5F', isPremiumOnly: true },
   { key: 'yellow', label: '머스타드 옐로', hex: '#C49B2A', isPremiumOnly: true },
   { key: 'purple', label: '로얄 퍼플', hex: '#5B2C8E', isPremiumOnly: true },
+  { key: 'sageGreen', label: '세이지 올리브', hex: '#4D6A5A', isPremiumOnly: true },
+  { key: 'dustyRose', label: '더스티 로즈', hex: '#B35D72', isPremiumOnly: true },
+  { key: 'medicalTeal', label: '메디컬 틸', hex: '#0D7C85', isPremiumOnly: true },
+  { key: 'midnightIndigo', label: '미드나잇 인디고', hex: '#4338CA', isPremiumOnly: true },
+  { key: 'matteCharcoal', label: '매트 차콜', hex: '#333D4B', isPremiumOnly: true },
 ];
 
 // Benefit definition
@@ -27,7 +32,7 @@ export interface PremiumBenefit {
 
 export const PREMIUM_BENEFITS: PremiumBenefit[] = [
   // 1. Custom theme colors
-  { key: 'theme', icon: 'PaletteIcon', title: '앱 커스텀 컬러 설정', description: '딥 그린, 딥 블루, 옐로, 퍼플 등\n나만의 앱 테마 컬러를 설정하세요', freeLimit: '기본 핑크만 사용 가능' },
+  { key: 'theme', icon: 'PaletteIcon', title: '앱 커스텀 컬러 설정', description: '세이지, 더스티로즈, 차콜 등 8종\n나만의 프리미엄 테마 컬러를 설정하세요', freeLimit: '기본 핑크, 네이비 무료' },
   // 2. Unlimited fortune
   { key: 'fortune', icon: 'FortuneIcon', title: '사주 서비스 무제한 제공', description: '매달 횟수 제한 없이\n간호 운세와 정밀 사주를 확인하세요', freeLimit: '월 5회 제한' },
   // 3. Salary predictor (Killer feature)

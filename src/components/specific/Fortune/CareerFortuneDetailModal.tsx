@@ -12,7 +12,7 @@ import { COLORS } from '../../../constants/theme';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { BriefcaseIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { MOCK_CAREER_FORTUNE } from '../../../mocks/fortuneData';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 
@@ -86,7 +86,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
 
       {/* 확인하기 전: 유료화 대비 언락 프리뷰 뷰 */}
       {!isUnlocked ? (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <FortuneUnlockView
             fortuneType="career"
             title="💼 직업운 & 이직·동료 케미"
@@ -99,7 +99,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
               '🛡️ 이직·부서 이동 시 대인관계 스트레스 예방 가이드',
             ]}
           />
-        </ScrollView>
+        </BottomSheetScrollView>
       ) : (
         <>
           {/* 2단 탭 네비게이션 */}
@@ -124,7 +124,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
           </View>
 
 
-              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+              <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {/* ══════════ TAB 1: 이직운 & 10년 대운세 ══════════ */}
                 {activeTab === 'transfer' && (
                   <View>
@@ -265,7 +265,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
                 </View>
               </View>
             )}
-          </ScrollView>
+          </BottomSheetScrollView>
             </>
           )}
     </SwipeableBottomSheet>

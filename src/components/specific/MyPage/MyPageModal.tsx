@@ -1173,7 +1173,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   themeColorLabel: {
-    fontSize: 13,
+    fontSize: 11,
+    lineHeight: 14,
     fontWeight: '600',
     color: COLORS.textPrimary,
     textAlign: 'center',

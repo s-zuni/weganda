@@ -19,7 +19,7 @@ import {
   CalendarIcon,
   CommentIcon,
 } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 
 interface FriendProfileModalProps {
@@ -96,7 +96,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {/* ── 프로필 상단 카드 ── */}
             <View style={styles.profileCard}>
               <View style={styles.profileTopRow}>
@@ -272,7 +272,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
                 <Text style={styles.messageBtnText}>1:1 메시지 보내기</Text>
               </TouchableOpacity>
             </View>
-          </ScrollView>
+          </BottomSheetScrollView>
     </SwipeableBottomSheet>
   );
 };

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { COLORS } from '../../../constants/theme';
 import { ClockIcon, PencilIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { useAlarmStore, CustomAlarmPreset } from '../../../store/useAlarmStore';
 import { ClinicalAlarm } from '../../../types/alarm';
 import { useUserStore } from '../../../store/useUserStore';
@@ -161,7 +161,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
         </TouchableOpacity>
       </View>
 
-      <ScrollView
+      <BottomSheetScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
@@ -387,7 +387,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
                 </View>
               ))
             )}
-          </ScrollView>
+          </BottomSheetScrollView>
     </SwipeableBottomSheet>
   );
 };

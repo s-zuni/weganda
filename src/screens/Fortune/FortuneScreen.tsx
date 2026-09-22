@@ -115,6 +115,7 @@ export const FortuneScreen: React.FC = () => {
         {/* 오늘의 행운 (컬러, 숫자, 방향, 임상 아이템) */}
         <LuckyItemsSection
           color={currentFortune?.lucky?.color}
+          colorHex={currentFortune?.lucky?.colorHex}
           number={currentFortune?.lucky?.number}
           direction={currentFortune?.lucky?.direction}
           item={currentFortune?.lucky?.item}

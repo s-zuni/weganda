@@ -10,7 +10,7 @@ import {
 import { COLORS } from '../../../constants/theme';
 import { useNotificationStore } from '../../../store/useNotificationStore';
 import { BellIcon, TrashIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 
 interface NotificationModalProps {
   visible: boolean;
@@ -76,7 +76,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
           </View>
 
           {/* 알림 리스트 */}
-          <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+          <BottomSheetScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
             {notifications.length === 0 ? (
               <View style={styles.emptyBox}>
                 <Text style={styles.emptyText}>새로운 알림이 없습니다.</Text>
@@ -114,7 +114,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
                 );
               })
             )}
-          </ScrollView>
+          </BottomSheetScrollView>
     </SwipeableBottomSheet>
   );
 };

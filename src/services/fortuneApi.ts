@@ -18,6 +18,7 @@ export interface FortuneResult {
   lucky: {
     item: string;
     color: string;
+    colorHex?: string;
     number: number;
     direction: string;
   };
@@ -45,7 +46,7 @@ export interface FortuneGenerateParams {
   };
 }
 
-import { getDailyLuckyInfo } from '../utils/dailyFortuneGenerator';
+import { getDailyLuckyInfo, cleanLuckyColorName, getLuckyColorHex } from '../utils/dailyFortuneGenerator';
 
 // 오프라인 또는 일시적 오류 시 기본 제공 운세 폴백 (매일 날짜 기반 자동 갱신)
 function getDefaultFortuneFallback(params?: FortuneGenerateParams): FortuneResult {
@@ -66,7 +67,8 @@ function getDefaultFortuneFallback(params?: FortuneGenerateParams): FortuneResul
     },
     lucky: {
       item: dailyLucky.item,
-      color: `${dailyLucky.colorName} (${dailyLucky.colorHex})`,
+      color: dailyLucky.colorName,
+      colorHex: dailyLucky.colorHex,
       number: dailyLucky.number,
       direction: dailyLucky.direction,
     },
@@ -159,6 +161,21 @@ async function fetchFromOpenAiDirect(params?: FortuneGenerateParams): Promise<Fo
   return JSON.parse(content) as FortuneResult;
 }
 
+function normalizeFortuneResult(result: FortuneResult): FortuneResult {
+  if (!result.lucky) return result;
+  const rawColor = result.lucky.color;
+  const color = cleanLuckyColorName(rawColor);
+  const colorHex = result.lucky.colorHex || getLuckyColorHex(color);
+  return {
+    ...result,
+    lucky: {
+      ...result.lucky,
+      color,
+      colorHex,
+    },
+  };
+}
+
 export const fortuneApi = {
   // AI 간호 운세 & 바이오리듬 생성 (F1 ~ F5)
   async generateFortune(params?: FortuneGenerateParams): Promise<FortuneResult> {
@@ -182,7 +199,7 @@ export const fortuneApi = {
       });
 
       if (edgeResult) {
-        return edgeResult;
+        return normalizeFortuneResult(edgeResult);
       }
 
       // 2. Edge Function 미배포/오류 시 OpenAI 직접 호출 시도 (키 설정 시)
@@ -192,7 +209,7 @@ export const fortuneApi = {
       });
 
       if (directResult && directResult.title) {
-        return directResult;
+        return normalizeFortuneResult(directResult);
       }
 
       return getDefaultFortuneFallback(params);

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/theme';
-import { getDailyLuckyInfo } from '../../../utils/dailyFortuneGenerator';
+import { getDailyLuckyInfo, getLuckyColorHex, cleanLuckyColorName } from '../../../utils/dailyFortuneGenerator';
 
 interface LuckyItemsSectionProps {
   color?: string;
@@ -23,8 +23,9 @@ export const LuckyItemsSection: React.FC<LuckyItemsSectionProps> = ({
   // 오늘 날짜 기준 매일 갱신되는 데일리 행운 기본값
   const dailyLucky = useMemo(() => getDailyLuckyInfo(new Date(), birthDate), [birthDate]);
 
-  const displayColor = color || dailyLucky.colorName;
-  const displayColorHex = colorHex || dailyLucky.colorHex;
+  const rawColor = color || dailyLucky.colorName;
+  const displayColor = cleanLuckyColorName(rawColor);
+  const displayColorHex = colorHex || getLuckyColorHex(displayColor) || dailyLucky.colorHex;
   const displayNumber = number !== undefined && number !== null ? number : dailyLucky.number;
   const displayDirection = direction || dailyLucky.direction;
   const displayItem = item || dailyLucky.item;

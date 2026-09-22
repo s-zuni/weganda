@@ -20,7 +20,7 @@ import {
   VerificationType,
   VerificationSubmissionData,
 } from '../../../types/verification';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { DocumentPickerActionSheet, PickedDocument } from '../../common/DocumentPickerActionSheet';
 
 interface VerificationModalProps {
@@ -158,7 +158,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView
+          <BottomSheetScrollView
             style={styles.scrollBody}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -459,7 +459,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
             )}
 
             <View style={{ height: 40 }} />
-          </ScrollView>
+          </BottomSheetScrollView>
       </View>
       <DocumentPickerActionSheet
         useModal={false}

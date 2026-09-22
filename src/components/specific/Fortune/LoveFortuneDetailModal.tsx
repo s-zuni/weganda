@@ -12,7 +12,7 @@ import { COLORS } from '../../../constants/theme';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { HeartIcon } from '../../common/Icon';
-import { SwipeableBottomSheet } from '../../common/SwipeableBottomSheet';
+import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { SajuBirthPicker } from './SajuBirthPicker';
 import { MOCK_LOVE_FORTUNE } from '../../../mocks/fortuneData';
 import { useFortuneStore } from '../../../store/useFortuneStore';
@@ -90,7 +90,7 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
 
       {/* 미열람 잠금 오버레이 / 언락 화면 */}
       {!isUnlocked ? (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <FortuneUnlockView
             fortuneType="love"
             title="💖 애정운 & 사주·MBTI 궁합"
@@ -103,7 +103,7 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
               '💍 결혼 궁합 지수 및 현실적 주의점 체크리스트',
             ]}
           />
-        </ScrollView>
+        </BottomSheetScrollView>
       ) : (
         <>
           {/* 3단 탭 네비게이션 */}
@@ -137,7 +137,7 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
           </View>
 
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
             {/* ══════════ TAB 1: 애인과의 사주 & MBTI 궁합 ══════════ */}
             {activeTab === 'couple' && (
               <View>
@@ -334,7 +334,7 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
                 </View>
               </View>
             )}
-          </ScrollView>
+          </BottomSheetScrollView>
         </>
       )}
     </SwipeableBottomSheet>
