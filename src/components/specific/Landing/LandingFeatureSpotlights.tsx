@@ -20,19 +20,6 @@ export const LandingFeatureSpotlights: React.FC = () => {
         {/* ── Feature 01: 스마트 듀티 홈 & 캘린더 (screen_home.png) ── */}
         <View style={[styles.spotlightRow, isMobile && styles.spotlightRowMobile]}>
           <View style={styles.visualCard}>
-            <View style={[styles.phoneFrame, isMobile && styles.phoneFrameMobile]}>
-              <View style={styles.phoneSpeaker}>
-                <View style={styles.speakerDot} />
-              </View>
-              <View style={styles.screenWrap}>
-                <Image
-                  source={require('../../../assets/images/landing/screen_home.png')}
-                  style={styles.screenImage}
-                  resizeMode="cover"
-                />
-              </View>
-              <View style={styles.homeBar} />
-            </View>
             <Image
               source={require('../../../assets/images/landing/screen_home.png')}
               style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
@@ -110,19 +97,6 @@ export const LandingFeatureSpotlights: React.FC = () => {
           </View>
 
           <View style={styles.visualCard}>
-            <View style={[styles.phoneFrame, isMobile && styles.phoneFrameMobile]}>
-              <View style={styles.phoneSpeaker}>
-                <View style={styles.speakerDot} />
-              </View>
-              <View style={styles.screenWrap}>
-                <Image
-                  source={require('../../../assets/images/landing/screen_friends.png')}
-                  style={styles.screenImage}
-                  resizeMode="cover"
-                />
-              </View>
-              <View style={styles.homeBar} />
-            </View>
             <Image
               source={require('../../../assets/images/landing/screen_friends.png')}
               style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
@@ -134,19 +108,6 @@ export const LandingFeatureSpotlights: React.FC = () => {
         {/* ── Feature 03: 24시간 임상 AI 챗봇 (screen_ai_chat.png) ── */}
         <View style={[styles.spotlightRow, isMobile && styles.spotlightRowMobile]}>
           <View style={styles.visualCard}>
-            <View style={[styles.phoneFrame, isMobile && styles.phoneFrameMobile]}>
-              <View style={styles.phoneSpeaker}>
-                <View style={styles.speakerDot} />
-              </View>
-              <View style={styles.screenWrap}>
-                <Image
-                  source={require('../../../assets/images/landing/screen_ai_chat.png')}
-                  style={styles.screenImage}
-                  resizeMode="cover"
-                />
-              </View>
-              <View style={styles.homeBar} />
-            </View>
             <Image
               source={require('../../../assets/images/landing/screen_ai_chat.png')}
               style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
@@ -224,19 +185,6 @@ export const LandingFeatureSpotlights: React.FC = () => {
           </View>
 
           <View style={styles.visualCard}>
-            <View style={[styles.phoneFrame, isMobile && styles.phoneFrameMobile]}>
-              <View style={styles.phoneSpeaker}>
-                <View style={styles.speakerDot} />
-              </View>
-              <View style={styles.screenWrap}>
-                <Image
-                  source={require('../../../assets/images/landing/screen_study.png')}
-                  style={styles.screenImage}
-                  resizeMode="cover"
-                />
-              </View>
-              <View style={styles.homeBar} />
-            </View>
             <Image
               source={require('../../../assets/images/landing/screen_study.png')}
               style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
@@ -248,19 +196,6 @@ export const LandingFeatureSpotlights: React.FC = () => {
         {/* ── Feature 05: 간호사·간호학생 인증 안심 커뮤니티 (screen_community.png) ── */}
         <View style={[styles.spotlightRow, isMobile && styles.spotlightRowMobile]}>
           <View style={styles.visualCard}>
-            <View style={[styles.phoneFrame, isMobile && styles.phoneFrameMobile]}>
-              <View style={styles.phoneSpeaker}>
-                <View style={styles.speakerDot} />
-              </View>
-              <View style={styles.screenWrap}>
-                <Image
-                  source={require('../../../assets/images/landing/screen_community.png')}
-                  style={styles.screenImage}
-                  resizeMode="cover"
-                />
-              </View>
-              <View style={styles.homeBar} />
-            </View>
             <Image
               source={require('../../../assets/images/landing/screen_community.png')}
               style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
@@ -338,19 +273,6 @@ export const LandingFeatureSpotlights: React.FC = () => {
           </View>
 
           <View style={styles.visualCard}>
-            <View style={[styles.phoneFrame, isMobile && styles.phoneFrameMobile]}>
-              <View style={styles.phoneSpeaker}>
-                <View style={styles.speakerDot} />
-              </View>
-              <View style={styles.screenWrap}>
-                <Image
-                  source={require('../../../assets/images/landing/screen_fortune.png')}
-                  style={styles.screenImage}
-                  resizeMode="cover"
-                />
-              </View>
-              <View style={styles.homeBar} />
-            </View>
             <Image
               source={require('../../../assets/images/landing/screen_fortune.png')}
               style={[styles.mockupImage, isMobile && styles.mockupImageMobile]}
@@ -421,12 +343,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mockupImage: {
-    width: 360,
-    height: 645,
+    width: 370,
+    height: 660,
   },
   mockupImageMobile: {
-    width: 290,
-    height: 520,
+    width: 300,
+    height: 535,
   },
   contentCol: {
     flex: 1,
@@ -492,53 +414,5 @@ const styles = StyleSheet.create({
     color: '#64748B',
     lineHeight: 18,
   },
-  phoneFrame: {
-    width: 290,
-    height: 600,
-    backgroundColor: '#0F172A',
-    borderRadius: 40,
-    padding: 7,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.18,
-    shadowRadius: 32,
-    borderWidth: 3.5,
-    borderColor: '#1E293B',
-  },
-  phoneFrameMobile: {
-    width: 270,
-    height: 550,
-    borderRadius: 34,
-    padding: 6,
-  },
-  phoneSpeaker: {
-    height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  speakerDot: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#334155',
-  },
-  screenWrap: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 30,
-    overflow: 'hidden',
-  },
-  screenImage: {
-    width: '100%',
-    height: '100%',
-  },
-  homeBar: {
-    width: 90,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#64748B',
-    alignSelf: 'center',
-    marginTop: 6,
-    marginBottom: 2,
-  },
 });
+
