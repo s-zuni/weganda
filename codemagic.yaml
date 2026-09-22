@@ -11,8 +11,6 @@ workflows:
         - app_store_credentials # Codemagic UI의 Environment variables 그룹
       vars:
         BUNDLE_ID: "com.weganda.app"
-        XCODE_WORKSPACE: "ios/weganda.xcworkspace"
-        XCODE_SCHEME: "weganda"
         EXPO_PUBLIC_APP_ENV: "production"
         EXPO_PUBLIC_SUPABASE_URL: "https://vegtlnhgfjxdntnxbztb.supabase.co"
         EXPO_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ3RsbmhnZmp4ZG50bnhienRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NjU2NzUsImV4cCI6MjEwNDE0MTY3NX0.BouXAkcbuwwUvIBWxpP6Rxs7BhzN9evcEQMJiIwqo2g"
@@ -49,15 +47,24 @@ workflows:
           cd ..
       - name: 5. Build iOS IPA (App Store Distribution)
         script: |
-          WORKSPACE=$(ls -d ios/*.xcworkspace 2>/dev/null | head -n 1)
-          if [ -z "$WORKSPACE" ]; then
-            WORKSPACE="ios/weganda.xcworkspace"
+          echo "=== Searching for Xcode workspace and project ==="
+          find . -maxdepth 3 \( -name "*.xcworkspace" -o -name "*.xcodeproj" \) -not -path "*/Pods/*"
+
+          WORKSPACE=$(find . -maxdepth 2 -name "*.xcworkspace" -not -path "*/Pods/*" | head -n 1)
+          PROJECT=$(find . -maxdepth 2 -name "*.xcodeproj" -not -path "*/Pods/*" | head -n 1)
+
+          if [ -n "$WORKSPACE" ]; then
+            SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+            echo "Building with workspace: $WORKSPACE, scheme: $SCHEME"
+            xcode-project build-ipa --workspace "$WORKSPACE" --scheme "$SCHEME"
+          elif [ -n "$PROJECT" ]; then
+            SCHEME=$(basename "$PROJECT" .xcodeproj)
+            echo "Building with project: $PROJECT, scheme: $SCHEME"
+            xcode-project build-ipa --project "$PROJECT" --scheme "$SCHEME"
+          else
+            echo "Auto-detecting build target with xcode-project build-ipa"
+            xcode-project build-ipa
           fi
-          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
-          echo "Building iOS IPA with workspace: $WORKSPACE, scheme: $SCHEME"
-          xcode-project build-ipa \
-            --workspace "$WORKSPACE" \
-            --scheme "$SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
