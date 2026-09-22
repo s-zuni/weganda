@@ -13,38 +13,44 @@ import { COLORS } from '../../../constants/theme';
 import { waitlistApi } from '../../../services/waitlistApi';
 import { useResponsive } from '../../../utils/useResponsive';
 
-type ScreenKey = 'home' | 'friends' | 'study' | 'fortune' | 'community';
+type ScreenKey = 'home' | 'friends' | 'ai_chat' | 'study' | 'community' | 'fortune';
 
 const SCREEN_META: { key: ScreenKey; label: string; icon: string; image: any }[] = [
   {
     key: 'home',
     label: '스마트 듀티',
-    icon: '🏠',
-    image: require('../../../assets/images/screens/home.png'),
+    icon: '📅',
+    image: require('../../../assets/images/landing/screen_home.png'),
   },
   {
     key: 'friends',
-    label: '동기 듀티',
-    icon: '👥',
-    image: require('../../../assets/images/screens/friends.png'),
+    label: '동기 듀티·채팅',
+    icon: '💬',
+    image: require('../../../assets/images/landing/screen_friends.png'),
+  },
+  {
+    key: 'ai_chat',
+    label: '임상 AI 챗봇',
+    icon: '🤖',
+    image: require('../../../assets/images/landing/screen_ai_chat.png'),
   },
   {
     key: 'study',
-    label: '임상 학습',
-    icon: '📚',
-    image: require('../../../assets/images/screens/study.png'),
+    label: '약물 계산기',
+    icon: '💊',
+    image: require('../../../assets/images/landing/screen_study.png'),
+  },
+  {
+    key: 'community',
+    label: '인증 커뮤니티',
+    icon: '🏥',
+    image: require('../../../assets/images/landing/screen_community.png'),
   },
   {
     key: 'fortune',
     label: '듀티 운세',
     icon: '🔮',
-    image: require('../../../assets/images/screens/fortune.png'),
-  },
-  {
-    key: 'community',
-    label: '커뮤니티',
-    icon: '💬',
-    image: require('../../../assets/images/screens/community.png'),
+    image: require('../../../assets/images/landing/screen_fortune.png'),
   },
 ];
 
@@ -90,7 +96,7 @@ export const LandingHero: React.FC = () => {
 
           <Text style={[styles.subtitle, isMobile && styles.subtitleMobile]}>
             복잡한 3교대 근무표 정리, 동기들과의 오프 맞추기,{'\n'}
-            투약 전 헷갈리는 약물 점적 계산까지.{'\n'}
+            24시간 임상 AI 질문과 투약 전 약물 계산까지.{'\n'}
             간호사만을 위한 올인원 서비스가 곧 찾아옵니다.
           </Text>
 
@@ -385,7 +391,7 @@ const styles = StyleSheet.create({
     gap: 6,
     marginBottom: 16,
     width: '100%',
-    maxWidth: 340,
+    maxWidth: 360,
   },
   switcherTab: {
     flexDirection: 'row',

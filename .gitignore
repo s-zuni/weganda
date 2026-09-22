@@ -68,6 +68,7 @@ check-*.mjs
 *.bmp
 *.tiff
 *.avif
+!src/assets/**
 
 # 📦 패키지 및 아카이브 파일 (zip, tgz, tar, apk, aab, ipa 등 패키지파일 ignore)
 *.zip
