@@ -20,7 +20,7 @@ workflows:
         provisioning_profiles:
           - weganda_AppStore.mobileprovision
       node: 20.18.0
-      xcode: 16.0
+      xcode: latest
       cocoapods: default
     triggering:
       events:
