@@ -16,6 +16,11 @@ workflows:
         EXPO_PUBLIC_APP_ENV: "production"
         EXPO_PUBLIC_SUPABASE_URL: "https://vegtlnhgfjxdntnxbztb.supabase.co"
         EXPO_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ3RsbmhnZmp4ZG50bnhienRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NjU2NzUsImV4cCI6MjEwNDE0MTY3NX0.BouXAkcbuwwUvIBWxpP6Rxs7BhzN9evcEQMJiIwqo2g"
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.weganda.app
+        provisioning_profiles:
+          - weganda_AppStore.mobileprovision
       node: 20.18.0
       xcode: 16.0
       cocoapods: default
@@ -39,14 +44,19 @@ workflows:
           cd ios
           pod install
           cd ..
-      - name: 4. Set up Apple Code Signing via App Store Connect API
+      - name: 4. Set up Apple Code Signing
         script: |
           keychain initialize
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
-            --create
+            --create \
+            --verbose || true
           keychain add-certificates
-          xcode-project use-profiles
+          echo "=== Installed Provisioning Profiles in ~/Library/MobileDevice ==="
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
+          echo "=== Applying Provisioning Profiles to Xcode Project ==="
+          xcode-project use-profiles \
+            --project "ios/weganda.xcodeproj"
       - name: 5. Build iOS IPA (App Store Distribution)
         script: |
           # 1. 생성된 workspace 및 project 파일 위치 확인
