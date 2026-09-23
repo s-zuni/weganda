@@ -36,11 +36,14 @@ workflows:
           npm ci --legacy-peer-deps
       - name: 2. Expo Prebuild (Generate Native iOS Project)
         script: |
-          npx expo prebuild --platform ios --clean
+          npx expo prebuild --platform ios --clean --no-install
       - name: 3. Install CocoaPods Dependencies
         script: |
+          set -e
           cd ios
-          pod install
+          pod install --repo-update
+          echo "=== iOS directory contents after pod install ==="
+          ls -la
           cd ..
       - name: 4. Set up Apple Code Signing
         script: |
