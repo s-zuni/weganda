@@ -28,7 +28,7 @@ export const MEMBERSHIP_TERMS: LegalDocument = {
         {
           items: [
             '• weganda+ 월간 정기구독: 월 5,900~7,900원 (VAT 포함, 출시 프로모션 및 결제 플랫폼 기준 적용)',
-            '• weganda+ 연간 정기구독: 연 59,000~70,000원 (VAT 포함, 최대 25% 할인 혜택 적용)',
+            '• weganda+ 연간 정기구독: 연 59,000~79,000원 (VAT 포함, 최대 25% 할인 혜택 적용)',
           ],
         },
         {

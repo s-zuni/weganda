@@ -378,9 +378,9 @@ export const AdminPaymentsTab: React.FC = () => {
           <View style={styles.sectionTitleBox}>
             <Text style={styles.sectionIcon}>⭐</Text>
             <View>
-              <Text style={styles.sectionTitle}>이벤트 3: 연간 멤버십 평생 59,000원 특가 (정상가 70,000원)</Text>
+              <Text style={styles.sectionTitle}>이벤트 3: 연간 멤버십 평생 59,000원 특가 (정상가 79,000원)</Text>
               <Text style={styles.sectionDesc}>
-                출시 1개월간 연간 결제 시 기존 70,000원을 평생 59,000원(월 4,916원 꼴)에 제공
+                출시 1개월간 연간 결제 시 기존 79,000원을 평생 59,000원(월 4,916원 꼴)에 제공
               </Text>
             </View>
           </View>
@@ -532,7 +532,7 @@ export const AdminPaymentsTab: React.FC = () => {
           <View style={[styles.skuTableRow, { borderBottomWidth: 0 }]}>
             <Text style={[styles.skuTd, { flex: 2 }]}>연간 정규 구독 (평시)</Text>
             <Text style={[styles.skuTd, { flex: 3, color: '#475569' }]}>{IAP_SKUS.YEARLY_STANDARD}</Text>
-            <Text style={[styles.skuTd, { flex: 1.5 }]}>70,000원 / 년</Text>
+            <Text style={[styles.skuTd, { flex: 1.5 }]}>79,000원 / 년</Text>
             <Text style={[styles.skuTd, { flex: 2, fontSize: 11 }]}>기본 정기구독</Text>
           </View>
         </View>

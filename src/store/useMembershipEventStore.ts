@@ -70,7 +70,7 @@ const createDefaultConfig = (): MembershipEventConfig => {
       startDate,
       endDate: end1m,
     },
-    // 이벤트 3: 출시 후 1개월간 연간 59,000원 평생 할인 (정상가 70,000원)
+    // 이벤트 3: 출시 후 1개월간 연간 59,000원 평생 할인 (정상가 79,000원)
     yearlyDiscountEvent: {
       isEnabled: true,
       durationMonths: 1,

@@ -52,7 +52,7 @@ export const FREE_LIMITS = {
 // 정규 멤버십 가격
 export const STANDARD_PRICING = {
   monthly: 7900,
-  yearly: 70000,
+  yearly: 79000,
 } as const;
 
 // 출시 얼리버드 평생할인 가격
@@ -71,12 +71,12 @@ export const IAP_SKUS = {
   YEARLY_STANDARD: 'com.weganda.app.sub.yearly.standard',
 
   // 출시 얼리버드 평생할인 SKU
-  MONTHLY_EARLYBIRD: 'com.weganda.app.sub.monthly.earlybird',
+  MONTHLY_EARLYBIRD: 'com.weganda.app.sub.monthly.earlybird.plus',
   YEARLY_EARLYBIRD: 'com.weganda.app.sub.yearly.earlybird',
 
   // 하위 호환성 유지
-  SUBSCRIPTION_MONTHLY_IOS: 'com.weganda.app.sub.monthly.earlybird',
-  SUBSCRIPTION_MONTHLY_ANDROID: 'com.weganda.app.sub.monthly.earlybird',
+  SUBSCRIPTION_MONTHLY_IOS: 'com.weganda.app.sub.monthly.earlybird.plus',
+  SUBSCRIPTION_MONTHLY_ANDROID: 'com.weganda.app.sub.monthly.earlybird.plus',
 } as const;
 
 // 스토어 구독 관리 직접 링크

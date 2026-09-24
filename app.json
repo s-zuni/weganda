@@ -2,7 +2,7 @@
   "expo": {
     "name": "weganda",
     "slug": "weganda",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "weganda",
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.weganda.app",
-      "buildNumber": "6",
+      "buildNumber": "7",
       "usesAppleSignIn": true,
       "entitlements": {
         "aps-environment": "production"
@@ -37,7 +37,7 @@
     },
     "android": {
       "package": "com.weganda.app",
-      "versionCode": 6,
+      "versionCode": 7,
       "splash": {
         "image": "./src/assets/splash.png",
         "backgroundColor": "#FFFFFF",
@@ -48,6 +48,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
+        "com.android.vending.BILLING",
         "android.permission.READ_CALENDAR",
         "android.permission.WRITE_CALENDAR",
         "android.permission.CAMERA",

@@ -64,7 +64,7 @@
 ### 인앱 구입(IAP) 구독 상품 설정
 - **구독 그룹 이름**: `weganda+ 멤버십`
 - **참조 이름**: `우간다+ 월간 멤버십 (얼리버드)`
-- **제품 ID (Product ID)**: `com.weganda.app.sub.monthly.earlybird`
+- **제품 ID (Product ID)**: `com.weganda.app.sub.monthly.earlybird.plus`
 - **구독 기간**: 1개월
 - **무료 체험**: 1개월 (30일 무료 체험 프로모션 적용)
 - **심사 제출용 스크린샷**: 마이페이지 또는 멤버십 결제(Paywall) 화면 캡처본 업로드
@@ -82,7 +82,7 @@ Thank you for reviewing Weganda!
 
 2. In-App Purchase (StoreKit):
 - We offer an auto-renewable monthly membership ("weganda+").
-- Product ID: com.weganda.app.sub.monthly.earlybird
+- Product ID: com.weganda.app.sub.monthly.earlybird.plus
 - Terms of Use and Privacy Policy links are clearly displayed on all paywalls, settings, and login screens:
   - Terms of Use (EULA): https://www.weganda.kr/terms
   - Membership Terms: https://www.weganda.kr/membership

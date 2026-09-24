@@ -257,11 +257,11 @@ class InAppPurchaseService {
       },
       {
         productId: IAP_SKUS.YEARLY_STANDARD,
-        price: '70000',
+        price: '79000',
         currency: 'KRW',
         title: 'weganda+ 연간 멤버십 (정상가)',
         description: '사주 무제한, 월급/수당 예측기, AI 무제한, 듀티 공유',
-        localizedPrice: '연 70,000원',
+        localizedPrice: '연 79,000원',
         type: 'subs',
       },
     ];
@@ -280,7 +280,7 @@ class InAppPurchaseService {
     const targetSku = sku || IAP_SKUS.MONTHLY_EARLYBIRD;
     const planType = options?.planType || (targetSku.includes('yearly') ? 'yearly' : 'monthly');
     const isEarlybird = options?.isEarlybird !== undefined ? options.isEarlybird : targetSku.includes('earlybird');
-    const price = options?.price || (planType === 'yearly' ? (isEarlybird ? 59000 : 70000) : (isEarlybird ? 5900 : 7900));
+    const price = options?.price || (planType === 'yearly' ? (isEarlybird ? 59000 : 79000) : (isEarlybird ? 5900 : 7900));
     const isTrial = options?.isTrial !== undefined ? options.isTrial : true;
 
     const isNative = this.isNativeSupported();

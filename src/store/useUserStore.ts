@@ -8,6 +8,7 @@ import { useFortuneStore } from './useFortuneStore';
 import { UserSubscriptionInfo } from '../types/membershipEvent';
 import type { Step1Data } from '../components/specific/Onboarding';
 import { AppThemeColor } from '../constants/theme';
+import { IAP_SKUS } from '../constants/membership';
 
 export type { AppThemeColor };
 
@@ -155,7 +156,7 @@ export const useUserStore = create<UserState>()(
         nextBillingDate: billingDate,
         subscribedAt: now.toISOString(),
         status: 'trial',
-        storeSku: 'com.weganda.app.sub.monthly.earlybird',
+        storeSku: IAP_SKUS.MONTHLY_EARLYBIRD,
       },
     });
   },
@@ -179,7 +180,7 @@ export const useUserStore = create<UserState>()(
         nextBillingDate: details.nextBillingDate || defaultBilling,
         subscribedAt: details.subscribedAt || now.toISOString(),
         status: details.status || (details.isTrial ? 'trial' : 'active'),
-        storeSku: details.storeSku || 'com.weganda.app.sub.monthly.earlybird',
+        storeSku: details.storeSku || IAP_SKUS.MONTHLY_EARLYBIRD,
       },
     });
   },
