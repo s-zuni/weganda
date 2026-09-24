@@ -33,13 +33,7 @@ export const LuckyItemsSection: React.FC<LuckyItemsSectionProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
-        <View style={styles.titleRow}>
-          <Text style={styles.sectionTitle}>🍀 오늘의 행운</Text>
-          <View style={styles.liveBadge}>
-            <Text style={styles.liveBadgeText}>매일 자정 갱신</Text>
-          </View>
-        </View>
-        <Text style={styles.sectionSub}>오늘 나를 지켜주는 기운과 추천 아이템</Text>
+        <Text style={styles.sectionTitle}>오늘의 행운</Text>
       </View>
       <View style={styles.luckyCard}>
         {/* 행운 컬러 */}
@@ -94,34 +88,10 @@ const styles = StyleSheet.create({
   sectionHeader: {
     marginBottom: 12,
   },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
-  },
-  liveBadge: {
-    backgroundColor: '#F0FDF4',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#DCFCE7',
-  },
-  liveBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#15803D',
-  },
-  sectionSub: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    fontWeight: '500',
   },
   luckyCard: {
     backgroundColor: '#FFFFFF',

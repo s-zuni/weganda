@@ -19,7 +19,6 @@ import {
   BirthInfoBanner,
   HeroFortuneCard,
   ThemeFortuneGrid,
-  LuckyItemsSection,
   AdviceCard,
 } from '../../components/specific/Fortune';
 
@@ -28,6 +27,7 @@ import { MembershipScreen } from '../MyPage/MembershipScreen';
 import { SajuCategoryId } from '../../mocks/sajuCategories';
 import { FREE_LIMITS } from '../../constants/membership';
 import { COLORS } from '../../constants/theme';
+import { getDailyOverallScore } from '../../utils/dailyFortuneGenerator';
 
 export const FortuneScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -89,14 +89,18 @@ export const FortuneScreen: React.FC = () => {
           onPress={() => setBirthModalVisible(true)}
         />
 
-        {/* 메인 운세 카드 */}
+        {/* 메인 운세 카드 (점수 + 오늘의 행운 아이템 통합) */}
         <HeroFortuneCard
           formattedToday={formattedToday}
-          overallScore={currentFortune?.overallScore ?? 92}
-          title={currentFortune?.title}
-          description={currentFortune?.fortuneText}
+          overallScore={currentFortune?.overallScore ?? getDailyOverallScore(new Date(), birthInfo.birthDate)}
           isLoading={isLoading}
           onRefresh={handleRefreshDaily}
+          luckyColor={currentFortune?.lucky?.color}
+          luckyColorHex={currentFortune?.lucky?.colorHex}
+          luckyNumber={currentFortune?.lucky?.number}
+          luckyDirection={currentFortune?.lucky?.direction}
+          luckyItem={currentFortune?.lucky?.item}
+          birthDate={birthInfo.birthDate}
         />
 
         {/* 50년 명인 5대 사주 카테고리 섹션 */}
@@ -108,16 +112,6 @@ export const FortuneScreen: React.FC = () => {
             navigation.navigate('SajuCategoryTopics', { categoryId });
           }}
           onOpenPaywall={() => setPaywallVisible(true)}
-        />
-
-        {/* 오늘의 행운 (컬러, 숫자, 방향, 임상 아이템) */}
-        <LuckyItemsSection
-          color={currentFortune?.lucky?.color}
-          colorHex={currentFortune?.lucky?.colorHex}
-          number={currentFortune?.lucky?.number}
-          direction={currentFortune?.lucky?.direction}
-          item={currentFortune?.lucky?.item}
-          birthDate={birthInfo.birthDate}
         />
 
         {/* 오늘의 조언 */}

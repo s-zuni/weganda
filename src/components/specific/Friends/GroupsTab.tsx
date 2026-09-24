@@ -111,17 +111,13 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
             </TouchableOpacity>
           )}
         </View>
-        <Text style={styles.groupNoticeSub}>
-          단체 톡방을 터치하면 단원들의 이번 달 듀티(D/E/N/O)를 한 표에서 교차 대조할 수 있습니다.
-        </Text>
       </View>
 
       {groupChats.length === 0 ? (
         <View style={styles.emptyCardBox}>
-          <Text style={styles.emptyCardIcon}>💬</Text>
-          <Text style={styles.emptyCardTitle}>참여 중인 단체 모임이 없어요</Text>
+          <Text style={styles.emptyCardTitle}>참여 중인 모임이 없습니다</Text>
           <Text style={styles.emptyCardSub}>
-            병동이나 동기 모임을 만들어 여러 명의 스케줄을 한눈에 비교해보세요!
+            동료들과 모임을 만들어 근무 일정을 비교해보세요.
           </Text>
           <TouchableOpacity
             style={[styles.emptyAddBtn, { backgroundColor: theme.primary }]}

@@ -46,15 +46,16 @@ export interface FortuneGenerateParams {
   };
 }
 
-import { getDailyLuckyInfo, cleanLuckyColorName, getLuckyColorHex } from '../utils/dailyFortuneGenerator';
+import { getDailyLuckyInfo, getDailyOverallScore, cleanLuckyColorName, getLuckyColorHex } from '../utils/dailyFortuneGenerator';
 
 // 오프라인 또는 일시적 오류 시 기본 제공 운세 폴백 (매일 날짜 기반 자동 갱신)
 function getDefaultFortuneFallback(params?: FortuneGenerateParams): FortuneResult {
   const dailyLucky = getDailyLuckyInfo(new Date(), params?.birthInfo?.birthDate);
+  const score = getDailyOverallScore(new Date(), params?.birthInfo?.birthDate);
   return {
     title: '오늘의 간호 운세',
     fortuneText: '동료와의 호흡이 편안하고 라운딩이 순조로운 날입니다. 침착한 처치로 환자들에게 신뢰를 얻겠어요.',
-    overallScore: 92,
+    overallScore: score,
     scores: {
       colleague: 90,
       career: 93,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../constants/theme';
 import { CalendarIcon } from '../../common/Icon';
 import { FriendDetail } from '../../../types/friends';
 
@@ -15,24 +15,29 @@ export const SharedShiftBanner: React.FC<SharedShiftBannerProps> = ({
   overlappingFriends,
   onPress,
 }) => {
+  const theme = useAppTheme();
+
   return (
     <TouchableOpacity
-      style={styles.sharedBanner}
+      style={[
+        styles.sharedBanner,
+        { backgroundColor: theme.primary + '0D', borderColor: theme.primary + '20' },
+      ]}
       onPress={onPress}
       activeOpacity={0.85}
     >
       <View style={styles.sharedBannerLeft}>
         <View style={styles.calendarIconWrapper}>
-          <CalendarIcon size={18} color={COLORS.primary} />
+          <CalendarIcon size={18} color={theme.primary} />
         </View>
         <View style={styles.sharedTexts}>
           {friendsCount === 0 ? (
             <>
               <Text style={styles.sharedBannerTitle}>
-                동료를 등록하고 듀티를 맞춰보세요 👭
+                동료 등록 및 듀티 공유
               </Text>
-              <Text style={styles.sharedBannerSub}>
-                서로의 근무표를 확인하고 간편하게 듀티를 교환해보세요 ›
+              <Text style={[styles.sharedBannerSub, { color: theme.primary }]}>
+                동료와 근무표를 비교해보세요 ›
               </Text>
             </>
           ) : (
@@ -41,16 +46,18 @@ export const SharedShiftBanner: React.FC<SharedShiftBannerProps> = ({
                 {overlappingFriends.length > 0 ? (
                   <>
                     오늘 {overlappingFriends[0].name}님 등{' '}
-                    <Text style={styles.boldPink}>{overlappingFriends.length}명</Text>과 근무가 겹쳐요!
+                    <Text style={{ color: theme.primary, fontWeight: '800' }}>
+                      {overlappingFriends.length}명
+                    </Text>과 근무가 겹쳐요
                   </>
                 ) : (
-                  '오늘 등록된 동료들의 근무 일정을 확인해보세요!'
+                  '오늘 동료 근무 일정'
                 )}
               </Text>
-              <Text style={styles.sharedBannerSub}>
+              <Text style={[styles.sharedBannerSub, { color: theme.primary }]}>
                 {overlappingFriends.length > 0
-                  ? '실시간 근무표 및 인계 파트너 확인하기 ›'
-                  : '동료 프로필 및 이번 달 스케줄 비교하기 ›'}
+                  ? '인계 파트너 및 실시간 근무표 확인 ›'
+                  : '이번 달 스케줄 비교하기 ›'}
               </Text>
             </>
           )}
@@ -62,13 +69,11 @@ export const SharedShiftBanner: React.FC<SharedShiftBannerProps> = ({
 
 const styles = StyleSheet.create({
   sharedBanner: {
-    backgroundColor: '#FFF1F4',
     borderRadius: 16,
     padding: 14,
     marginTop: 6,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
   },
   sharedBannerLeft: {
     flexDirection: 'row',
@@ -87,17 +92,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sharedBannerTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
     color: COLORS.textPrimary,
   },
-  boldPink: {
-    color: COLORS.primary,
-    fontWeight: '800',
-  },
   sharedBannerSub: {
-    fontSize: 14,
-    color: COLORS.primary,
+    fontSize: 13,
     fontWeight: '600',
     marginTop: 3,
   },

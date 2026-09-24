@@ -188,3 +188,19 @@ export function getDailyLuckyInfo(targetDate = new Date(), birthDate = ''): Dail
     element: colorObj.element,
   };
 }
+
+/**
+ * 오늘 날짜 + 생년월일 시드 기준 결정론적 일일 총점 산출 (70 ~ 98점 분포)
+ */
+export function getDailyOverallScore(targetDate = new Date(), birthDate = ''): number {
+  const yyyy = targetDate.getFullYear();
+  const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(targetDate.getDate()).padStart(2, '0');
+  const dateStr = `${yyyy}-${mm}-${dd}`;
+
+  const seedStr = `${dateStr}_${birthDate || 'weganda_nurse_daily'}_score`;
+  const baseHash = hashString(seedStr);
+
+  // 70 ~ 98 사이 분포 (29개 값: 70 + 0~28)
+  return 70 + (baseHash % 29);
+}
