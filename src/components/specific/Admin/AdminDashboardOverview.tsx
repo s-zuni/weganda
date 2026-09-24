@@ -79,20 +79,20 @@ export const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
           <Text style={styles.cardSub}>~ PG사 연동 준비 중</Text>
         </View>
 
-        {/* 카드 4: 미처리 신고/문의 (주황색) */}
+        {/* 카드 4: 서류인증 심사 대기 (주황색) */}
         <View style={styles.topCard}>
           <View style={styles.topCardHeader}>
             <View style={[styles.iconBox, { backgroundColor: '#FFEDD5' }]}>
-              <Text style={[styles.cardIcon, { color: '#EA580C' }]}>⚠️</Text>
+              <Text style={[styles.cardIcon, { color: '#EA580C' }]}>📝</Text>
             </View>
-            <TouchableOpacity onPress={() => onNavigateTab('community')}>
-              <Text style={styles.detailLink}>상세 ›</Text>
+            <TouchableOpacity onPress={() => onNavigateTab('verification')}>
+              <Text style={styles.detailLink}>심사하기 ›</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.cardLabel}>미처리 신고/문의</Text>
-          <Text style={styles.cardValue}>{stats.pending_reports}건</Text>
+          <Text style={styles.cardLabel}>서류인증 심사 대기</Text>
+          <Text style={styles.cardValue}>{stats.pending_verifications}건</Text>
           <Text style={styles.cardSub}>
-            {stats.pending_reports > 0 ? '~ 집중 관리 필요' : '~ 모든 신고 처리 완료'}
+            {stats.pending_verifications > 0 ? '~ 간호사 서류 심사 대기' : '~ 모든 서류 처리 완료'}
           </Text>
         </View>
       </View>
@@ -123,9 +123,9 @@ export const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
         </View>
 
         <View style={styles.miniCard}>
-          <Text style={styles.miniIcon}>⏳</Text>
-          <Text style={styles.miniLabel}>미처리 신고</Text>
-          <Text style={styles.miniValue}>{stats.pending_reports}건</Text>
+          <Text style={styles.miniIcon}>📋</Text>
+          <Text style={styles.miniLabel}>서류심사 대기</Text>
+          <Text style={styles.miniValue}>{stats.pending_verifications}건</Text>
         </View>
       </View>
 

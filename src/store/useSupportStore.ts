@@ -33,8 +33,8 @@ interface SupportState {
 }
 
 export const useSupportStore = create<SupportState>((set, get) => ({
-  inquiries: INITIAL_MOCK_INQUIRIES,
-  userInquiries: INITIAL_MOCK_INQUIRIES,
+  inquiries: [],
+  userInquiries: [],
   isLoading: false,
   selectedInquiry: null,
 

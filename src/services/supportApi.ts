@@ -7,49 +7,8 @@ import {
   InquiryStatus,
 } from '../types/support';
 
-// 초기 샘플 목 데이터 (네트워크 지연 또는 로컬 환경용)
-export const INITIAL_MOCK_INQUIRIES: SupportInquiry[] = [
-  {
-    id: 'inq-sample-1',
-    userId: 'user-sample-01',
-    userEmail: 'nurse_lee@hospital.com',
-    userName: '김간호',
-    category: '멤버십 관련 문의',
-    title: 'weganda+ 7일 무료체험 종료일 확인 문의',
-    content:
-      '안녕하세요! 7일 무료체험 시작했는데 언제까지 해지해야 자동결제가 안 되는지 정확한 날짜가 궁금합니다.',
-    images: [],
-    status: 'resolved',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
-    replies: [
-      {
-        id: 'rep-sample-1',
-        inquiryId: 'inq-sample-1',
-        authorName: '우간다 고객지원팀',
-        content:
-          '안녕하세요, 간호사님! 우간다 고객센터입니다.\n무료 체험 시작일로부터 7일째 되는 날의 24시간 전까지 마이페이지 또는 스토어(Apple/Google) 구독 설정에서 [구독 취소]를 진행하시면 요금이 전혀 발생하지 않습니다. 편안하게 이용해 보시고 궁금한 점은 언제든 문의주세요!',
-        isAdmin: true,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
-      },
-    ],
-  },
-  {
-    id: 'inq-sample-2',
-    userId: 'user-sample-02',
-    userEmail: 'park_rn@snu.ac.kr',
-    userName: '박RN',
-    category: '서비스 문의',
-    title: '동기 듀티 연동 인원 추가 요청',
-    content:
-      '병동 동기 4명과 함께 근무표를 공유하고 싶은데 무료 버전에서는 3명까지만 가능한가요?',
-    images: [],
-    status: 'pending',
-    createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-    replies: [],
-  },
-];
+// 초기 샘플 목 데이터 제거 (실제 Supabase inquiries 테이블에서만 조회)
+export const INITIAL_MOCK_INQUIRIES: SupportInquiry[] = [];
 
 class SupportApiService {
   // 사용자의 문의 내역 조회
@@ -95,13 +54,13 @@ class SupportApiService {
 
       if (error || !data) {
         console.warn('Supabase fetch all inquiries failed:', error);
-        return INITIAL_MOCK_INQUIRIES;
+        return [];
       }
 
       return data.map(this.mapInquiryRow);
     } catch (e) {
       console.warn('Exception in getAllInquiries:', e);
-      return INITIAL_MOCK_INQUIRIES;
+      return [];
     }
   }
 

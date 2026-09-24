@@ -14,6 +14,8 @@ export interface DashboardStats {
   total_users: number;
   total_revenue: number;
   pending_reports: number;
+  pending_verifications: number;
+  pending_inquiries: number;
   today_users: number;
   total_posts: number;
   recent_users: AdminUser[];
@@ -31,6 +33,8 @@ export const adminApi = {
           total_users: Number(data.total_users) || 1,
           total_revenue: Number(data.total_revenue) || 0,
           pending_reports: Number(data.pending_reports) || 0,
+          pending_verifications: Number(data.pending_verifications) || 0,
+          pending_inquiries: Number(data.pending_inquiries) || 0,
           today_users: Number(data.today_users) || 0,
           total_posts: Number(data.total_posts) || 0,
           recent_users: (data.recent_users || []).map((u: any) => ({
@@ -48,10 +52,12 @@ export const adminApi = {
       }
 
       // 2. 직접 쿼리 집계 fallback
-      const [profilesRes, postsRes, reportsRes] = await Promise.all([
+      const [profilesRes, postsRes, reportsRes, verifsRes, inquiriesRes] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact' }).order('created_at', { ascending: false }),
         supabase.from('posts').select('id', { count: 'exact' }).eq('is_hidden', false),
         supabase.from('reports').select('id', { count: 'exact' }).eq('status', 'pending'),
+        supabase.from('verification_requests').select('id', { count: 'exact' }).eq('status', 'pending'),
+        supabase.from('inquiries').select('id', { count: 'exact' }).eq('status', 'pending'),
       ]);
 
       const usersList: AdminUser[] = (profilesRes.data || []).map((row: any) => ({
@@ -73,6 +79,8 @@ export const adminApi = {
         total_users: totalUsers,
         total_revenue: 0,
         pending_reports: reportsRes.count || 0,
+        pending_verifications: verifsRes.count || 0,
+        pending_inquiries: inquiriesRes.count || 0,
         today_users: 0,
         total_posts: postsRes.count || 0,
         recent_users: usersList.slice(0, 10),
@@ -84,6 +92,8 @@ export const adminApi = {
         total_users: 0,
         total_revenue: 0,
         pending_reports: 0,
+        pending_verifications: 0,
+        pending_inquiries: 0,
         today_users: 0,
         total_posts: 0,
         recent_users: [],

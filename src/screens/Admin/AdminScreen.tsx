@@ -42,6 +42,8 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     total_users: 1,
     total_revenue: 0,
     pending_reports: 0,
+    pending_verifications: 0,
+    pending_inquiries: 0,
     today_users: 0,
     total_posts: 1,
     recent_users: [],
@@ -138,15 +140,16 @@ export const AdminScreen: React.FC<AdminScreenProps> = ({
     }
   };
 
-  const { adminRequests } = useVerificationStore();
-  const pendingVerificationsCount = adminRequests.filter((r) => r.status === 'pending').length;
+  const { counts, fetchAdminRequests } = useVerificationStore();
+  const pendingVerificationsCount = counts.pending > 0 ? counts.pending : stats.pending_verifications;
 
   const { inquiries, fetchAllInquiries } = useSupportStore();
-  const pendingInquiriesCount = inquiries.filter((i) => i.status === 'pending').length;
+  const pendingInquiriesCount = inquiries.filter((i) => i.status === 'pending').length || stats.pending_inquiries;
 
   useEffect(() => {
     fetchAllInquiries();
-  }, [fetchAllInquiries]);
+    fetchAdminRequests('pending', 1);
+  }, [fetchAllInquiries, fetchAdminRequests]);
 
   const menuInfo = getMenuInfo(activeMenu);
 

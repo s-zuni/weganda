@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import {
   VerificationRequest,
   VerificationStatus,
@@ -7,10 +7,24 @@ import {
 import { verificationApi } from '../services/verificationApi';
 import { useUserStore } from './useUserStore';
 
+interface VerificationCounts {
+  all: number;
+  pending: number;
+  verified: number;
+  rejected: number;
+}
+
 interface VerificationState {
   myRequest: VerificationRequest | null;
   adminRequests: VerificationRequest[];
   isLoading: boolean;
+
+  // Pagination & Filters (Admin)
+  currentPage: number;
+  pageSize: number;
+  totalCount: number;
+  statusFilter: VerificationStatus | 'all';
+  counts: VerificationCounts;
 
   // Actions
   fetchMyRequest: (userId: string) => Promise<void>;
@@ -22,8 +36,10 @@ interface VerificationState {
   ) => Promise<boolean>;
 
   // Admin Actions
-  fetchAdminRequests: (status?: VerificationStatus) => Promise<void>;
-  approveRequest: (requestId: string, targetUserId: string, targetRole: 'nurse' | 'student') => Promise<boolean>;
+  fetchAdminRequests: (status?: VerificationStatus | 'all', page?: number) => Promise<void>;
+  setStatusFilter: (filter: VerificationStatus | 'all') => void;
+  setPage: (page: number) => void;
+  approveRequest: (requestId: string, targetUserId?: string, targetRole?: 'nurse' | 'student') => Promise<boolean>;
   rejectRequest: (requestId: string, reason: string) => Promise<boolean>;
 }
 
@@ -31,6 +47,17 @@ export const useVerificationStore = create<VerificationState>((set, get) => ({
   myRequest: null,
   adminRequests: [],
   isLoading: false,
+
+  currentPage: 1,
+  pageSize: 10,
+  totalCount: 0,
+  statusFilter: 'pending', // 심사 대기 중인 목록부터 보이도록 기본값 설정
+  counts: {
+    all: 0,
+    pending: 0,
+    verified: 0,
+    rejected: 0,
+  },
 
   fetchMyRequest: async (userId: string) => {
     set({ isLoading: true });
@@ -73,33 +100,52 @@ export const useVerificationStore = create<VerificationState>((set, get) => ({
     }
   },
 
-  fetchAdminRequests: async (status) => {
+  fetchAdminRequests: async (status, page) => {
+    const targetStatus = status !== undefined ? status : get().statusFilter;
+    const targetPage = page !== undefined ? page : get().currentPage;
+    const pageSize = get().pageSize;
+
     set({ isLoading: true });
     try {
-      const list = await verificationApi.getAllRequests(status);
-      set({ adminRequests: list, isLoading: false });
+      const res = await verificationApi.getAllRequests({
+        status: targetStatus,
+        page: targetPage,
+        pageSize,
+      });
+
+      set({
+        adminRequests: res.requests,
+        totalCount: res.totalCount,
+        counts: res.counts,
+        statusFilter: targetStatus,
+        currentPage: targetPage,
+        isLoading: false,
+      });
     } catch (e) {
       set({ isLoading: false });
     }
   },
 
-  approveRequest: async (requestId, targetUserId, targetRole) => {
+  setStatusFilter: (filter) => {
+    set({ statusFilter: filter, currentPage: 1 });
+    get().fetchAdminRequests(filter, 1);
+  },
+
+  setPage: (page) => {
+    set({ currentPage: page });
+    get().fetchAdminRequests(get().statusFilter, page);
+  },
+
+  approveRequest: async (requestId, targetUserId, targetRole = 'nurse') => {
     try {
-      const ok = await verificationApi.approveRequest(requestId);
+      const ok = await verificationApi.approveRequest(requestId, targetUserId, targetRole);
       if (ok) {
-        set((state) => ({
-          adminRequests: state.adminRequests.map((r) =>
-            r.id === requestId ? { ...r, status: 'verified', reviewedAt: new Date().toISOString() } : r
-          ),
-          myRequest:
-            state.myRequest?.id === requestId
-              ? { ...state.myRequest, status: 'verified', reviewedAt: new Date().toISOString() }
-              : state.myRequest,
-        }));
+        // 성공 시 목록 재조회
+        await get().fetchAdminRequests();
 
         // 만약 본인 계정이 승인된 경우 즉시 유저 스토어 갱신
         const currentUserId = useUserStore.getState().id;
-        if (currentUserId === targetUserId) {
+        if (targetUserId && currentUserId === targetUserId) {
           useUserStore.getState().setVerificationState({
             verificationStatus: 'verified',
             verificationRole: targetRole,
@@ -119,17 +165,8 @@ export const useVerificationStore = create<VerificationState>((set, get) => ({
     try {
       const ok = await verificationApi.rejectRequest(requestId, reason);
       if (ok) {
-        set((state) => ({
-          adminRequests: state.adminRequests.map((r) =>
-            r.id === requestId
-              ? { ...r, status: 'rejected', rejectReason: reason, reviewedAt: new Date().toISOString() }
-              : r
-          ),
-          myRequest:
-            state.myRequest?.id === requestId
-              ? { ...state.myRequest, status: 'rejected', rejectReason: reason, reviewedAt: new Date().toISOString() }
-              : state.myRequest,
-        }));
+        // 성공 시 목록 재조회
+        await get().fetchAdminRequests();
 
         const currentReq = get().adminRequests.find((r) => r.id === requestId);
         if (currentReq && currentReq.userId === useUserStore.getState().id) {
