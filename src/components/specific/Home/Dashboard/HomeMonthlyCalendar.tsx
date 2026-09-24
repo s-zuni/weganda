@@ -5,12 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  PanResponder,
 } from 'react-native';
 import { COLORS, TINT_COLORS } from '../../../../constants/theme';
 import { ShiftCode, ShiftInfo, SHIFT_TYPES } from '../../../../constants/shiftTypes';
 import { CustomShiftCode } from '../../../../types/shift';
 import { nativeCalendarService } from '../../../../services/nativeCalendarService';
-import Svg, { Path } from 'react-native-svg';
 
 interface HomeMonthlyCalendarProps {
   currentDate: Date;
@@ -74,6 +74,60 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
   const firstDayIndex = new Date(year, month, 1).getDay();
   // 당월 총 일수
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // 해당 달(year, month)의 데이/이브닝/나이트/오프 개수 집계
+  const monthlyShiftCounts = useMemo(() => {
+    let d = 0;
+    let e = 0;
+    let n = 0;
+    let o = 0;
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const monthStr = String(month + 1).padStart(2, '0');
+      const dayStr = String(day).padStart(2, '0');
+      const dateKey = `${year}-${monthStr}-${dayStr}`;
+      const code = schedules[dateKey];
+
+      if (code) {
+        if (code === 'D') d++;
+        else if (code === 'E') e++;
+        else if (code === 'N') n++;
+        else if (code === 'O') o++;
+        else if (customCodes[code]) {
+          if (customCodes[code].isOff) o++;
+          else if (customCodes[code].code === 'D') d++;
+          else if (customCodes[code].code === 'E') e++;
+          else if (customCodes[code].code === 'N') n++;
+        }
+      }
+    }
+
+    return { D: d, E: e, N: n, O: o };
+  }, [schedules, customCodes, year, month, daysInMonth]);
+
+  // 좌우 스와이프로 자유롭게 이전/다음 달 이동 제스처
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: (_, gestureState) => {
+          // 세로 스크롤을 방해하지 않도록 가로 이동이 세로 이동보다 크고 최소 12px 이상 움직였을 때만 캡처
+          return (
+            Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.5 &&
+            Math.abs(gestureState.dx) > 12
+          );
+        },
+        onPanResponderRelease: (_, gestureState) => {
+          if (gestureState.dx < -35 || gestureState.vx < -0.3) {
+            // 왼쪽으로 스와이프 -> 다음 달로 이동
+            onMonthChange(1);
+          } else if (gestureState.dx > 35 || gestureState.vx > 0.3) {
+            // 오른쪽으로 스와이프 -> 이전 달로 이동
+            onMonthChange(-1);
+          }
+        },
+      }),
+    [onMonthChange]
+  );
 
   const getShiftDisplay = (dateKey: string) => {
     const code = schedules[dateKey];
@@ -201,36 +255,29 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      {/* 캘린더 상단 월 헤더 & 이전/다음 네비게이션 */}
+    <View style={styles.container} {...panResponder.panHandlers}>
+      {/* 캘린더 상단 월 헤더 & 해당 달 스케줄 카운트 (텍스트/스케줄별 색상 표시) */}
       <View style={styles.headerRow}>
         <Text style={styles.monthTitle}>
           {year}년 {month + 1}월
         </Text>
 
-        <View style={styles.navBtnRow}>
-          <TouchableOpacity
-            style={styles.navBtn}
-            onPress={() => onMonthChange(-1)}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            accessibilityLabel="이전 달"
-          >
-            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-              <Path d="M15 19L8 12L15 5" stroke={COLORS.shift.day} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navBtn}
-            onPress={() => onMonthChange(1)}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            accessibilityLabel="다음 달"
-          >
-            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-              <Path d="M9 5L16 12L9 19" stroke={COLORS.shift.day} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-          </TouchableOpacity>
+        <View style={styles.shiftCountsRow}>
+          <Text style={[styles.shiftCountItem, { color: SHIFT_TYPES.D.color }]}>
+            D <Text style={styles.shiftCountNum}>{monthlyShiftCounts.D}</Text>
+          </Text>
+          <Text style={styles.countDivider}>·</Text>
+          <Text style={[styles.shiftCountItem, { color: SHIFT_TYPES.E.color }]}>
+            E <Text style={styles.shiftCountNum}>{monthlyShiftCounts.E}</Text>
+          </Text>
+          <Text style={styles.countDivider}>·</Text>
+          <Text style={[styles.shiftCountItem, { color: SHIFT_TYPES.N.color }]}>
+            N <Text style={styles.shiftCountNum}>{monthlyShiftCounts.N}</Text>
+          </Text>
+          <Text style={styles.countDivider}>·</Text>
+          <Text style={[styles.shiftCountItem, { color: SHIFT_TYPES.O.color }]}>
+            OFF <Text style={styles.shiftCountNum}>{monthlyShiftCounts.O}</Text>
+          </Text>
         </View>
       </View>
 
@@ -275,18 +322,23 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
-  navBtnRow: {
+  shiftCountsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
-  navBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: TINT_COLORS.blueTint,
-    alignItems: 'center',
-    justifyContent: 'center',
+  shiftCountItem: {
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: -0.2,
+  },
+  shiftCountNum: {
+    fontWeight: '800',
+  },
+  countDivider: {
+    fontSize: 11,
+    color: '#D1D5DB',
+    fontWeight: '400',
   },
   weekRow: {
     flexDirection: 'row',
@@ -316,7 +368,7 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     flex: 1,
-    minHeight: 52,
+    minHeight: 56,
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingVertical: 3,
@@ -342,10 +394,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   dutyContainer: {
-    minHeight: 18,
+    minHeight: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 1,
+    marginTop: 2,
   },
   dutyBadgeRow: {
     flexDirection: 'row',
@@ -353,17 +405,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dutyCodeText: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '800',
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
   },
   nativeCountText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '800',
     marginLeft: 1,
   },
   standaloneCountText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
     color: COLORS.shift.day,
   },
