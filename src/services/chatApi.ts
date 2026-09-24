@@ -145,7 +145,7 @@ export const chatApi = {
       user_id: params.receiverId,
       type: 'swap',
       title: '듀티 맞교환 제안 도착',
-      message: `${params.senderName}님이 ${params.myDate} 듀티 맞교환을 제안했습니다.`,
+      message: `${params.senderName}님이 ${params.myDate} 듀티 맞교환을 제안했습니다. 확인해 보세요!`,
       related_id: data.id,
     });
 

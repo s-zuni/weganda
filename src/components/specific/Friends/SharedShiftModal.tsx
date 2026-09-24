@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS } from '../../../constants/theme';
 import { FriendDetail } from '../../../mocks/friendsData';
 import { CommentIcon } from '../../common/Icon';
 import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
@@ -28,7 +28,6 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
   onClose,
   onOpenChat,
 }) => {
-  const theme = useAppTheme();
   const [activeTab, setActiveTab] = useState<TabType>('same_day');
 
   // 오늘 나와 같은 Day 근무인 동기 4명 (김민지, 송지원 등)
@@ -42,73 +41,54 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
     <SwipeableBottomSheet visible={visible} onClose={onClose} height="85%" maxHeight="90%">
       {/* 헤더 */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>오늘 겹치는 근무</Text>
-          <Text style={styles.headerSub}>
-            {sameDayFriends.length + handoverFriends.length > 0
-              ? `총 ${sameDayFriends.length + handoverFriends.length}명의 동료`
-              : '등록된 동료 근무 일정'}
-          </Text>
-        </View>
-        <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Text style={styles.closeText}>닫기</Text>
-        </TouchableOpacity>
-      </View>
+            <View>
+              <Text style={styles.headerTitle}>오늘 나와 겹치는 근무 동기</Text>
+              <Text style={styles.headerSub}>
+                {sameDayFriends.length + handoverFriends.length > 0
+                  ? `총 ${sameDayFriends.length + handoverFriends.length}명의 동료와 오늘 병원에서 함께 호흡을 맞춰요`
+                  : '오늘 등록된 동료들의 근무 일정을 확인해보세요'}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Text style={styles.closeText}>닫기</Text>
+            </TouchableOpacity>
+          </View>
 
-      {/* 탭 네비게이션 */}
-      <View style={styles.tabRow}>
-        <TouchableOpacity
-          style={[
-            styles.tabBtn,
-            activeTab === 'same_day' && { backgroundColor: theme.primary, borderColor: theme.primary },
-          ]}
-          onPress={() => setActiveTab('same_day')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'same_day' && { color: theme.onPrimaryText },
-            ]}
-          >
-            같은 데이(Day) ({sameDayFriends.length}명)
-          </Text>
-        </TouchableOpacity>
+          {/* 탭 네비게이션 */}
+          <View style={styles.tabRow}>
+            <TouchableOpacity
+              style={[styles.tabBtn, activeTab === 'same_day' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('same_day')}
+            >
+              <Text style={[styles.tabText, activeTab === 'same_day' && styles.tabTextActive]}>
+                같은 데이(Day) 동행 ({sameDayFriends.length}명)
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.tabBtn,
-            activeTab === 'handover' && { backgroundColor: theme.primary, borderColor: theme.primary },
-          ]}
-          onPress={() => setActiveTab('handover')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'handover' && { color: theme.onPrimaryText },
-            ]}
-          >
-            인계 파트너 ({handoverFriends.length}명)
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <TouchableOpacity
+              style={[styles.tabBtn, activeTab === 'handover' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('handover')}
+            >
+              <Text style={[styles.tabText, activeTab === 'handover' && styles.tabTextActive]}>
+                인수인계(Eve) 파트너 ({handoverFriends.length}명)
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-      <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* 상단 안내 박스 */}
-        <View
-          style={[
-            styles.infoBanner,
-            { backgroundColor: theme.primary + '0D', borderLeftColor: theme.primary },
-          ]}
-        >
-          <Text style={[styles.infoTitle, { color: theme.primary }]}>
-            {activeTab === 'same_day' ? '동일 근무자' : '인계 파트너'}
-          </Text>
-          <Text style={styles.infoDesc}>
-            {activeTab === 'same_day'
-              ? '오늘 나와 동일한 데이(Day) 근무 동료입니다.'
-              : '오늘 환자를 인계받을 이브닝(Evening) 동료입니다.'}
-          </Text>
-        </View>
+          <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            {/* 상단 안내 박스 */}
+            <View style={styles.infoBanner}>
+              <Text style={styles.infoTitle}>
+                {activeTab === 'same_day'
+                  ? '☀️ 같은 시간 출근하고 퇴근하는 든든한 데이 콤비!'
+                  : '🤝 오후 2시 30분 나에게 환자를 인계받을 이브닝 동료!'}
+              </Text>
+              <Text style={styles.infoDesc}>
+                {activeTab === 'same_day'
+                  ? '퇴근 후 커피 한잔이나 원내 식당 점심 식사를 함께 해보세요.'
+                  : '정확하고 깔끔한 인수인계로 서로의 칼퇴를 응원해 주세요.'}
+              </Text>
+            </View>
 
             {/* 동료 카드 리스트 */}
             <View style={styles.cardList}>
@@ -239,6 +219,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   tabBtnActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   tabText: {
     fontSize: 12,
@@ -246,6 +228,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   tabTextActive: {
+    color: '#FFFFFF',
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -253,14 +236,17 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   infoBanner: {
+    backgroundColor: '#FFF1F4',
     borderRadius: 14,
     padding: 14,
     borderLeftWidth: 4,
+    borderLeftColor: COLORS.primary,
     marginBottom: 16,
   },
   infoTitle: {
     fontSize: 13,
     fontWeight: '800',
+    color: COLORS.primary,
     marginBottom: 3,
   },
   infoDesc: {

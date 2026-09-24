@@ -85,7 +85,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
       await friendsApi.addFriendDirect(myUserId, searchedNurse.id);
       Alert.alert(
         '친구 추가 완료',
-        `${searchedNurse.name} 간호사님과 친구가 되었습니다.`
+        `${searchedNurse.name} 간호사님과 친구가 되었습니다!\n서로의 듀티와 겹치는 오프를 확인해보세요.`
       );
       setSearchedNurse(null);
       setNurseCodeInput('');
@@ -189,10 +189,11 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
             /* ── 고유번호 검색 탭 ── */
             <View style={styles.section}>
               <View style={styles.infoCard}>
+                <Text style={styles.infoCardIcon}>💡</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.infoCardTitle}>동료의 7자리 고유번호 입력</Text>
+                  <Text style={styles.infoCardTitle}>동료의 7자리 고유번호를 입력하세요</Text>
                   <Text style={styles.infoCardSub}>
-                    마이페이지에 표시된 7자리 숫자로 동료를 검색할 수 있습니다.
+                    마이페이지 프로필 이름 옆에 표시된 7자리 숫자(예: 6258828)로 동료를 찾아 친구로 등록할 수 있습니다.
                   </Text>
                   {myUserCode && (
                     <Text style={[styles.myCodeHint, { color: theme.primary }]}>
@@ -262,10 +263,11 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
             /* ── 연락처 연동 탭 (수동 추가 원칙 준수) ── */
             <View style={styles.section}>
               <View style={styles.infoCard}>
+                <Text style={styles.infoCardIcon}>📱</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.infoCardTitle}>연락처에서 친구 선택 추가</Text>
                   <Text style={styles.infoCardSub}>
-                    원하는 동료의 [추가] 버튼을 눌러 친구로 등록할 수 있습니다.
+                    자동으로 추가되지 않으며, 원하시는 동료 간호사의 [추가] 버튼을 직접 눌러야만 친구로 등록됩니다.
                   </Text>
                 </View>
               </View>
@@ -290,9 +292,10 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
                 </View>
               ) : contacts.length === 0 ? (
                 <View style={styles.emptyContactsBox}>
+                  <Text style={styles.emptyContactsIcon}>👥</Text>
                   <Text style={styles.emptyContactsTitle}>연락처가 아직 로드되지 않았습니다</Text>
                   <Text style={styles.emptyContactsSub}>
-                    연락처 권한을 허용하고 동료를 불러오세요.
+                    아래 버튼을 눌러 디바이스 연락처 권한을 허용하고 동료를 찾아보세요.
                   </Text>
                   <TouchableOpacity
                     style={[styles.loadContactsBtn, { backgroundColor: theme.primary }]}

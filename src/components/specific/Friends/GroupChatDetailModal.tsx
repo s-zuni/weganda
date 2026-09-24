@@ -619,7 +619,7 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.offWhite,
   },
   chatScroll: {
     flex: 1,
@@ -669,20 +669,23 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   bubble: {
-    borderRadius: 18,
+    borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   bubbleMe: {
+    backgroundColor: COLORS.primary,
     borderBottomRightRadius: 4,
   },
   bubbleOther: {
-    backgroundColor: '#F2F4F6',
+    backgroundColor: COLORS.cardBackground,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
   },
   bubbleTextMe: {
     color: COLORS.background,
@@ -700,30 +703,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-    backgroundColor: '#FFFFFF',
+    borderTopColor: COLORS.border,
+    backgroundColor: COLORS.cardBackground,
     gap: 10,
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#F2F4F6',
-    borderRadius: 22,
+    backgroundColor: COLORS.divider,
+    borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 9,
+    paddingVertical: 10,
     fontSize: 14,
     color: COLORS.textPrimary,
   },
   sendBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   sendBtnDisabled: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: COLORS.border,
   },
 });
 

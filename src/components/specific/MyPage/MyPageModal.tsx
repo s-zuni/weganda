@@ -16,10 +16,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, TINT_COLORS, NEUTRAL } from '../../../constants/theme';
 import * as Clipboard from 'expo-clipboard';
+import * as ImagePicker from 'expo-image-picker';
 import { useUserStore } from '../../../store/useUserStore';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 import { BirthInfoModal } from '../Fortune/BirthInfoModal';
 import { UserIcon, SparklesIcon, CalendarIcon, BookmarkIcon, CrownIcon, LockIcon, PaletteIcon, ShieldCheckIcon } from '../../common/Icon';
+import { UserAvatar, AVATAR_PRESETS } from '../../common/UserAvatar';
 import { PremiumBadge } from '../../common/PremiumBadge';
 import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 import { WegandaPlusTag } from '../../common/WegandaPlusTag';
@@ -67,6 +69,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
     unsubscribePremium,
     appThemeColor,
     setAppThemeColor,
+    avatarUrl,
+    setAvatarUrl,
     setUser,
     clearUser,
     deleteAccount,
@@ -80,6 +84,66 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   const [hospitalName, setHospitalName] = useState(storeHospital || '서울아산병원');
   const [wardName, setWardName] = useState(storeWard || '51병동 (소화기내과)');
   const [experienceYears, setExperienceYears] = useState(String(storeExp !== undefined && storeExp !== null ? storeExp : 3));
+  const [presetModalVisible, setPresetModalVisible] = useState(false);
+
+  const handlePickFromGallery = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('권한 필요', '프로필 사진을 등록하려면 사진 보관함 접근 권한이 필요합니다.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedUri = result.assets[0].uri;
+        await setAvatarUrl(selectedUri);
+        Alert.alert('프로필 사진 변경', '프로필 사진이 성공적으로 변경되었습니다.');
+      }
+    } catch (e) {
+      Alert.alert('오류', '사진을 불러오는 중 문제가 발생했습니다.');
+    }
+  };
+
+  const handleOpenAvatarOptions = () => {
+    Alert.alert(
+      '프로필 사진 설정',
+      '원하시는 사진 등록 방식을 선택해 주세요.',
+      [
+        {
+          text: '앨범에서 사진 선택',
+          onPress: handlePickFromGallery,
+        },
+        {
+          text: '간호사 캐릭터 선택',
+          onPress: () => setPresetModalVisible(true),
+        },
+        ...(avatarUrl
+          ? [
+              {
+                text: '기본 이미지로 변경',
+                style: 'destructive' as const,
+                onPress: async () => {
+                  await setAvatarUrl(null);
+                  Alert.alert('프로필 사진 초기화', '기본 프로필 아이콘으로 변경되었습니다.');
+                },
+              },
+            ]
+          : []),
+        { text: '취소', style: 'cancel' as const },
+      ]
+    );
+  };
+
+  const handleSelectPreset = async (presetId: string) => {
+    setPresetModalVisible(false);
+    await setAvatarUrl(presetId);
+    Alert.alert('프로필 캐릭터 적용', '간호사 캐릭터 프로필이 성공적으로 설정되었습니다.');
+  };
 
   // 마이페이지가 열리거나 스토어의 사용자 정보가 갱신될 때 로컬 폼 상태 동기화
   React.useEffect(() => {
@@ -237,15 +301,19 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: isEmbedded ? 24 : Math.max(insets.bottom, 16) + 24 },
+            { paddingBottom: isEmbedded ? 56 : Math.max(insets.bottom, 24) + 36 },
           ]}
         >
           {/* 프로필 카드 */}
           <View style={styles.profileCard}>
             <View style={styles.profileTopRow}>
-              <View style={[styles.avatar, { backgroundColor: theme.primaryTint }]}>
-                <UserIcon size={24} color={theme.primary} />
-              </View>
+              <UserAvatar
+                uri={avatarUrl}
+                name={storeNickname || storeName || nickname || name}
+                size={54}
+                showCameraBadge={true}
+                onPress={handleOpenAvatarOptions}
+              />
               <View style={styles.profileTexts}>
                 <View style={styles.profileNameRow}>
                   <Text style={styles.userName}>{storeNickname || storeName || nickname || name}</Text>
@@ -787,6 +855,45 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
             setMembershipVisible(true);
           }}
         />
+
+        {/* 👩‍⚕️ 간호사 캐릭터 프로필 프리셋 선택 모달 */}
+        <Modal
+          visible={presetModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setPresetModalVisible(false)}
+        >
+          <View style={styles.presetModalOverlay}>
+            <View style={styles.presetModalBox}>
+              <View style={styles.presetModalHeader}>
+                <Text style={styles.presetModalTitle}>간호사 캐릭터 선택</Text>
+                <TouchableOpacity
+                  onPress={() => setPresetModalVisible(false)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Text style={[styles.presetModalCloseText, { color: theme.primary }]}>닫기</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.presetModalDesc}>원하는 스타일의 널스 캐릭터를 프로필로 설정해보세요.</Text>
+              <View style={styles.presetGrid}>
+                {AVATAR_PRESETS.map((preset) => (
+                  <TouchableOpacity
+                    key={preset.id}
+                    style={[
+                      styles.presetItem,
+                      avatarUrl === preset.id && { borderColor: theme.primary, borderWidth: 2 },
+                    ]}
+                    onPress={() => handleSelectPreset(preset.id)}
+                    activeOpacity={0.8}
+                  >
+                    <UserAvatar uri={preset.id} size={48} />
+                    <Text style={styles.presetLabel} numberOfLines={1}>{preset.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </View>
+        </Modal>
       </KeyboardAvoidingView>
   );
 
@@ -1383,6 +1490,68 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textMuted,
     textDecorationLine: 'underline',
+  },
+  presetModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  presetModalBox: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  presetModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  presetModalTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+  },
+  presetModalCloseText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  presetModalDesc: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginBottom: 16,
+  },
+  presetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'space-between',
+  },
+  presetItem: {
+    width: '22%',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderRadius: 12,
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  presetLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    marginTop: 6,
+    textAlign: 'center',
   },
 });
 

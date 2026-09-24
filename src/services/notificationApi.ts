@@ -21,21 +21,21 @@ export function generateRealClinicalNotifications(): NotificationItem[] {
   // 오늘 등록된 실제 근무 듀티 확인
   const todayShift = shiftScheduleStore.schedules?.[todayKey] || 'D';
 
-  let shiftTitle = '오늘 근무 안내';
-  let shiftMessage = '오늘 데이(Day) 출근 전입니다.';
+  let shiftTitle = '오늘 근무 리마인더';
+  let shiftMessage = '오늘 데이(Day) 출근 전입니다. 정확한 환자 확인(Patient ID)과 안전한 인계를 응원합니다!';
 
   if (todayShift === 'D') {
     shiftTitle = `오늘 데이(Day) 출근 안내`;
-    shiftMessage = `오늘(${mm}/${dd} ${dayName}) 07:00 데이(Day) 출근 듀티입니다.`;
+    shiftMessage = `오늘(${mm}/${dd} ${dayName}) 07:00 출근 듀티입니다. 아침 투약 라운딩 전 환자 팔찌 바코드 확인을 잊지 마세요!`;
   } else if (todayShift === 'E') {
     shiftTitle = `오늘 이브닝(Evening) 출근 안내`;
-    shiftMessage = `오늘(${mm}/${dd} ${dayName}) 15:00 이브닝(Evening) 출근 듀티입니다.`;
+    shiftMessage = `오늘(${mm}/${dd} ${dayName}) 15:00 출근 듀티입니다. 활력징후(V/S) 체크와 야간 당직의 컨택 사항을 점검해 보세요.`;
   } else if (todayShift === 'N') {
-    shiftTitle = `오늘 나이트(Night) 출근 안내`;
-    shiftMessage = `오늘(${mm}/${dd} ${dayName}) 22:30 나이트(Night) 출근 듀티입니다.`;
+    shiftTitle = `오늘 나이트(Night) 근무 대비 안내`;
+    shiftMessage = `오늘(${mm}/${dd} ${dayName}) 22:30 출근 듀티입니다. 출근 전 암막 커튼과 함께 충분한 숙면을 취해 수면부채를 예방하세요.`;
   } else if (todayShift === 'O') {
-    shiftTitle = `오늘 오프(Off) 안내`;
-    shiftMessage = `오늘(${mm}/${dd} ${dayName})은 오프(Off)입니다.`;
+    shiftTitle = `꿀맛 같은 오프(Off) 휴식 안내`;
+    shiftMessage = `오늘(${mm}/${dd} ${dayName})은 재충전하는 오프(Off)입니다! 병원 일은 잠시 잊고 편안한 힐링 시간을 보내세요 🌿`;
   }
 
   const list: NotificationItem[] = [
@@ -55,7 +55,7 @@ export function generateRealClinicalNotifications(): NotificationItem[] {
       id: 'real_notif_verified',
       type: 'friend',
       title: '간호사 인증 완료',
-      message: `${user.hospitalName || '소속 병원'} ${user.wardName || '병동'} 인증이 완료되었습니다.`,
+      message: `${user.hospitalName || '소속 병원'} ${user.wardName || '병동'} 간호사 인증이 완료되었습니다. 전문직 전용 커뮤니티를 이용하실 수 있습니다.`,
       timeAgo: '1시간 전',
       isRead: true,
     });
@@ -64,7 +64,7 @@ export function generateRealClinicalNotifications(): NotificationItem[] {
       id: 'real_notif_pending',
       type: 'friend',
       title: '면허증 심사 진행 중',
-      message: '제출하신 간호사 면허 서류를 검토 중입니다.',
+      message: '제출하신 간호사 면허 확인 서류를 검토 중입니다. 승인 시 알림을 보내드립니다.',
       timeAgo: '2시간 전',
       isRead: false,
     });
@@ -72,8 +72,8 @@ export function generateRealClinicalNotifications(): NotificationItem[] {
     list.push({
       id: 'real_notif_unverified',
       type: 'friend',
-      title: '간호사 인증 안내',
-      message: '면허증을 등록하면 전체 기능을 이용할 수 있습니다.',
+      title: '간호사 인증하고 모든 기능 열기',
+      message: '면허증 또는 재직증명서를 등록하면 동기 간호사 찾기 및 커뮤니티 전면 이용이 가능합니다.',
       timeAgo: '어제',
       isRead: false,
     });
@@ -84,8 +84,8 @@ export function generateRealClinicalNotifications(): NotificationItem[] {
     list.push({
       id: 'real_notif_premium',
       type: 'comment',
-      title: 'weganda+ 이용 중',
-      message: '정밀 맞춤 사주, 바이오리듬 분석, 약물 계산기 무제한 혜택 적용 중입니다.',
+      title: 'weganda+ 프리미엄 활성화',
+      message: '50년 명인 5대 정밀 사주, 바이오리듬 분석, 약물 계산기 무제한 혜택이 적용 중입니다.',
       timeAgo: '1일 전',
       isRead: true,
     });
@@ -93,8 +93,8 @@ export function generateRealClinicalNotifications(): NotificationItem[] {
     list.push({
       id: 'real_notif_free_benefit',
       type: 'swap',
-      title: '이번 달 사주 횟수 안내',
-      message: `이번 달 무료 AI 간호 사주 이용 현황: ${user.monthlyFortuneCount || 0}/5회`,
+      title: '이번 달 무료 사주 안내',
+      message: `이번 달 AI 간호 사주를 5회 무료로 확인하실 수 있습니다. (현재 이용: ${user.monthlyFortuneCount || 0}/5회)`,
       timeAgo: '2일 전',
       isRead: true,
     });
@@ -104,8 +104,8 @@ export function generateRealClinicalNotifications(): NotificationItem[] {
   list.push({
     id: 'real_notif_schedule_sync',
     type: 'shift',
-    title: '근무표 동기화',
-    message: `${mm}월 근무표가 동기화되었습니다.`,
+    title: '근무표 캘린더 동기화',
+    message: `${mm}월 근무표가 성공적으로 저장되었습니다. 일정 변경 시 직접 입력을 통해 언제든 듀티를 수정할 수 있습니다.`,
     timeAgo: '3일 전',
     isRead: true,
   });

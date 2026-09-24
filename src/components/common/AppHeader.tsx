@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-nativ
 import { COLORS, useAppTheme } from '../../constants/theme';
 import { BellIcon, UserIcon } from './Icon';
 import { WegandaLogo } from './WegandaLogo';
+import { UserAvatar } from './UserAvatar';
 import { useHeaderModalStore } from '../../store/useHeaderModalStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
+import { useUserStore } from '../../store/useUserStore';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -35,6 +37,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const closeMyPage = useHeaderModalStore((s) => s.closeMyPage);
 
   const { unreadCount } = useNotificationStore();
+  const avatarUrl = useUserStore((s) => s.avatarUrl);
 
   const handleNotification = onPressNotification || openNotifications;
   const handleProfile = onPressProfile || openMyPage;
@@ -84,16 +87,20 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               {unreadCount > 0 && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
             </TouchableOpacity>
 
-            {/* 마이페이지 프로필 아이콘 */}
+            {/* 마이페이지 프로필 아이콘 / 아바타 */}
             <TouchableOpacity
-              style={styles.iconBtn}
+              style={[styles.iconBtn, avatarUrl ? { padding: 0 } : null]}
               onPress={handleProfile}
               activeOpacity={0.7}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
               accessibilityRole="button"
               accessibilityLabel="마이페이지 열기"
             >
-              <UserIcon size={18} color={COLORS.textPrimary} />
+              {avatarUrl ? (
+                <UserAvatar uri={avatarUrl} size={28} />
+              ) : (
+                <UserIcon size={18} color={COLORS.textPrimary} />
+              )}
             </TouchableOpacity>
           </View>
         )}

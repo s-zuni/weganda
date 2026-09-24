@@ -11,7 +11,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { FriendDetail, ChatMessage } from '../../../mocks/friendsData';
 import { useFriendsStore } from '../../../store/useFriendsStore';
@@ -31,7 +31,6 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
   friend,
   onClose,
 }) => {
-  const theme = useAppTheme();
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const myUserId = useUserStore((s) => s.id);
   const { chatMessages, fetchChatMessages, sendMessage, respondToSwap } = useFriendsStore();
@@ -103,7 +102,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={[styles.backBtnText, { color: theme.primary }]}>‹ 뒤로</Text>
+            <Text style={styles.backBtnText}>‹ 뒤로</Text>
           </TouchableOpacity>
 
           <View style={styles.headerCenter}>
@@ -130,7 +129,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.quickChip} onPress={handleQuickSwap}>
-            <RepeatIcon size={14} color={theme.primary} />
+            <RepeatIcon size={14} color={COLORS.primary} />
             <Text style={styles.quickChipText}>듀티 맞교환 제안</Text>
           </TouchableOpacity>
 
@@ -166,17 +165,13 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
                   <View
                     style={[
                       styles.bubble,
-                      isMe
-                        ? [styles.bubbleMe, { backgroundColor: theme.primary }]
-                        : styles.bubbleOther,
+                      isMe ? styles.bubbleMe : styles.bubbleOther,
                     ]}
                   >
                     <Text
                       style={[
                         styles.bubbleText,
-                        isMe
-                          ? [styles.bubbleTextMe, { color: theme.onPrimaryText }]
-                          : styles.bubbleTextOther,
+                        isMe ? styles.bubbleTextMe : styles.bubbleTextOther,
                       ]}
                     >
                       {msg.text}
@@ -185,14 +180,14 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
                     {/* 듀티 맞교환 제안 카드 */}
                     {msg.isSwapRequest && msg.swapDetails && (
                       <View style={styles.swapCard}>
-                        <Text style={styles.swapCardTitle}>듀티 맞교환 요청</Text>
+                        <Text style={styles.swapCardTitle}>🗓️ 듀티 맞교환 요청서</Text>
                         <View style={styles.swapDetailRow}>
                           <Text style={styles.swapDetailLabel}>내 근무:</Text>
-                          <Text style={[styles.swapDetailVal, { color: theme.primary }]}>{msg.swapDetails.myShift}</Text>
+                          <Text style={styles.swapDetailVal}>{msg.swapDetails.myShift}</Text>
                         </View>
                         <View style={styles.swapDetailRow}>
                           <Text style={styles.swapDetailLabel}>상대 근무:</Text>
-                          <Text style={[styles.swapDetailVal, { color: theme.primary }]}>{msg.swapDetails.targetShift}</Text>
+                          <Text style={styles.swapDetailVal}>{msg.swapDetails.targetShift}</Text>
                         </View>
 
                         <View style={styles.swapBtnRow}>
@@ -205,18 +200,18 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
                                 <Text style={styles.swapDeclineText}>거절</Text>
                               </TouchableOpacity>
                               <TouchableOpacity
-                                style={[styles.swapAcceptBtn, { backgroundColor: theme.primary }]}
+                                style={styles.swapAcceptBtn}
                                 onPress={() => {
                                   respondToSwap(friend.id, msg.id, true);
-                                  Alert.alert('교환 완료', '듀티 맞교환이 수락되어 스케줄에 반영되었습니다.');
+                                  Alert.alert('교환 완료', '듀티 맞교환이 수락되어 스케줄에 반영되었습니다!');
                                 }}
                               >
-                                <Text style={[styles.swapAcceptText, { color: theme.onPrimaryText }]}>수락하기</Text>
+                                <Text style={styles.swapAcceptText}>수락하기</Text>
                               </TouchableOpacity>
                             </>
                           ) : (
                             <View style={styles.statusResultBox}>
-                              <Text style={[styles.statusResultText, { color: theme.primary }]}>
+                              <Text style={styles.statusResultText}>
                                 {msg.swapDetails.status === 'accepted' ? '✓ 교환 수락 완료' : '✕ 교환 거절됨'}
                               </Text>
                             </View>
@@ -253,15 +248,12 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
             onSubmitEditing={handleSend}
           />
           <TouchableOpacity
-            style={[
-              styles.sendBtn,
-              inputText.trim() ? { backgroundColor: theme.primary } : styles.sendBtnDisabled,
-            ]}
+            style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
             onPress={handleSend}
             disabled={!inputText.trim()}
             activeOpacity={0.8}
           >
-            <SendIcon size={18} color={inputText.trim() ? theme.onPrimaryText : COLORS.textMuted} />
+            <SendIcon size={18} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -345,7 +337,7 @@ const styles = StyleSheet.create({
   },
   chatScroll: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F9FA',
   },
   chatContent: {
     paddingHorizontal: 16,
@@ -376,20 +368,23 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   bubble: {
-    borderRadius: 18,
+    borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   bubbleMe: {
+    backgroundColor: COLORS.primary,
     borderBottomRightRadius: 4,
   },
   bubbleOther: {
-    backgroundColor: '#F2F4F6',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
   },
   bubbleTextMe: {
     color: '#FFFFFF',
@@ -429,6 +424,7 @@ const styles = StyleSheet.create({
   swapDetailVal: {
     fontSize: 11,
     fontWeight: '700',
+    color: COLORS.primary,
   },
   swapBtnRow: {
     flexDirection: 'row',
@@ -449,6 +445,7 @@ const styles = StyleSheet.create({
   },
   swapAcceptBtn: {
     flex: 1.5,
+    backgroundColor: COLORS.primary,
     borderRadius: 8,
     paddingVertical: 8,
     alignItems: 'center',
@@ -456,6 +453,7 @@ const styles = StyleSheet.create({
   swapAcceptText: {
     fontSize: 11,
     fontWeight: '700',
+    color: '#FFFFFF',
   },
   statusResultBox: {
     flex: 1,
@@ -467,30 +465,32 @@ const styles = StyleSheet.create({
   statusResultText: {
     fontSize: 11,
     fontWeight: '700',
+    color: COLORS.primary,
   },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
     gap: 10,
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#F2F4F6',
-    borderRadius: 22,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 9,
+    paddingVertical: 10,
     fontSize: 14,
     color: COLORS.textPrimary,
   },
   sendBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

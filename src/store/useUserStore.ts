@@ -70,6 +70,7 @@ export interface UserState {
   incrementDailyAiCount: () => void;
   incrementDailyDrugCalcCount: () => void;
   setAppThemeColor: (color: AppThemeColor) => void;
+  setAvatarUrl: (url: string | null) => Promise<boolean>;
 
   // Actions
   setUser: (user: Partial<UserState>) => void;
@@ -136,6 +137,19 @@ export const useUserStore = create<UserState>()(
     })),
 
   setUser: (user) => set((state) => ({ ...state, ...user })),
+
+  setAvatarUrl: async (url: string | null) => {
+    set({ avatarUrl: url ?? undefined });
+    const currentId = get().id;
+    if (currentId) {
+      try {
+        await profileApi.updateProfile(currentId, { avatarUrl: url ?? undefined });
+      } catch (e) {
+        console.warn('Failed to sync avatar with Supabase:', e);
+      }
+    }
+    return true;
+  },
 
   // Mock 결제 성공 — 프리미엄 구독 활성화 (기본 얼리버드 1개월 무료체험 등록)
   subscribeToPremium: () => {

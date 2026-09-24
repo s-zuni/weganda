@@ -16,6 +16,8 @@ import {
   BadgeCheckIcon,
 } from '../../common/Icon';
 import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
+import { UserAvatar } from '../../common/UserAvatar';
+import { useUserStore } from '../../../store/useUserStore';
 import { PostItem } from '../../../types/community';
 
 interface PostCardItemProps {
@@ -31,6 +33,8 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
   onToggleLike,
   onToggleBookmark,
 }) => {
+  const avatarUrl = useUserStore((s) => s.avatarUrl);
+
   return (
     <Card style={styles.postCard}>
       <TouchableOpacity onPress={() => onOpenDetail(post)} activeOpacity={0.9}>
@@ -65,6 +69,15 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
         {/* 작성자 & 인터랙션 통계 바 */}
         <View style={styles.postFooter}>
           <View style={styles.authorRow}>
+            {!post.isAnonymous && (
+              <View style={{ marginRight: 6 }}>
+                <UserAvatar
+                  uri={post.isMyPost ? avatarUrl : undefined}
+                  name={post.authorName}
+                  size={18}
+                />
+              </View>
+            )}
             <Text style={styles.authorInfoText}>
               {post.authorName}
             </Text>

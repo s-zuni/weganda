@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, ThemeColors } from '../constants/theme';
@@ -56,9 +56,9 @@ export const BottomTabNavigator: React.FC = () => {
     closeMyPage,
   } = useHeaderModalStore();
 
-  // Safe area bottom inset 고려 + 미존재 기기에서도 Figma 원본 높이(84px) 수준의 쾌적한 높이 확보
-  const bottomInset = insets.bottom > 0 ? insets.bottom : 16;
-  const barHeight = 64 + bottomInset;
+  // Safe area bottom inset 고려 + 미존재 기기에서도 안전 여백 확보하여 텍스트/버튼 잘림 방지
+  const safeBottom = Math.max(insets.bottom, Platform.OS === 'ios' ? 26 : 12);
+  const barHeight = (Platform.OS === 'ios' ? 56 : 60) + safeBottom;
 
   return (
     <View style={styles.rootContainer}>
@@ -79,10 +79,16 @@ export const BottomTabNavigator: React.FC = () => {
           styles.tabBar,
           {
             height: barHeight,
-            paddingBottom: bottomInset,
-            paddingTop: 10,
+            paddingBottom: safeBottom,
+            paddingTop: 6,
+            overflow: 'visible',
           },
         ],
+        tabBarItemStyle: {
+          paddingVertical: 2,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
@@ -188,24 +194,25 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   fabContainer: {
-    top: -24,
+    top: -18,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 10,
   },
   fabButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: COLORS.primary,
-    borderWidth: 4,
+    borderWidth: 3.5,
     borderColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
   },
 });
 

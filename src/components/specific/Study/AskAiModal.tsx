@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS } from '../../../constants/theme';
 import { useStudyStore } from '../../../store/useStudyStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { FREE_LIMITS } from '../../../constants/membership';
@@ -37,7 +37,6 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
   onClose,
   initialQuestion,
 }) => {
-  const theme = useAppTheme();
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const { aiMessages, askAi } = useStudyStore();
   const { isPremium, dailyAiCount, incrementDailyAiCount } = useUserStore();
@@ -85,15 +84,15 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={[styles.backText, { color: theme.primary }]}>‹ 닫기</Text>
+            <Text style={styles.backText}>‹ 닫기</Text>
           </TouchableOpacity>
 
           <View style={styles.headerTitleRow}>
-            <BotIcon size={18} color={theme.primary} />
+            <BotIcon size={18} color={COLORS.primary} />
             <Text style={styles.headerTitle}>임상 간호 AI 멘토</Text>
             {!isPremium && (
-              <View style={[styles.limitBadge, { backgroundColor: theme.primary + '18' }]}>
-                <Text style={[styles.limitBadgeText, { color: theme.primary }]}>{dailyAiCount}/3회</Text>
+              <View style={styles.limitBadge}>
+                <Text style={styles.limitBadgeText}>{dailyAiCount}/3회</Text>
               </View>
             )}
           </View>
@@ -132,36 +131,23 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
                 style={[styles.msgRow, isMe ? styles.msgRowMe : styles.msgRowAi]}
               >
                 {!isMe && (
-                  <View style={[styles.aiAvatar, { backgroundColor: theme.primary + '18' }]}>
-                    <BotIcon size={16} color={theme.primary} />
+                  <View style={styles.aiAvatar}>
+                    <BotIcon size={16} color={COLORS.primary} />
                   </View>
                 )}
 
                 <View style={{ maxWidth: '82%' }}>
-                  <View
-                    style={[
-                      styles.bubble,
-                      isMe
-                        ? [styles.bubbleMe, { backgroundColor: theme.primary }]
-                        : styles.bubbleAi,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.bubbleText,
-                        isMe
-                          ? [styles.bubbleTextMe, { color: theme.onPrimaryText }]
-                          : styles.bubbleTextAi,
-                      ]}
-                    >
+                  <View style={[styles.bubble, isMe ? styles.bubbleMe : styles.bubbleAi]}>
+                    <Text style={[styles.bubbleText, isMe ? styles.bubbleTextMe : styles.bubbleTextAi]}>
                       {msg.text}
                     </Text>
 
-                    {/* 공식 임상 지침 출처 (Grounding Badge) */}
+                    {/* 🏷️ 공식 임상 지침 출처 (Grounding Badge) */}
                     {!isMe && msg.sources && msg.sources.length > 0 && (
                       <View style={styles.sourcesContainer}>
                         <View style={styles.sourceHeaderRow}>
-                          <Text style={styles.sourceHeaderText}>근거 문헌</Text>
+                          <Text style={styles.sourceHeaderIcon}>🏷️</Text>
+                          <Text style={styles.sourceHeaderText}>공식 표준 임상 출처 (Grounding)</Text>
                         </View>
                         {msg.sources.map((src, sIdx) => (
                           <View key={sIdx} style={styles.sourceBadge}>
@@ -197,15 +183,12 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
             onSubmitEditing={() => handleSend()}
           />
           <TouchableOpacity
-            style={[
-              styles.sendBtn,
-              inputText.trim() ? { backgroundColor: theme.primary } : styles.sendBtnDisabled,
-            ]}
+            style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
             onPress={() => handleSend()}
             disabled={!inputText.trim()}
             activeOpacity={0.85}
           >
-            <SendIcon size={16} color={inputText.trim() ? theme.onPrimaryText : COLORS.textMuted} />
+            <SendIcon size={16} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
 
@@ -286,7 +269,7 @@ const styles = StyleSheet.create({
   },
   chatScroll: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8F9FA',
   },
   chatContent: {
     padding: 16,
@@ -307,25 +290,29 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
+    backgroundColor: '#FFF1F4',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
   },
   bubble: {
-    borderRadius: 18,
+    borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   bubbleMe: {
+    backgroundColor: COLORS.primary,
     borderBottomRightRadius: 4,
   },
   bubbleAi: {
-    backgroundColor: '#F2F4F6',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
-    fontSize: 14,
-    lineHeight: 21,
+    fontSize: 15,
+    lineHeight: 23,
   },
   bubbleTextMe: {
     color: '#FFFFFF',
@@ -334,7 +321,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   timeText: {
-    fontSize: 11,
+    fontSize: 12,
     color: COLORS.textMuted,
     marginTop: 4,
     paddingHorizontal: 4,
@@ -343,25 +330,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
     gap: 10,
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#F2F4F6',
-    borderRadius: 22,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 9,
-    fontSize: 14,
+    paddingVertical: 11,
+    fontSize: 15,
     color: COLORS.textPrimary,
   },
   sendBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -369,6 +357,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
   },
   limitBadge: {
+    backgroundColor: '#FFF1F4',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -377,52 +366,57 @@ const styles = StyleSheet.create({
   limitBadgeText: {
     fontSize: 11,
     fontWeight: '700',
+    color: COLORS.primary,
   },
   sourcesContainer: {
-    marginTop: 10,
-    paddingTop: 8,
+    marginTop: 12,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: '#F1F5F9',
     gap: 6,
   },
   sourceHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
     marginBottom: 2,
+  },
+  sourceHeaderIcon: {
+    fontSize: 12,
   },
   sourceHeaderText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.textMuted,
+    color: '#64748B',
     letterSpacing: -0.2,
   },
   sourceBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8FAFC',
     borderRadius: 8,
     paddingHorizontal: 8,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E2E8F0',
     gap: 6,
   },
   agencyPill: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#EFF6FF',
     borderRadius: 4,
-    paddingHorizontal: 6,
+    paddingHorizontal: 5,
     paddingVertical: 2,
   },
   agencyPillText: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.textSecondary,
+    color: '#2563EB',
     lineHeight: 14,
   },
   sourceBadgeTitle: {
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: '#334155',
     lineHeight: 16,
     flex: 1,
   },

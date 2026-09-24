@@ -31,6 +31,7 @@ import {
 import { ReportModal } from './ReportModal';
 import { PostWriteModal } from './PostWriteModal';
 import { VerificationModal } from '../Verification';
+import { UserAvatar } from '../../common/UserAvatar';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 
 interface PostDetailModalProps {
@@ -57,7 +58,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     toggleLikeReply,
     blockUser,
   } = useCommunityStore();
-  const { id: userId, role, verificationStatus, verificationRole } = useUserStore();
+  const { id: userId, role, verificationStatus, verificationRole, avatarUrl: myAvatarUrl } = useUserStore();
   const isNurse = role === 'admin' || role === 'nurse' || (verificationStatus === 'verified' && verificationRole === 'nurse');
   const isStudent = !isNurse && (role === 'student' || verificationRole === 'student');
   const isVerified = isNurse || (verificationStatus === 'verified' && isStudent);
@@ -316,11 +317,17 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
               {/* 작성자 프로필 바 */}
               <View style={styles.authorBar}>
-                <View style={styles.authorAvatar}>
-                  <Text style={styles.authorAvatarText}>
-                    {currentPost.isAnonymous ? '익' : currentPost.authorName.slice(0, 1)}
-                  </Text>
-                </View>
+                {currentPost.isAnonymous ? (
+                  <View style={styles.authorAvatar}>
+                    <Text style={styles.authorAvatarText}>익</Text>
+                  </View>
+                ) : (
+                  <UserAvatar
+                    uri={currentPost.isMyPost ? myAvatarUrl : undefined}
+                    name={currentPost.authorName}
+                    size={36}
+                  />
+                )}
 
                 <View style={styles.authorInfo}>
                   <View style={styles.authorNameRow}>
@@ -397,6 +404,15 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   {/* 원댓글 헤더 */}
                   <View style={styles.commentTopRow}>
                     <View style={styles.commentAuthorRow}>
+                      {!comment.isAnonymous && (
+                        <View style={{ marginRight: 6 }}>
+                          <UserAvatar
+                            uri={comment.isMyComment ? myAvatarUrl : undefined}
+                            name={comment.authorName}
+                            size={18}
+                          />
+                        </View>
+                      )}
                       <Text style={styles.commentAuthorName}>{comment.authorName}</Text>
                       {comment.isVerifiedHospital && !comment.isAnonymous && (
                         <View style={styles.miniVerifiedBadge}>
@@ -464,6 +480,13 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                           <View style={styles.replyBubble}>
                             <View style={styles.replyTopRow}>
                               <View style={styles.commentAuthorRow}>
+                                <View style={{ marginRight: 6 }}>
+                                  <UserAvatar
+                                    uri={reply.isMyReply ? myAvatarUrl : undefined}
+                                    name={reply.authorName}
+                                    size={16}
+                                  />
+                                </View>
                                 <Text style={styles.commentAuthorName}>{reply.authorName}</Text>
                                 <Text style={styles.commentTime}>{reply.timeAgo}</Text>
                               </View>
