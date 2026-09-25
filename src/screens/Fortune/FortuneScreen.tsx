@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AppHeader } from '../../components/common/AppHeader';
 import { useFortuneStore } from '../../store/useFortuneStore';
 import { useUserStore } from '../../store/useUserStore';
+import { useTabBarHeight } from '../../hooks/useTabBarHeight';
 
 // 분리된 서브 모달 및 컴포넌트들
 import {
@@ -40,6 +41,7 @@ export const FortuneScreen: React.FC = () => {
     checkDailyRefresh,
   } = useFortuneStore();
   const { isPremium, monthlyFortuneCount, incrementFortuneCount } = useUserStore();
+  const tabBarHeight = useTabBarHeight();
 
   // 오늘 날짜 동적 계산
   const today = new Date();
@@ -80,7 +82,7 @@ export const FortuneScreen: React.FC = () => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[styles.contentContainer, { paddingBottom: tabBarHeight + 24 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* 사주 탄생 정보 배너 */}
@@ -181,7 +183,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 90,
   },
 });
 

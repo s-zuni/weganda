@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS, useAppTheme } from '../../constants/theme';
+import { useTabBarHeight } from '../../hooks/useTabBarHeight';
 import { SearchIcon } from '../../components/common/Icon';
 import { useStudyStore } from '../../store/useStudyStore';
 import { StudyGuideItem } from '../../types/study';
@@ -28,6 +29,7 @@ import {
 
 export const StudyScreen: React.FC = () => {
   const theme = useAppTheme();
+  const tabBarHeight = useTabBarHeight();
   const { studyGuides, fetchStudyGuides, toggleBookmarkGuide, isLoadingGuides } = useStudyStore();
 
   React.useEffect(() => {
@@ -97,7 +99,7 @@ export const StudyScreen: React.FC = () => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[styles.contentContainer, { paddingBottom: tabBarHeight + 24 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* 상단 AI 임상 검색창 (검색창 형식 AI 질문 인터페이스) */}
@@ -210,7 +212,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 90,
   },
   searchRow: {
     marginBottom: 16,

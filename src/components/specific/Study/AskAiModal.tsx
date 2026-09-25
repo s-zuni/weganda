@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../../../constants/theme';
 import { useStudyStore } from '../../../store/useStudyStore';
 import { useUserStore } from '../../../store/useUserStore';
@@ -38,6 +39,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
   initialQuestion,
 }) => {
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
+  const insets = useSafeAreaInsets();
   const { aiMessages, askAi } = useStudyStore();
   const { isPremium, dailyAiCount, incrementDailyAiCount } = useUserStore();
   const [inputText, setInputText] = useState('');
@@ -82,7 +84,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
         style={styles.container}
       >
         {/* 헤더 */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={styles.backText}>‹ 닫기</Text>
           </TouchableOpacity>
@@ -226,7 +228,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 54,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',

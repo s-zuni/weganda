@@ -44,7 +44,6 @@ export const ThemeFortuneGrid: React.FC<ThemeFortuneGridProps> = ({
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>5대 정밀 맞춤 사주 & 케미</Text>
-        <Text style={styles.sectionHint}>터치하여 주제별 정밀 분석 확인</Text>
       </View>
 
       {/* weganda+ 운세 횟수 제한 배너 */}
@@ -81,11 +80,6 @@ export const ThemeFortuneGrid: React.FC<ThemeFortuneGridProps> = ({
                     color={cat.themeColor}
                   />
                 </View>
-                <View style={[styles.subBadge, { backgroundColor: cat.bgLightColor }]}>
-                  <Text style={[styles.subBadgeText, { color: cat.themeColor }]}>
-                    {cat.highlightTag}
-                  </Text>
-                </View>
               </View>
               <Text style={styles.subCardTitle}>{cat.title}</Text>
               <Text style={styles.subCardDesc} numberOfLines={2} ellipsizeMode="tail">
@@ -120,10 +114,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
     color: COLORS.textPrimary,
-  },
-  sectionHint: {
-    fontSize: 14,
-    color: COLORS.textMuted,
   },
   fortuneLimitBanner: {
     flexDirection: 'row',
@@ -171,7 +161,6 @@ const styles = StyleSheet.create({
   },
   subCardHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
   },
@@ -181,17 +170,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  subBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3.5,
-    borderRadius: 8,
-  },
-  subBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: -0.2,
-    lineHeight: 16,
   },
   subCardTitle: {
     fontSize: 16,

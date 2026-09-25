@@ -1,9 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, ThemeColors } from '../constants/theme';
 import { useHeaderModalStore } from '../store/useHeaderModalStore';
+import { useTabBarMetrics } from '../hooks/useTabBarHeight';
 import { NotificationModal } from '../components/specific/Notification/NotificationModal';
 import { MyPageModal } from '../components/specific/MyPage/MyPageModal';
 import {
@@ -48,17 +48,13 @@ const CenterFAB = ({ onPress, theme }: { onPress: () => void; theme: ThemeColors
 
 export const BottomTabNavigator: React.FC = () => {
   const theme = useAppTheme();
-  const insets = useSafeAreaInsets();
+  const { barHeight, safeBottom } = useTabBarMetrics();
   const {
     notificationModalVisible,
     myPageModalVisible,
     closeNotifications,
     closeMyPage,
   } = useHeaderModalStore();
-
-  // Safe area bottom inset 고려 + 미존재 기기에서도 안전 여백 확보하여 텍스트/버튼 잘림 방지
-  const safeBottom = Math.max(insets.bottom, Platform.OS === 'ios' ? 26 : 12);
-  const barHeight = (Platform.OS === 'ios' ? 56 : 60) + safeBottom;
 
   return (
     <View style={styles.rootContainer}>

@@ -9,6 +9,7 @@ import {
   Share,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../../../constants/theme';
 import { StudyGuideItem } from '../../../mocks/studyData';
 import { useStudyStore } from '../../../store/useStudyStore';
@@ -26,6 +27,7 @@ export const StudyDetailModal: React.FC<StudyDetailModalProps> = ({
   onClose,
 }) => {
   const { studyGuides, toggleBookmarkGuide } = useStudyStore();
+  const insets = useSafeAreaInsets();
 
   if (!guide) return null;
 
@@ -45,7 +47,7 @@ export const StudyDetailModal: React.FC<StudyDetailModalProps> = ({
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <View style={styles.container}>
         {/* 헤더 */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={styles.backText}>‹ 닫기</Text>
           </TouchableOpacity>
@@ -139,7 +141,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 54,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',

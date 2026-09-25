@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
+import { useTabBarHeight } from '../../hooks/useTabBarHeight';
 import { PencilIcon, SearchIcon } from '../../components/common/Icon';
 import { useCommunityStore } from '../../store/useCommunityStore';
 import { useUserStore } from '../../store/useUserStore';
@@ -37,6 +38,7 @@ export const CommunityScreen: React.FC = () => {
     verificationRejectReason,
   } = useUserStore();
   const { posts, blockedUserIds, fetchPosts, toggleLikePost, toggleBookmarkPost, isLoading, error } = useCommunityStore();
+  const tabBarHeight = useTabBarHeight();
 
   useEffect(() => {
     fetchPosts(undefined, userId || undefined);
@@ -180,7 +182,7 @@ export const CommunityScreen: React.FC = () => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[styles.contentContainer, { paddingBottom: tabBarHeight + 24 }]}
         showsVerticalScrollIndicator={false}
       >
 
@@ -318,7 +320,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 90,
   },
   searchRow: {
     marginBottom: 16,

@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
+import { useTabBarHeight } from '../../hooks/useTabBarHeight';
 import { useFriendsStore } from '../../store/useFriendsStore';
 import { useUserStore } from '../../store/useUserStore';
 import { FriendDetail, GroupChat } from '../../types/friends';
@@ -31,6 +32,7 @@ type FriendsTabType = 'list' | 'groups';
 export const FriendsScreen: React.FC = () => {
   const { id: userId, isPremium } = useUserStore((s) => ({ id: s.id, isPremium: s.isPremium }));
   const { friends, groupChats, fetchFriends, isLoading, error } = useFriendsStore();
+  const tabBarHeight = useTabBarHeight();
 
   useEffect(() => {
     if (userId) {
@@ -97,7 +99,7 @@ export const FriendsScreen: React.FC = () => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[styles.contentContainer, { paddingBottom: tabBarHeight + 24 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* 네트워크/데이터 로딩 에러 알림 배너 */}
@@ -241,7 +243,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 90,
   },
   tabContainer: {
     flexDirection: 'row',

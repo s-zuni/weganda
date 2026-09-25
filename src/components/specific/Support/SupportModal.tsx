@@ -13,6 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../../../constants/theme';
 import { useUserStore } from '../../../store/useUserStore';
 import { useSupportStore } from '../../../store/useSupportStore';
@@ -42,6 +43,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState<SupportInquiry | null>(null);
   const [replyText, setReplyText] = useState('');
+  const insets = useSafeAreaInsets();
 
   const { id: userId, email: userEmail, nickname: userNickname } = useUserStore();
   const {
@@ -178,13 +180,13 @@ export const SupportModal: React.FC<SupportModalProps> = ({
   return (
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <View style={styles.container}>
-        {/* 상단 헤더 */}
-        <View style={styles.header}>
+        {/* 상단 헤더 (노치/상태바 침범 방지를 위한 safe area 상단 여백 적용) */}
+        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
           <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7}>
             <Text style={styles.closeBtnText}>✕</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>고객센터</Text>
-          <View style={{ width: 40 }} />
+          <View style={{ width: 44 }} />
         </View>
 
         {/* 상단 탭 (문의 작성 / 내 문의 내역 / FAQ) */}
@@ -581,18 +583,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   header: {
-    height: 56,
+    minHeight: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+    paddingBottom: 12,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
   closeBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },

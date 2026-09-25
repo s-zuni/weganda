@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { GroupChat } from '../../../mocks/friendsData';
@@ -34,6 +35,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
   onClose,
 }) => {
   const theme = useAppTheme();
+  const insets = useSafeAreaInsets();
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const [activeTab, setActiveTab] = useState<TabMode>('matrix');
   const [messageText, setMessageText] = useState('');
@@ -115,7 +117,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
         keyboardVerticalOffset={keyboardOffset}
       >
         {/* 헤더 */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={[styles.backBtnText, { color: theme.primary }]}>‹ 뒤로</Text>
           </TouchableOpacity>
@@ -381,7 +383,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 54,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.divider,

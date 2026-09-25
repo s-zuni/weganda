@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS, TINT_COLORS } from '../../constants/theme';
+import { useTabBarHeight } from '../../hooks/useTabBarHeight';
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
 import { ShiftCode, SHIFT_TYPES, ShiftInfo } from '../../constants/shiftTypes';
@@ -49,6 +50,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   } = useShiftScheduleStore();
 
   const { friends, fetchFriends } = useFriendsStore();
+  const tabBarHeight = useTabBarHeight();
 
   // 모달 제어 상태
   const [addScheduleModalVisible, setAddScheduleModalVisible] = useState(false);
@@ -113,7 +115,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[styles.contentContainer, { paddingBottom: tabBarHeight + 24 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* 네트워크/데이터 로딩 에러 알림 배너 (스케줄 미존재 시 또는 수동 재시도 실패 시 노출, 닫기 가능) */}
@@ -241,7 +243,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 90,
   },
   errorBannerContainer: {
     flexDirection: 'row',

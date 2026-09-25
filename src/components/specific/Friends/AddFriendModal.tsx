@@ -9,8 +9,8 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme } from '../../../constants/theme';
 import { friendsApi } from '../../../services/friendsApi';
 import { contactService, DeviceContact } from '../../../services/contactService';
@@ -26,6 +26,7 @@ type AddTab = 'code' | 'contacts';
 
 export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose }) => {
   const theme = useAppTheme();
+  const insets = useSafeAreaInsets();
   const myUserId = useUserStore((s) => s.id);
   const myUserCode = useUserStore((s) => s.userCode);
   const { fetchFriends } = useFriendsStore();
@@ -134,7 +135,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <View style={styles.container}>
         {/* 헤더 */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={[styles.closeBtn, { color: theme.primary }]}>‹ 닫기</Text>
           </TouchableOpacity>
@@ -369,7 +370,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 56 : 20,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',

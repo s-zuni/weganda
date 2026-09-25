@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  Platform,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme } from '../../../constants/theme';
 import { DailyPatientNote } from '../../../mocks/dailyNotes';
 
@@ -37,6 +37,7 @@ export const SbarSummaryModal: React.FC<SbarSummaryModalProps> = ({
   currentDate,
 }) => {
   const theme = useAppTheme();
+  const insets = useSafeAreaInsets();
   const [selectedPatientIdx, setSelectedPatientIdx] = useState<number>(0);
 
   // 환자 메모를 기반으로 SBAR 구조화 (스마트 파싱 로직)
@@ -123,7 +124,7 @@ export const SbarSummaryModal: React.FC<SbarSummaryModalProps> = ({
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <View style={styles.container}>
         {/* 헤더 */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={[styles.closeBtn, { color: theme.primary }]}>‹ 닫기</Text>
           </TouchableOpacity>
@@ -286,7 +287,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 56 : 20,
     paddingBottom: 14,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,

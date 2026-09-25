@@ -11,6 +11,7 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, NEUTRAL, useAppTheme } from '../../../constants/theme';
 import { FriendDetail } from '../../../types/friends';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
@@ -31,6 +32,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   onCreateGroup,
 }) => {
   const theme = useAppTheme();
+  const insets = useSafeAreaInsets();
   const keyboardOffset = useKeyboardOffset(0);
   const [groupName, setGroupName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('병동');
@@ -69,7 +71,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={keyboardOffset}
       >
-        <View style={styles.modalHeader}>
+        <View style={[styles.modalHeader, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
           <TouchableOpacity onPress={handleClose}>
             <Text style={[styles.modalCloseText, { color: theme.primary }]}>‹ 취소</Text>
           </TouchableOpacity>
@@ -185,7 +187,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 56 : 20,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.divider,
