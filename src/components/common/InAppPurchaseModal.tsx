@@ -83,7 +83,7 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
           {step === 'processing' && (
             <View style={styles.contentContainer}>
               <View style={styles.indicatorContainer}>
-                <ActivityIndicator size="large" color={COLORS.primary || '#FF507C'} />
+                <ActivityIndicator size="large" color={COLORS.primary} />
               </View>
               <Text style={styles.titleText}>
                 {options?.isTrial ? `${options?.trialDays ?? 30}일 무료 체험 등록 중` : '스토어 결제 진행 중'}
@@ -116,7 +116,7 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
                 <ShieldCheckIcon color="#10B981" size={56} />
               </View>
               <Text style={styles.successTitle}>
-                {options?.isTrial ? `🎉 ${options?.trialDays ?? 30}일 무료 체험 시작!` : '🎉 구독이 완료되었습니다!'}
+                {options?.isTrial ? `${options?.trialDays ?? 30}일 무료 체험 시작!` : '구독이 완료되었습니다!'}
               </Text>
               <Text style={styles.successDescription}>
                 {options?.isTrial
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   },
   subText: {
     fontSize: 13,
-    color: '#FF507C',
+    color: COLORS.primary,
     fontWeight: '600',
     marginBottom: 10,
   },
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   confirmButton: {
-    backgroundColor: COLORS.primary || '#FF507C',
+    backgroundColor: COLORS.primary,
     borderRadius: 9999,
     width: '100%',
     paddingVertical: 14,
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     flex: 1,
-    backgroundColor: COLORS.primary || '#FF507C',
+    backgroundColor: COLORS.primary,
     borderRadius: 9999,
     paddingVertical: 12,
     alignItems: 'center',

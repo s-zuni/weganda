@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
+import { COLORS } from '../../../constants/theme';
+import { StethoscopeIcon } from '../../common/Icon';
 import { useUserStore } from '../../../store/useUserStore';
 
 interface AdminLoginViewProps {
@@ -70,7 +72,7 @@ export const AdminLoginView: React.FC<AdminLoginViewProps> = ({
         {/* 상단 뱃지 및 로고 */}
         <View style={styles.header}>
           <View style={styles.logoBadge}>
-            <Text style={styles.logoIcon}>🩺</Text>
+            <StethoscopeIcon size={30} color={COLORS.primary} />
           </View>
           <Text style={styles.brandTitle}>WEGANDA ADMIN</Text>
           <Text style={styles.brandSubtitle}>우간다 서비스 통합 운영 콘솔</Text>

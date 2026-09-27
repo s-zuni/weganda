@@ -18,6 +18,7 @@ import { useUserStore } from '../../store/useUserStore';
 import { useShiftScheduleStore } from '../../store/useShiftScheduleStore';
 import { useFriendsStore } from '../../store/useFriendsStore';
 import { SharedShiftModal } from '../../components/specific/Friends';
+import { AlertCircleIcon } from '../../components/common/Icon';
 
 // 대시보드 컴포넌트들
 import {
@@ -110,7 +111,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
       <AppHeader />
 
       <ScrollView
@@ -128,7 +129,8 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
               accessibilityRole="button"
               accessibilityLabel="근무표 다시 불러오기"
             >
-              <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
+              <AlertCircleIcon size={16} color={TINT_COLORS.statusRejectedText} />
+              <Text style={styles.errorBannerText}>{error} (터치하여 다시 시도)</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.errorCloseBtn}
@@ -256,8 +258,10 @@ const styles = StyleSheet.create({
   },
   errorBanner: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     paddingVertical: 10,
-    justifyContent: 'center',
   },
   errorBannerText: {
     color: TINT_COLORS.statusRejectedText,

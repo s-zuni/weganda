@@ -56,7 +56,8 @@
         "android.permission.READ_CONTACTS",
         "android.permission.POST_NOTIFICATIONS"
       ],
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "enableOnBackInvokedCallback": true
     },
     "plugins": [
       [

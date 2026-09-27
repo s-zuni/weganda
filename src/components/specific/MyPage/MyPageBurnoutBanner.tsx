@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, TINT_COLORS } from '../../../constants/theme';
 import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
+import { StethoscopeIcon } from '../../common/Icon';
 
 interface MyPageBurnoutBannerProps {
   onPress: () => void;
@@ -18,7 +19,7 @@ export const MyPageBurnoutBanner: React.FC<MyPageBurnoutBannerProps> = ({ onPres
     >
       <View style={styles.burnoutBannerLeft}>
         <View style={styles.burnoutBannerIconBox}>
-          <Text style={styles.burnoutBannerEmoji}>🩺</Text>
+          <StethoscopeIcon size={18} color={COLORS.primary} />
         </View>
         <View style={styles.burnoutBannerTexts}>
           <View style={styles.burnoutBannerTitleRow}>

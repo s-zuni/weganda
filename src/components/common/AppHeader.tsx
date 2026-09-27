@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme } from '../../constants/theme';
 import { BellIcon, UserIcon } from './Icon';
 import { WegandaLogo } from './WegandaLogo';
@@ -39,6 +40,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const { unreadCount } = useNotificationStore();
   const avatarUrl = useUserStore((s) => s.avatarUrl);
 
+  const insets = useSafeAreaInsets();
+  const headerPaddingTop = insets.top > 0 ? insets.top + 6 : 14;
+
   const handleNotification = onPressNotification || openNotifications;
   const handleProfile = onPressProfile || openMyPage;
 
@@ -53,7 +57,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   };
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, { paddingTop: headerPaddingTop }, style]}>
       <View style={styles.leftContainer}>
         {leftElement || (
           <View>

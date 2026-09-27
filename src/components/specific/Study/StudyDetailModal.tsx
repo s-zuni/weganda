@@ -14,6 +14,7 @@ import { COLORS } from '../../../constants/theme';
 import { StudyGuideItem } from '../../../mocks/studyData';
 import { useStudyStore } from '../../../store/useStudyStore';
 import { BookmarkIcon, ShareIcon } from '../../common/Icon';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface StudyDetailModalProps {
   visible: boolean;
@@ -44,7 +45,7 @@ export const StudyDetailModal: React.FC<StudyDetailModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       <View style={styles.container}>
         {/* 헤더 */}
         <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
@@ -127,7 +128,7 @@ export const StudyDetailModal: React.FC<StudyDetailModalProps> = ({
           </View>
         </ScrollView>
       </View>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 

@@ -15,7 +15,7 @@ export const MembershipLaunchPromoBanner: React.FC<MembershipLaunchPromoBannerPr
 
   return (
     <View style={styles.launchEventBanner}>
-      <Text style={styles.eventBannerBadge}>🎉 런칭 기념 특가</Text>
+      <Text style={styles.eventBannerBadge}>런칭 기념 특가</Text>
       <Text style={styles.eventBannerTitle}>첫 {trialDays}일 0원 무료 체험 혜택</Text>
       <Text style={styles.eventBannerDesc}>
         스토어 결제 수단 등록 후 {trialDays}일간 무료로 이용하세요.{'\n'}
@@ -27,9 +27,9 @@ export const MembershipLaunchPromoBanner: React.FC<MembershipLaunchPromoBannerPr
 
 const styles = StyleSheet.create({
   launchEventBanner: {
-    backgroundColor: '#FFFBEB',
+    backgroundColor: TINT_COLORS.pinkTint,
     borderWidth: 1.5,
-    borderColor: '#FCD34D',
+    borderColor: TINT_COLORS.pinkTintBorder,
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 20,
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   eventBannerBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.status.warning,
+    backgroundColor: COLORS.primary,
     color: COLORS.onPrimaryText,
     fontSize: 11,
     fontWeight: '800',
@@ -56,12 +56,12 @@ const styles = StyleSheet.create({
   eventBannerTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: TINT_COLORS.statusPendingText,
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
   eventBannerDesc: {
     fontSize: 12,
-    color: '#78350F',
+    color: COLORS.textSecondary,
     lineHeight: 18,
   },
 });

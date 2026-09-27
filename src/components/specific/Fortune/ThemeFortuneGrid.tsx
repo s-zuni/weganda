@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS } from '../../../constants/theme';
+import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 import { PremiumLockOverlay } from '../../common/PremiumLockOverlay';
 import { FREE_LIMITS } from '../../../constants/membership';
 import { SAJU_CATEGORIES, SajuCategoryId } from '../../../mocks/sajuCategories';
@@ -75,7 +76,7 @@ export const ThemeFortuneGrid: React.FC<ThemeFortuneGridProps> = ({
               <View style={styles.subCardHeader}>
                 <View style={[styles.iconCircle, { backgroundColor: cat.bgLightColor }]}>
                   <MaterialCommunityIcons
-                    name={cat.icon as any}
+                    name={cat.icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']}
                     size={20}
                     color={cat.themeColor}
                   />
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFF8E7',
+    backgroundColor: PREMIUM_COLORS.badgeBg,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 12,
@@ -128,12 +129,12 @@ const styles = StyleSheet.create({
   fortuneLimitText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#B8922E',
+    color: PREMIUM_COLORS.badgeText,
   },
   fortuneUpgradeLink: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#B8922E',
+    color: PREMIUM_COLORS.badgeText,
   },
   subFortuneGrid: {
     flexDirection: 'row',
@@ -143,11 +144,11 @@ const styles = StyleSheet.create({
   },
   subCard: {
     width: '48.5%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 18,
     padding: 15,
     borderWidth: 1,
-    borderColor: '#EBF0F5',
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,

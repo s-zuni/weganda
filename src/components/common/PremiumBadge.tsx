@@ -34,7 +34,7 @@ export const PremiumBadge: React.FC<PremiumBadgeProps> = ({
             compact && styles.compactText,
           ]}
         >
-          {isPremium ? '👑 weganda+ 이용 중' : '✨ weganda+ 알아보기 ›'}
+          {isPremium ? 'weganda+ 이용 중' : 'weganda+ 알아보기 ›'}
         </Text>
       </View>
       {isPremium && (

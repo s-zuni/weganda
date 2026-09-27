@@ -20,6 +20,7 @@ import { useUserStore } from '../../../store/useUserStore';
 import { SendIcon, RepeatIcon } from '../../common/Icon';
 import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface ChatRoomModalProps {
   visible: boolean;
@@ -95,7 +96,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={keyboardOffset}
@@ -259,7 +260,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 

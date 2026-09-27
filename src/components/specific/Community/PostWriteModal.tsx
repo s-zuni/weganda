@@ -18,6 +18,7 @@ import { PostItem, MOCK_SAMPLE_IMAGES } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { ImageIcon, LockIcon } from '../../common/Icon';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface PostWriteModalProps {
   visible: boolean;
@@ -124,7 +125,7 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
@@ -241,7 +242,7 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 

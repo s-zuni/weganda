@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, NEUTRAL, useAppTheme } from '../../../constants/theme';
 import { FriendDetail } from '../../../types/friends';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface CreateGroupModalProps {
   visible: boolean;
@@ -65,7 +66,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={handleClose}>
+    <SwipeDismissModal visible={visible} onClose={handleClose}>
       <KeyboardAvoidingView
         style={styles.modalContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -173,7 +174,7 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 

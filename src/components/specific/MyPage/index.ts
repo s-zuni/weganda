@@ -9,4 +9,5 @@ export * from './MembershipHeader';
 export * from './MembershipLaunchPromoBanner';
 export * from './MembershipPlanSelector';
 export * from './MembershipBenefitsList';
+export * from './MembershipImpactNote';
 export * from './MembershipStickyCTA';

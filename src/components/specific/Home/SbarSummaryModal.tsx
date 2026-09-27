@@ -3,14 +3,16 @@ import {
   View,
   Text,
   StyleSheet,
-  Modal,
   TouchableOpacity,
   ScrollView,
   Alert,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme } from '../../../constants/theme';
+import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
+import { SparklesIcon, DocumentTextIcon } from '../../common/Icon';
 import { DailyPatientNote } from '../../../mocks/dailyNotes';
 
 interface SbarSummaryModalProps {
@@ -115,13 +117,13 @@ export const SbarSummaryModal: React.FC<SbarSummaryModalProps> = ({
 
   const handleCopyCurrent = async () => {
     if (!activeItem) return;
-    const text = `📋 [SBAR 인계] ${activeItem.patient} (${activeItem.diagnosis})\n• S: ${activeItem.situation}\n• B: ${activeItem.background}\n• A: ${activeItem.assessment}\n• R: ${activeItem.recommendation}`;
+    const text = `[SBAR 인계] ${activeItem.patient} (${activeItem.diagnosis})\n• S: ${activeItem.situation}\n• B: ${activeItem.background}\n• A: ${activeItem.assessment}\n• R: ${activeItem.recommendation}`;
     await Clipboard.setStringAsync(text);
     Alert.alert('복사 완료', `${activeItem.patient} 환자의 SBAR 요약이 복사되었습니다.`);
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       <View style={styles.container}>
         {/* 헤더 */}
         <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
@@ -140,7 +142,7 @@ export const SbarSummaryModal: React.FC<SbarSummaryModalProps> = ({
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
           {/* 상단 안내 배너 */}
           <View style={styles.infoBanner}>
-            <Text style={styles.infoBannerIcon}>✨</Text>
+            <SparklesIcon size={20} color={theme.primary} />
             <View style={{ flex: 1 }}>
               <Text style={styles.infoBannerTitle}>표준 SBAR 프로토콜 자동 정돈</Text>
               <Text style={styles.infoBannerSub}>
@@ -151,7 +153,9 @@ export const SbarSummaryModal: React.FC<SbarSummaryModalProps> = ({
 
           {notes.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyIcon}>📝</Text>
+              <View style={{ marginBottom: 12 }}>
+                <DocumentTextIcon size={44} color={NEUTRAL.gray400} />
+              </View>
               <Text style={styles.emptyTitle}>요약할 특이사항이 없습니다</Text>
               <Text style={styles.emptySub}>
                 환자 특이사항 메모를 먼저 1건 이상 등록하시면 AI가 SBAR 시트로 정돈해 드립니다.
@@ -267,13 +271,13 @@ export const SbarSummaryModal: React.FC<SbarSummaryModalProps> = ({
               activeOpacity={0.88}
             >
               <Text style={[styles.copyAllBtnText, { color: theme.onPrimaryText }]}>
-                📋 전체 SBAR 인수인계 시트 복사 ({notes.length}명)
+                전체 SBAR 인수인계 시트 복사 ({notes.length}명)
               </Text>
             </TouchableOpacity>
           </View>
         )}
       </View>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 
@@ -307,7 +311,7 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
   proTag: {
-    backgroundColor: '#D4A853',
+    backgroundColor: PREMIUM_COLORS.gold,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,

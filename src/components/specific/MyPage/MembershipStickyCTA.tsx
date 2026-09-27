@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity, Platform, Linking } from 'rea
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MembershipPlanKey, CurrentPlanPricing } from '../../../types/membershipEvent';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
-import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 
 export interface MembershipStickyCTAProps {
   isPremium: boolean;
@@ -126,21 +125,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   subscribeButton: {
-    backgroundColor: PREMIUM_COLORS.heroBg,
+    backgroundColor: COLORS.primary,
     width: '100%',
     height: 56,
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    shadowColor: PREMIUM_COLORS.heroBg,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
     elevation: 4,
   },
   subscribeText: {
-    color: PREMIUM_COLORS.gold,
+    color: COLORS.onPrimaryText,
     fontSize: 17,
     fontWeight: '700',
     lineHeight: 22,

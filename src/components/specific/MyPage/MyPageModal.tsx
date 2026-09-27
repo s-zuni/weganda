@@ -37,6 +37,8 @@ import { MyPageSupportSection } from './MyPageSupportSection';
 import { MyPageFooterSection } from './MyPageFooterSection';
 import { MyPageActivityStatsSection } from './MyPageActivityStatsSection';
 import { InquiryCategory, BUSINESS_INFO } from '../../../types/support';
+import { useTabBarMetrics } from '../../../hooks/useTabBarHeight';
+import { SwipeDismissContainer, SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface MyPageModalProps {
   visible: boolean;
@@ -52,6 +54,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   bottomOffset = 0,
 }) => {
   const theme = useAppTheme();
+  const { barHeight } = useTabBarMetrics();
+  const effectiveBottomOffset = bottomOffset > 0 ? bottomOffset : (isEmbedded ? barHeight : 0);
   const {
     name: storeName,
     nickname: storeNickname,
@@ -301,7 +305,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: isEmbedded ? 56 : Math.max(insets.bottom, 24) + 36 },
+            { paddingBottom: isEmbedded ? 32 : Math.max(insets.bottom, 24) + 36 },
           ]}
         >
           {/* 프로필 카드 */}
@@ -899,16 +903,18 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
 
   if (isEmbedded) {
     return (
-      <View style={[styles.embeddedWrapper, { bottom: bottomOffset }]}>
-        {content}
+      <View style={[styles.embeddedWrapper, { bottom: effectiveBottomOffset }]}>
+        <SwipeDismissContainer onDismiss={onClose} visible={visible}>
+          {content}
+        </SwipeDismissContainer>
       </View>
     );
   }
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       {content}
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 
@@ -1005,7 +1011,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 54,
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.divider,

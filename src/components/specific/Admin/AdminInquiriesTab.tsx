@@ -17,6 +17,7 @@ import {
   INQUIRY_CATEGORIES,
   InquiryStatus,
 } from '../../../types/support';
+import { COLORS, NEUTRAL } from '../../../constants/theme';
 
 export const AdminInquiriesTab: React.FC = () => {
   const {
@@ -186,11 +187,11 @@ export const AdminInquiriesTab: React.FC = () => {
           <View style={styles.listHeader}>
             <Text style={styles.listTitle}>문의 목록 ({filteredInquiries.length}건)</Text>
             <TouchableOpacity onPress={() => fetchAllInquiries()}>
-              <Text style={styles.refreshText}>🔄 새로고침</Text>
+              <Text style={styles.refreshText}>새로고침</Text>
             </TouchableOpacity>
           </View>
 
-          {isLoading && <ActivityIndicator color="#0F172A" style={{ marginVertical: 20 }} />}
+          {isLoading && <ActivityIndicator color={NEUTRAL.gray900} style={{ marginVertical: 20 }} />}
 
           {filteredInquiries.length === 0 && (
             <View style={styles.emptyCard}>
@@ -237,7 +238,7 @@ export const AdminInquiriesTab: React.FC = () => {
 
                 <View style={styles.inquiryRowMeta}>
                   <Text style={styles.inquiryRowAuthor}>
-                    👤 {inq.userName} ({inq.userEmail})
+                    {inq.userName} ({inq.userEmail})
                   </Text>
                   <Text style={styles.inquiryRowDate}>
                     {new Date(inq.createdAt).toLocaleDateString('ko-KR')}
@@ -245,7 +246,7 @@ export const AdminInquiriesTab: React.FC = () => {
                 </View>
 
                 {inq.images && inq.images.length > 0 && (
-                  <Text style={styles.imageCountBadge}>📷 사진 {inq.images.length}장</Text>
+                  <Text style={styles.imageCountBadge}>사진 {inq.images.length}장</Text>
                 )}
               </TouchableOpacity>
             );
@@ -331,7 +332,7 @@ export const AdminInquiriesTab: React.FC = () => {
                   >
                     <View style={styles.replyCardHeader}>
                       <Text style={[styles.replyAuthor, rep.isAdmin && styles.replyAuthorAdmin]}>
-                        {rep.isAdmin ? '👑 우간다 고객지원팀 (관리자)' : `👤 ${rep.authorName}`}
+                        {rep.isAdmin ? '우간다 고객지원팀 (관리자)' : rep.authorName}
                       </Text>
                       <Text style={styles.replyDate}>
                         {new Date(rep.createdAt).toLocaleString('ko-KR')}
@@ -371,7 +372,6 @@ export const AdminInquiriesTab: React.FC = () => {
             </View>
           ) : (
             <View style={styles.emptyDetailCard}>
-              <Text style={styles.emptyDetailEmoji}>👈</Text>
               <Text style={styles.emptyDetailTitle}>문의를 선택해 주세요</Text>
               <Text style={styles.emptyDetailDesc}>
                 좌측 목록에서 문의를 선택하면 상세 내용과 첨부 사진을 확인하고 관리자 답변을 작성할 수 있습니다.
@@ -387,7 +387,7 @@ export const AdminInquiriesTab: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: NEUTRAL.gray900,
   },
   contentContainer: {
     padding: 24,
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#1E293B',
+    backgroundColor: NEUTRAL.gray800,
     borderRadius: 14,
     padding: 18,
     borderWidth: 1,
@@ -407,11 +407,11 @@ const styles = StyleSheet.create({
   },
   statCardPending: {
     borderColor: '#D97706',
-    backgroundColor: '#1E293B',
+    backgroundColor: NEUTRAL.gray800,
   },
   statCardResolved: {
     borderColor: '#059669',
-    backgroundColor: '#1E293B',
+    backgroundColor: NEUTRAL.gray800,
   },
   statLabel: {
     fontSize: 13,
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     color: '#10B981',
   },
   filterSection: {
-    backgroundColor: '#1E293B',
+    backgroundColor: NEUTRAL.gray800,
     borderRadius: 14,
     padding: 16,
     marginBottom: 20,
@@ -460,14 +460,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: '#0F172A',
+    backgroundColor: NEUTRAL.gray900,
     marginRight: 6,
     borderWidth: 1,
     borderColor: '#334155',
   },
   filterChipActive: {
-    backgroundColor: '#FF507C',
-    borderColor: '#FF507C',
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   filterChipText: {
     fontSize: 12,
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   emptyCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: NEUTRAL.gray800,
     borderRadius: 12,
     padding: 24,
     alignItems: 'center',
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   inquiryRowCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: NEUTRAL.gray800,
     borderRadius: 12,
     padding: 16,
     marginBottom: 10,
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
     borderColor: '#334155',
   },
   inquiryRowCardSelected: {
-    borderColor: '#FF507C',
+    borderColor: COLORS.primary,
     backgroundColor: '#262F40',
   },
   inquiryRowTop: {
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   detailCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: NEUTRAL.gray800,
     borderRadius: 14,
     padding: 20,
     borderWidth: 1,
@@ -630,7 +630,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   authorInfoBox: {
-    backgroundColor: '#0F172A',
+    backgroundColor: NEUTRAL.gray900,
     borderRadius: 10,
     padding: 12,
     marginBottom: 16,
@@ -653,7 +653,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   contentBox: {
-    backgroundColor: '#0F172A',
+    backgroundColor: NEUTRAL.gray900,
     borderRadius: 10,
     padding: 14,
     marginBottom: 16,
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   noReplyBox: {
-    backgroundColor: '#0F172A',
+    backgroundColor: NEUTRAL.gray900,
     borderRadius: 10,
     padding: 14,
     alignItems: 'center',
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   replyCard: {
-    backgroundColor: '#0F172A',
+    backgroundColor: NEUTRAL.gray900,
     borderRadius: 10,
     padding: 14,
     marginBottom: 8,
@@ -703,7 +703,7 @@ const styles = StyleSheet.create({
     borderColor: '#334155',
   },
   replyCardAdmin: {
-    borderColor: '#FF507C',
+    borderColor: COLORS.primary,
     backgroundColor: '#241724',
   },
   replyCardHeader: {
@@ -717,7 +717,7 @@ const styles = StyleSheet.create({
     color: '#F8FAFC',
   },
   replyAuthorAdmin: {
-    color: '#FF507C',
+    color: COLORS.primary,
   },
   replyDate: {
     fontSize: 11,
@@ -729,7 +729,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   replyComposer: {
-    backgroundColor: '#0F172A',
+    backgroundColor: NEUTRAL.gray900,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
@@ -742,7 +742,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   composerInput: {
-    backgroundColor: '#1E293B',
+    backgroundColor: NEUTRAL.gray800,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#334155',
@@ -753,7 +753,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sendReplyBtn: {
-    backgroundColor: '#FF507C',
+    backgroundColor: COLORS.primary,
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
@@ -767,7 +767,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   emptyDetailCard: {
-    backgroundColor: '#1E293B',
+    backgroundColor: NEUTRAL.gray800,
     borderRadius: 14,
     padding: 48,
     alignItems: 'center',

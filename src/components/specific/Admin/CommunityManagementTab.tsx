@@ -342,7 +342,7 @@ export const CommunityManagementTab: React.FC = () => {
                     <View style={styles.postBadges}>
                       {item.isNotice && (
                         <View style={styles.noticeBadge}>
-                          <Text style={styles.noticeBadgeText}>📢 상단고정 공지</Text>
+                          <Text style={styles.noticeBadgeText}>상단고정 공지</Text>
                         </View>
                       )}
                       <View style={styles.tagBadge}>
@@ -399,7 +399,7 @@ export const CommunityManagementTab: React.FC = () => {
       {subTab === 'writeNotice' && (
         <ScrollView style={styles.tabContent} contentContainerStyle={styles.formContainer}>
           <View style={styles.noticeTipBox}>
-            <Text style={styles.noticeTipTitle}>📢 상단고정 공지사항 가이드</Text>
+            <Text style={styles.noticeTipTitle}>상단고정 공지사항 가이드</Text>
             <Text style={styles.noticeTipDesc}>
               작성된 공지글은 커뮤니티 최상단에 고정되어 모든 간호사 회원에게 우선 노출됩니다.
               업데이트 소식, 근무표 팁, 운영 수칙 등을 등록하세요.
@@ -434,7 +434,7 @@ export const CommunityManagementTab: React.FC = () => {
             {isSubmittingNotice ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <Text style={styles.submitNoticeText}>📢 상단고정 공지사항 등록하기</Text>
+              <Text style={styles.submitNoticeText}>상단고정 공지사항 등록하기</Text>
             )}
           </TouchableOpacity>
         </ScrollView>

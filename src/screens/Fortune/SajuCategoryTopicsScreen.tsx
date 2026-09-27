@@ -9,7 +9,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { useFortuneStore } from '../../store/useFortuneStore';
+import { useFortuneStore, BirthInfo, PartnerBirthData } from '../../store/useFortuneStore';
+import { COLORS, NEUTRAL } from '../../constants/theme';
 import {
   SAJU_CATEGORIES,
   SAJU_TOPICS,
@@ -53,7 +54,10 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleAnalysisSubmit = async (data: any) => {
+  const handleAnalysisSubmit = async (data: {
+    birthInfo: BirthInfo;
+    partnerData?: PartnerBirthData;
+  }) => {
     if (!selectedTopic) return;
 
     const { isPremium, monthlyFortuneCount } = useUserStore.getState();
@@ -89,7 +93,7 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
           onPress={() => navigation.goBack()}
           activeOpacity={0.7}
         >
-          <Ionicons name="chevron-back" size={24} color="#1F2937" />
+          <Ionicons name="chevron-back" size={24} color={NEUTRAL.gray800} />
         </TouchableOpacity>
         <Text style={styles.navTitle}>{category.title}</Text>
         <View style={styles.headerRightSpacer} />
@@ -207,7 +211,7 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
   },
   navHeader: {
     height: 52,
@@ -216,7 +220,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: COLORS.divider,
   },
   backBtn: {
     width: 36,
@@ -227,7 +231,7 @@ const styles = StyleSheet.create({
   navTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#111827',
+    color: NEUTRAL.gray900,
   },
   headerRightSpacer: {
     width: 36,
@@ -260,29 +264,29 @@ const styles = StyleSheet.create({
   masterBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.onPrimaryText,
   },
   topicsCountBadge: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#4B5563',
+    color: NEUTRAL.gray600,
   },
   heroTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#111827',
+    color: NEUTRAL.gray900,
     marginBottom: 6,
   },
   heroDescription: {
     fontSize: 13,
-    color: '#4B5563',
+    color: NEUTRAL.gray600,
     lineHeight: 19,
     marginBottom: 12,
   },
   personaCallout: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -291,7 +295,7 @@ const styles = StyleSheet.create({
   personaCalloutText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#374151',
+    color: NEUTRAL.gray700,
     flex: 1,
   },
   topicsSection: {
@@ -303,23 +307,23 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#111827',
+    color: NEUTRAL.gray900,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#6B7280',
+    color: NEUTRAL.gray500,
     marginTop: 2,
   },
   topicList: {
     gap: 16,
   },
   topicCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderRadius: 20,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000000',
+    borderColor: COLORS.border,
+    shadowColor: NEUTRAL.gray950,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -344,33 +348,33 @@ const styles = StyleSheet.create({
   badgePillText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.onPrimaryText,
   },
   readTimePill: {
     fontSize: 11,
-    color: '#6B7280',
+    color: NEUTRAL.gray500,
     fontWeight: '500',
   },
   indexNumber: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#D1D5DB',
+    color: NEUTRAL.gray300,
   },
   topicTitle: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#111827',
+    color: NEUTRAL.gray900,
     marginBottom: 4,
   },
   topicSubtitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#4B5563',
+    color: NEUTRAL.gray600,
     marginBottom: 8,
   },
   topicDescription: {
     fontSize: 13,
-    color: '#6B7280',
+    color: NEUTRAL.gray500,
     lineHeight: 18,
     marginBottom: 12,
   },
@@ -381,14 +385,14 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   tagBadge: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: NEUTRAL.gray100,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
   },
   tagBadgeText: {
     fontSize: 11,
-    color: '#4B5563',
+    color: NEUTRAL.gray600,
     fontWeight: '500',
   },
   cardFooter: {
@@ -397,7 +401,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: COLORS.divider,
   },
   actionBtnText: {
     fontSize: 14,

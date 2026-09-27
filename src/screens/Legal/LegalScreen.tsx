@@ -4,7 +4,7 @@ import { LegalHeader } from '../../components/specific/Legal/LegalHeader';
 import { LegalTabs } from '../../components/specific/Legal/LegalTabs';
 import { LegalSectionCard } from '../../components/specific/Legal/LegalSectionCard';
 import { LEGAL_DOCUMENTS, LegalTabKey } from '../../constants/legal';
-import { COLORS } from '../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { useResponsive } from '../../utils/useResponsive';
 import { BUSINESS_INFO } from '../../types/support';
 
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   docHeader: {
     paddingBottom: 24,
     borderBottomWidth: 2,
-    borderBottomColor: '#0F172A',
+    borderBottomColor: NEUTRAL.gray900,
     marginBottom: 16,
   },
   badgeRow: {
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   effectiveBadge: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: NEUTRAL.gray100,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
@@ -176,10 +176,10 @@ const styles = StyleSheet.create({
   effectiveBadgeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#475569',
+    color: NEUTRAL.gray600,
   },
   versionBadge: {
-    backgroundColor: '#FFF1F2',
+    backgroundColor: TINT_COLORS.pinkTint,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -187,32 +187,32 @@ const styles = StyleSheet.create({
   versionBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary || '#FF507C',
+    color: COLORS.primary,
   },
   docTitle: {
     fontSize: 26,
     fontWeight: '800',
-    color: '#0F172A',
+    color: NEUTRAL.gray900,
     marginBottom: 12,
     letterSpacing: -0.5,
   },
   docSummary: {
     fontSize: 14,
-    color: '#475569',
+    color: NEUTRAL.gray600,
     lineHeight: 22,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: COLORS.offWhite,
     padding: 16,
     borderRadius: 12,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary || '#FF507C',
+    borderLeftColor: COLORS.primary,
   },
   articlesList: {
     marginBottom: 40,
   },
   bottomContactBox: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: COLORS.offWhite,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: NEUTRAL.gray200,
     borderRadius: 16,
     padding: 24,
     marginBottom: 32,
@@ -220,12 +220,12 @@ const styles = StyleSheet.create({
   bottomContactTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0F172A',
+    color: NEUTRAL.gray900,
     marginBottom: 8,
   },
   bottomContactDesc: {
     fontSize: 13,
-    color: '#64748B',
+    color: NEUTRAL.gray500,
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -238,17 +238,17 @@ const styles = StyleSheet.create({
     width: 100,
     fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: NEUTRAL.gray600,
   },
   contactItemValue: {
     fontSize: 13,
-    color: '#0F172A',
+    color: NEUTRAL.gray900,
     fontWeight: '500',
   },
   footerNote: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#94A3B8',
+    color: NEUTRAL.gray400,
     marginBottom: 24,
   },
 });

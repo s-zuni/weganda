@@ -94,7 +94,7 @@ export const StudyScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
       <AppHeader />
 
       <ScrollView

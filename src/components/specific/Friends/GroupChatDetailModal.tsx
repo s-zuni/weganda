@@ -20,6 +20,7 @@ import { useCommonSchedules, CommonScheduleItem } from '../../../hooks/useCommon
 import { CommonScheduleList } from './CommonScheduleList';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 import { useFriendsStore } from '../../../store/useFriendsStore';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface GroupChatDetailModalProps {
   visible: boolean;
@@ -110,7 +111,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -369,7 +370,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
           </View>
         )}
       </KeyboardAvoidingView>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 

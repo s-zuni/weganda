@@ -19,6 +19,7 @@ import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { BotIcon, SendIcon } from '../../common/Icon';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface AskAiModalProps {
   visible: boolean;
@@ -77,7 +78,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={keyboardOffset}
@@ -214,7 +215,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
           onClose={() => setMembershipVisible(false)}
         />
       </KeyboardAvoidingView>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 

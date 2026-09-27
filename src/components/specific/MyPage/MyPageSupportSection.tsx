@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { InquiryCategory } from '../../../types/support';
+import { CommentIcon } from '../../common/Icon';
 
 interface MyPageSupportSectionProps {
   onOpenSupport: (category: InquiryCategory) => void;
@@ -22,7 +23,9 @@ export const MyPageSupportSection: React.FC<MyPageSupportSectionProps> = ({ onOp
         accessibilityLabel="1:1 문의하기"
       >
         <View style={styles.supportBannerLeft}>
-          <Text style={styles.supportBannerEmoji}>🎧</Text>
+          <View style={styles.supportIconBox}>
+            <CommentIcon size={20} color={theme.primary} />
+          </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.supportBannerTitle}>무엇을 도와드릴까요?</Text>
             <Text style={styles.supportBannerSubtitle}>
@@ -94,8 +97,13 @@ const styles = StyleSheet.create({
     gap: 12,
     flex: 1,
   },
-  supportBannerEmoji: {
-    fontSize: 24,
+  supportIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   supportBannerTitle: {
     fontSize: 14,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL } from '../../../constants/theme';
 import { useResponsive } from '../../../utils/useResponsive';
 
 interface LegalHeaderProps {
@@ -49,9 +49,9 @@ export const LegalHeader: React.FC<LegalHeaderProps> = ({ onNavigateHome, title 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: NEUTRAL.gray100,
     paddingHorizontal: 24,
     paddingVertical: 14,
     alignItems: 'center',
@@ -82,31 +82,31 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#0F172A',
+    color: NEUTRAL.gray900,
   },
   brandSub: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#64748B',
+    color: NEUTRAL.gray500,
   },
   pageTitle: {
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.primary || '#FF507C',
+    color: COLORS.primary,
     marginTop: 1,
   },
   homeButton: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 9999,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: COLORS.offWhite,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: NEUTRAL.gray200,
   },
   homeButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#334155',
+    color: NEUTRAL.gray700,
   },
 });
 

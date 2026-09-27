@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL } from '../../../constants/theme';
 import { LegalTabKey } from '../../../constants/legal/types';
 import { LEGAL_TABS } from '../../../constants/legal';
 import { useResponsive } from '../../../utils/useResponsive';
@@ -44,9 +44,9 @@ export const LegalTabs: React.FC<LegalTabsProps> = ({ activeTab, onSelectTab }) 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: NEUTRAL.gray200,
     alignItems: 'center',
   },
   scrollContent: {
@@ -72,11 +72,11 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#64748B',
+    color: NEUTRAL.gray500,
   },
   tabTextActive: {
     fontWeight: '700',
-    color: COLORS.primary || '#FF507C',
+    color: COLORS.primary,
   },
   activeIndicator: {
     position: 'absolute',
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     height: 3,
-    backgroundColor: COLORS.primary || '#FF507C',
+    backgroundColor: COLORS.primary,
     borderRadius: 2,
   },
 });

@@ -34,6 +34,7 @@ import { PostWriteModal } from './PostWriteModal';
 import { VerificationModal } from '../Verification';
 import { UserAvatar } from '../../common/UserAvatar';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface PostDetailModalProps {
   visible: boolean;
@@ -249,7 +250,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={keyboardOffset}
@@ -629,7 +630,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
           onSuccess={() => setVerificationModalVisible(false)}
         />
       </KeyboardAvoidingView>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 

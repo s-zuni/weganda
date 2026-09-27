@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { useTabBarHeight } from '../../hooks/useTabBarHeight';
-import { PencilIcon, SearchIcon } from '../../components/common/Icon';
+import { PencilIcon, SearchIcon, AlertCircleIcon } from '../../components/common/Icon';
 import { useCommunityStore } from '../../store/useCommunityStore';
 import { useUserStore } from '../../store/useUserStore';
 import { PostItem, HotTopic, PostCategory } from '../../types/community';
@@ -160,7 +160,7 @@ export const CommunityScreen: React.FC = () => {
   // ── A안: 미인증 회원은 커뮤니티 전면 잠금 게이트(CommunityLockGate) 렌더링 ──
   if (!isVerified) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
         <AppHeader />
         <CommunityLockGate
           verificationStatus={verificationStatus}
@@ -177,7 +177,7 @@ export const CommunityScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
       <AppHeader />
 
       <ScrollView
@@ -221,7 +221,8 @@ export const CommunityScreen: React.FC = () => {
             onPress={() => fetchPosts(undefined, userId || undefined)}
             activeOpacity={0.8}
           >
-            <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
+            <AlertCircleIcon size={16} color={TINT_COLORS.statusRejectedText} />
+            <Text style={styles.errorBannerText}>{error} (터치하여 다시 시도)</Text>
           </TouchableOpacity>
         )}
 
@@ -247,7 +248,9 @@ export const CommunityScreen: React.FC = () => {
             </View>
           ) : filteredPosts.length === 0 ? (
             <View style={styles.emptyFeedBox}>
-              <Text style={styles.emptyFeedIcon}>✍️</Text>
+              <View style={styles.emptyFeedIconBox}>
+                <PencilIcon size={32} color={COLORS.textMuted} />
+              </View>
               <Text style={styles.emptyFeedTitle}>
                 {selectedCategory === '북마크 보관함'
                   ? '보관된 글이 없어요'
@@ -369,6 +372,10 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
     backgroundColor: TINT_COLORS.redTint,
     borderColor: TINT_COLORS.redTintBorder,
     borderWidth: 1,
@@ -376,7 +383,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     marginBottom: 12,
-    alignItems: 'center',
   },
   errorBannerText: {
     color: TINT_COLORS.statusRejectedText,
@@ -403,9 +409,10 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     marginVertical: 14,
   },
-  emptyFeedIcon: {
-    fontSize: 36,
+  emptyFeedIconBox: {
     marginBottom: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyFeedTitle: {
     fontSize: 18,

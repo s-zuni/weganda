@@ -16,6 +16,7 @@ import { friendsApi } from '../../../services/friendsApi';
 import { contactService, DeviceContact } from '../../../services/contactService';
 import { useUserStore } from '../../../store/useUserStore';
 import { useFriendsStore } from '../../../store/useFriendsStore';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface AddFriendModalProps {
   visible: boolean;
@@ -132,7 +133,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
   );
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       <View style={styles.container}>
         {/* 헤더 */}
         <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
@@ -356,7 +357,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
           )}
         </ScrollView>
       </View>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 

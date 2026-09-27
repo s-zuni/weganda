@@ -16,6 +16,7 @@ import { useUserStore } from '../../store/useUserStore';
 import { authService } from '../../services/auth';
 import { AppleLogo, KakaoLogo, GoogleLogo } from '../../components/common/BrandIcons';
 import { WegandaLogo } from '../../components/common/WegandaLogo';
+import { SparklesIcon } from '../../components/common/Icon';
 import { ReviewerLoginModal } from '../../components/specific/Auth/ReviewerLoginModal';
 
 interface LoginScreenProps {
@@ -149,9 +150,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             교대근무 캘린더부터 임상 운세,{'\n'}동기 톡과 익명 커뮤니티까지 한곳에서
           </Text>
 
-          {/* 🎁 1개월 무료 체험 혜택 프로모션 안내 배지 */}
+          {/* 1개월 무료 체험 혜택 프로모션 안내 배지 */}
           <View style={styles.promoBadge}>
-            <Text style={styles.promoEmoji}>🎁</Text>
+            <SparklesIcon size={16} color={COLORS.primary} />
             <Text style={styles.promoText}>
               첫 소셜 로그인 시 <Text style={styles.promoBold}>weganda+ 1개월 무료체험</Text> 자동 제공
             </Text>

@@ -12,7 +12,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { COLORS, useAppTheme } from '../../../constants/theme';
 import { useBurnoutStore } from '../../../store/useBurnoutStore';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
-import { ShieldCheckIcon, LockIcon } from '../../common/Icon';
+import { ShieldCheckIcon, LockIcon, ZapIcon, ClockIcon } from '../../common/Icon';
+import { SwipeDismissModal } from '../../common/SwipeDismissModal';
 
 interface BurnoutGuardModalProps {
   visible: boolean;
@@ -60,7 +61,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
   const riskColor = getRiskColor(report.riskLevel);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <SwipeDismissModal visible={visible} onClose={onClose}>
       <SafeAreaView style={styles.safeArea}>
         {/* 헤더 */}
         <View style={styles.header}>
@@ -137,13 +138,13 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
           ) : (
             <>
               {/* 3대 취약점 지표 그리드 */}
-              <Text style={styles.sectionTitle}>💡 3대 핵심 교대근무 취약 지표</Text>
+              <Text style={styles.sectionTitle}>3대 핵심 교대근무 취약 지표</Text>
 
               {/* 1. 퐁당퐁당 */}
               <View style={styles.metricCard}>
                 <View style={styles.metricHeaderRow}>
                   <View style={styles.metricTitleGroup}>
-                    <Text style={styles.metricIcon}>⚡</Text>
+                    <ZapIcon size={16} color={COLORS.status.warning} />
                     <Text style={styles.metricTitle}>퐁당퐁당 (N - O - D) 패턴</Text>
                   </View>
                   <View style={[styles.countBadge, report.nodCount > 0 ? styles.countBadgeDanger : styles.countBadgeSafe]}>
@@ -161,7 +162,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
               <View style={styles.metricCard}>
                 <View style={styles.metricHeaderRow}>
                   <View style={styles.metricTitleGroup}>
-                    <Text style={styles.metricIcon}>🌙</Text>
+                    <ClockIcon size={16} color={COLORS.primary} />
                     <Text style={styles.metricTitle}>나이트 3연속 이상 고위험군</Text>
                   </View>
                   <View style={[styles.countBadge, report.consecutiveNightIncidents > 0 ? styles.countBadgeDanger : styles.countBadgeSafe]}>
@@ -179,7 +180,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
               <View style={styles.metricCard}>
                 <View style={styles.metricHeaderRow}>
                   <View style={styles.metricTitleGroup}>
-                    <Text style={styles.metricIcon}>⏳</Text>
+                    <ClockIcon size={16} color={COLORS.textSecondary} />
                     <Text style={styles.metricTitle}>월간 추정 수면 부채 (Sleep Debt)</Text>
                   </View>
                   <View style={[styles.countBadge, styles.countBadgeWarning]}>
@@ -194,7 +195,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
               </View>
 
               {/* 최적 수면 골든타임 & 신체 회복 가이드 */}
-              <Text style={styles.sectionTitle}>🛌 AI 맞춤 회복 골든타임 가이드</Text>
+              <Text style={styles.sectionTitle}>AI 맞춤 회복 골든타임 가이드</Text>
 
               <View style={styles.guideCard}>
                 <View style={styles.guideItem}>
@@ -226,7 +227,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
           )}
         </ScrollView>
       </SafeAreaView>
-    </Modal>
+    </SwipeDismissModal>
   );
 };
 

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -218,7 +218,7 @@ export const UserManagementTab: React.FC = () => {
               {(item.hospitalName || item.wardName) && (
                 <View style={styles.userAffiliation}>
                   <Text style={styles.affiliationText}>
-                    🏥 {item.hospitalName || '종합병원'} · {item.wardName || '병동'}
+                    {item.hospitalName || '종합병원'} · {item.wardName || '병동'}
                   </Text>
                 </View>
               )}

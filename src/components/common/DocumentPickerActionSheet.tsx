@@ -12,6 +12,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { COLORS } from '../../constants/theme';
+import { ImageIcon, CameraIcon, DocumentTextIcon } from './Icon';
 
 export interface PickedDocument {
   uri: string;
@@ -152,7 +153,7 @@ export const DocumentPickerActionSheet: React.FC<DocumentPickerActionSheetProps>
                 activeOpacity={0.7}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#F0F9FF' }]}>
-                  <Text style={styles.iconText}>🖼️</Text>
+                  <ImageIcon size={22} color="#0284C7" />
                 </View>
                 <View style={styles.optionTextBox}>
                   <Text style={styles.optionTitle}>사진 보관함에서 선택</Text>
@@ -167,7 +168,7 @@ export const DocumentPickerActionSheet: React.FC<DocumentPickerActionSheetProps>
                 activeOpacity={0.7}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#FDF2F8' }]}>
-                  <Text style={styles.iconText}>📷</Text>
+                  <CameraIcon size={22} color={COLORS.primary} />
                 </View>
                 <View style={styles.optionTextBox}>
                   <Text style={styles.optionTitle}>카메라로 직접 촬영</Text>
@@ -182,7 +183,7 @@ export const DocumentPickerActionSheet: React.FC<DocumentPickerActionSheetProps>
                 activeOpacity={0.7}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#F0FDF4' }]}>
-                  <Text style={styles.iconText}>📄</Text>
+                  <DocumentTextIcon size={22} color="#16A34A" />
                 </View>
                 <View style={styles.optionTextBox}>
                   <Text style={styles.optionTitle}>파일 및 문서 (PDF) 선택</Text>

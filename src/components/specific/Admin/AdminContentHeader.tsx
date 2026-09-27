@@ -1,5 +1,7 @@
-﻿import React from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { COLORS, NEUTRAL } from '../../../constants/theme';
+import { RepeatIcon } from '../../common/Icon';
 
 interface AdminContentHeaderProps {
   title: string;
@@ -28,7 +30,7 @@ export const AdminContentHeader: React.FC<AdminContentHeaderProps> = ({
       </View>
 
       <View style={styles.rightGroup}>
-        <Text style={styles.updateTime}>🕒 마지막 업데이트: {currentTime}</Text>
+        <Text style={styles.updateTime}>마지막 업데이트: {currentTime}</Text>
         <TouchableOpacity
           style={styles.refreshBtn}
           onPress={onRefresh}
@@ -36,9 +38,12 @@ export const AdminContentHeader: React.FC<AdminContentHeaderProps> = ({
           activeOpacity={0.7}
         >
           {isRefreshing ? (
-            <ActivityIndicator size="small" color="#0F172A" />
+            <ActivityIndicator size="small" color={NEUTRAL.gray900} />
           ) : (
-            <Text style={styles.refreshText}>🔄 새로고침</Text>
+            <View style={styles.refreshBtnContent}>
+              <RepeatIcon size={12} color={NEUTRAL.gray700} />
+              <Text style={styles.refreshText}>새로고침</Text>
+            </View>
           )}
         </TouchableOpacity>
       </View>
@@ -53,21 +58,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 24,
     paddingVertical: 18,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: COLORS.border,
     flexWrap: 'wrap',
     gap: 12,
   },
   title: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#0F172A',
+    color: NEUTRAL.gray900,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 13,
-    color: '#64748B',
+    color: NEUTRAL.gray500,
     marginTop: 2,
   },
   rightGroup: {
@@ -77,19 +82,24 @@ const styles = StyleSheet.create({
   },
   updateTime: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: NEUTRAL.gray400,
   },
   refreshBtn: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: NEUTRAL.gray100,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: COLORS.border,
+  },
+  refreshBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   refreshText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#334155',
+    color: NEUTRAL.gray700,
   },
 });

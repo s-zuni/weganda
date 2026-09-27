@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   primaryButton: {
-    backgroundColor: COLORS.primary || '#FF507C',
+    backgroundColor: COLORS.primary,
     borderRadius: 9999,
     width: '100%',
     paddingVertical: 16,

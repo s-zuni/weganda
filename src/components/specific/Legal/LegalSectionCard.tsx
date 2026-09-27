@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LegalArticle } from '../../../constants/legal/types';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
 
 interface LegalSectionCardProps {
   article: LegalArticle;
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: NEUTRAL.gray100,
   },
   titleRow: {
     marginBottom: 10,
@@ -79,12 +79,12 @@ const styles = StyleSheet.create({
   articleTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1E293B',
+    color: NEUTRAL.gray800,
     lineHeight: 24,
   },
   paragraphText: {
     fontSize: 14,
-    color: '#475569',
+    color: NEUTRAL.gray600,
     lineHeight: 22,
     marginBottom: 8,
   },
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subGroupBox: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: COLORS.offWhite,
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
@@ -101,12 +101,12 @@ const styles = StyleSheet.create({
   subTitleText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#334155',
+    color: NEUTRAL.gray700,
     marginBottom: 6,
   },
   subItemText: {
     fontSize: 13,
-    color: '#475569',
+    color: NEUTRAL.gray600,
     lineHeight: 20,
     marginBottom: 4,
   },
@@ -117,16 +117,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   boxInfo: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#DCFCE7',
+    backgroundColor: TINT_COLORS.greenTint,
+    borderColor: TINT_COLORS.greenTintStrong,
   },
   boxWarning: {
     backgroundColor: '#FFFBEB',
     borderColor: '#FEF3C7',
   },
   boxCoral: {
-    backgroundColor: '#FFF1F2',
-    borderColor: '#FFE4E6',
+    backgroundColor: TINT_COLORS.pinkTint,
+    borderColor: TINT_COLORS.pinkTintBorder,
   },
   highlightTitle: {
     fontSize: 13,
@@ -138,11 +138,11 @@ const styles = StyleSheet.create({
     color: '#B45309',
   },
   titleCoral: {
-    color: COLORS.primary || '#FF507C',
+    color: COLORS.primary,
   },
   highlightDesc: {
     fontSize: 13,
-    color: '#334155',
+    color: NEUTRAL.gray700,
     lineHeight: 20,
   },
 });

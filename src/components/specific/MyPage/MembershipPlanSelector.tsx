@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MembershipPlanKey, CurrentPlanPricing } from '../../../types/membershipEvent';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
-import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 
 export interface MembershipPlanSelectorProps {
   selectedPlan: MembershipPlanKey;
@@ -142,8 +141,8 @@ const styles = StyleSheet.create({
   },
   planCardSelected: {
     backgroundColor: COLORS.cardBackground,
-    borderColor: PREMIUM_COLORS.heroBg,
-    shadowColor: PREMIUM_COLORS.heroBg,
+    borderColor: COLORS.primary,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -153,7 +152,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -10,
     right: 12,
-    backgroundColor: '#D97706',
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -177,7 +176,7 @@ const styles = StyleSheet.create({
     color: NEUTRAL.gray500,
   },
   planCardNameSelected: {
-    color: PREMIUM_COLORS.heroBg,
+    color: COLORS.primary,
   },
   discountPill: {
     backgroundColor: TINT_COLORS.pinkTint,

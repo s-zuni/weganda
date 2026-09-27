@@ -14,6 +14,7 @@ import { COLORS } from '../../constants/theme';
 import { useTabBarHeight } from '../../hooks/useTabBarHeight';
 import { useFriendsStore } from '../../store/useFriendsStore';
 import { useUserStore } from '../../store/useUserStore';
+import { AlertCircleIcon } from '../../components/common/Icon';
 import { FriendDetail, GroupChat } from '../../types/friends';
 // 분리된 서브 모달 및 컴포넌트들
 import {
@@ -94,7 +95,7 @@ export const FriendsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
       <AppHeader />
 
       <ScrollView
@@ -109,7 +110,8 @@ export const FriendsScreen: React.FC = () => {
             onPress={() => userId && fetchFriends(userId)}
             activeOpacity={0.8}
           >
-            <Text style={styles.errorBannerText}>⚠️ {error} (터치하여 다시 시도)</Text>
+            <AlertCircleIcon size={16} color={COLORS.status.error} />
+            <Text style={styles.errorBannerText}>{error} (터치하여 다시 시도)</Text>
           </TouchableOpacity>
         )}
 
@@ -275,6 +277,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
     backgroundColor: '#FEF2F2',
     borderColor: '#FCA5A5',
     borderWidth: 1,
@@ -282,7 +288,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     marginBottom: 12,
-    alignItems: 'center',
   },
   errorBannerText: {
     color: '#B91C1C',

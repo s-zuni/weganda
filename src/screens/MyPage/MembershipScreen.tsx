@@ -17,6 +17,7 @@ import {
   MembershipLaunchPromoBanner,
   MembershipPlanSelector,
   MembershipBenefitsList,
+  MembershipImpactNote,
   MembershipStickyCTA,
 } from '../../components/specific/MyPage';
 import { COLORS } from '../../constants/theme';
@@ -102,6 +103,11 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
             {/* 프리미엄 5대 혜택 목록 */}
             <MembershipBenefitsList isPremium={isPremium} />
 
+            {/* 멤버십 수익의 사회 환원 안내 */}
+            <View style={styles.impactNoteWrapper}>
+              <MembershipImpactNote />
+            </View>
+
             <View style={styles.bottomSpacer} />
           </ScrollView>
 
@@ -152,6 +158,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+  },
+  impactNoteWrapper: {
+    paddingHorizontal: 20,
   },
   bottomSpacer: {
     height: 140,

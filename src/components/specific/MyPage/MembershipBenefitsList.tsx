@@ -7,7 +7,7 @@ import {
   BotIcon,
   ShieldCheckIcon,
 } from '../../common/Icon';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, THEME_PALETTES } from '../../../constants/theme';
 
 export interface MembershipBenefitsListProps {
   isPremium: boolean;
@@ -19,7 +19,7 @@ export const MEMBERSHIP_BENEFITS = [
     title: '앱 커스텀 컬러 설정',
     description: '세이지, 더스티로즈, 차콜 등 8종\n나만의 프리미엄 테마 컬러를 설정하세요',
     freeLimit: '핑크, 네이비 무료 제공',
-    iconColor: '#9B51E0',
+    iconColor: THEME_PALETTES.purple.primary,
     Icon: PaletteIcon,
   },
   {
@@ -69,7 +69,7 @@ export const MembershipBenefitsList: React.FC<MembershipBenefitsListProps> = ({
             <ShieldCheckIcon size={24} color={COLORS.status.success} />
           </View>
           <View style={styles.premiumSuccessTexts}>
-            <Text style={styles.premiumSuccessTitle}>weganda+ 회원이시네요! 🎉</Text>
+            <Text style={styles.premiumSuccessTitle}>weganda+ 회원이시네요</Text>
             <Text style={styles.premiumSuccessDesc}>모든 프리미엄 기능을 이용하실 수 있습니다</Text>
           </View>
         </View>
