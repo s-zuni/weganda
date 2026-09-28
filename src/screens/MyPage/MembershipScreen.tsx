@@ -21,7 +21,6 @@ import {
   MembershipStickyCTA,
 } from '../../components/specific/MyPage';
 import { COLORS } from '../../constants/theme';
-import { PREMIUM_COLORS } from '../../constants/premiumTheme';
 
 export interface MembershipScreenProps {
   visible: boolean;
@@ -116,6 +115,8 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
             isPremium={isPremium}
             selectedPlan={selectedPlan}
             currentPricing={currentPricing}
+            monthlyPricing={monthlyPricing}
+            yearlyPricing={yearlyPricing}
             isRestoring={isRestoring}
             trialDays={trialDays}
             onSubscribe={handleSubscribe}
@@ -147,7 +148,7 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: PREMIUM_COLORS.heroBg,
+    backgroundColor: COLORS.background,
   },
   container: {
     flex: 1,

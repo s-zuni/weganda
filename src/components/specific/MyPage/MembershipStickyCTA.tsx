@@ -2,12 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MembershipPlanKey, CurrentPlanPricing } from '../../../types/membershipEvent';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL } from '../../../constants/theme';
 
 export interface MembershipStickyCTAProps {
   isPremium: boolean;
   selectedPlan: MembershipPlanKey;
   currentPricing: CurrentPlanPricing;
+  monthlyPricing: CurrentPlanPricing;
+  yearlyPricing: CurrentPlanPricing;
   isRestoring: boolean;
   trialDays?: number;
   onSubscribe: () => void;
@@ -19,6 +21,8 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
   isPremium,
   selectedPlan,
   currentPricing,
+  monthlyPricing,
+  yearlyPricing,
   isRestoring,
   trialDays = 30,
   onSubscribe,
@@ -52,24 +56,28 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
                 : `우간다+ 구독하기 (${selectedPlan === 'monthly' ? '월' : '연'} ${currentPricing.currentPrice.toLocaleString()}원)`}
             </Text>
           </TouchableOpacity>
-          <View style={styles.captionRow}>
-            <Text style={styles.ctaCaption}>
-              {currentPricing.isFreeTrialActive
-                ? `${trialDays}일 무료 체험 후 ${selectedPlan === 'monthly' ? `월 ${currentPricing.currentPrice.toLocaleString()}원` : `연 ${currentPricing.currentPrice.toLocaleString()}원`} 자동 결제`
-                : '스토어 계정으로 안전하게 결제'}
-            </Text>
-            <Text style={styles.captionDot}>•</Text>
-            <TouchableOpacity
-              onPress={onRestore}
-              disabled={isRestoring}
-              accessibilityRole="button"
-              accessibilityLabel="구매 복원"
-            >
-              <Text style={styles.restoreText}>
-                {isRestoring ? '복원 중...' : '구매 복원'}
+          {currentPricing.isFreeTrialActive ? (
+            <>
+              <Text style={styles.ctaCaption}>{trialDays}일 무료 체험 후 얼리버드 혜택</Text>
+              <Text style={styles.ctaCaption}>
+                (월 {monthlyPricing.currentPrice.toLocaleString()}원, 연{' '}
+                {yearlyPricing.currentPrice.toLocaleString()}원 자동 결제)
               </Text>
-            </TouchableOpacity>
-          </View>
+            </>
+          ) : (
+            <Text style={styles.ctaCaption}>스토어 계정으로 안전하게 결제</Text>
+          )}
+
+          <TouchableOpacity
+            onPress={onRestore}
+            disabled={isRestoring}
+            style={styles.restoreButton}
+            accessibilityRole="button"
+            accessibilityLabel="구매 복원"
+          >
+            <Text style={styles.restoreText}>{isRestoring ? '복원 중...' : '구매 복원'}</Text>
+          </TouchableOpacity>
+
           <View style={styles.legalRow}>
             <Text style={styles.cancelAnytimeNotice}>
               * 무료 체험 종료 전 언제든 마이페이지에서 위약금 없이 해지 가능합니다.
@@ -148,23 +156,20 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textMuted,
     lineHeight: 18,
+    textAlign: 'center',
   },
-  captionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  restoreButton: {
+    marginTop: 10,
+    minHeight: 32,
     justifyContent: 'center',
-    gap: 8,
-  },
-  captionDot: {
-    fontSize: 13,
-    color: NEUTRAL.gray300,
   },
   restoreText: {
     fontSize: 13,
-    color: NEUTRAL.gray600,
-    fontWeight: '600',
+    color: NEUTRAL.gray700,
+    fontWeight: '700',
     textDecorationLine: 'underline',
     lineHeight: 18,
+    textAlign: 'center',
   },
   legalRow: {
     flexDirection: 'row',

@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CrownIcon } from '../../common/Icon';
-import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 import { COLORS } from '../../../constants/theme';
 
 export interface MembershipHeaderProps {
@@ -13,67 +12,72 @@ export const MembershipHeader: React.FC<MembershipHeaderProps> = ({ onClose }) =
   const insets = useSafeAreaInsets();
 
   return (
-    <>
+    <View style={[styles.heroSection, { paddingTop: Math.max(insets.top, Platform.OS === 'ios' ? 10 : 20) + 8 }]}>
       <TouchableOpacity
         onPress={onClose}
-        style={[styles.closeButton, { top: Math.max(insets.top, Platform.OS === 'ios' ? 10 : 20) }]}
+        style={styles.closeButton}
+        activeOpacity={0.85}
         accessibilityRole="button"
         accessibilityLabel="닫기"
       >
         <Text style={styles.closeButtonText}>← 닫기</Text>
       </TouchableOpacity>
 
-      <View style={[styles.heroSection, { paddingBottom: Math.max(insets.bottom, 16) + 20 }]}>
-        <View style={styles.crownContainer}>
-          <CrownIcon size={48} color={PREMIUM_COLORS.gold} />
-        </View>
-        <Text style={styles.heroTitle}>weganda+</Text>
-        <Text style={styles.heroSubtitle}>당신의 간호 라이프를</Text>
-        <Text style={styles.heroSubtitle}>한 단계 높여보세요</Text>
+      <View style={styles.crownCircle}>
+        <CrownIcon size={36} color={COLORS.onPrimaryText} />
       </View>
-    </>
+      <Text style={styles.heroTitle}>weganda+</Text>
+      <Text style={styles.heroSubtitle}>당신의 간호력을</Text>
+      <Text style={styles.heroSubtitle}>한 단계 높여보세요</Text>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  heroSection: {
+    backgroundColor: COLORS.background,
+    alignItems: 'center',
+    paddingBottom: 24,
+  },
   closeButton: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 10 : 20,
-    left: 20,
-    zIndex: 10,
+    alignSelf: 'flex-start',
+    marginLeft: 20,
+    marginBottom: 28,
     minWidth: 44,
     minHeight: 44,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 22,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: COLORS.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeButtonText: {
     color: COLORS.onPrimaryText,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
-  heroSection: {
-    backgroundColor: PREMIUM_COLORS.heroBg,
-    paddingTop: 80,
+  crownCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
-  },
-  crownContainer: {
+    justifyContent: 'center',
     marginBottom: 16,
   },
   heroTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800',
-    color: PREMIUM_COLORS.gold,
+    color: COLORS.primary,
     marginBottom: 12,
   },
   heroSubtitle: {
-    fontSize: 18,
-    color: PREMIUM_COLORS.heroSubText,
-    lineHeight: 26,
+    fontSize: 17,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    lineHeight: 24,
   },
 });
 

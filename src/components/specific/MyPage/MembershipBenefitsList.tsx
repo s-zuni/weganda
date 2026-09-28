@@ -84,21 +84,21 @@ export const MembershipBenefitsList: React.FC<MembershipBenefitsListProps> = ({
                 <View
                   style={[
                     styles.iconCircle,
-                    { backgroundColor: `${benefit.iconColor}1A` },
+                    { backgroundColor: benefit.iconColor },
                   ]}
                 >
-                  <IconComponent size={24} color={benefit.iconColor} />
+                  <IconComponent size={22} color={COLORS.onPrimaryText} />
                 </View>
                 <View style={styles.cardTexts}>
                   <Text style={styles.cardTitle}>{benefit.title}</Text>
                   <Text style={styles.cardDesc}>{benefit.description}</Text>
+                  {benefit.freeLimit && (
+                    <Text style={styles.freeLimitText}>
+                      {benefit.freeLimit.includes('전용') ? benefit.freeLimit : `무료: ${benefit.freeLimit}`}
+                    </Text>
+                  )}
                 </View>
               </View>
-              {benefit.freeLimit && (
-                <View style={styles.badgeContainer}>
-                  <Text style={styles.badgeText}>무료: {benefit.freeLimit}</Text>
-                </View>
-              )}
             </View>
           );
         })}
@@ -189,18 +189,11 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     lineHeight: 21,
   },
-  badgeContainer: {
-    alignSelf: 'flex-start',
-    backgroundColor: TINT_COLORS.pinkTint,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    marginLeft: 56,
-  },
-  badgeText: {
+  freeLimitText: {
     fontSize: 13,
     color: COLORS.primary,
     fontWeight: '600',
+    marginTop: 6,
   },
 });
 

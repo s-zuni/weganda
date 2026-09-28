@@ -267,6 +267,33 @@ class InAppPurchaseService {
     ];
   }
 
+  // Android Play Billing 구독은 base plan의 offerToken을 지정하지 않으면 스토어가 임의의
+  // 오퍼로 폴백하거나 요청 자체를 거부할 수 있다. 구매 직전에 항상 최신 오퍼 토큰을 다시 조회한다
+  // (오퍼 토큰은 Play Console 설정 변경 시 회전될 수 있어 캐시하지 않는다).
+  private async getAndroidSubscriptionOffers(
+    RNIap: any,
+    targetSku: string
+  ): Promise<{ sku: string; offerToken: string }[] | undefined> {
+    try {
+      const products = await RNIap.fetchProducts({ skus: [targetSku], type: 'subs' });
+      const product = Array.isArray(products) ? products[0] : null;
+      const offers = product?.subscriptionOffers as Array<{ offerTokenAndroid?: string }> | undefined;
+      const offerToken = offers?.find((o) => !!o?.offerTokenAndroid)?.offerTokenAndroid;
+
+      if (!offerToken) {
+        console.warn(
+          '[IAP] Android subscriptionOffers.offerTokenAndroid를 찾지 못했습니다. 스토어 기본 오퍼로 폴백합니다:',
+          targetSku
+        );
+        return undefined;
+      }
+      return [{ sku: targetSku, offerToken }];
+    } catch (e) {
+      console.warn('[IAP] Android 구독 오퍼 토큰 조회 실패, 기본 오퍼로 폴백합니다:', e);
+      return undefined;
+    }
+  }
+
   public async requestSubscription(
     sku?: string,
     options?: {
@@ -290,10 +317,16 @@ class InAppPurchaseService {
       try {
         console.log('[IAP] Invoking native requestPurchase for SKU:', targetSku);
 
+        const androidSubscriptionOffers =
+          Platform.OS === 'android' ? await this.getAndroidSubscriptionOffers(RNIap, targetSku) : undefined;
+
         const requestPayload = {
           request: {
             apple: { sku: targetSku },
-            google: { skus: [targetSku] },
+            google: {
+              skus: [targetSku],
+              ...(androidSubscriptionOffers ? { subscriptionOffers: androidSubscriptionOffers } : {}),
+            },
           },
           type: 'subs' as const,
         };

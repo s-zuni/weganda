@@ -22,24 +22,19 @@ export const MembershipPlanSelector: React.FC<MembershipPlanSelectorProps> = ({
       <View style={styles.planCardsRow}>
         {/* 월간 플랜 */}
         <TouchableOpacity
-          style={[
-            styles.planCard,
-            selectedPlan === 'monthly' && styles.planCardSelected,
-          ]}
+          style={[styles.planCard, styles.monthlyCard]}
           onPress={() => onSelectPlan('monthly')}
           activeOpacity={0.85}
           accessibilityRole="button"
           accessibilityLabel="월간 정기구독 선택"
         >
           <View style={styles.planCardHeader}>
-            <Text
-              style={[
-                styles.planCardName,
-                selectedPlan === 'monthly' && styles.planCardNameSelected,
-              ]}
-            >
-              월간 정기구독
-            </Text>
+            <View style={styles.titleRow}>
+              <View style={[styles.radioCircle, selectedPlan === 'monthly' && styles.radioCircleSelected]}>
+                {selectedPlan === 'monthly' && <View style={styles.radioDot} />}
+              </View>
+              <Text style={styles.planCardName}>월간 정기구독</Text>
+            </View>
             {monthlyPricing.isDiscountActive && (
               <View style={styles.discountPill}>
                 <Text style={styles.discountPillText}>-25% 평생할인</Text>
@@ -62,12 +57,9 @@ export const MembershipPlanSelector: React.FC<MembershipPlanSelectorProps> = ({
           <Text style={styles.planBenefitNote}>출시 얼리버드 평생 보장</Text>
         </TouchableOpacity>
 
-        {/* 연간 플랜 */}
+        {/* 연간 플랜 (추천) */}
         <TouchableOpacity
-          style={[
-            styles.planCard,
-            selectedPlan === 'yearly' && styles.planCardSelected,
-          ]}
+          style={[styles.planCard, styles.yearlyCard]}
           onPress={() => onSelectPlan('yearly')}
           activeOpacity={0.85}
           accessibilityRole="button"
@@ -78,14 +70,12 @@ export const MembershipPlanSelector: React.FC<MembershipPlanSelectorProps> = ({
           </View>
 
           <View style={styles.planCardHeader}>
-            <Text
-              style={[
-                styles.planCardName,
-                selectedPlan === 'yearly' && styles.planCardNameSelected,
-              ]}
-            >
-              연간 정기구독
-            </Text>
+            <View style={styles.titleRow}>
+              <View style={[styles.radioCircle, selectedPlan === 'yearly' && styles.radioCircleSelected]}>
+                {selectedPlan === 'yearly' && <View style={styles.radioDot} />}
+              </View>
+              <Text style={[styles.planCardName, styles.planCardNameYearly]}>연간 정기구독</Text>
+            </View>
             {yearlyPricing.isDiscountActive && (
               <View style={[styles.discountPill, styles.yearlyDiscountPill]}>
                 <Text style={[styles.discountPillText, styles.yearlyDiscountPillText]}>
@@ -107,7 +97,7 @@ export const MembershipPlanSelector: React.FC<MembershipPlanSelectorProps> = ({
               ₩{yearlyPricing.originalPrice.toLocaleString()}
             </Text>
           )}
-          <Text style={styles.planBenefitNote}>월 4,916원 꼴 (추가 절약)</Text>
+          <Text style={styles.planBenefitNote}>월 약 4,916원 (추가 절약)</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -132,21 +122,18 @@ const styles = StyleSheet.create({
   },
   planCard: {
     flex: 1,
-    backgroundColor: NEUTRAL.gray50,
     borderRadius: 16,
     padding: 16,
-    borderWidth: 2,
-    borderColor: NEUTRAL.gray200,
+    borderWidth: 1.5,
     position: 'relative',
   },
-  planCardSelected: {
-    backgroundColor: COLORS.cardBackground,
+  monthlyCard: {
+    backgroundColor: NEUTRAL.gray50,
+    borderColor: NEUTRAL.gray200,
+  },
+  yearlyCard: {
+    backgroundColor: TINT_COLORS.pinkTint,
     borderColor: COLORS.primary,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
   },
   popularTag: {
     position: 'absolute',
@@ -170,12 +157,35 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 4,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  radioCircle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: NEUTRAL.gray300,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioCircleSelected: {
+    borderColor: COLORS.primary,
+  },
+  radioDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.primary,
+  },
   planCardName: {
     fontSize: 13,
     fontWeight: '700',
-    color: NEUTRAL.gray500,
+    color: NEUTRAL.gray700,
   },
-  planCardNameSelected: {
+  planCardNameYearly: {
     color: COLORS.primary,
   },
   discountPill: {

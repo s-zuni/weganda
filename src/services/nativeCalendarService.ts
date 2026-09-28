@@ -15,7 +15,7 @@ export const nativeCalendarService = {
   // 1. 캘린더 권한 확인 및 요청
   async requestPermissions(): Promise<boolean> {
     try {
-      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      const { status } = await Calendar.requestCalendarPermissions();
       return status === 'granted';
     } catch (e) {
       console.warn('Calendar permission request error:', e);

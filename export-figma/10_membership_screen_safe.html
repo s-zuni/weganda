@@ -1,0 +1,330 @@
+﻿<!DOCTYPE html>
+<html lang="ko" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우간다 - weganda+ 멤버십 & 구독 안내</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#FF507C',
+            brandLight: '#FFF1F4',
+            brandBorder: '#FFE4EA',
+            heroGreen: '#1B4332',
+            heroGreenLight: '#2D6A4F',
+            gold: '#D4A853',
+            goldLight: '#F5E6C8',
+            goldDark: '#B8922E',
+            bgGray: '#F8F9FA',
+            borderGray: '#E5E7EB',
+            textPrimary: '#1A1A1A',
+            textSecondary: '#6B7280',
+            textMuted: '#9CA3AF',
+          },
+          fontFamily: {
+            sans: ['Pretendard', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 2px 10px rgba(0, 0, 0, 0.04)',
+            card: '0 4px 16px rgba(0, 0, 0, 0.05)',
+            btn: '0 4px 14px rgba(255, 80, 124, 0.3)',
+            sticky: '0 -4px 16px rgba(0, 0, 0, 0.06)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #F3F4F6;
+      margin: 0;
+      padding: 20px 0;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mobile-frame {
+      width: 390px;
+      min-height: 844px;
+      background-color: #FFFFFF;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body>
+  <div class="mobile-frame" id="membership-screen">
+    
+    <!-- 1. 스마트폰 시스템 상태바 -->
+    <div class="w-full px-7 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-white/90 bg-heroGreen z-20">
+      <span>09:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"/></svg>
+        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4z"/></svg>
+        <div class="w-5 h-2.5 border border-white/90 rounded-sm p-0.5 flex items-center">
+          <div class="w-3 h-1.5 bg-white/90 rounded-2xs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 플로팅 닫기 버튼 -->
+    <button class="absolute top-12 left-5 z-20 min-w-[44px] min-h-[44px] px-3.5 py-2 rounded-full bg-black/35 backdrop-blur-sm text-white text-[15px] font-bold flex items-center justify-center gap-1 hover:bg-black/50 transition">
+      <span>← 닫기</span>
+    </button>
+
+    <!-- 3. 메인 스크롤 콘텐츠 영역 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar pb-36 bg-white">
+      
+      <!-- 히어로 섹션 (솔리드 딥 포레스트 그린) -->
+      <section class="bg-heroGreen pt-16 pb-12 px-6 flex flex-col items-center text-center relative">
+        <div class="w-16 h-16 rounded-full bg-[#133225] flex items-center justify-center mb-3 shadow-inner">
+          <svg class="w-10 h-10 text-gold fill-current" viewBox="0 0 24 24">
+            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-extrabold text-gold tracking-tight mb-2">weganda+</h1>
+        <p class="text-lg text-white/90 font-medium leading-relaxed">
+          당신의 간호 라이프를<br />
+          한 단계 높여보세요
+        </p>
+      </section>
+
+      <!-- 출시 기념 30일 무료 체험 프로모션 배너 -->
+      <div class="px-5 -mt-5 relative z-10">
+        <div class="bg-brandLight border-[1.5px] border-brandBorder rounded-2xl p-4 shadow-soft">
+          <span class="inline-block bg-brand text-white text-[11px] font-extrabold px-2 py-0.5 rounded-md mb-2">
+            런칭 기념 특가
+          </span>
+          <h3 class="text-base font-extrabold text-textPrimary mb-1">
+            첫 30일 0원 무료 체험 혜택
+          </h3>
+          <p class="text-xs text-textSecondary leading-relaxed">
+            스토어 결제 수단 등록 후 30일간 무료로 이용하세요.<br />
+            무료 기간 종료 전 언제든 마이페이지에서 위약금 없이 해지 가능합니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- 플랜 선택기 (월간 vs 연간) -->
+      <section class="px-5 mt-5">
+        <h2 class="text-[15px] font-bold text-gray-800 mb-3">멤버십 플랜 선택</h2>
+        <div class="flex gap-3">
+          
+          <!-- 월간 플랜 카드 -->
+          <div class="flex-1 bg-gray-50 rounded-2xl p-4 border-2 border-gray-200 flex flex-col justify-between cursor-pointer hover:border-gray-300 transition">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[13px] font-bold text-gray-600">월간 정기구독</span>
+                <span class="bg-brandLight text-brand text-[10px] font-extrabold px-1.5 py-0.5 rounded">
+                  -25% 평생할인
+                </span>
+              </div>
+              <div class="flex items-baseline gap-0.5">
+                <span class="text-lg font-extrabold text-gray-900">₩5,900</span>
+                <span class="text-xs font-semibold text-gray-500">/ 월</span>
+              </div>
+              <p class="text-[11px] line-through text-gray-400 mt-0.5">₩7,900</p>
+            </div>
+            <p class="text-[11px] font-semibold text-emerald-600 mt-2">출시 얼리버드 평생 보장</p>
+          </div>
+
+          <!-- 연간 플랜 카드 (선택됨 / BEST) -->
+          <div class="flex-1 bg-white rounded-2xl p-4 border-2 border-brand shadow-card flex flex-col justify-between relative cursor-pointer">
+            <div class="absolute -top-2.5 right-3 bg-brand text-white px-2 py-0.5 rounded-lg text-[10px] font-extrabold shadow-sm">
+              BEST • 최대 절약
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[13px] font-bold text-brand">연간 정기구독</span>
+                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-1.5 py-0.5 rounded">
+                  평생 5.9만
+                </span>
+              </div>
+              <div class="flex items-baseline gap-0.5">
+                <span class="text-lg font-extrabold text-gray-900">₩59,000</span>
+                <span class="text-xs font-semibold text-gray-500">/ 년</span>
+              </div>
+              <p class="text-[11px] line-through text-gray-400 mt-0.5">₩79,000</p>
+            </div>
+            <p class="text-[11px] font-semibold text-emerald-600 mt-2">월 4,916원 꼴 (추가 절약)</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 프리미엄 5대 혜택 목록 -->
+      <section class="px-5 mt-7">
+        <h2 class="text-xl font-bold text-textPrimary mb-4">프리미엄 5대 혜택</h2>
+        
+        <div class="flex flex-col gap-3">
+          
+          <!-- 혜택 1: 앱 커스텀 컬러 설정 -->
+          <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-soft">
+            <div class="flex items-start">
+              <div class="w-11 h-11 rounded-full bg-[#7B2CBF]/10 flex items-center justify-center mr-3 shrink-0">
+                <svg class="w-6 h-6 text-[#7B2CBF] fill-current" viewBox="0 0 24 24">
+                  <path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9zm-5 9c0-.83.67-1.5 1.5-1.5S10 11.17 10 12s-.67 1.5-1.5 1.5S7 12.83 7 12zm3-4c0-.83.67-1.5 1.5-1.5S13 7.17 13 8s-.67 1.5-1.5 1.5S10 8.83 10 8zm4 0c0-.83.67-1.5 1.5-1.5S17 7.17 17 8s-.67 1.5-1.5 1.5S14 8.83 14 8zm3 4c0-.83.67-1.5 1.5-1.5S20 11.17 20 12s-.67 1.5-1.5 1.5S17 12.83 17 12z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-[17px] font-bold text-textPrimary mb-1">앱 커스텀 컬러 설정</h3>
+                <p class="text-[14px] text-textSecondary leading-snug">
+                  세이지, 더스티로즈, 차콜 등 8종<br />
+                  나만의 프리미엄 테마 컬러를 설정하세요
+                </p>
+              </div>
+            </div>
+            <div class="inline-block bg-brandLight text-brand text-xs font-semibold px-2 py-1 rounded ml-14 mt-2">
+              무료: 핑크, 네이비 무료 제공
+            </div>
+          </div>
+
+          <!-- 혜택 2: 사주 서비스 무제한 제공 -->
+          <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-soft">
+            <div class="flex items-start">
+              <div class="w-11 h-11 rounded-full bg-brand/10 flex items-center justify-center mr-3 shrink-0">
+                <svg class="w-6 h-6 text-brand fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-[17px] font-bold text-textPrimary mb-1">사주 서비스 무제한 제공</h3>
+                <p class="text-[14px] text-textSecondary leading-snug">
+                  매달 횟수 제한 없이<br />
+                  간호 운세와 정밀 사주를 확인하세요
+                </p>
+              </div>
+            </div>
+            <div class="inline-block bg-brandLight text-brand text-xs font-semibold px-2 py-1 rounded ml-14 mt-2">
+              무료: 월 5회 제한
+            </div>
+          </div>
+
+          <!-- 혜택 3: 야간/휴일 수당 및 월급 예측기 -->
+          <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-soft">
+            <div class="flex items-start">
+              <div class="w-11 h-11 rounded-full bg-amber-500/10 flex items-center justify-center mr-3 shrink-0">
+                <svg class="w-6 h-6 text-amber-500 fill-current" viewBox="0 0 24 24">
+                  <path d="M4 9h4v11H4zm6-5h4v16h-4zm6 9h4v7h-4z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-[17px] font-bold text-textPrimary mb-1">야간/휴일 수당 및 월급 예측기</h3>
+                <p class="text-[14px] text-textSecondary leading-snug">
+                  D/E/N 근무 패턴 기반으로<br />
+                  다음 달 예상 월급을 자동 계산해요
+                </p>
+              </div>
+            </div>
+            <div class="inline-block bg-brandLight text-brand text-xs font-semibold px-2 py-1 rounded ml-14 mt-2">
+              무료: weganda+ 전용
+            </div>
+          </div>
+
+          <!-- 혜택 4: 약물 계산기 & Ask AI 무제한 -->
+          <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-soft">
+            <div class="flex items-start">
+              <div class="w-11 h-11 rounded-full bg-blue-500/10 flex items-center justify-center mr-3 shrink-0">
+                <svg class="w-6 h-6 text-blue-500 fill-current" viewBox="0 0 24 24">
+                  <path d="M19 8h-1V6c0-1.1-.9-2-2-2h-3V2h-2v2H8C6.9 2 6 2.9 6 4v2H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm6 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-[17px] font-bold text-textPrimary mb-1">약물 계산기 & Ask AI 무제한</h3>
+                <p class="text-[14px] text-textSecondary leading-snug">
+                  복잡한 약물 용량 계산 프리셋과<br />
+                  AI 임상 어시스턴트를 무제한 사용
+                </p>
+              </div>
+            </div>
+            <div class="inline-block bg-brandLight text-brand text-xs font-semibold px-2 py-1 rounded ml-14 mt-2">
+              무료: 일일 3회 제한
+            </div>
+          </div>
+
+          <!-- 혜택 5: 스마트 듀티 건강 & 번아웃 위험도 AI 분석 -->
+          <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-soft">
+            <div class="flex items-start">
+              <div class="w-11 h-11 rounded-full bg-emerald-500/10 flex items-center justify-center mr-3 shrink-0">
+                <svg class="w-6 h-6 text-emerald-500 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 15.5l-4-4 1.41-1.41L11 14.67l6.59-6.59L19 9.5l-8 8z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-[17px] font-bold text-textPrimary mb-1">스마트 듀티 건강 & 번아웃 위험도 AI 분석</h3>
+                <p class="text-[14px] text-textSecondary leading-snug">
+                  N-O-D 패턴, 수면 부채, 연속 근무 피로도를<br />
+                  AI가 분석하여 회복 골든타임을 알려드려요
+                </p>
+              </div>
+            </div>
+            <div class="inline-block bg-brandLight text-brand text-xs font-semibold px-2 py-1 rounded ml-14 mt-2">
+              무료: weganda+ 전용
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 멤버십 수익 사회 환원 안내 (Impact Note) -->
+      <section class="px-5 mt-5">
+        <div class="flex items-start bg-brandLight border border-brandBorder rounded-2xl p-4">
+          <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center mr-3 shrink-0 shadow-sm">
+            <svg class="w-5 h-5 text-brand fill-current" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h4 class="text-sm font-bold text-textPrimary mb-1">멤버십 수익의 일부가 나눔이 됩니다</h4>
+            <p class="text-xs text-textSecondary leading-relaxed">
+              weganda+ 구독료 일부는 간호사 권익 증진 활동, 간호대학생 장학금, 그리고 간호가 필요한 소외계층 아동 지원에 사용됩니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- 4. 하단 고정 액션 버튼 바 (Sticky CTA) -->
+    <div class="absolute bottom-0 left-0 right-0 bg-white px-5 pt-3.5 pb-8 shadow-sticky flex flex-col items-center z-20">
+      <button class="w-full h-14 bg-brand text-white text-[17px] font-bold rounded-full shadow-btn flex items-center justify-center hover:opacity-95 transition active:scale-[0.99]">
+        30일 무료 체험 시작하기
+      </button>
+
+      <div class="flex items-center justify-center gap-2 mt-2.5 text-[13px]">
+        <span class="text-textMuted">30일 무료 체험 후 연 59,000원 자동 결제</span>
+        <span class="text-gray-300">•</span>
+        <button class="text-gray-600 font-semibold underline hover:text-gray-900 transition">
+          구매 복원
+        </button>
+      </div>
+
+      <p class="text-[11px] text-textMuted text-center mt-1.5">
+        * 무료 체험 종료 전 언제든 마이페이지에서 위약금 없이 해지 가능합니다.
+      </p>
+
+      <div class="flex items-center justify-center gap-2 mt-1 text-xs text-textMuted">
+        <a href="#" class="underline hover:text-gray-600">멤버십 이용약관</a>
+        <span class="text-gray-300">•</span>
+        <a href="#" class="underline hover:text-gray-600">개인정보 처리방침</a>
+      </div>
+
+      <div class="w-32 h-1 bg-black/20 rounded-full mt-3"></div>
+    </div>
+
+  </div>
+</body>
+</html>

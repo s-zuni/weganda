@@ -43,8 +43,10 @@ export const scheduleApi = {
     }
 
     return withClockSkewRetry(async () => {
+      const [year, month] = yearMonth.split('-').map(Number);
+      const lastDay = new Date(year, month, 0).getDate();
       const startDate = `${yearMonth}-01`;
-      const endDate = `${yearMonth}-31`;
+      const endDate = `${yearMonth}-${String(lastDay).padStart(2, '0')}`;
 
       const { data, error } = await supabase
         .from('schedules')
