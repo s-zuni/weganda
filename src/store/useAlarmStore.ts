@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { ClinicalAlarm } from '../types/alarm';
+import { ClinicalAlarm, AlarmRepeatMode } from '../types/alarm';
 import { clinicalAlarmApi } from '../services/clinicalAlarmApi';
+import { localNotificationService } from '../services/localNotificationService';
 import { ExpoSecureStoreAdapter } from '../services/supabase';
 
 export interface CustomAlarmPreset {
@@ -26,9 +27,18 @@ interface AlarmState {
   isLoading: boolean;
   fetchAlarms: (userId: string) => Promise<void>;
   addAlarm: (
-    alarm: { patient: string; content: string; triggerTime: string; remainingMinutes?: number },
+    alarm: {
+      patient: string;
+      content: string;
+      triggerTime: string;
+      remainingMinutes?: number;
+      repeatMode?: AlarmRepeatMode;
+      intervalMinutes?: number;
+      repeatCount?: number;
+      customIntervals?: number[];
+    },
     userId?: string
-  ) => void;
+  ) => Promise<void>;
   toggleAlarm: (id: string) => void;
   deleteAlarm: (id: string) => void;
   addCustomPreset: (preset: Omit<CustomAlarmPreset, 'id'>) => void;
@@ -48,6 +58,10 @@ export const useAlarmStore = create<AlarmState>()(
   fetchAlarms: async (userId: string) => {
     try {
       set({ isLoading: true });
+      // 반복 알람의 로컬 기기 알림 식별자는 서버에 저장되지 않으므로, 재조회 시에도 유실되지 않도록 id로 보존
+      const previousNotificationIdsById = new Map(
+        get().alarms.map((a) => [a.id, a.notificationIds])
+      );
       const serverAlarms = await clinicalAlarmApi.getAlarms(userId);
       if (serverAlarms && serverAlarms.length > 0) {
         const mapped: ClinicalAlarm[] = serverAlarms.map((a) => {
@@ -76,6 +90,11 @@ export const useAlarmStore = create<AlarmState>()(
                   hour12: false,
                 })
               : '방금 전',
+            repeatMode: a.repeatMode || 'once',
+            intervalMinutes: a.intervalMinutes,
+            repeatCount: a.repeatCount,
+            customIntervals: a.customIntervals,
+            notificationIds: previousNotificationIdsById.get(a.id),
           };
         });
         set({ alarms: mapped, isLoading: false });
@@ -88,18 +107,33 @@ export const useAlarmStore = create<AlarmState>()(
     }
   },
 
-  // 알람 등록 (낙관적 UI + Supabase DB 저장)
-  addAlarm: (newAlarm, userId) => {
+  // 알람 등록 (기기 알림 예약 + 낙관적 UI + Supabase DB 저장)
+  addAlarm: async (newAlarm, userId) => {
     const localId = `alarm_${Date.now()}`;
+    const repeatMode: AlarmRepeatMode = newAlarm.repeatMode || 'once';
+
+    // 반복 방식에 따라 1건 이상의 기기 로컬 알림을 예약하고 식별자를 모두 확보 (토글/삭제 시 취소용)
+    const notificationIds = await localNotificationService.scheduleRepeatingClinicalAlarm({
+      patient: newAlarm.patient,
+      content: newAlarm.content,
+      repeatMode,
+      minutes: newAlarm.remainingMinutes,
+      intervalMinutes: newAlarm.intervalMinutes,
+      repeatCount: newAlarm.repeatCount,
+      customIntervals: newAlarm.customIntervals,
+    });
+
     const newEntry: ClinicalAlarm = {
       ...newAlarm,
       id: localId,
       isActive: true,
+      repeatMode,
       createdAt: new Date().toLocaleTimeString('ko-KR', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
       }),
+      notificationIds,
     };
 
     set((state) => ({
@@ -117,6 +151,10 @@ export const useAlarmStore = create<AlarmState>()(
           patient: newAlarm.patient,
           content: newAlarm.content,
           triggerTime: targetTimeIso,
+          repeatMode,
+          intervalMinutes: newAlarm.intervalMinutes,
+          repeatCount: newAlarm.repeatCount,
+          customIntervals: newAlarm.customIntervals,
         })
         .then((saved) => {
           if (saved) {
@@ -139,6 +177,11 @@ export const useAlarmStore = create<AlarmState>()(
       alarms: state.alarms.map((a) => (a.id === id ? { ...a, isActive: nextActive } : a)),
     }));
 
+    // 알람을 끌 때는 예약된 기기 알림도 함께 취소해야 꺼진 알람이 뒤늦게 울리지 않음
+    if (!nextActive && current.notificationIds && current.notificationIds.length > 0) {
+      localNotificationService.cancelNotifications(current.notificationIds).catch(() => {});
+    }
+
     if (!id.startsWith('alarm_')) {
       clinicalAlarmApi.toggleAlarm(id, nextActive).catch((e) => {
         console.warn('Failed to toggle alarm on backend:', e);
@@ -147,9 +190,15 @@ export const useAlarmStore = create<AlarmState>()(
   },
 
   deleteAlarm: (id) => {
+    const current = get().alarms.find((a) => a.id === id);
+
     set((state) => ({
       alarms: state.alarms.filter((a) => a.id !== id),
     }));
+
+    if (current?.notificationIds && current.notificationIds.length > 0) {
+      localNotificationService.cancelNotifications(current.notificationIds).catch(() => {});
+    }
 
     if (!id.startsWith('alarm_')) {
       clinicalAlarmApi.deleteAlarm(id).catch((e) => {

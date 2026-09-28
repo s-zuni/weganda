@@ -25,6 +25,13 @@ import { SAJU_TIME_SLOTS } from '../../../constants/saju';
 export type { SajuTimeSlot };
 export { SAJU_TIME_SLOTS };
 
+const MBTI_TYPES = [
+  'INTJ', 'INTP', 'ENTJ', 'ENTP',
+  'INFJ', 'INFP', 'ENFJ', 'ENFP',
+  'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ',
+  'ISTP', 'ISFP', 'ESTP', 'ESFP',
+];
+
 export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
   visible,
   onClose,
@@ -34,6 +41,7 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
   const [date, setDate] = useState(birthInfo.birthDate || '1998-05-14');
   const [calendarType, setCalendarType] = useState<'solar' | 'lunar'>(birthInfo.calendarType || 'solar');
   const [gender, setGender] = useState<'female' | 'male'>(birthInfo.gender || 'female');
+  const [mbti, setMbti] = useState<string>(birthInfo.mbti || '');
 
   // 날짜 입력 모드: 'calendar' (달력 선택) vs 'text' (직접 입력)
   const [dateInputMode, setDateInputMode] = useState<'calendar' | 'text'>('calendar');
@@ -155,6 +163,7 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
       birthTime: finalTime,
       calendarType,
       gender,
+      mbti: mbti || undefined,
     });
 
     const currentUserId = useUserStore.getState().id;
@@ -164,6 +173,7 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
         birthTime: finalTime,
         calendarType,
         gender,
+        mbti: mbti || undefined,
       }).catch((err) => console.warn('Failed to sync birth info to Supabase profile:', err));
     }
 
@@ -473,6 +483,29 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
                   남성 (Male)
                 </Text>
               </TouchableOpacity>
+            </View>
+
+            {/* ── 4. MBTI 선택 (사주와 함께 심층 분석·AI 대화 컨텍스트로 사용) ── */}
+            <Text style={[styles.inputLabel, { marginTop: 18 }]}>MBTI (선택)</Text>
+            <Text style={styles.fieldHelpText}>
+              💡 등록하면 사주와 MBTI를 함께 반영한 심층 분석 및 AI 대화가 가능해져요.
+            </Text>
+            <View style={styles.mbtiGrid}>
+              {MBTI_TYPES.map((type) => {
+                const isSelected = mbti === type;
+                return (
+                  <TouchableOpacity
+                    key={type}
+                    style={[styles.mbtiChip, isSelected && styles.mbtiChipActive]}
+                    onPress={() => setMbti(isSelected ? '' : type)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.mbtiChipText, isSelected && styles.mbtiChipTextActive]}>
+                      {type}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
 
             {/* 저장 버튼 */}
@@ -818,6 +851,34 @@ const styles = StyleSheet.create({
   segmentTextActive: {
     color: '#FFFFFF',
     fontWeight: '700',
+  },
+  mbtiGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  mbtiChip: {
+    width: '22.5%',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  mbtiChipActive: {
+    backgroundColor: '#FFF1F4',
+    borderColor: COLORS.primary,
+  },
+  mbtiChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+  },
+  mbtiChipTextActive: {
+    color: COLORS.primary,
   },
   saveBtn: {
     backgroundColor: COLORS.primary,

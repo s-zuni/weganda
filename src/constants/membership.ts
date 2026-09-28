@@ -47,6 +47,8 @@ export const FREE_LIMITS = {
   maxMonthlyFortune: 5,
   maxDailyAiQueries: 3,
   maxDailyDrugCalculations: 3,
+  // 사주·MBTI 심층 분석 리포트에 대한 AI 직접 대화(연애/재물/간호 등) 일일 질문 제한
+  maxDailyFortuneChatQueries: 5,
 } as const;
 
 // 정규 멤버십 가격

@@ -15,6 +15,7 @@ export interface ProfileItem {
   birthTime?: string;
   calendarType?: 'solar' | 'lunar';
   gender?: 'female' | 'male';
+  mbti?: string;
   pushToken?: string;
   userCode?: string;
   isActive?: boolean;
@@ -53,6 +54,7 @@ export const profileApi = {
         birthTime: data.birth_time || undefined,
         calendarType: (data.calendar_type as any) || 'solar',
         gender: (data.gender as any) || undefined,
+        mbti: data.mbti || undefined,
         pushToken: data.push_token || undefined,
         userCode: (data as any).user_code || undefined,
         isActive: data.is_active ?? true,
@@ -118,6 +120,7 @@ export const profileApi = {
       if (updates.birthTime !== undefined) rowUpdates.birth_time = updates.birthTime;
       if (updates.calendarType !== undefined) rowUpdates.calendar_type = updates.calendarType;
       if (updates.gender !== undefined) rowUpdates.gender = updates.gender;
+      if (updates.mbti !== undefined) rowUpdates.mbti = updates.mbti;
       if (updates.pushToken !== undefined) rowUpdates.push_token = updates.pushToken;
 
       // 먼저 update 시도, 행이 없거나 수신에 실패하면 upsert 수행

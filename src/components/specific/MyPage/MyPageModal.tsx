@@ -54,8 +54,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   bottomOffset = 0,
 }) => {
   const theme = useAppTheme();
-  const { barHeight } = useTabBarMetrics();
-  const effectiveBottomOffset = bottomOffset > 0 ? bottomOffset : (isEmbedded ? barHeight : 0);
+  const { fabClearance } = useTabBarMetrics();
+  const effectiveBottomOffset = bottomOffset > 0 ? bottomOffset : (isEmbedded ? fabClearance : 0);
   const {
     name: storeName,
     nickname: storeNickname,

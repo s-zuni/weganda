@@ -160,7 +160,7 @@ export const CommunityScreen: React.FC = () => {
   // ── A안: 미인증 회원은 커뮤니티 전면 잠금 게이트(CommunityLockGate) 렌더링 ──
   if (!isVerified) {
     return (
-      <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
         <AppHeader />
         <CommunityLockGate
           verificationStatus={verificationStatus}
@@ -177,7 +177,7 @@ export const CommunityScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       <AppHeader />
 
       <ScrollView

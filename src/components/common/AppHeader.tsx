@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme } from '../../constants/theme';
-import { BellIcon, UserIcon } from './Icon';
+import { BellIcon, ClockIcon, UserIcon } from './Icon';
 import { WegandaLogo } from './WegandaLogo';
 import { UserAvatar } from './UserAvatar';
 import { useHeaderModalStore } from '../../store/useHeaderModalStore';
@@ -36,6 +36,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const closeNotifications = useHeaderModalStore((s) => s.closeNotifications);
   const openMyPage = useHeaderModalStore((s) => s.openMyPage);
   const closeMyPage = useHeaderModalStore((s) => s.closeMyPage);
+  const openAlarm = useHeaderModalStore((s) => s.openAlarm);
 
   const { unreadCount } = useNotificationStore();
   const avatarUrl = useUserStore((s) => s.avatarUrl);
@@ -45,6 +46,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
   const handleNotification = onPressNotification || openNotifications;
   const handleProfile = onPressProfile || openMyPage;
+
+  const handlePressAlarm = () => {
+    closeNotifications();
+    closeMyPage();
+    openAlarm();
+  };
 
   const handlePressLogo = () => {
     closeNotifications();
@@ -89,6 +96,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             >
               <BellIcon size={20} color={COLORS.textPrimary} />
               {unreadCount > 0 && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
+            </TouchableOpacity>
+
+            {/* 임상 알람 아이콘 (환자별 처치 알람 빠른 설정) */}
+            <TouchableOpacity
+              style={styles.iconBtn}
+              onPress={handlePressAlarm}
+              activeOpacity={0.7}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              accessibilityRole="button"
+              accessibilityLabel="임상 알람 열기"
+            >
+              <ClockIcon size={20} color={COLORS.textPrimary} />
             </TouchableOpacity>
 
             {/* 마이페이지 프로필 아이콘 / 아바타 */}

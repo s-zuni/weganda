@@ -14,6 +14,8 @@ export interface BirthInfo {
   calendarType: 'solar' | 'lunar';
   gender: 'female' | 'male';
   isRegistered: boolean;
+  /** 사용자 본인 MBTI (선택) — 사주와 함께 심층 분석 및 AI 대화 컨텍스트로 사용 */
+  mbti?: string;
 }
 
 export interface PartnerInfo {

@@ -13,9 +13,8 @@ import { COLORS } from '../../../constants/theme';
 import { ClockIcon, PencilIcon } from '../../common/Icon';
 import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { useAlarmStore, CustomAlarmPreset } from '../../../store/useAlarmStore';
-import { ClinicalAlarm } from '../../../types/alarm';
+import { ClinicalAlarm, AlarmRepeatMode } from '../../../types/alarm';
 import { useUserStore } from '../../../store/useUserStore';
-import { localNotificationService } from '../../../services/localNotificationService';
 
 interface ClinicalAlarmModalProps {
   visible: boolean;
@@ -50,6 +49,12 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
   const [selectedMinutes, setSelectedMinutes] = useState<number>(15);
   const [customTime, setCustomTime] = useState('');
   const [isPresetMode, setIsPresetMode] = useState(true);
+
+  // 반복 설정: 1회 / 일정 간격 반복(예: 15분마다 4회) / 커스텀 순차 간격(예: 15,20,25분)
+  const [repeatMode, setRepeatMode] = useState<AlarmRepeatMode>('once');
+  const [intervalMinutesText, setIntervalMinutesText] = useState('15');
+  const [repeatCountText, setRepeatCountText] = useState('4');
+  const [customIntervalsText, setCustomIntervalsText] = useState('15, 20, 25');
 
   // 커스텀 프리셋 추가 모드 상태
   const [isAddingPreset, setIsAddingPreset] = useState(false);
@@ -99,6 +104,13 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
     Alert.alert('등록 완료', '내 병동 맞춤 프리셋이 추가되었습니다.');
   };
 
+  // 커스텀 순차 간격 텍스트("15, 20, 25") → 분 단위 배열 파싱
+  const parseCustomIntervals = (text: string): number[] =>
+    text
+      .split(/[,\s/]+/)
+      .map((v) => parseInt(v, 10))
+      .filter((v) => !isNaN(v) && v > 0);
+
   const handleAddAlarm = () => {
     if (!patient.trim()) {
       Alert.alert('알림', '환자명 또는 병실 번호를 입력해주세요.');
@@ -109,8 +121,30 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
       return;
     }
 
+    const minutesToSchedule = isPresetMode ? selectedMinutes : 45;
+    const intervalMinutes = parseInt(intervalMinutesText, 10);
+    const repeatCount = parseInt(repeatCountText, 10);
+    const customIntervals = parseCustomIntervals(customIntervalsText);
+
+    if (repeatMode === 'interval' && (isNaN(intervalMinutes) || intervalMinutes <= 0)) {
+      Alert.alert('알림', '반복 간격(분)을 올바르게 입력해주세요.');
+      return;
+    }
+    if (repeatMode === 'interval' && (isNaN(repeatCount) || repeatCount <= 0)) {
+      Alert.alert('알림', '반복 횟수를 올바르게 입력해주세요.');
+      return;
+    }
+    if (repeatMode === 'custom' && customIntervals.length === 0) {
+      Alert.alert('알림', '커스텀 간격을 "15, 20, 25"처럼 쉼표로 구분해 입력해주세요.');
+      return;
+    }
+
     let triggerTimeStr = '';
-    if (isPresetMode) {
+    if (repeatMode === 'interval') {
+      triggerTimeStr = `${intervalMinutes}분마다 · ${repeatCount}회 반복`;
+    } else if (repeatMode === 'custom') {
+      triggerTimeStr = `${customIntervals.join('→')}분 순차 반복`;
+    } else if (isPresetMode) {
       const targetDate = new Date(Date.now() + selectedMinutes * 60 * 1000);
       const timeStr = targetDate.toLocaleTimeString('ko-KR', {
         hour: '2-digit',
@@ -122,24 +156,19 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
       triggerTimeStr = customTime || '18:30';
     }
 
-    const minutesToSchedule = isPresetMode ? selectedMinutes : 45;
-
     addAlarm(
       {
         patient: patient.trim(),
         content: content.trim(),
         triggerTime: triggerTimeStr,
         remainingMinutes: minutesToSchedule,
+        repeatMode,
+        intervalMinutes: repeatMode === 'interval' ? intervalMinutes : undefined,
+        repeatCount: repeatMode === 'interval' ? repeatCount : undefined,
+        customIntervals: repeatMode === 'custom' ? customIntervals : undefined,
       },
       userId || undefined
     );
-
-    // 실제 스마트폰 시스템 푸시 알림 스케줄링
-    localNotificationService.scheduleClinicalAlarm({
-      patient: patient.trim(),
-      content: content.trim(),
-      minutes: minutesToSchedule,
-    });
 
     // 초기화
     setPatient('');
@@ -338,6 +367,80 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
                 </View>
               )}
 
+              {/* 반복 설정: 1회 / 일정 간격 반복 / 커스텀 순차 간격 */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>반복 설정 🔁</Text>
+                <View style={styles.modeSwitchRow}>
+                  <TouchableOpacity
+                    style={[styles.modeTab, repeatMode === 'once' && styles.modeTabActive]}
+                    onPress={() => setRepeatMode('once')}
+                  >
+                    <Text style={[styles.modeTabText, repeatMode === 'once' && styles.modeTabTextActive]}>
+                      1회만
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modeTab, repeatMode === 'interval' && styles.modeTabActive]}
+                    onPress={() => setRepeatMode('interval')}
+                  >
+                    <Text style={[styles.modeTabText, repeatMode === 'interval' && styles.modeTabTextActive]}>
+                      일정 간격 반복
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modeTab, repeatMode === 'custom' && styles.modeTabActive]}
+                    onPress={() => setRepeatMode('custom')}
+                  >
+                    <Text style={[styles.modeTabText, repeatMode === 'custom' && styles.modeTabTextActive]}>
+                      커스텀 순차
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {repeatMode === 'interval' && (
+                  <View style={styles.addPresetRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.repeatSubLabel}>간격(분)</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="예: 15"
+                        placeholderTextColor={COLORS.textMuted}
+                        keyboardType="numeric"
+                        value={intervalMinutesText}
+                        onChangeText={setIntervalMinutesText}
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.repeatSubLabel}>반복 횟수</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="예: 4"
+                        placeholderTextColor={COLORS.textMuted}
+                        keyboardType="numeric"
+                        value={repeatCountText}
+                        onChangeText={setRepeatCountText}
+                      />
+                    </View>
+                  </View>
+                )}
+
+                {repeatMode === 'custom' && (
+                  <View style={{ marginTop: 8 }}>
+                    <Text style={styles.repeatSubLabel}>순차 간격(분, 쉼표로 구분)</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="예: 15, 20, 25"
+                      placeholderTextColor={COLORS.textMuted}
+                      value={customIntervalsText}
+                      onChangeText={setCustomIntervalsText}
+                    />
+                    <Text style={styles.repeatHintText}>
+                      입력 순서대로 이어서 울려요 (예: 15분 후 → 그로부터 20분 후 → 그로부터 25분 후)
+                    </Text>
+                  </View>
+                )}
+              </View>
+
               <TouchableOpacity style={styles.submitBtn} onPress={handleAddAlarm} activeOpacity={0.85}>
                 <Text style={styles.submitBtnText}>알람 등록하기</Text>
               </TouchableOpacity>
@@ -367,6 +470,17 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
                     <Text style={[styles.alarmContentText, !alarm.isActive && styles.textDisabled]}>
                       {alarm.content}
                     </Text>
+
+                    {alarm.repeatMode && alarm.repeatMode !== 'once' && (
+                      <View style={styles.repeatBadge}>
+                        <Text style={styles.repeatBadgeText}>
+                          🔁{' '}
+                          {alarm.repeatMode === 'interval'
+                            ? `${alarm.intervalMinutes}분마다 · ${alarm.repeatCount}회`
+                            : `${(alarm.customIntervals || []).join('→')}분 순차`}
+                        </Text>
+                      </View>
+                    )}
                   </View>
 
                   <View style={styles.alarmCardAction}>
@@ -600,6 +714,31 @@ const styles = StyleSheet.create({
   },
   modeTabTextActive: {
     color: '#FFFFFF',
+  },
+  repeatSubLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+    marginBottom: 4,
+  },
+  repeatHintText: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    marginTop: 6,
+    lineHeight: 15,
+  },
+  repeatBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFF1F4',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    marginTop: 6,
+  },
+  repeatBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.primary,
   },
   submitBtn: {
     backgroundColor: COLORS.primary,

@@ -20,7 +20,9 @@ import {
   SajuDaewoonTimeline,
   SajuReportContentCard,
   SajuGuideInfoModal,
+  SajuChatModal,
 } from '../../components/specific/Fortune';
+import { SparklesIcon } from '../../components/common/Icon';
 import { COLORS, NEUTRAL } from '../../constants/theme';
 
 export const SajuDetailResultScreen: React.FC = () => {
@@ -29,9 +31,12 @@ export const SajuDetailResultScreen: React.FC = () => {
     currentManseryeokAnalysis,
     currentPartnerAnalysis,
     currentManseryeokReport,
+    selectedTopic,
+    birthInfo: userBirthInfo,
   } = useFortuneStore();
 
   const [showGuideModal, setShowGuideModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
 
   if (!currentManseryeokAnalysis || !currentManseryeokReport) {
     return (
@@ -114,6 +119,19 @@ export const SajuDetailResultScreen: React.FC = () => {
 
         {/* 하단 탐색 버튼 */}
         <View style={styles.footerActions}>
+          {selectedTopic && (
+            <TouchableOpacity
+              style={styles.chatBtn}
+              onPress={() => setShowChatModal(true)}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="명인에게 직접 물어보기"
+            >
+              <SparklesIcon size={18} color={COLORS.onPrimaryText} />
+              <Text style={styles.chatBtnText}>명인에게 직접 물어보기 (사주 · MBTI)</Text>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             style={styles.reselectBtn}
             onPress={() => navigation.goBack()}
@@ -134,6 +152,18 @@ export const SajuDetailResultScreen: React.FC = () => {
         totalCharCount={report.totalCharCount}
         onClose={() => setShowGuideModal(false)}
       />
+
+      {/* 사주 · MBTI 통합 AI 심층 대화 모달 (기초 운세 제외, 심층 리포트 발급 후에만 이용 가능) */}
+      {selectedTopic && (
+        <SajuChatModal
+          visible={showChatModal}
+          onClose={() => setShowChatModal(false)}
+          topic={selectedTopic}
+          userSaju={currentManseryeokAnalysis}
+          mbti={userBirthInfo.mbti}
+          reportContext={{ coreKeyword: report.coreKeyword, summaryQuote: report.summaryQuote }}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -184,6 +214,26 @@ const styles = StyleSheet.create({
   },
   footerActions: {
     gap: 12,
+  },
+  chatBtn: {
+    flexDirection: 'row',
+    gap: 8,
+    backgroundColor: COLORS.primary,
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  chatBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.onPrimaryText,
   },
   reselectBtn: {
     backgroundColor: NEUTRAL.gray900,

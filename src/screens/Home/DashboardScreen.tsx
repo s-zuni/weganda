@@ -36,7 +36,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const userId = useUserStore((s) => s.id);
   const userName = useUserStore((s) => s.name);
   const userNickname = useUserStore((s) => s.nickname);
-  const { isPremium } = useUserStore();
+  const { isPremium, isGuest } = useUserStore();
   const displayName = userNickname || userName || '김간호사';
 
   const {
@@ -98,6 +98,11 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
 
   const todayShiftInfo = getShiftInfo(todayShift);
 
+  // 현재 보고 있는 달에 등록/연동된 근무표가 하나도 없는지 여부 (게스트 모드는 mocks 폴백이 항상 채워지므로 제외)
+  const currentMonthPrefix = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+  const hasScheduleThisMonth = Object.keys(schedules).some((dateKey) => dateKey.startsWith(currentMonthPrefix));
+  const isScheduleUnregistered = !isGuest && !isLoading && !hasScheduleThisMonth;
+
   const handleMonthChange = (offset: number) => {
     changeMonth(offset, userId || undefined);
   };
@@ -111,7 +116,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       <AppHeader />
 
       <ScrollView
@@ -165,6 +170,8 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
           schedules={schedules}
           customCodes={customCodes}
           onMonthChange={handleMonthChange}
+          isUnregistered={isScheduleUnregistered}
+          onRegisterPress={() => setAddScheduleModalVisible(true)}
         />
 
         {/* 3. 2대 액션 버튼: 친구 캘린더 보기 & 근무표 직접 등록 */}

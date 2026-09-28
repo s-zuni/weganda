@@ -35,6 +35,8 @@ export interface UserState {
   lastAiResetDate: string;
   dailyDrugCalcCount: number;
   lastDrugCalcResetDate: string;
+  dailyFortuneChatCount: number;
+  lastFortuneChatResetDate: string;
   appThemeColor: AppThemeColor;
   subscriptionInfo: UserSubscriptionInfo | null;
 
@@ -69,6 +71,7 @@ export interface UserState {
   incrementFortuneCount: () => void;
   incrementDailyAiCount: () => void;
   incrementDailyDrugCalcCount: () => void;
+  incrementDailyFortuneChatCount: () => void;
   setAppThemeColor: (color: AppThemeColor) => void;
   setAvatarUrl: (url: string | null) => Promise<boolean>;
 
@@ -111,6 +114,8 @@ export const useUserStore = create<UserState>()(
   lastAiResetDate: new Date().toISOString().slice(0, 10),
   dailyDrugCalcCount: 0,
   lastDrugCalcResetDate: new Date().toISOString().slice(0, 10),
+  dailyFortuneChatCount: 0,
+  lastFortuneChatResetDate: new Date().toISOString().slice(0, 10),
   appThemeColor: 'pink' as AppThemeColor,
   subscriptionInfo: null,
 
@@ -305,6 +310,20 @@ export const useUserStore = create<UserState>()(
     });
   },
 
+  // 사주·MBTI AI 대화 일일 질문 횟수 카운트 증가 (당일 자동 리셋 지원)
+  incrementDailyFortuneChatCount: () => {
+    const today = new Date().toISOString().slice(0, 10);
+    set((state) => {
+      if (state.lastFortuneChatResetDate !== today) {
+        return {
+          lastFortuneChatResetDate: today,
+          dailyFortuneChatCount: 1,
+        };
+      }
+      return { dailyFortuneChatCount: state.dailyFortuneChatCount + 1 };
+    });
+  },
+
   // 앱 테마 컬러 변경 (프리미엄 전용)
   setAppThemeColor: (color: AppThemeColor) => set({ appThemeColor: color }),
 
@@ -412,6 +431,7 @@ export const useUserStore = create<UserState>()(
       monthlyFortuneCount: 0,
       dailyAiCount: 0,
       dailyDrugCalcCount: 0,
+      dailyFortuneChatCount: 0,
       appThemeColor: 'pink' as AppThemeColor,
       hasCompletedOnboarding: false,
       onboardingDraft: null,
@@ -499,6 +519,8 @@ export const useUserStore = create<UserState>()(
         lastAiResetDate: state.lastAiResetDate,
         dailyDrugCalcCount: state.dailyDrugCalcCount,
         lastDrugCalcResetDate: state.lastDrugCalcResetDate,
+        dailyFortuneChatCount: state.dailyFortuneChatCount,
+        lastFortuneChatResetDate: state.lastFortuneChatResetDate,
         appThemeColor: state.appThemeColor,
         verificationStatus: state.verificationStatus,
         verificationRole: state.verificationRole,

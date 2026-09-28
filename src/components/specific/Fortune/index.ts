@@ -20,3 +20,4 @@ export * from './SajuShinsalCard';
 export * from './SajuDaewoonTimeline';
 export * from './SajuReportContentCard';
 export * from './SajuGuideInfoModal';
+export * from './SajuChatModal';

@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { withClockSkewRetry } from '../utils/supabaseRetry';
+import { AlarmRepeatMode } from '../types/alarm';
 
 export interface ClinicalAlarmItem {
   id: string;
@@ -10,6 +11,10 @@ export interface ClinicalAlarmItem {
   isActive: boolean;
   isTriggered?: boolean;
   createdAt?: string;
+  repeatMode?: AlarmRepeatMode;
+  intervalMinutes?: number;
+  repeatCount?: number;
+  customIntervals?: number[];
 }
 
 export const clinicalAlarmApi = {
@@ -36,6 +41,10 @@ export const clinicalAlarmApi = {
         isActive: row.is_active ?? true,
         isTriggered: row.is_triggered ?? false,
         createdAt: row.created_at,
+        repeatMode: (row.repeat_mode as AlarmRepeatMode) || 'once',
+        intervalMinutes: row.interval_minutes ?? undefined,
+        repeatCount: row.repeat_count ?? undefined,
+        customIntervals: row.custom_intervals ?? undefined,
       }));
     });
   },
@@ -46,6 +55,10 @@ export const clinicalAlarmApi = {
     patient: string;
     content: string;
     triggerTime: string;
+    repeatMode?: AlarmRepeatMode;
+    intervalMinutes?: number;
+    repeatCount?: number;
+    customIntervals?: number[];
   }): Promise<ClinicalAlarmItem | null> {
     return withClockSkewRetry(async () => {
       const { data, error } = await supabase
@@ -57,6 +70,10 @@ export const clinicalAlarmApi = {
           trigger_time: alarm.triggerTime,
           is_active: true,
           is_triggered: false,
+          repeat_mode: alarm.repeatMode || 'once',
+          interval_minutes: alarm.intervalMinutes,
+          repeat_count: alarm.repeatCount,
+          custom_intervals: alarm.customIntervals,
         })
         .select()
         .single();
@@ -75,6 +92,10 @@ export const clinicalAlarmApi = {
         isActive: data.is_active ?? true,
         isTriggered: data.is_triggered ?? false,
         createdAt: data.created_at,
+        repeatMode: (data.repeat_mode as AlarmRepeatMode) || 'once',
+        intervalMinutes: data.interval_minutes ?? undefined,
+        repeatCount: data.repeat_count ?? undefined,
+        customIntervals: data.custom_intervals ?? undefined,
       };
     });
   },

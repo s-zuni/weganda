@@ -11,6 +11,7 @@ import { COLORS, TINT_COLORS } from '../../../../constants/theme';
 import { ShiftCode, ShiftInfo, SHIFT_TYPES } from '../../../../constants/shiftTypes';
 import { CustomShiftCode } from '../../../../types/shift';
 import { nativeCalendarService } from '../../../../services/nativeCalendarService';
+import { CalendarIcon } from '../../../common/Icon';
 
 interface HomeMonthlyCalendarProps {
   currentDate: Date;
@@ -19,6 +20,9 @@ interface HomeMonthlyCalendarProps {
   onMonthChange: (offset: number) => void;
   onSelectDate?: (dateKey: string) => void;
   selectedDateKey?: string | null;
+  /** 이번 달에 등록/연동된 근무표가 하나도 없을 때 캘린더를 흐리게 표시하고 등록을 안내 */
+  isUnregistered?: boolean;
+  onRegisterPress?: () => void;
 }
 
 export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
@@ -28,6 +32,8 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
   onMonthChange,
   onSelectDate,
   selectedDateKey: propSelectedDateKey,
+  isUnregistered = false,
+  onRegisterPress,
 }) => {
   const today = useMemo(() => new Date(), []);
   const todayKey = useMemo(
@@ -297,8 +303,37 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
         ))}
       </View>
 
-      {/* 날짜 그리드 (주 단위 행 묶음) */}
-      <View style={styles.gridContainer}>{renderCalendarWeeks()}</View>
+      {/* 날짜 그리드 (주 단위 행 묶음) — 근무표 미등록 시 흐리게 표시하고 등록 안내 오버레이 노출 */}
+      <View style={styles.gridWrapper}>
+        <View style={[styles.gridContainer, isUnregistered && styles.gridContainerDimmed]}>
+          {renderCalendarWeeks()}
+        </View>
+
+        {isUnregistered && (
+          <View style={styles.unregisteredOverlay} pointerEvents="box-none">
+            <View style={styles.unregisteredCard}>
+              <View style={styles.unregisteredIconBox}>
+                <CalendarIcon size={20} color={COLORS.textMuted} />
+              </View>
+              <Text style={styles.unregisteredTitle}>이번 달 근무표가 아직 없어요</Text>
+              <Text style={styles.unregisteredDesc}>
+                근무표를 등록하면 이 캘린더에 자동으로 연동되어 표시돼요.
+              </Text>
+              {onRegisterPress && (
+                <TouchableOpacity
+                  style={styles.unregisteredButton}
+                  onPress={onRegisterPress}
+                  activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel="근무표 등록하기"
+                >
+                  <Text style={styles.unregisteredButtonText}>근무표 등록하기 ›</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        )}
+      </View>
     </View>
   );
 };
@@ -358,8 +393,77 @@ const styles = StyleSheet.create({
   sundayHeaderText: {
     color: COLORS.textMuted,
   },
+  gridWrapper: {
+    position: 'relative',
+  },
   gridContainer: {
     width: '100%',
+  },
+  gridContainerDimmed: {
+    opacity: 0.3,
+  },
+  unregisteredOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  unregisteredCard: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    maxWidth: 300,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  unregisteredIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  unregisteredTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  unregisteredDesc: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    lineHeight: 17,
+    marginBottom: 14,
+  },
+  unregisteredButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 9999,
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  unregisteredButtonText: {
+    color: COLORS.onPrimaryText,
+    fontSize: 13,
+    fontWeight: '700',
   },
   calendarWeekRow: {
     flexDirection: 'row',

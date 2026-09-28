@@ -24,29 +24,6 @@ export const DEFAULT_SHIFT_CODES: Record<string, CustomShiftCode> = {
   M: { code: 'M', name: '미드', color: COLORS.status.success, textColor: COLORS.onPrimaryText },
 };
 
-// 기본 초기 스케줄 (2026년 8월 & 9월)
-const INITIAL_AUGUST_SCHEDULES: Record<string, string> = {
-  '2026-08-01': 'D', '2026-08-02': 'D', '2026-08-03': 'E', '2026-08-04': 'E',
-  '2026-08-05': 'O', '2026-08-06': 'O', '2026-08-07': 'N', '2026-08-08': 'N',
-  '2026-08-09': 'O', '2026-08-10': 'D', '2026-08-11': 'D', '2026-08-12': 'E',
-  '2026-08-13': 'E', '2026-08-14': 'O', '2026-08-15': 'V', '2026-08-16': 'V',
-  '2026-08-17': 'D', '2026-08-18': 'D', '2026-08-19': 'D', '2026-08-20': 'O',
-  '2026-08-21': 'O', '2026-08-22': 'E', '2026-08-23': 'N', '2026-08-24': 'N',
-  '2026-08-25': 'O', '2026-08-26': 'D', '2026-08-27': 'D', '2026-08-28': 'E',
-  '2026-08-29': 'E', '2026-08-30': 'O', '2026-08-31': 'O',
-};
-
-const INITIAL_SEPTEMBER_SCHEDULES: Record<string, string> = {
-  '2026-09-01': 'D', '2026-09-02': 'O', '2026-09-03': 'N', '2026-09-04': 'E',
-  '2026-09-05': 'N', '2026-09-06': 'E', '2026-09-07': 'N', '2026-09-08': 'E',
-  '2026-09-09': 'N', '2026-09-10': 'D', '2026-09-11': 'N', '2026-09-12': 'O',
-  '2026-09-13': 'D', '2026-09-14': 'E', '2026-09-15': 'N', '2026-09-16': 'D',
-  '2026-09-17': 'E', '2026-09-18': 'N', '2026-09-19': 'D', '2026-09-20': 'O',
-  '2026-09-21': 'D', '2026-09-22': 'N', '2026-09-23': 'E', '2026-09-24': 'E',
-  '2026-09-25': 'E', '2026-09-26': 'E', '2026-09-27': 'E', '2026-09-28': 'E',
-  '2026-09-29': 'E', '2026-09-30': 'E',
-};
-
 interface ShiftScheduleState {
   currentDate: Date;
   schedules: Record<string, string>; // "YYYY-MM-DD": "D"
@@ -69,10 +46,8 @@ export const useShiftScheduleStore = create<ShiftScheduleState>()(
   persist(
     (set, get) => ({
       currentDate: new Date(),
-      schedules: {
-        ...INITIAL_AUGUST_SCHEDULES,
-        ...INITIAL_SEPTEMBER_SCHEDULES,
-      },
+      // 실제 사용자는 스케줄을 등록하기 전까지 빈 상태로 시작한다 (게스트 모드는 scheduleApi가 별도로 mocks/shifts.ts를 폴백).
+      schedules: {},
       customCodes: DEFAULT_SHIFT_CODES,
       isLoading: false,
       error: null,

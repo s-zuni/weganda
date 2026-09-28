@@ -3,9 +3,10 @@ import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { COLORS, useAppTheme, ThemeColors } from '../constants/theme';
 import { useHeaderModalStore } from '../store/useHeaderModalStore';
-import { useTabBarMetrics } from '../hooks/useTabBarHeight';
+import { useTabBarMetrics, CENTER_FAB_LIFT } from '../hooks/useTabBarHeight';
 import { NotificationModal } from '../components/specific/Notification/NotificationModal';
 import { MyPageModal } from '../components/specific/MyPage/MyPageModal';
+import { ClinicalAlarmModal } from '../components/specific/Home';
 import {
   FortuneIcon,
   FriendsIcon,
@@ -48,12 +49,14 @@ const CenterFAB = ({ onPress, theme }: { onPress: () => void; theme: ThemeColors
 
 export const BottomTabNavigator: React.FC = () => {
   const theme = useAppTheme();
-  const { barHeight, safeBottom } = useTabBarMetrics();
+  const { barHeight, safeBottom, fabClearance } = useTabBarMetrics();
   const {
     notificationModalVisible,
     myPageModalVisible,
+    alarmModalVisible,
     closeNotifications,
     closeMyPage,
+    closeAlarm,
   } = useHeaderModalStore();
 
   return (
@@ -65,6 +68,7 @@ export const BottomTabNavigator: React.FC = () => {
         tabPress: () => {
           closeMyPage();
           closeNotifications();
+          closeAlarm();
         },
       }}
       screenOptions={{
@@ -164,7 +168,13 @@ export const BottomTabNavigator: React.FC = () => {
       visible={myPageModalVisible}
       onClose={closeMyPage}
       isEmbedded={true}
-      bottomOffset={barHeight}
+      bottomOffset={fabClearance}
+    />
+
+    {/* 임상 알람: 헤더의 알람 아이콘에서 전역으로 열리는 단일 인스턴스 모달 */}
+    <ClinicalAlarmModal
+      visible={alarmModalVisible}
+      onClose={closeAlarm}
     />
   </View>
 );
@@ -190,7 +200,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   fabContainer: {
-    top: -18,
+    top: -CENTER_FAB_LIFT,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
