@@ -10,7 +10,6 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Constants from 'expo-constants';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
 import { authService } from '../../services/auth';
@@ -47,10 +46,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
   const setUser = useUserStore((state) => state.setUser);
-
-  // 🔒 심사관 전용 계정은 개발 환경(__DEV__) 또는 EAS 빌드 설정(reviewerLoginEnabled)에서만 노출
-  const isReviewerLoginEnabled =
-    __DEV__ || Boolean(Constants.expoConfig?.extra?.reviewerLoginEnabled);
 
   // 🍏 Apple 로그인
   const handleAppleLogin = async () => {
@@ -120,23 +115,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* 🔒 앱스토어 / 구글플레이 심사관 전용 로그인 (프로덕션 빌드에서는 제외) */}
-      {isReviewerLoginEnabled && (
-        <View style={styles.topBar}>
-          <View style={{ flex: 1 }} />
-          <TouchableOpacity
-            style={[styles.reviewerButton, loadingProvider !== null && { opacity: 0.4 }]}
-            onPress={() => setReviewerModalVisible(true)}
-            disabled={loadingProvider !== null}
-            activeOpacity={0.5}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            accessibilityRole="button"
-            accessibilityLabel="심사 전용 로그인"
-          >
-            <Text style={styles.reviewerButtonText}>심사 계정</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* 🔒 테스터 및 심사관 로그인 (우상단 희미한 test 버튼) */}
+      <View style={styles.topBar}>
+        <View style={{ flex: 1 }} />
+        <TouchableOpacity
+          style={[styles.reviewerButton, loadingProvider !== null && { opacity: 0.3 }]}
+          onPress={() => setReviewerModalVisible(true)}
+          disabled={loadingProvider !== null}
+          activeOpacity={0.4}
+          hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+          accessibilityRole="button"
+          accessibilityLabel="테스터 로그인"
+        >
+          <Text style={styles.reviewerButtonText}>test</Text>
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.content}>
         {/* 상단 브랜딩 영역 */}
@@ -274,19 +267,24 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    paddingHorizontal: 20,
-    paddingTop: 8,
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'android' ? 12 : 6,
     paddingBottom: 4,
+    minHeight: 32,
+    zIndex: 10,
   },
   reviewerButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
   },
   reviewerButtonText: {
-    fontSize: 12,
-    color: NEUTRAL.gray300, // 심사관 전용으로 은은하고 희미하게 노출
+    fontSize: 13,
+    color: '#9CA3AF',
+    opacity: 0.45,
     fontWeight: '500',
+    letterSpacing: 0.3,
   },
   content: {
     flex: 1,
