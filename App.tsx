@@ -90,7 +90,8 @@ export default function App() {
         await syncUserFromSession(session);
       } else if (event === 'SIGNED_OUT') {
         crashLogger.setUserId(null);
-        clearUser();
+        // 이미 로그아웃된 상태이므로 signOut을 다시 호출하면 SIGNED_OUT이 반복(무한 루프)되어 새 세션까지 지워진다.
+        clearUser({ skipSignOut: true });
       }
     });
 

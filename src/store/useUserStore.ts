@@ -92,7 +92,8 @@ export interface UserState {
   // Actions
   setUser: (user: Partial<UserState>) => void;
   syncUserFromSession: (session: any) => Promise<void>;
-  clearUser: () => Promise<void>;
+  // skipSignOut: 이미 로그아웃된 상태(SIGNED_OUT 이벤트)에서는 signOut을 다시 호출하지 않고 로컬 상태만 초기화한다.
+  clearUser: (options?: { skipSignOut?: boolean }) => Promise<void>;
   deleteAccount: () => Promise<boolean>;
   initializeAuth: () => Promise<void>;
   updateUserProfile: (
@@ -450,12 +451,14 @@ export const useUserStore = create<UserState>()(
     await useSalaryStore.getState().syncRecordsFromServer();
   },
 
-  clearUser: async () => {
-    authDebug('clearUser:called');
-    try {
-      await authService.signOut();
-    } catch (e) {
-      console.warn('SignOut error during clearUser:', e);
+  clearUser: async (options) => {
+    authDebug('clearUser:called', options?.skipSignOut ? 'skipSignOut' : '');
+    if (!options?.skipSignOut) {
+      try {
+        await authService.signOut();
+      } catch (e) {
+        console.warn('SignOut error during clearUser:', e);
+      }
     }
     // 같은 기기에서 다른 계정으로 로그인해도 이전 사용자의 급여 기록이 노출되지 않도록 초기화
     useSalaryStore.getState().resetSalaryData();
