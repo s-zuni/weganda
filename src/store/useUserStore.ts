@@ -5,12 +5,22 @@ import { profileApi, ProfileItem } from '../services/profileApi';
 import { authService } from '../services/auth';
 import { subscriptionApi, SubscriptionRow } from '../services/subscriptionApi';
 import { useFortuneStore } from './useFortuneStore';
+import { useSalaryStore } from './useSalaryStore';
 import { UserSubscriptionInfo } from '../types/membershipEvent';
 import type { Step1Data } from '../components/specific/Onboarding';
 import { AppThemeColor } from '../constants/theme';
 import { IAP_SKUS } from '../constants/membership';
 
 export type { AppThemeColor };
+
+// 로컬 구독 정보가 유효한지 검사 — 활성/체험 상태이며 만료일이 명시되고 아직 지나지 않은 경우만 true.
+// (만료일이 비어 있으면 영구 프리미엄이 되므로 유효하지 않은 것으로 취급)
+const isLocalSubscriptionValid = (info: UserSubscriptionInfo | null): boolean => {
+  if (!info || (info.status !== 'active' && info.status !== 'trial')) return false;
+  if (!info.nextBillingDate) return false;
+  const expiresAt = new Date(info.nextBillingDate).getTime();
+  return !Number.isNaN(expiresAt) && expiresAt > Date.now();
+};
 
 export interface UserState {
   id: string | null;
@@ -78,7 +88,7 @@ export interface UserState {
   // Actions
   setUser: (user: Partial<UserState>) => void;
   syncUserFromSession: (session: any) => Promise<void>;
-  clearUser: () => void;
+  clearUser: () => Promise<void>;
   deleteAccount: () => Promise<boolean>;
   initializeAuth: () => Promise<void>;
   updateUserProfile: (
@@ -233,7 +243,7 @@ export const useUserStore = create<UserState>()(
   // 로그인/앱 시작 시 서버의 구독 상태를 조회해 로컬 isPremium을 덮어쓴다(클라이언트 로컬 값은 신뢰하지 않음).
   // role이 'plus'/'admin'(관리자가 수동 부여한 경우)이면 실제 IAP 구독 레코드가 없어도 프리미엄을 유지한다.
   syncPremiumFromServer: async () => {
-    const { id, role } = get();
+    const { id, role, subscriptionInfo } = get();
     if (!id) return;
     try {
       const row = await subscriptionApi.getMySubscription(id);
@@ -242,12 +252,22 @@ export const useUserStore = create<UserState>()(
       if (subscriptionActive) {
         get().applyServerSubscription(row);
       } else if (role === 'plus' || role === 'admin') {
-        set({ isPremium: true, subscriptionInfo: null });
+        set({ isPremium: true });
       } else {
-        get().applyServerSubscription(null);
+        // 서버 DB에 기록이 없더라도, 만료일이 명확하고 아직 지나지 않은 로컬 구독만 임시 보존합니다.
+        // (서버에 구독 행이 기록되면 위 분기가 우선하므로 영구 유지되지 않음)
+        if (isLocalSubscriptionValid(subscriptionInfo)) {
+          set({ isPremium: true });
+        } else {
+          get().applyServerSubscription(null);
+        }
       }
     } catch (e) {
       console.warn('[useUserStore] syncPremiumFromServer failed:', e);
+      // 네트워크 오류 시에도 만료일이 유효한 로컬 구독/관리자 권한만 유지
+      if (role === 'plus' || role === 'admin' || isLocalSubscriptionValid(subscriptionInfo)) {
+        set({ isPremium: true });
+      }
     }
   },
 
@@ -330,7 +350,7 @@ export const useUserStore = create<UserState>()(
   // 세션 데이터로부터 유저 상태 동기화
   syncUserFromSession: async (session) => {
     if (!session?.user) {
-      get().clearUser();
+      await get().clearUser();
       return;
     }
 
@@ -410,9 +430,19 @@ export const useUserStore = create<UserState>()(
 
     // 서버 구독 상태로 isPremium을 재검증(클라이언트 로컬 값은 신뢰하지 않음)
     await get().syncPremiumFromServer();
+
+    // 서버에 저장된 월별 급여 기록 불러오기 (로그아웃 시 로컬은 초기화되므로 재로그인 시 복원)
+    await useSalaryStore.getState().syncRecordsFromServer();
   },
 
-  clearUser: () =>
+  clearUser: async () => {
+    try {
+      await authService.signOut();
+    } catch (e) {
+      console.warn('SignOut error during clearUser:', e);
+    }
+    // 같은 기기에서 다른 계정으로 로그인해도 이전 사용자의 급여 기록이 노출되지 않도록 초기화
+    useSalaryStore.getState().resetSalaryData();
     set({
       id: null,
       email: null,
@@ -428,6 +458,11 @@ export const useUserStore = create<UserState>()(
       userCode: null,
       role: 'user',
       isPremium: false,
+      subscriptionInfo: null,
+      verificationStatus: 'none',
+      verificationRole: null,
+      verificationRejectReason: undefined,
+      isVerified: false,
       monthlyFortuneCount: 0,
       dailyAiCount: 0,
       dailyDrugCalcCount: 0,
@@ -437,14 +472,15 @@ export const useUserStore = create<UserState>()(
       onboardingDraft: null,
       schoolName: '',
       schoolGrade: 1,
-    }),
+    });
+  },
 
   // 회원 탈퇴 (Apple Guideline 5.1.1(v) 준수: 원격 계정 및 DB 데이터 영구 삭제 후 로컬 초기화)
   deleteAccount: async () => {
     try {
       set({ isLoading: true });
       await authService.deleteAccount();
-      get().clearUser();
+      await get().clearUser();
       return true;
     } catch (e) {
       console.error('Failed to delete user account:', e);
@@ -467,11 +503,17 @@ export const useUserStore = create<UserState>()(
         await get().syncUserFromSession(session);
       } else {
         // 세션 없음 → 로그인 화면으로 이동 (isAuthenticated: false 유지)
-        set({ isLoading: false });
+        set({ isLoading: false, isAuthenticated: false });
+      }
+
+      // 복원된 로컬 상태에서 유효한 구독이 있으면 프리미엄 혜택 보존
+      const state = get();
+      if (state.isAuthenticated && isLocalSubscriptionValid(state.subscriptionInfo)) {
+        set({ isPremium: true });
       }
     } catch (e) {
       console.error('Error initializing auth:', e);
-      set({ isLoading: false });
+      set({ isLoading: false, isAuthenticated: false });
     }
   },
 

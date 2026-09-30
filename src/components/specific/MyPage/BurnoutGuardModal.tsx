@@ -14,6 +14,7 @@ import { useBurnoutStore } from '../../../store/useBurnoutStore';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { ShieldCheckIcon, LockIcon, ZapIcon, ClockIcon } from '../../common/Icon';
 import { SwipeDismissModal } from '../../common/SwipeDismissModal';
+import { ShiftDietGuideSection } from './ShiftDietGuideSection';
 
 interface BurnoutGuardModalProps {
   visible: boolean;
@@ -223,6 +224,9 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
                   <Text style={styles.guideAdviceText}>{report.advice}</Text>
                 </View>
               </View>
+
+              {/* 듀티 맞춤 영양 & 식단 가이드 (생체리듬 타임테이블 & AI 처방) */}
+              <ShiftDietGuideSection report={report} />
             </>
           )}
         </ScrollView>

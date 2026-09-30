@@ -29,6 +29,8 @@ import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { APP_THEME_COLORS, AppThemeColor } from '../../../constants/membership';
 import { VerificationModal } from '../Verification';
 import { SupportModal } from '../Support/SupportModal';
+import { LegalDocumentModal } from '../Legal/LegalDocumentModal';
+import type { LegalTabKey } from '../../../constants/legal';
 import { BusinessInfoModal } from '../Support/BusinessInfoModal';
 import { BurnoutGuardModal } from './BurnoutGuardModal';
 import { MyPageUserCodeBadge } from './MyPageUserCodeBadge';
@@ -167,6 +169,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   const [burnoutModalVisible, setBurnoutModalVisible] = useState(false);
   const [verificationModalVisible, setVerificationModalVisible] = useState(false);
   const [supportModalVisible, setSupportModalVisible] = useState(false);
+  const [legalTab, setLegalTab] = useState<LegalTabKey | null>(null);
   const [supportCategory, setSupportCategory] = useState<InquiryCategory>('서비스 문의');
   const [businessInfoVisible, setBusinessInfoVisible] = useState(false);
 
@@ -718,14 +721,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
 
             <TouchableOpacity
               style={styles.policyRow}
-              onPress={() => {
-                const url = 'https://www.weganda.kr/terms';
-                if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                  window.open(url, '_blank');
-                } else {
-                  Linking.openURL(url).catch((err) => console.warn(err));
-                }
-              }}
+              onPress={() => setLegalTab('terms')}
               activeOpacity={0.7}
               accessibilityRole="link"
               accessibilityLabel="서비스 이용약관"
@@ -738,14 +734,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
 
             <TouchableOpacity
               style={styles.policyRow}
-              onPress={() => {
-                const url = 'https://www.weganda.kr/privacy';
-                if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                  window.open(url, '_blank');
-                } else {
-                  Linking.openURL(url).catch((err) => console.warn(err));
-                }
-              }}
+              onPress={() => setLegalTab('privacy')}
               activeOpacity={0.7}
               accessibilityRole="link"
               accessibilityLabel="개인정보 처리방침"
@@ -758,14 +747,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
 
             <TouchableOpacity
               style={styles.policyRow}
-              onPress={() => {
-                const url = 'https://www.weganda.kr/membership';
-                if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                  window.open(url, '_blank');
-                } else {
-                  Linking.openURL(url).catch((err) => console.warn(err));
-                }
-              }}
+              onPress={() => setLegalTab('membership')}
               activeOpacity={0.7}
               accessibilityRole="link"
               accessibilityLabel="우간다+ 멤버십 이용약관"
@@ -778,14 +760,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
 
             <TouchableOpacity
               style={styles.policyRow}
-              onPress={() => {
-                const url = 'https://www.weganda.kr/community';
-                if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                  window.open(url, '_blank');
-                } else {
-                  Linking.openURL(url).catch((err) => console.warn(err));
-                }
-              }}
+              onPress={() => setLegalTab('community')}
               activeOpacity={0.7}
               accessibilityRole="link"
               accessibilityLabel="커뮤니티 이용약관"
@@ -808,8 +783,8 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                 {
                   text: '로그아웃',
                   style: 'destructive',
-                  onPress: () => {
-                    clearUser();
+                  onPress: async () => {
+                    await clearUser();
                     onClose();
                   },
                 },
@@ -829,6 +804,9 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
           visible={membershipVisible}
           onClose={() => setMembershipVisible(false)}
         />
+
+        {/* 약관·개인정보 처리방침 (앱 내부 표시) */}
+        <LegalDocumentModal tab={legalTab} onClose={() => setLegalTab(null)} />
 
         {/* 고객센터 1:1 문의 모달 */}
         <SupportModal

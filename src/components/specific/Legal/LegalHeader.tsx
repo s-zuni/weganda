@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { COLORS, NEUTRAL } from '../../../constants/theme';
 import { useResponsive } from '../../../utils/useResponsive';
 
 interface LegalHeaderProps {
   onNavigateHome: () => void;
   title: string;
+  homeLabel?: string;
 }
 
-export const LegalHeader: React.FC<LegalHeaderProps> = ({ onNavigateHome, title }) => {
+export const LegalHeader: React.FC<LegalHeaderProps> = ({ onNavigateHome, title, homeLabel = '홈으로 이동 ›' }) => {
   const { isMobile } = useResponsive();
 
   return (
@@ -39,7 +40,7 @@ export const LegalHeader: React.FC<LegalHeaderProps> = ({ onNavigateHome, title 
           style={styles.homeButton}
           activeOpacity={0.8}
         >
-          <Text style={styles.homeButtonText}>홈으로 이동 ›</Text>
+          <Text style={styles.homeButtonText}>{homeLabel}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -55,9 +56,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 14,
     alignItems: 'center',
-    position: 'sticky' as any,
-    top: 0,
-    zIndex: 50,
+    // sticky 배치는 웹에서만 유효 (네이티브 인앱 모달에서는 일반 배치)
+    ...(Platform.OS === 'web' ? ({ position: 'sticky', top: 0, zIndex: 50 } as object) : {}),
   },
   inner: {
     maxWidth: 960,

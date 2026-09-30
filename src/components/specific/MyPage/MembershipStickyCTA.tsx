@@ -1,8 +1,10 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Linking } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MembershipPlanKey, CurrentPlanPricing } from '../../../types/membershipEvent';
 import { COLORS, NEUTRAL } from '../../../constants/theme';
+import { LegalDocumentModal } from '../Legal/LegalDocumentModal';
+import type { LegalTabKey } from '../../../constants/legal';
 
 export interface MembershipStickyCTAProps {
   isPremium: boolean;
@@ -31,13 +33,7 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
 
-  const handleOpenUrl = (url: string) => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      window.open(url, '_blank');
-    } else {
-      Linking.openURL(url).catch((err) => console.warn(err));
-    }
-  };
+  const [legalTab, setLegalTab] = useState<LegalTabKey | null>(null);
 
   return (
     <View style={[styles.stickyCTA, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}>
@@ -85,7 +81,7 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
           </View>
           <View style={[styles.legalRow, { marginTop: 4 }]}>
             <TouchableOpacity
-              onPress={() => handleOpenUrl('https://www.weganda.kr/membership')}
+              onPress={() => setLegalTab('membership')}
               accessibilityRole="link"
               accessibilityLabel="멤버십 이용약관"
             >
@@ -93,7 +89,7 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
             </TouchableOpacity>
             <Text style={styles.legalDot}>•</Text>
             <TouchableOpacity
-              onPress={() => handleOpenUrl('https://www.weganda.kr/privacy')}
+              onPress={() => setLegalTab('privacy')}
               accessibilityRole="link"
               accessibilityLabel="개인정보 처리방침"
             >
@@ -112,6 +108,7 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
           <Text style={styles.manageText}>마이페이지에서 구독 확인하기</Text>
         </TouchableOpacity>
       )}
+      <LegalDocumentModal tab={legalTab} onClose={() => setLegalTab(null)} />
     </View>
   );
 };

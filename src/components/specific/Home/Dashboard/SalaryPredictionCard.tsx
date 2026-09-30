@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../../constants/theme';
 import { useSalaryStore } from '../../../../store/useSalaryStore';
 import { useShiftScheduleStore } from '../../../../store/useShiftScheduleStore';
 import { WegandaPlusTag } from '../../../common/WegandaPlusTag';
+import { EyeIcon, EyeOffIcon } from '../../../common/Icon';
 
 interface SalaryPredictionCardProps {
   isPremium: boolean;
@@ -16,12 +17,16 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
   onOpenPaywall,
   onOpenCalculator,
 }) => {
+  const theme = useAppTheme();
   const {
     baseSalary,
     customNightAllowance,
     customHolidayAllowance,
     getInferredNightRate,
     getInferredHolidayRate,
+    isAmountHidden,
+    toggleAmountHidden,
+    monthlyRecords,
   } = useSalaryStore();
   const { schedules, currentDate, customCodes } = useShiftScheduleStore();
 
@@ -57,16 +62,25 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
     }).length;
   }, [schedules, currentYm, customCodes]);
 
+  // 해당 달에 저장된 급여 실적 기록이 있는 경우 해당 실적 우선 반영
+  const currentMonthRecord = monthlyRecords[currentYm];
+
   const effectiveNightRate = customNightAllowance || getInferredNightRate(baseSalary);
   const totalNightPay = nightCount * effectiveNightRate;
 
   const effectiveHolidayRate = customHolidayAllowance || getInferredHolidayRate(baseSalary);
   const totalHolidayPay = holidayWorkCount * effectiveHolidayRate;
 
-  // 총 예상 수령액 (기본급이 미설정 상태인 경우 현실적인 평균 간호사 예상 수령액 3,420,000원 표출)
-  const totalEstimated = baseSalary > 0
-    ? baseSalary + totalNightPay + totalHolidayPay
-    : 3420000;
+  // 총 예상 수령액
+  const totalEstimated = useMemo(() => {
+    if (currentMonthRecord && currentMonthRecord.totalSalary > 0) {
+      return currentMonthRecord.totalSalary;
+    }
+    if (baseSalary > 0) {
+      return baseSalary + totalNightPay + totalHolidayPay;
+    }
+    return 3420000;
+  }, [currentMonthRecord, baseSalary, totalNightPay, totalHolidayPay]);
 
   const handlePressCard = () => {
     if (!isPremium) {
@@ -76,32 +90,73 @@ export const SalaryPredictionCard: React.FC<SalaryPredictionCardProps> = ({
     }
   };
 
+  const handleToggleEye = () => {
+    if (!isPremium) {
+      onOpenPaywall();
+      return;
+    }
+    toggleAmountHidden();
+  };
+
   return (
     <TouchableOpacity
       style={styles.salaryCard}
       onPress={handlePressCard}
       activeOpacity={0.85}
     >
-      {/* 상단 헤더 행: 타이틀 + weganda+ 마이크로 뱃지 + 수당 계산기 > */}
+      {/* 상단 헤더 행: 타이틀 + weganda+ 마이크로 뱃지 + 눈 가림 토글 + 보러가기/수당 계산기 */}
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
           <Text style={styles.titleText}>{monthLabel} 예상 실수령액</Text>
           <WegandaPlusTag />
         </View>
 
-        <TouchableOpacity
-          onPress={() => (isPremium ? onOpenCalculator?.() : onOpenPaywall())}
-          activeOpacity={0.7}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Text style={styles.calcLinkText}>수당 계산기 ›</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          {/* 가림/보기 눈 아이콘 토글 */}
+          <TouchableOpacity
+            onPress={handleToggleEye}
+            style={styles.eyeBtn}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            activeOpacity={0.7}
+          >
+            {isAmountHidden ? (
+              <EyeOffIcon size={18} color={COLORS.textMuted} />
+            ) : (
+              <EyeIcon size={18} color={theme.primary} />
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => (isPremium ? onOpenCalculator?.() : onOpenPaywall())}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.calcLinkText}>급여 명세 ›</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* 볼드 메인 금액 */}
-      <Text style={styles.amountText}>
-        {totalEstimated.toLocaleString()}원
-      </Text>
+      {/* 금액 표시 또는 보러가기 영역 */}
+      <View style={styles.amountContainer}>
+        {isAmountHidden ? (
+          <View style={styles.maskedRow}>
+            <Text style={styles.maskedAmountText}>••••••••원</Text>
+            <TouchableOpacity
+              style={[styles.viewButton, { backgroundColor: theme.primaryTint }]}
+              onPress={() => (isPremium ? onOpenCalculator?.() : onOpenPaywall())}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.viewButtonText, { color: theme.primary }]}>
+                보러가기 ›
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Text style={styles.amountText}>
+            {totalEstimated.toLocaleString()}원
+          </Text>
+        )}
+      </View>
     </TouchableOpacity>
   );
 };
@@ -137,11 +192,23 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  eyeBtn: {
+    padding: 2,
+  },
   calcLinkText: {
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '600',
     color: COLORS.textMuted,
     letterSpacing: -0.2,
+  },
+  amountContainer: {
+    minHeight: 38,
+    justifyContent: 'center',
   },
   amountText: {
     fontSize: 28,
@@ -149,6 +216,24 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     letterSpacing: -0.5,
   },
+  maskedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  maskedAmountText: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: COLORS.textMuted,
+    letterSpacing: 2,
+  },
+  viewButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+  },
+  viewButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
 });
-
-

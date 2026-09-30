@@ -17,6 +17,11 @@ import { useUserStore } from '../../../store/useUserStore';
 import { authService } from '../../../services/auth';
 import { LockIcon } from '../../common/Icon';
 
+// 스토어 심사/스테이징 테스트 계정 (기존 비밀번호 유지).
+// 로컬 세션 id는 실제 auth uid가 아니므로 RLS 상 서버 데이터 접근 권한은 없고 UI 잠금 해제 용도로만 쓰인다.
+const REVIEWER_LOGIN_IDS: readonly string[] = ['testuser', 'testuser@weganda.com'];
+const REVIEWER_PASSWORDS: readonly string[] = ['weganda2026@', 'weganda103820@'];
+
 interface ReviewerLoginModalProps {
   visible: boolean;
   onClose: () => void;
@@ -48,8 +53,7 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
     try {
       // 출시 심사 및 로컬/스테이징 테스트용 지정 계정 확인
       const isTestUser =
-        (trimmedId.toLowerCase() === 'testuser' || trimmedId.toLowerCase() === 'testuser@weganda.com') &&
-        (trimmedPw === 'weganda2026@' || trimmedPw === 'weganda103820@');
+        REVIEWER_LOGIN_IDS.includes(trimmedId.toLowerCase()) && REVIEWER_PASSWORDS.includes(trimmedPw);
 
       if (isTestUser) {
         // 1. Supabase 실제 계정 세션 동기화 시도 (존재 시)
@@ -146,7 +150,7 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
                   </View>
                   <Text style={styles.title}>테스터 로그인</Text>
                   <Text style={styles.subtitle}>
-                    출시 테스트용 계정 또는 등록된 이메일로 로그인합니다.
+                    등록된 아이디 또는 이메일 계정으로 로그인합니다.
                   </Text>
                 </View>
 
@@ -157,7 +161,7 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
                     style={styles.input}
                     value={username}
                     onChangeText={setUsername}
-                    placeholder="testuser 또는 이메일"
+                    placeholder="아이디 또는 이메일 입력"
                     placeholderTextColor="#9CA3AF"
                     keyboardType="email-address"
                     returnKeyType="next"
@@ -175,7 +179,7 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
                     style={styles.input}
                     value={password}
                     onChangeText={setPassword}
-                    placeholder="weganda2026@"
+                    placeholder="비밀번호 입력"
                     placeholderTextColor="#9CA3AF"
                     secureTextEntry
                     returnKeyType="done"

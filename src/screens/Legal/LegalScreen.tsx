@@ -11,18 +11,22 @@ import { BUSINESS_INFO } from '../../types/support';
 interface LegalScreenProps {
   initialTab?: LegalTabKey;
   onNavigateHome?: () => void;
+  embedded?: boolean; // 앱 내부 모달로 표시(브라우저 주소 연동 비활성화)
+  homeLabel?: string;
 }
 
 export const LegalScreen: React.FC<LegalScreenProps> = ({
   initialTab = 'terms',
   onNavigateHome,
+  embedded = false,
+  homeLabel,
 }) => {
   const { isMobile } = useResponsive();
   const [activeTab, setActiveTab] = useState<LegalTabKey>(initialTab);
 
   // 브라우저 주소창 경로 또는 쿼리 파라미터에서 탭 동기화
   useEffect(() => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    if (!embedded && Platform.OS === 'web' && typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab') as LegalTabKey;
       const pathname = window.location.pathname;
@@ -43,7 +47,7 @@ export const LegalScreen: React.FC<LegalScreenProps> = ({
 
   const handleTabChange = (newTab: LegalTabKey) => {
     setActiveTab(newTab);
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    if (!embedded && Platform.OS === 'web' && typeof window !== 'undefined') {
       const doc = LEGAL_DOCUMENTS[newTab];
       const targetUrl = doc ? doc.path : `/terms?tab=${newTab}`;
       window.history.pushState({}, '', targetUrl);
@@ -53,6 +57,8 @@ export const LegalScreen: React.FC<LegalScreenProps> = ({
   const handleGoHome = () => {
     if (onNavigateHome) {
       onNavigateHome();
+    } else if (embedded) {
+      return;
     } else if (Platform.OS === 'web' && typeof window !== 'undefined') {
       window.history.pushState({}, '', '/');
       window.location.href = '/';
@@ -64,7 +70,7 @@ export const LegalScreen: React.FC<LegalScreenProps> = ({
   return (
     <View style={styles.container}>
       {/* Top Fixed Header */}
-      <LegalHeader onNavigateHome={handleGoHome} title={currentDoc.shortTitle} />
+      <LegalHeader onNavigateHome={handleGoHome} title={currentDoc.shortTitle} homeLabel={homeLabel} />
 
       {/* Tabs Navigation */}
       <LegalTabs activeTab={activeTab} onSelectTab={handleTabChange} />
@@ -85,6 +91,11 @@ export const LegalScreen: React.FC<LegalScreenProps> = ({
               <View style={styles.versionBadge}>
                 <Text style={styles.versionBadgeText}>{currentDoc.version}</Text>
               </View>
+              {currentDoc.lastUpdatedDate && (
+                <View style={styles.versionBadge}>
+                  <Text style={styles.versionBadgeText}>{currentDoc.lastUpdatedDate}</Text>
+                </View>
+              )}
             </View>
             <Text style={styles.docTitle}>{currentDoc.title}</Text>
             <Text style={styles.docSummary}>{currentDoc.summary}</Text>

@@ -15,6 +15,8 @@ import { COLORS } from '../../constants/theme';
 import { CrownIcon } from './Icon';
 import { inAppPurchaseService } from '../../services/inAppPurchaseService';
 import { SwipeableBottomSheet } from './SwipeableBottomSheet';
+import { LegalDocumentModal } from '../specific/Legal/LegalDocumentModal';
+import type { LegalTabKey } from '../../constants/legal';
 
 interface PaywallBottomSheetProps {
   visible: boolean;
@@ -34,6 +36,7 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
   featureDescription,
 }) => {
   const [isRestoring, setIsRestoring] = useState(false);
+  const [legalTab, setLegalTab] = useState<LegalTabKey | null>(null);
 
   const handleRestore = async () => {
     setIsRestoring(true);
@@ -127,14 +130,7 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
 
               <View style={styles.legalRow}>
                 <TouchableOpacity
-                  onPress={() => {
-                    const url = 'https://www.weganda.kr/membership';
-                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                      window.open(url, '_blank');
-                    } else {
-                      Linking.openURL(url).catch((err) => console.warn(err));
-                    }
-                  }}
+                  onPress={() => setLegalTab('membership')}
                   accessibilityRole="link"
                   accessibilityLabel="멤버십 이용약관"
                 >
@@ -142,14 +138,7 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
                 </TouchableOpacity>
                 <Text style={styles.legalDot}>•</Text>
                 <TouchableOpacity
-                  onPress={() => {
-                    const url = 'https://www.weganda.kr/privacy';
-                    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                      window.open(url, '_blank');
-                    } else {
-                      Linking.openURL(url).catch((err) => console.warn(err));
-                    }
-                  }}
+                  onPress={() => setLegalTab('privacy')}
                   accessibilityRole="link"
                   accessibilityLabel="개인정보 처리방침"
                 >
@@ -158,6 +147,7 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
               </View>
             </View>
           </View>
+      <LegalDocumentModal tab={legalTab} onClose={() => setLegalTab(null)} />
     </SwipeableBottomSheet>
   );
 };

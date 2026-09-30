@@ -127,11 +127,17 @@ export const authService = {
         path: 'auth/callback',
       });
 
+      const queryParams: Record<string, string> =
+        provider === 'google'
+          ? { prompt: 'select_account', access_type: 'offline' }
+          : { prompt: 'login' };
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: redirectUrl,
           skipBrowserRedirect: true,
+          queryParams,
         },
       });
 
@@ -140,8 +146,16 @@ export const authService = {
         throw new Error(`${providerName} 로그인 인증 주소를 생성하지 못했습니다.`);
       }
 
+      // 구글 등 브라우저 인증 세션에서 항상 계정 선택 화면이 노출되도록 URL 파라미터 보장
+      let targetAuthUrl = data.url;
+      if (provider === 'google' && !targetAuthUrl.includes('prompt=')) {
+        targetAuthUrl += (targetAuthUrl.includes('?') ? '&' : '?') + 'prompt=select_account';
+      } else if (provider === 'kakao' && !targetAuthUrl.includes('prompt=')) {
+        targetAuthUrl += (targetAuthUrl.includes('?') ? '&' : '?') + 'prompt=login';
+      }
+
       // 시스템 브라우저 인증 세션 실행
-      const authResult = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+      const authResult = await WebBrowser.openAuthSessionAsync(targetAuthUrl, redirectUrl);
 
       if (authResult.type === 'success' && authResult.url) {
         const params = extractParamsFromUrl(authResult.url);
@@ -182,7 +196,8 @@ export const authService = {
 
   // 로그아웃
   async signOut() {
-    const { error } = await supabase.auth.signOut();
+    // 서버 호출 실패 시에도 기기의 세션/토큰은 반드시 삭제되도록 local scope로 보장
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
   },
 

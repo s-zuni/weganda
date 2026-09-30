@@ -6,17 +6,22 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  Linking,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
 import { authService } from '../../services/auth';
+import { consentApi } from '../../services/consentApi';
 import { AppleLogo, KakaoLogo, GoogleLogo } from '../../components/common/BrandIcons';
 import { WegandaLogo } from '../../components/common/WegandaLogo';
 import { SparklesIcon } from '../../components/common/Icon';
 import { ReviewerLoginModal } from '../../components/specific/Auth/ReviewerLoginModal';
+import {
+  LoginConsentSection,
+  LoginConsentState,
+  isAllConsented,
+} from '../../components/specific/Auth/LoginConsentSection';
 
 interface LoginScreenProps {
   navigation: any;
@@ -44,6 +49,9 @@ const getFriendlyAuthErrorMessage = (error: any, provider: string): string => {
 export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
+  const [consent, setConsent] = useState<LoginConsentState>({ age: false, terms: false, privacy: false });
+  const consented = isAllConsented(consent);
+  const socialDisabled = loadingProvider !== null || !consented;
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
   const setUser = useUserStore((state) => state.setUser);
 
@@ -54,6 +62,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const result = await authService.signInWithApple();
       if (result?.session) {
         await syncUserFromSession(result.session);
+        // 동의 이력 기록(실패해도 로그인은 계속 진행)
+        consentApi.recordCurrentConsents().catch((e) => console.warn('[LoginScreen] consent log failed:', e));
         const state = useUserStore.getState();
         if (!state.hasCompletedOnboarding) {
           navigation.navigate('Onboarding');
@@ -76,6 +86,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const result = await authService.signInWithKakao();
       if (result?.session) {
         await syncUserFromSession(result.session);
+        // 동의 이력 기록(실패해도 로그인은 계속 진행)
+        consentApi.recordCurrentConsents().catch((e) => console.warn('[LoginScreen] consent log failed:', e));
         const state = useUserStore.getState();
         if (!state.hasCompletedOnboarding) {
           navigation.navigate('Onboarding');
@@ -98,6 +110,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const result = await authService.signInWithGoogle();
       if (result?.session) {
         await syncUserFromSession(result.session);
+        // 동의 이력 기록(실패해도 로그인은 계속 진행)
+        consentApi.recordCurrentConsents().catch((e) => console.warn('[LoginScreen] consent log failed:', e));
         const state = useUserStore.getState();
         if (!state.hasCompletedOnboarding) {
           navigation.navigate('Onboarding');
@@ -156,9 +170,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         <View style={styles.buttonGroup}>
           {/* 🍏 Apple 로그인 */}
           <TouchableOpacity
-            style={styles.appleButton}
+            style={[styles.appleButton, !consented && styles.consentPending]}
             onPress={handleAppleLogin}
-            disabled={loadingProvider !== null}
+            disabled={socialDisabled}
             activeOpacity={0.85}
             accessibilityRole="button"
             accessibilityLabel="Apple로 계속하기"
@@ -175,9 +189,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
           {/* 🟡 카카오 로그인 */}
           <TouchableOpacity
-            style={styles.kakaoButton}
+            style={[styles.kakaoButton, !consented && styles.consentPending]}
             onPress={handleKakaoLogin}
-            disabled={loadingProvider !== null}
+            disabled={socialDisabled}
             activeOpacity={0.85}
             accessibilityRole="button"
             accessibilityLabel="카카오로 시작하기"
@@ -194,9 +208,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
           {/* 🌐 구글 로그인 */}
           <TouchableOpacity
-            style={styles.googleButton}
+            style={[styles.googleButton, !consented && styles.consentPending]}
             onPress={handleGoogleLogin}
-            disabled={loadingProvider !== null}
+            disabled={socialDisabled}
             activeOpacity={0.85}
             accessibilityRole="button"
             accessibilityLabel="Google로 시작하기"
@@ -211,42 +225,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             )}
           </TouchableOpacity>
 
-          {/* 이용약관 안내 */}
-          <Text style={styles.legalNotice}>
-            계속 진행함으로써 우간다의{' '}
-            <Text
-              style={styles.legalLink}
-              onPress={() => {
-                const url = 'https://www.weganda.kr/terms';
-                if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                  window.open(url, '_blank');
-                } else {
-                  Linking.openURL(url).catch((err) => console.warn(err));
-                }
-              }}
-              accessibilityRole="link"
-              accessibilityLabel="서비스 이용약관"
-            >
-              서비스 이용약관
-            </Text>{' '}
-            및{' '}
-            <Text
-              style={styles.legalLink}
-              onPress={() => {
-                const url = 'https://www.weganda.kr/privacy';
-                if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                  window.open(url, '_blank');
-                } else {
-                  Linking.openURL(url).catch((err) => console.warn(err));
-                }
-              }}
-              accessibilityRole="link"
-              accessibilityLabel="개인정보 처리방침"
-            >
-              개인정보 처리방침
-            </Text>
-            에 동의합니다.
-          </Text>
+          {/* 필수 약관 동의 (동의 전에는 로그인 버튼 비활성화) */}
+          <LoginConsentSection value={consent} onChange={setConsent} />
         </View>
       </View>
 
@@ -411,6 +391,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: -0.3,
+  },
+  consentPending: {
+    opacity: 0.4,
   },
   legalNotice: {
     fontSize: 12,
