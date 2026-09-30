@@ -3,6 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { Platform } from 'react-native';
 import { supabase } from './supabase';
+import { authDebug } from '../utils/authDebug';
 
 // 브라우저 세션 완료 핸들러 등록
 WebBrowser.maybeCompleteAuthSession();
@@ -50,7 +51,27 @@ function extractParamsFromUrl(url: string): Record<string, string> {
   return params;
 }
 
+// 소셜 로그인 진행 중 여부 — 진행 중에는 initializeAuth가 상태를 건드리지 않도록 한다.
+let signInInFlight = 0;
+
+const trackSignIn = async <T>(label: string, run: () => Promise<T>): Promise<T> => {
+  signInInFlight += 1;
+  authDebug('signIn:start', label);
+  try {
+    const result = await run();
+    authDebug('signIn:done', `${label} session=${!!(result as { session?: unknown } | null)?.session}`);
+    return result;
+  } catch (e) {
+    authDebug('signIn:error', `${label} ${(e as Error)?.message ?? ''}`);
+    throw e;
+  } finally {
+    signInInFlight -= 1;
+  }
+};
+
 export const authService = {
+  isSignInInFlight: (): boolean => signInInFlight > 0,
+
   // 현재 세션 및 사용자 가져오기
   async getCurrentUser() {
     const {
@@ -70,6 +91,10 @@ export const authService = {
 
   // 🍏 Apple 네이티브 로그인 (Identity Token 방식)
   async signInWithApple() {
+    return trackSignIn('apple', () => this.signInWithAppleImpl());
+  },
+
+  async signInWithAppleImpl() {
     try {
       const isAvailable = await AppleAuthentication.isAvailableAsync();
       if (!isAvailable) {
@@ -120,6 +145,10 @@ export const authService = {
 
   // 소셜 로그인 공통 처리 (Google, Kakao)
   async signInWithOAuth(provider: 'google' | 'kakao') {
+    return trackSignIn(provider, () => this.signInWithOAuthImpl(provider));
+  },
+
+  async signInWithOAuthImpl(provider: 'google' | 'kakao') {
     const providerName = provider === 'kakao' ? '카카오' : 'Google';
     try {
       const redirectUrl = AuthSession.makeRedirectUri({
@@ -156,6 +185,7 @@ export const authService = {
 
       // 시스템 브라우저 인증 세션 실행
       const authResult = await WebBrowser.openAuthSessionAsync(targetAuthUrl, redirectUrl);
+      authDebug('oauth:browser', `type=${authResult.type}`);
 
       if (authResult.type === 'success' && authResult.url) {
         const params = extractParamsFromUrl(authResult.url);
@@ -196,6 +226,7 @@ export const authService = {
 
   // 로그아웃
   async signOut() {
+    authDebug('signOut:called');
     // 서버 호출 실패 시에도 기기의 세션/토큰은 반드시 삭제되도록 local scope로 보장
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;

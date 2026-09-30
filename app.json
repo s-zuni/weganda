@@ -2,7 +2,7 @@
   "expo": {
     "name": "weganda",
     "slug": "weganda",
-    "version": "1.0.13",
+    "version": "1.0.14",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "weganda",
@@ -37,7 +37,7 @@
     },
     "android": {
       "package": "com.weganda.app",
-      "versionCode": 13,
+      "versionCode": 14,
       "splash": {
         "image": "./src/assets/splash.png",
         "backgroundColor": "#FFFFFF",

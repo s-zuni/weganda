@@ -15,6 +15,22 @@ const CURRENT_CONSENTS: { type: ConsentType; version: string }[] = [
 ];
 
 export const consentApi = {
+  // 현재 약관 버전에 모두 동의한 이력이 있는지 확인(최초 가입자/약관 개정 시 false)
+  async hasAgreedCurrent(): Promise<boolean> {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user?.id;
+    if (!userId) return true;
+
+    const { data, error } = await supabase
+      .from('consent_logs')
+      .select('consent_type, document_version')
+      .eq('user_id', userId);
+    if (error) throw error;
+
+    const recorded = new Set((data || []).map((r) => `${r.consent_type}:${r.document_version}`));
+    return CURRENT_CONSENTS.every((c) => recorded.has(`${c.type}:${c.version}`));
+  },
+
   // 현재 약관 버전에 대한 동의 이력이 없는 항목만 기록
   async recordCurrentConsents(): Promise<void> {
     const { data: sessionData } = await supabase.auth.getSession();

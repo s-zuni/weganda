@@ -3,6 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { supabase, ExpoSecureStoreAdapter } from '../services/supabase';
 import { profileApi, ProfileItem } from '../services/profileApi';
 import { authService } from '../services/auth';
+import { consentApi } from '../services/consentApi';
+import { authDebug } from '../utils/authDebug';
 import { subscriptionApi, SubscriptionRow } from '../services/subscriptionApi';
 import { useFortuneStore } from './useFortuneStore';
 import { useSalaryStore } from './useSalaryStore';
@@ -35,6 +37,8 @@ export interface UserState {
   isAuthenticated: boolean;
   isGuest: boolean;
   isLoading: boolean;
+  needsConsent: boolean; // 로그인 직후 최초 가입/약관 개정 시 동의 필요(비영속)
+  setNeedsConsent: (needs: boolean) => void;
 
   // weganda+ 프리미엄 멤버십 & 유저 역할
   role: 'admin' | 'plus' | 'user' | 'nurse' | 'student';
@@ -115,6 +119,8 @@ export const useUserStore = create<UserState>()(
   isAuthenticated: false,
   isGuest: false,
   isLoading: true,
+  needsConsent: false,
+  setNeedsConsent: (needs) => set({ needsConsent: needs }),
 
   role: 'user',
   isPremium: false,
@@ -349,6 +355,7 @@ export const useUserStore = create<UserState>()(
 
   // 세션 데이터로부터 유저 상태 동기화
   syncUserFromSession: async (session) => {
+    authDebug('sync:start', `user=${!!session?.user}`);
     if (!session?.user) {
       await get().clearUser();
       return;
@@ -385,6 +392,14 @@ export const useUserStore = create<UserState>()(
       isGuest: false,
       isLoading: false,
     });
+
+    // 최초 가입(또는 약관 개정) 여부 확인 — 프로필 반영으로 메인 화면이 열리기 전에 동의 단계를 먼저 거치게 한다.
+    // 조회 실패 시 로그인을 막지 않는다.
+    try {
+      set({ needsConsent: !(await consentApi.hasAgreedCurrent()) });
+    } catch (e) {
+      console.warn('Consent check after login failed:', e);
+    }
 
     // 백그라운드에서 DB 프로필 조회 및 동기화 (실패해도 로그인 유지)
     try {
@@ -436,6 +451,7 @@ export const useUserStore = create<UserState>()(
   },
 
   clearUser: async () => {
+    authDebug('clearUser:called');
     try {
       await authService.signOut();
     } catch (e) {
@@ -455,6 +471,7 @@ export const useUserStore = create<UserState>()(
       isAuthenticated: false,
       isGuest: false,
       isLoading: false,
+      needsConsent: false,
       userCode: null,
       role: 'user',
       isPremium: false,
@@ -491,6 +508,12 @@ export const useUserStore = create<UserState>()(
 
   // 앱 시작 시 기존 세션 및 프로필 복원 (자동 로그인)
   initializeAuth: async () => {
+    // 소셜 로그인 진행 중에는 세션이 아직 저장되기 전일 수 있으므로 상태를 건드리지 않는다.
+    if (authService.isSignInInFlight()) {
+      authDebug('initializeAuth:skip', 'signIn in flight');
+      return;
+    }
+    authDebug('initializeAuth:start', `isAuthenticated=${get().isAuthenticated}`);
     try {
       if (!get().isAuthenticated) {
         set({ isLoading: true });
@@ -498,12 +521,14 @@ export const useUserStore = create<UserState>()(
       const {
         data: { session },
       } = await supabase.auth.getSession();
+      authDebug('initializeAuth:session', `exists=${!!session?.user}`);
 
       if (session?.user) {
         await get().syncUserFromSession(session);
       } else {
-        // 세션 없음 → 로그인 화면으로 이동 (isAuthenticated: false 유지)
-        set({ isLoading: false, isAuthenticated: false });
+        // 세션 없음 → isAuthenticated는 건드리지 않는다(로그인 직후 상태를 덮어쓰지 않도록).
+        // 로그아웃은 SIGNED_OUT 이벤트/clearUser가 담당한다.
+        set({ isLoading: false });
       }
 
       // 복원된 로컬 상태에서 유효한 구독이 있으면 프리미엄 혜택 보존
@@ -513,7 +538,8 @@ export const useUserStore = create<UserState>()(
       }
     } catch (e) {
       console.error('Error initializing auth:', e);
-      set({ isLoading: false, isAuthenticated: false });
+      authDebug('initializeAuth:error', (e as Error)?.message ?? '');
+      set({ isLoading: false });
     }
   },
 

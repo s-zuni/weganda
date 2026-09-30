@@ -12,16 +12,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
 import { authService } from '../../services/auth';
-import { consentApi } from '../../services/consentApi';
+import { authDebug, getAuthDebugLog } from '../../utils/authDebug';
 import { AppleLogo, KakaoLogo, GoogleLogo } from '../../components/common/BrandIcons';
 import { WegandaLogo } from '../../components/common/WegandaLogo';
 import { SparklesIcon } from '../../components/common/Icon';
 import { ReviewerLoginModal } from '../../components/specific/Auth/ReviewerLoginModal';
-import {
-  LoginConsentSection,
-  LoginConsentState,
-  isAllConsented,
-} from '../../components/specific/Auth/LoginConsentSection';
 
 interface LoginScreenProps {
   navigation: any;
@@ -49,11 +44,20 @@ const getFriendlyAuthErrorMessage = (error: any, provider: string): string => {
 export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
-  const [consent, setConsent] = useState<LoginConsentState>({ age: false, terms: false, privacy: false });
-  const consented = isAllConsented(consent);
-  const socialDisabled = loadingProvider !== null || !consented;
+  const socialDisabled = loadingProvider !== null;
   const syncUserFromSession = useUserStore((state) => state.syncUserFromSession);
   const setUser = useUserStore((state) => state.setUser);
+
+  // 로그인 직후 분기: 최초 가입(약관 미동의) → 동의 화면, 프로필 미완성 → 온보딩, 그 외 메인(RootNavigator가 전환)
+  const goAfterLogin = () => {
+    const state = useUserStore.getState();
+    authDebug('login:goAfter', `auth=${state.isAuthenticated} onboarded=${state.hasCompletedOnboarding} needsConsent=${state.needsConsent}`);
+    if (state.needsConsent) {
+      navigation.navigate('Consent');
+    } else if (!state.hasCompletedOnboarding) {
+      navigation.navigate('Onboarding');
+    }
+  };
 
   // 🍏 Apple 로그인
   const handleAppleLogin = async () => {
@@ -62,12 +66,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const result = await authService.signInWithApple();
       if (result?.session) {
         await syncUserFromSession(result.session);
-        // 동의 이력 기록(실패해도 로그인은 계속 진행)
-        consentApi.recordCurrentConsents().catch((e) => console.warn('[LoginScreen] consent log failed:', e));
-        const state = useUserStore.getState();
-        if (!state.hasCompletedOnboarding) {
-          navigation.navigate('Onboarding');
-        }
+        goAfterLogin();
       }
     } catch (error: any) {
       const friendly = getFriendlyAuthErrorMessage(error, 'Apple');
@@ -86,12 +85,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const result = await authService.signInWithKakao();
       if (result?.session) {
         await syncUserFromSession(result.session);
-        // 동의 이력 기록(실패해도 로그인은 계속 진행)
-        consentApi.recordCurrentConsents().catch((e) => console.warn('[LoginScreen] consent log failed:', e));
-        const state = useUserStore.getState();
-        if (!state.hasCompletedOnboarding) {
-          navigation.navigate('Onboarding');
-        }
+        goAfterLogin();
       }
     } catch (error: any) {
       const friendly = getFriendlyAuthErrorMessage(error, '카카오');
@@ -110,12 +104,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const result = await authService.signInWithGoogle();
       if (result?.session) {
         await syncUserFromSession(result.session);
-        // 동의 이력 기록(실패해도 로그인은 계속 진행)
-        consentApi.recordCurrentConsents().catch((e) => console.warn('[LoginScreen] consent log failed:', e));
-        const state = useUserStore.getState();
-        if (!state.hasCompletedOnboarding) {
-          navigation.navigate('Onboarding');
-        }
+        goAfterLogin();
       }
     } catch (error: any) {
       const friendly = getFriendlyAuthErrorMessage(error, 'Google');
@@ -152,7 +141,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           <View style={styles.badge}>
             <Text style={styles.badgeText}>대한민국 50만 간호사를 위한</Text>
           </View>
-          <Text style={styles.brandTitle}>우간다</Text>
+          {/* [임시 진단] 길게 누르면 최근 인증 로그 표시 */}
+          <Text style={styles.brandTitle} onLongPress={() => Alert.alert('인증 로그', getAuthDebugLog())}>
+            우간다
+          </Text>
           <Text style={styles.subtitle}>
             교대근무 캘린더부터 임상 운세,{'\n'}동기 톡과 익명 커뮤니티까지 한곳에서
           </Text>
@@ -170,7 +162,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         <View style={styles.buttonGroup}>
           {/* 🍏 Apple 로그인 */}
           <TouchableOpacity
-            style={[styles.appleButton, !consented && styles.consentPending]}
+            style={[styles.appleButton]}
             onPress={handleAppleLogin}
             disabled={socialDisabled}
             activeOpacity={0.85}
@@ -189,7 +181,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
           {/* 🟡 카카오 로그인 */}
           <TouchableOpacity
-            style={[styles.kakaoButton, !consented && styles.consentPending]}
+            style={[styles.kakaoButton]}
             onPress={handleKakaoLogin}
             disabled={socialDisabled}
             activeOpacity={0.85}
@@ -208,7 +200,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
           {/* 🌐 구글 로그인 */}
           <TouchableOpacity
-            style={[styles.googleButton, !consented && styles.consentPending]}
+            style={[styles.googleButton]}
             onPress={handleGoogleLogin}
             disabled={socialDisabled}
             activeOpacity={0.85}
@@ -225,8 +217,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             )}
           </TouchableOpacity>
 
-          {/* 필수 약관 동의 (동의 전에는 로그인 버튼 비활성화) */}
-          <LoginConsentSection value={consent} onChange={setConsent} />
         </View>
       </View>
 

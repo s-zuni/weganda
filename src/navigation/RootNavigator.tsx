@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useUserStore } from '../store/useUserStore';
 import AuthNavigator from './AuthNavigator';
 import BottomTabNavigator from './BottomTabNavigator';
+import { authDebug } from '../utils/authDebug';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,8 +34,13 @@ const linking: LinkingOptions<any> = {
 export const RootNavigator: React.FC = () => {
   const isAuthenticated = useUserStore((state) => state.isAuthenticated);
   const hasCompletedOnboarding = useUserStore((state) => state.hasCompletedOnboarding);
+  const needsConsent = useUserStore((state) => state.needsConsent);
 
-  const showMain = isAuthenticated && hasCompletedOnboarding;
+  const showMain = isAuthenticated && hasCompletedOnboarding && !needsConsent;
+
+  useEffect(() => {
+    authDebug('nav', `auth=${isAuthenticated} onboarded=${hasCompletedOnboarding} needsConsent=${needsConsent} -> ${showMain ? 'Main' : 'Auth'}`);
+  }, [isAuthenticated, hasCompletedOnboarding, needsConsent, showMain]);
 
   return (
     <NavigationContainer linking={linking}>

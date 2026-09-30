@@ -14,6 +14,7 @@ import { supabase } from './src/services/supabase';
 import ErrorBoundary from './src/components/common/ErrorBoundary';
 import SplashScreenView from './src/components/common/SplashScreenView';
 import { crashLogger } from './src/services/crashLogger';
+import { authDebug } from './src/utils/authDebug';
 import { inAppPurchaseService } from './src/services/inAppPurchaseService';
 
 export default function App() {
@@ -83,6 +84,7 @@ export default function App() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      authDebug('authEvent', `${event} session=${!!session?.user}`);
       if (session?.user) {
         crashLogger.setUserId(session.user.id);
         await syncUserFromSession(session);
