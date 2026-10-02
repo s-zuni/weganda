@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card } from '../../common/Card';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../constants/theme';
 import {
   FlaskIcon,
   ZapIcon,
@@ -22,7 +22,8 @@ export const StudyGuideCard: React.FC<StudyGuideCardProps> = ({
   onOpenDetail,
   onToggleBookmark,
 }) => {
-  const renderIcon = (type: StudyGuideItem['iconType'], color = COLORS.primary) => {
+  const theme = useAppTheme();
+  const renderIcon = (type: StudyGuideItem['iconType'], color = theme.primary) => {
     switch (type) {
       case 'flask':
         return <FlaskIcon size={20} color={color} />;
@@ -70,7 +71,7 @@ export const StudyGuideCard: React.FC<StudyGuideCardProps> = ({
         >
           <BookmarkIcon
             size={18}
-            color={guide.isBookmarked ? COLORS.primary : COLORS.textMuted}
+            color={guide.isBookmarked ? theme.primary : COLORS.textMuted}
             filled={guide.isBookmarked}
           />
         </TouchableOpacity>

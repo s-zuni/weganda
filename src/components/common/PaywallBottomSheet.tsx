@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Modal,
   View,
@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import { COLORS } from '../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../constants/theme';
 import { CrownIcon } from './Icon';
 import { inAppPurchaseService } from '../../services/inAppPurchaseService';
 import { SwipeableBottomSheet } from './SwipeableBottomSheet';
@@ -35,6 +35,8 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
   featureTitle,
   featureDescription,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [isRestoring, setIsRestoring] = useState(false);
   const [legalTab, setLegalTab] = useState<LegalTabKey | null>(null);
 
@@ -152,7 +154,7 @@ export const PaywallBottomSheet: React.FC<PaywallBottomSheetProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   primaryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 9999,
     width: '100%',
     paddingVertical: 16,

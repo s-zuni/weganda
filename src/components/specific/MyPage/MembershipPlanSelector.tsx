@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MembershipPlanKey, CurrentPlanPricing } from '../../../types/membershipEvent';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export interface MembershipPlanSelectorProps {
   selectedPlan: MembershipPlanKey;
@@ -16,6 +16,8 @@ export const MembershipPlanSelector: React.FC<MembershipPlanSelectorProps> = ({
   monthlyPricing,
   yearlyPricing,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.planSelectorContainer}>
       <Text style={styles.planSelectorTitle}>멤버십 플랜 선택</Text>
@@ -104,7 +106,7 @@ export const MembershipPlanSelector: React.FC<MembershipPlanSelectorProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   planSelectorContainer: {
     paddingHorizontal: 20,
     marginTop: 16,
@@ -132,20 +134,20 @@ const styles = StyleSheet.create({
     borderColor: NEUTRAL.gray200,
   },
   yearlyCard: {
-    backgroundColor: TINT_COLORS.pinkTint,
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primaryTint,
+    borderColor: theme.primary,
   },
   popularTag: {
     position: 'absolute',
     top: -10,
     right: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
   },
   popularTagText: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 10,
     fontWeight: '800',
   },
@@ -172,13 +174,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   radioCircleSelected: {
-    borderColor: COLORS.primary,
+    borderColor: theme.primary,
   },
   radioDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   planCardName: {
     fontSize: 13,
@@ -186,10 +188,10 @@ const styles = StyleSheet.create({
     color: NEUTRAL.gray700,
   },
   planCardNameYearly: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   discountPill: {
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -197,7 +199,7 @@ const styles = StyleSheet.create({
   discountPillText: {
     fontSize: 10,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   yearlyDiscountPill: {
     backgroundColor: TINT_COLORS.statusVerifiedBg,

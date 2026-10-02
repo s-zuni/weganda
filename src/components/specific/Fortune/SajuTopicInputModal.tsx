@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -16,6 +16,7 @@ import { useFortuneStore, BirthInfo, PartnerBirthData } from '../../../store/use
 import { SajuTopicItem } from '../../../mocks/sajuCategories';
 import { SajuBirthPicker } from './SajuBirthPicker';
 import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 interface SajuTopicInputModalProps {
   visible: boolean;
@@ -35,6 +36,8 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
   onSubmit,
   isLoading = false,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const storeBirthInfo = useFortuneStore((state) => state.birthInfo);
 
   // 본인 정보
@@ -127,7 +130,7 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
               onTimeChange={setBirthTime}
               onCalendarTypeChange={setCalendarType}
               onGenderChange={setGender}
-              accentColor="#FF507C"
+              accentColor={theme.primary}
               isRegistered={storeBirthInfo.isRegistered}
             />
 
@@ -201,7 +204,7 @@ export const SajuTopicInputModal: React.FC<SajuTopicInputModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.55)',
@@ -402,14 +405,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   slotItemActive: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
   },
   slotItemText: {
     fontSize: 13,
     color: '#4B5563',
   },
   slotItemTextActive: {
-    color: '#FF507C',
+    color: theme.primary,
     fontWeight: '700',
   },
   noticeBox: {
@@ -432,12 +435,12 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   submitBtn: {
-    backgroundColor: '#FF507C', // Viva Coral Pink
+    backgroundColor: theme.primary, // Viva Coral Pink
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#FF507C',
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

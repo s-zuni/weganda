@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { StudyGuideItem } from '../../../types/study';
 
 interface StudyFeaturedCardProps {
@@ -12,6 +12,8 @@ export const StudyFeaturedCard: React.FC<StudyFeaturedCardProps> = ({
   guide,
   onPress,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <TouchableOpacity
       style={styles.featuredSection}
@@ -36,7 +38,7 @@ export const StudyFeaturedCard: React.FC<StudyFeaturedCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   featuredSection: {
     backgroundColor: '#1E293B',
     borderRadius: 18,
@@ -50,7 +52,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   newBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,

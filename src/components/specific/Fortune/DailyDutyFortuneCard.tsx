@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { calculateFourPillars } from 'manseryeok';
 import { HANJA_STEM, HANJA_BRANCH } from '../../../services/manseryeokService';
 import { useFortuneStore } from '../../../store/useFortuneStore';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 interface DailyDutyFortuneCardProps {
   onPressDetail?: () => void;
@@ -12,6 +13,8 @@ interface DailyDutyFortuneCardProps {
 export const DailyDutyFortuneCard: React.FC<DailyDutyFortuneCardProps> = ({
   onPressDetail,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const birthInfo = useFortuneStore((state) => state.birthInfo);
 
   // 오늘 날짜 및 만세력 일진(今日之辰) 동적 계산
@@ -112,7 +115,7 @@ export const DailyDutyFortuneCard: React.FC<DailyDutyFortuneCardProps> = ({
             activeOpacity={0.7}
           >
             <Text style={styles.detailBtnText}>심층 보기</Text>
-            <Ionicons name="chevron-forward" size={14} color="#FF507C" />
+            <Ionicons name="chevron-forward" size={14} color={theme.primary} />
           </TouchableOpacity>
         )}
       </View>
@@ -173,7 +176,7 @@ export const DailyDutyFortuneCard: React.FC<DailyDutyFortuneCardProps> = ({
 
       {/* 50년 명인의 한 줄 처방 */}
       <View style={styles.adviceFooter}>
-        <Ionicons name="bulb" size={16} color="#FF507C" />
+        <Ionicons name="bulb" size={16} color={theme.primary} />
         <Text style={styles.adviceText}>
           "오늘 일진은 손끝의 기운이 맑으니 주저하지 말고 정맥을 찾으세요. 인수인계 직전 오더 3중 체크만 잊지 마세요."
         </Text>
@@ -182,7 +185,7 @@ export const DailyDutyFortuneCard: React.FC<DailyDutyFortuneCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   cardContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 22,
@@ -190,7 +193,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1.5,
     borderColor: '#FFE4EB',
-    shadowColor: '#FF507C',
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -209,7 +212,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -220,12 +223,12 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#FF507C',
+    backgroundColor: theme.primary,
   },
   liveBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#FF507C',
+    color: theme.primary,
   },
   title: {
     fontSize: 18,
@@ -252,7 +255,7 @@ const styles = StyleSheet.create({
   detailBtnText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#FF507C',
+    color: theme.primary,
   },
   biorhythmContainer: {
     backgroundColor: '#F9FAFB',
@@ -354,7 +357,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     padding: 12,
     borderRadius: 12,
   },

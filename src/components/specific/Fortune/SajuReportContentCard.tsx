@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AnalysisSection } from '../../../utils/sajuAnalysisGenerator';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export interface SajuReportContentCardProps {
   sections: AnalysisSection[];
@@ -17,6 +17,8 @@ export const SajuReportContentCard: React.FC<SajuReportContentCardProps> = ({
   sections,
   directAdvice,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <>
       {/* 5. 50년 명인의 1,000자+ 심층 분석 리포트 본문 */}
@@ -61,7 +63,7 @@ export const SajuReportContentCard: React.FC<SajuReportContentCardProps> = ({
       {/* 6. 명인의 최종 직언 및 행동 수칙 */}
       <View style={styles.directAdviceCard}>
         <View style={styles.directAdviceHeader}>
-          <Ionicons name="alert-circle" size={20} color={COLORS.primary} />
+          <Ionicons name="alert-circle" size={20} color={theme.primary} />
           <Text style={styles.directAdviceTitle}>{directAdvice.title}</Text>
         </View>
 
@@ -79,7 +81,7 @@ export const SajuReportContentCard: React.FC<SajuReportContentCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   sectionContainer: {
     marginBottom: 24,
   },
@@ -116,7 +118,7 @@ const styles = StyleSheet.create({
   reportSectionBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
   reportSectionTitle: {
     fontSize: 16.5,
@@ -149,11 +151,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   directAdviceCard: {
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     borderRadius: 20,
     padding: 18,
     borderWidth: 1.5,
-    borderColor: COLORS.primary,
+    borderColor: theme.primary,
     marginBottom: 24,
   },
   directAdviceHeader: {

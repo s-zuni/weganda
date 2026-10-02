@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
-import { COLORS } from '../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../constants/theme';
 import { useTabBarHeight } from '../../hooks/useTabBarHeight';
 import { useFriendsStore } from '../../store/useFriendsStore';
 import { useUserStore } from '../../store/useUserStore';
@@ -31,15 +31,18 @@ import {
 type FriendsTabType = 'list' | 'groups';
 
 export const FriendsScreen: React.FC = () => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { id: userId, isPremium } = useUserStore((s) => ({ id: s.id, isPremium: s.isPremium }));
-  const { friends, groupChats, fetchFriends, isLoading, error } = useFriendsStore();
+  const { friends, groupChats, fetchFriends, fetchGroups, isLoading, error } = useFriendsStore();
   const tabBarHeight = useTabBarHeight();
 
   useEffect(() => {
     if (userId) {
       fetchFriends(userId);
+      fetchGroups(userId);
     }
-  }, [userId, fetchFriends]);
+  }, [userId, fetchFriends, fetchGroups]);
 
   const [activeTab, setActiveTab] = useState<FriendsTabType>('list');
   const [searchText, setSearchText] = useState('');
@@ -168,7 +171,7 @@ export const FriendsScreen: React.FC = () => {
         {activeTab === 'list' && (
           isLoading && friends.length === 0 ? (
             <View style={{ paddingVertical: 48, alignItems: 'center' }}>
-              <ActivityIndicator color={COLORS.primary} size="large" />
+              <ActivityIndicator color={theme.primary} size="large" />
               <Text style={{ marginTop: 12, color: COLORS.textMuted, fontSize: 14 }}>친구 목록을 불러오는 중입니다...</Text>
             </View>
           ) : (
@@ -235,7 +238,7 @@ export const FriendsScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -273,7 +276,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   tabSegmentTextActive: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '800',
   },
   errorBanner: {

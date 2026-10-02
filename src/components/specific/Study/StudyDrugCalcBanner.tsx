@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 interface StudyDrugCalcBannerProps {
   onPress: () => void;
@@ -10,6 +10,8 @@ import { WegandaPlusTag } from '../../common/WegandaPlusTag';
 import Svg, { Path, Rect } from 'react-native-svg';
 
 export const StudyDrugCalcBanner: React.FC<StudyDrugCalcBannerProps> = ({ onPress }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <TouchableOpacity
       style={styles.calcCard}
@@ -39,7 +41,7 @@ export const StudyDrugCalcBanner: React.FC<StudyDrugCalcBannerProps> = ({ onPres
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   calcCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   calcGoBadge: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 10,
@@ -96,7 +98,7 @@ const styles = StyleSheet.create({
   calcGoText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
 });
 

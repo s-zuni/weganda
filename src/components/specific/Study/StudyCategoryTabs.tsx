@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ScrollView, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { BookmarkIcon } from '../../common/Icon';
 
 interface StudyCategoryTabsProps {
@@ -23,6 +23,8 @@ export const StudyCategoryTabs: React.FC<StudyCategoryTabsProps> = ({
   selectedCategory,
   onSelectCategory,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <ScrollView
       horizontal
@@ -48,7 +50,7 @@ export const StudyCategoryTabs: React.FC<StudyCategoryTabsProps> = ({
               style={[
                 styles.categoryTabText,
                 isSelected && styles.categoryTabTextActive,
-                isBookmarkTab && !isSelected && { color: COLORS.primary },
+                isBookmarkTab && !isSelected && { color: theme.primary },
               ]}
             >
               {displayLabel}
@@ -60,7 +62,7 @@ export const StudyCategoryTabs: React.FC<StudyCategoryTabsProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   categoryScroll: {
     paddingBottom: 16,
     gap: 8,
@@ -75,12 +77,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   categoryTabActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   categoryTabBookmark: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
   },
   categoryTabText: {
     fontSize: 14,

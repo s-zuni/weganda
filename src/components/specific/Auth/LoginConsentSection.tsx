@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import type { LegalTabKey } from '../../../constants/legal';
 import { LegalDocumentModal } from '../Legal/LegalDocumentModal';
 
@@ -25,7 +25,10 @@ interface ConsentRowProps {
   bold?: boolean;
 }
 
-const ConsentRow: React.FC<ConsentRowProps> = ({ checked, label, onToggle, onView, bold }) => (
+const ConsentRow: React.FC<ConsentRowProps> = ({ checked, label, onToggle, onView, bold }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  return ((
   <View style={styles.row}>
     <TouchableOpacity
       style={styles.rowMain}
@@ -51,9 +54,12 @@ const ConsentRow: React.FC<ConsentRowProps> = ({ checked, label, onToggle, onVie
       </TouchableOpacity>
     )}
   </View>
-);
+));
+};
 
 export const LoginConsentSection: React.FC<LoginConsentSectionProps> = ({ value, onChange }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const allChecked = isAllConsented(value);
   const [legalTab, setLegalTab] = useState<LegalTabKey | null>(null);
 
@@ -88,7 +94,7 @@ export const LoginConsentSection: React.FC<LoginConsentSectionProps> = ({ value,
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     marginTop: 12,
     paddingHorizontal: 4,
@@ -117,11 +123,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   checkboxChecked: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   checkMark: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 13,
     fontWeight: '700',
   },

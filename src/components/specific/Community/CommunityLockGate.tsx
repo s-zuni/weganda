@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { LockIcon, StethoscopeIcon } from '../../common/Icon';
 
 interface CommunityLockGateProps {
@@ -14,6 +14,8 @@ export const CommunityLockGate: React.FC<CommunityLockGateProps> = ({
   rejectReason,
   onPressVerify,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const isPending = verificationStatus === 'pending';
   const isRejected = verificationStatus === 'rejected';
 
@@ -32,7 +34,7 @@ export const CommunityLockGate: React.FC<CommunityLockGateProps> = ({
       {/* 상단 뱃지 및 잠금 아이콘 */}
       <View style={styles.iconWrapper}>
         <View style={styles.iconCircle}>
-          <StethoscopeIcon size={34} color={COLORS.primary} />
+          <StethoscopeIcon size={34} color={theme.primary} />
           <View style={styles.lockBadge}>
             <LockIcon size={14} color="#FFFFFF" />
           </View>
@@ -136,7 +138,7 @@ export const CommunityLockGate: React.FC<CommunityLockGateProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -154,11 +156,11 @@ const styles = StyleSheet.create({
     width: 76,
     height: 76,
     borderRadius: 38,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
     position: 'relative',
   },
   lockBadge: {
@@ -168,7 +170,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -315,10 +317,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 52,
     borderRadius: 26,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

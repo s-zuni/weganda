@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
   Linking,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, useAppTheme, TINT_COLORS, NEUTRAL } from '../../../constants/theme';
+import { COLORS, useAppTheme, TINT_COLORS, NEUTRAL, type ThemeColors } from '../../../constants/theme';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import { useUserStore } from '../../../store/useUserStore';
@@ -56,6 +56,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   bottomOffset = 0,
 }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { fabClearance } = useTabBarMetrics();
   const effectiveBottomOffset = bottomOffset > 0 ? bottomOffset : (isEmbedded ? fabClearance : 0);
   const {
@@ -494,21 +495,21 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                 <View
                   style={[
                     styles.splitIconBox,
-                    { backgroundColor: isPremium ? '#FEF3C7' : '#FFF1F4' },
+                    { backgroundColor: isPremium ? '#FEF3C7' : theme.primaryTint },
                   ]}
                 >
-                  <CrownIcon size={18} color={isPremium ? '#D97706' : COLORS.primary} />
+                  <CrownIcon size={18} color={isPremium ? '#D97706' : theme.primary} />
                 </View>
                 <View
                   style={[
                     styles.splitStatusTag,
-                    { backgroundColor: isPremium ? '#FEF3C7' : '#FFF1F4' },
+                    { backgroundColor: isPremium ? '#FEF3C7' : theme.primaryTint },
                   ]}
                 >
                   <Text
                     style={[
                       styles.splitStatusTagText,
-                      { color: isPremium ? '#B45309' : COLORS.primary },
+                      { color: isPremium ? '#B45309' : theme.primary },
                     ]}
                   >
                     {isPremium ? 'PRO 이용중' : 'FREE'}
@@ -670,7 +671,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                     <View style={[styles.themeColorCircle, { backgroundColor: themeOption.hex }]}>
                       {isLocked && (
                         <View style={styles.themeColorLockOverlay}>
-                          <LockIcon size={12} color={COLORS.onPrimaryText} />
+                          <LockIcon size={12} color={theme.onPrimaryText} />
                         </View>
                       )}
                       {isSelected && !isLocked && (
@@ -896,7 +897,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -996,7 +997,7 @@ const styles = StyleSheet.create({
   backText: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   headerTitle: {
     fontSize: 17,
@@ -1032,7 +1033,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1095,14 +1096,14 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   saveBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
     marginTop: 6,
   },
   saveBtnText: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 15,
     fontWeight: '700',
   },
@@ -1136,7 +1137,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   actionChip: {
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
@@ -1144,7 +1145,7 @@ const styles = StyleSheet.create({
   actionChipText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   infoRow: {
     flexDirection: 'row',
@@ -1196,7 +1197,7 @@ const styles = StyleSheet.create({
   activityCount: {
     fontSize: 22,
     fontWeight: '900',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   activityLabel: {
     fontSize: 13,
@@ -1269,7 +1270,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   themeColorCheckmark: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -1402,7 +1403,7 @@ const styles = StyleSheet.create({
   },
   subPriceText: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   subDateInfoBox: {

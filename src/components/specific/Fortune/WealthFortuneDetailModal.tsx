@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { CoinsIcon } from '../../common/Icon';
@@ -25,6 +25,8 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
   visible,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [activeTab, setActiveTab] = useState<TabType>('strategy');
   const { unlockedFortunes, resetFortune } = useFortuneStore();
   const isUnlocked = unlockedFortunes.wealth;
@@ -117,7 +119,7 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
                             styles.tendencyFill,
                             {
                               width: `${item.score}%`,
-                              backgroundColor: item.score >= 80 ? COLORS.primary : '#3B82F6',
+                              backgroundColor: item.score >= 80 ? theme.primary : '#3B82F6',
                             },
                           ]}
                         />
@@ -216,7 +218,7 @@ export const WealthFortuneDetailModal: React.FC<WealthFortuneDetailModalProps> =
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -275,7 +277,7 @@ const styles = StyleSheet.create({
   reanalyzeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   closeText: {
     fontSize: 15,
@@ -299,7 +301,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   tabBtnActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   tabText: {
     fontSize: 12,
@@ -345,7 +347,7 @@ const styles = StyleSheet.create({
   tendencyScore: {
     fontSize: 12,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   tendencyTrack: {
     height: 8,
@@ -456,7 +458,7 @@ const styles = StyleSheet.create({
   amountText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   guideText: {
     fontSize: 12,

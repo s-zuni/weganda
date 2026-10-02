@@ -2,6 +2,7 @@ import { supabase } from './supabase';
 import { ShiftCode } from '../constants/shiftTypes';
 import { useUserStore } from '../store/useUserStore';
 import { MOCK_FRIENDS_DETAILS } from '../mocks/friendsData';
+import { todayKey } from '../utils/dateKind';
 
 export interface FriendItem {
   id: string; // friendship id
@@ -21,6 +22,11 @@ export interface MatchingOffDay {
   date: string;
   userShift: string;
   friendShift: string;
+}
+
+export interface FriendShiftRow {
+  date: string; // YYYY-MM-DD
+  shiftCode: string;
 }
 
 export const friendsApi = {
@@ -57,21 +63,26 @@ export const friendsApi = {
       throw error;
     }
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    // 오늘(기기 로컬 날짜 기준)의 친구 듀티를 한 번에 조회 (RLS 친구 스케줄 조회 권한 사용)
+    const todayStr = todayKey();
+    const friendIds = (friendships || []).map((f) =>
+      f.requester_id === userId ? f.addressee_id : f.requester_id
+    );
+    const todayShiftMap = new Map<string, string>();
+    if (friendIds.length > 0) {
+      const { data: todayRows } = await supabase
+        .from('schedules')
+        .select('user_id, shift_code')
+        .in('user_id', friendIds)
+        .eq('date', todayStr);
+      (todayRows || []).forEach((r) => todayShiftMap.set(r.user_id, r.shift_code));
+    }
 
     const results: FriendItem[] = [];
     for (const f of (friendships || []) as any[]) {
       const isRequesterMe = f.requester_id === userId;
       const targetProfile = isRequesterMe ? f.addressee : f.requester;
       if (!targetProfile) continue;
-
-      // 오늘의 듀티 가져오기 (RLS 친구 스케줄 조회 권한 사용)
-      const { data: shiftData } = await supabase
-        .from('schedules')
-        .select('shift_code')
-        .eq('user_id', targetProfile.id)
-        .eq('date', todayStr)
-        .maybeSingle();
 
       results.push({
         id: f.id,
@@ -83,7 +94,7 @@ export const friendsApi = {
         experienceYears: targetProfile.experience_years ?? 1,
         avatarUrl: targetProfile.avatar_url || undefined,
         isFavorite: f.is_favorite ?? false,
-        todayShift: (shiftData?.shift_code as ShiftCode) || 'O',
+        todayShift: (todayShiftMap.get(targetProfile.id) as ShiftCode) || 'O',
       });
     }
 
@@ -193,6 +204,35 @@ export const friendsApi = {
       return [];
     }
     return data || [];
+  },
+
+  // 여러 친구의 월간 스케줄을 한 번에 조회 (친구 스케줄 대조용, RLS 적용)
+  async getFriendsMonthlySchedules(
+    friendUserIds: string[],
+    yearMonth: string
+  ): Promise<Record<string, FriendShiftRow[]>> {
+    const result: Record<string, FriendShiftRow[]> = {};
+    if (friendUserIds.length === 0) return result;
+
+    const [year, month] = yearMonth.split('-').map(Number);
+    const lastDay = new Date(year, month, 0).getDate();
+
+    const { data, error } = await supabase
+      .from('schedules')
+      .select('user_id, date, shift_code')
+      .in('user_id', friendUserIds)
+      .gte('date', `${yearMonth}-01`)
+      .lte('date', `${yearMonth}-${String(lastDay).padStart(2, '0')}`)
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching friends monthly schedules:', error);
+      return result;
+    }
+    (data || []).forEach((row) => {
+      (result[row.user_id] ||= []).push({ date: row.date, shiftCode: row.shift_code });
+    });
+    return result;
   },
 
   // 7자리 간호사 고유번호로 프로필 검색 (FR8)

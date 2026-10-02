@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   PanResponder,
 } from 'react-native';
-import { COLORS, TINT_COLORS } from '../../../../constants/theme';
+import { COLORS, TINT_COLORS, useAppTheme, type ThemeColors } from '../../../../constants/theme';
 import { ShiftCode, ShiftInfo, SHIFT_TYPES } from '../../../../constants/shiftTypes';
 import { CustomShiftCode } from '../../../../types/shift';
 import { nativeCalendarService } from '../../../../services/nativeCalendarService';
@@ -19,6 +19,8 @@ interface HomeMonthlyCalendarProps {
   customCodes: Record<string, CustomShiftCode>;
   onMonthChange: (offset: number) => void;
   onSelectDate?: (dateKey: string) => void;
+  /** 값이 바뀌면 기기 캘린더 일정 개수를 다시 조회 */
+  eventsRefreshKey?: number;
   selectedDateKey?: string | null;
   /** 이번 달에 등록/연동된 근무표가 하나도 없을 때 캘린더를 흐리게 표시하고 등록을 안내 */
   isUnregistered?: boolean;
@@ -31,10 +33,13 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
   customCodes,
   onMonthChange,
   onSelectDate,
+  eventsRefreshKey = 0,
   selectedDateKey: propSelectedDateKey,
   isUnregistered = false,
   onRegisterPress,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const today = useMemo(() => new Date(), []);
   const todayKey = useMemo(
     () =>
@@ -72,7 +77,7 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [year, month]);
+  }, [year, month, eventsRefreshKey]);
 
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -150,7 +155,7 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
           code,
           name: code,
           shortName: code,
-          color: COLORS.primary,
+          color: theme.primary,
           textColor: '#FFFFFF',
           description: code,
         };
@@ -338,7 +343,7 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     backgroundColor: COLORS.background,
     marginBottom: 20,
@@ -452,7 +457,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   unregisteredButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 9999,
@@ -461,7 +466,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   unregisteredButtonText: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 13,
     fontWeight: '700',
   },

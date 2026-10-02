@@ -19,12 +19,31 @@ export interface IapPurchaseResult {
   transactionId?: string;
   transactionReceipt?: string;
   isRestored?: boolean;
+  /** 서버 검증 결과 기준 무료 체험(트라이얼) 상태 여부 */
+  isTrial?: boolean;
   errorMessage?: string;
 }
 
 let purchaseUpdateSubscription: any = null;
 let purchaseErrorSubscription: any = null;
 let isConnected = false;
+
+// 네이티브 결제는 requestPurchase 호출 후 purchaseUpdatedListener로 결과가 비동기 전달된다.
+// 결제 시트가 닫히고 서버 검증이 끝날 때까지 requestSubscription이 기다릴 수 있도록 대기 중인 구매를 보관한다.
+interface PendingPurchase {
+  sku: string;
+  resolve: (result: IapPurchaseResult) => void;
+}
+let pendingPurchase: PendingPurchase | null = null;
+const PURCHASE_TIMEOUT_MS = 5 * 60 * 1000;
+
+// Android 구독 오퍼 중 무료 체험 단계(0원 pricing phase)를 가진 오퍼인지 판별
+function hasFreeTrialPhase(offer: {
+  pricingPhasesAndroid?: { pricingPhaseList?: { priceAmountMicros?: string }[] } | null;
+}): boolean {
+  const phases = offer.pricingPhasesAndroid?.pricingPhaseList;
+  return Array.isArray(phases) && phases.some((p) => Number(p?.priceAmountMicros) === 0);
+}
 
 function isNitroAvailable(): boolean {
   if (Platform.OS !== 'ios' && Platform.OS !== 'android') return false;
@@ -151,28 +170,54 @@ class InAppPurchaseService {
       this.removePurchaseListeners();
 
       purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(async (purchase: any) => {
-        console.log('[IAP] purchaseUpdatedListener received:', purchase);
+        console.log('[IAP] purchaseUpdatedListener received:', purchase?.productId);
 
         try {
-          // Android must finish within 3 days or Google auto-refunds.
-          // iOS unfinished transactions replay on launch.
-          if (RNIap.finishTransaction) {
+          // 서버 검증 통과 시에만 프리미엄 부여 (클라이언트 신뢰 방식 폐기)
+          const result = await this.verifyAndApplyPurchase(purchase);
+
+          // 서버가 응답한 경우에만 트랜잭션을 종료한다. 네트워크 오류 등으로 검증하지 못했다면
+          // 종료하지 않아 다음 실행 시 리스너로 재전달되어 다시 검증된다.
+          // (Android는 3일 내 미승인 시 자동 환불, iOS는 미종료 트랜잭션이 앱 시작 시 재전달됨)
+          if (result && RNIap.finishTransaction) {
             await RNIap.finishTransaction({ purchase, isConsumable: false });
             console.log('[IAP] finishTransaction completed successfully.');
           }
 
-          // 서버 검증 통과 시에만 프리미엄 부여 (클라이언트 신뢰 방식 폐기)
-          await this.verifyAndApplyPurchase(purchase);
+          const productId: string | undefined = purchase?.productId || purchase?.id;
+          if (pendingPurchase && (!productId || productId === pendingPurchase.sku)) {
+            const granted = Boolean(result?.verified && result.isPremium);
+            pendingPurchase.resolve({
+              success: granted,
+              productId,
+              transactionId: purchase?.transactionId || purchase?.id,
+              isTrial: result?.subscription?.isTrial ?? false,
+              errorMessage: granted
+                ? undefined
+                : '결제는 완료되었지만 구독 검증에 실패했습니다. 잠시 후 구매 복원을 시도해주세요.',
+            });
+            pendingPurchase = null;
+          }
 
           if (onSuccess) onSuccess(purchase);
         } catch (ackErr) {
-          console.warn('[IAP] finishTransaction error:', ackErr);
+          console.warn('[IAP] purchase processing error:', ackErr);
         }
       });
 
       if (RNIap.purchaseErrorListener) {
         purchaseErrorSubscription = RNIap.purchaseErrorListener((error: any) => {
           console.warn('[IAP] purchaseErrorListener:', error);
+          if (pendingPurchase) {
+            pendingPurchase.resolve({
+              success: false,
+              errorMessage:
+                error?.code === 'E_USER_CANCELLED' || error?.code === 'user-cancelled'
+                  ? '결제를 취소하셨습니다.'
+                  : error?.message || '결제 진행 중 오류가 발생했습니다. 다시 시도해주세요.',
+            });
+            pendingPurchase = null;
+          }
           if (onError) onError(error);
         });
       }
@@ -272,13 +317,18 @@ class InAppPurchaseService {
   // (오퍼 토큰은 Play Console 설정 변경 시 회전될 수 있어 캐시하지 않는다).
   private async getAndroidSubscriptionOffers(
     RNIap: any,
-    targetSku: string
+    targetSku: string,
+    preferTrial: boolean
   ): Promise<{ sku: string; offerToken: string }[] | undefined> {
     try {
       const products = await RNIap.fetchProducts({ skus: [targetSku], type: 'subs' });
       const product = Array.isArray(products) ? products[0] : null;
-      const offers = product?.subscriptionOffers as Array<{ offerTokenAndroid?: string }> | undefined;
-      const offerToken = offers?.find((o) => !!o?.offerTokenAndroid)?.offerTokenAndroid;
+      const offers = product?.subscriptionOffers as
+        | Array<{ offerTokenAndroid?: string; pricingPhasesAndroid?: { pricingPhaseList?: { priceAmountMicros?: string }[] } | null }>
+        | undefined;
+      // 무료 체험 요청 시 0원 체험 단계를 가진 오퍼를 우선 선택(없으면 기본 오퍼)
+      const trialOffer = preferTrial ? offers?.find((o) => !!o?.offerTokenAndroid && hasFreeTrialPhase(o)) : undefined;
+      const offerToken = (trialOffer ?? offers?.find((o) => !!o?.offerTokenAndroid))?.offerTokenAndroid;
 
       if (!offerToken) {
         console.warn(
@@ -318,7 +368,7 @@ class InAppPurchaseService {
         console.log('[IAP] Invoking native requestPurchase for SKU:', targetSku);
 
         const androidSubscriptionOffers =
-          Platform.OS === 'android' ? await this.getAndroidSubscriptionOffers(RNIap, targetSku) : undefined;
+          Platform.OS === 'android' ? await this.getAndroidSubscriptionOffers(RNIap, targetSku, isTrial) : undefined;
 
         const requestPayload = {
           request: {
@@ -331,15 +381,24 @@ class InAppPurchaseService {
           type: 'subs' as const,
         };
 
-        await RNIap.requestPurchase(requestPayload);
+        // 결과(0원 체험 승인 포함)는 purchaseUpdatedListener에서 서버 검증 후 전달된다.
+        const completion = new Promise<IapPurchaseResult>((resolve) => {
+          pendingPurchase = { sku: targetSku, resolve };
+          setTimeout(() => {
+            if (pendingPurchase?.resolve === resolve) {
+              pendingPurchase = null;
+              resolve({
+                success: false,
+                errorMessage: '결제 응답이 지연되고 있습니다. 구매 복원을 시도하거나 잠시 후 확인해주세요.',
+              });
+            }
+          }, PURCHASE_TIMEOUT_MS);
+        });
 
-        // Native flow triggers purchaseUpdatedListener for completion
-        return {
-          success: true,
-          productId: targetSku,
-          transactionId: 'tx-' + Date.now(),
-        };
+        await RNIap.requestPurchase(requestPayload);
+        return await completion;
       } catch (error: any) {
+        pendingPurchase = null;
         if (error?.code === 'E_USER_CANCELLED') {
           return { success: false, errorMessage: '결제를 취소하셨습니다.' };
         }
@@ -349,6 +408,11 @@ class InAppPurchaseService {
           errorMessage: error?.message || '결제 진행 중 오류가 발생했습니다. 다시 시도해주세요.',
         };
       }
+    }
+
+    // 릴리스 빌드에서 네이티브 IAP 모듈을 못 불러온 경우 모의 결제로 프리미엄을 부여하지 않는다.
+    if (isNative && !__DEV__) {
+      return { success: false, errorMessage: '스토어 결제 모듈을 불러오지 못했습니다. 앱을 다시 실행해주세요.' };
     }
 
     // Mock Flow: 웹 또는 네이티브 IAP 모듈이 없는 모의/개발 환경에서만 시뮬레이션 동작
@@ -380,6 +444,7 @@ class InAppPurchaseService {
       productId: targetSku,
       transactionId: 'mock-iap-tx-' + Date.now(),
       transactionReceipt: 'mock-iap-receipt-data',
+      isTrial,
     };
   }
 

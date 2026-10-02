@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { StarIcon, CommentIcon } from '../../common/Icon';
 import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
@@ -17,6 +17,8 @@ export const FriendCard: React.FC<FriendCardProps> = ({
   onOpenProfile,
   onOpenChat,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const shift = SHIFT_TYPES[item.todayShift];
 
   return (
@@ -61,7 +63,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
           onPress={() => onOpenChat(item)}
           activeOpacity={0.7}
         >
-          <CommentIcon size={14} color={COLORS.primary} />
+          <CommentIcon size={14} color={theme.primary} />
           <Text style={styles.messageOutlineText}>메시지</Text>
         </TouchableOpacity>
       </View>
@@ -69,7 +71,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   friendRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -148,12 +150,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 12,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
   },
   messageOutlineText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
 });
 

@@ -16,6 +16,7 @@ import SplashScreenView from './src/components/common/SplashScreenView';
 import { crashLogger } from './src/services/crashLogger';
 import { authDebug } from './src/utils/authDebug';
 import { inAppPurchaseService } from './src/services/inAppPurchaseService';
+import { useFriendsStore } from './src/store/useFriendsStore';
 
 export default function App() {
   const initializeAuth = useUserStore((state) => state.initializeAuth);
@@ -24,6 +25,8 @@ export default function App() {
   const isLoading = useUserStore((state) => state.isLoading);
   const isAuthenticated = useUserStore((state) => state.isAuthenticated);
   const role = useUserStore((state) => state.role);
+  const userId = useUserStore((state) => state.id);
+  const isGuest = useUserStore((state) => state.isGuest);
 
   // 웹 브라우저 접속 시 URL 라우팅 감지 (weganda.kr vs /admin vs /terms /privacy /membership /community vs /app)
   const [currentWebRoute, setCurrentWebRoute] = useState<'landing' | 'admin' | 'app' | 'legal'>(() => {
@@ -152,6 +155,15 @@ export default function App() {
       }
     };
   }, [initializeAuth, syncUserFromSession, clearUser]);
+
+  // 4-1. 로그인한 사용자는 앱 어디에 있든 친구 채팅/맞교환 응답을 실시간으로 수신
+  useEffect(() => {
+    if (!isAuthenticated || !userId || isGuest) return;
+    useFriendsStore.getState().subscribeRealtimeChat(userId);
+    return () => {
+      useFriendsStore.getState().unsubscribeRealtimeChat();
+    };
+  }, [isAuthenticated, userId, isGuest]);
 
   // 5. In-App Purchase (IAP) 생명주기 초기화 및 미완료 트랜잭션 리스너 등록 (스토어 필수 요건)
   useEffect(() => {

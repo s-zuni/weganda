@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import { StudyGuideItem, MOCK_STUDY_GUIDES } from '../mocks/studyData';
 import { studyApi } from '../services/studyApi';
 import { aiChatApi, ClinicalSourceItem } from '../services/aiChatApi';
-import { TINT_COLORS } from '../constants/theme';
+import { TINT_COLORS, getAppTheme } from '../constants/theme';
+import { useUserStore } from './useUserStore';
 
 export interface AiChatMessage {
   id: string;
@@ -50,7 +51,7 @@ export const useStudyStore = create<StudyState>((set, get) => ({
           const iconType = (g.icon as any) || 'book';
           const iconBg =
             g.category === '약물 계산'
-              ? TINT_COLORS.pinkTint
+              ? getAppTheme(useUserStore.getState().appThemeColor).primaryTint
               : g.category === '응급 간호'
               ? TINT_COLORS.statusPendingBg
               : g.category === '임상 술기'

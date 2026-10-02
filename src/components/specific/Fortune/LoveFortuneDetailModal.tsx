@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { HeartIcon } from '../../common/Icon';
@@ -28,6 +28,8 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
   visible,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [activeTab, setActiveTab] = useState<TabType>('couple');
   const { partnerInfo, setPartnerInfo, unlockedFortunes, resetFortune } = useFortuneStore();
   const isUnlocked = unlockedFortunes.love;
@@ -270,7 +272,7 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
                   title="상대방의 무의식적 호감도"
                   subtitle="친절하고 전문적인 간호사 이미지에 큰 매력을 느낌"
                   badgeLabel="호감도"
-                  color="#FF507C"
+                  color={theme.primary}
                 />
 
                 <Text style={[styles.sectionHeading, { marginTop: 16 }]}>
@@ -341,7 +343,7 @@ export const LoveFortuneDetailModal: React.FC<LoveFortuneDetailModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -400,7 +402,7 @@ const styles = StyleSheet.create({
   reanalyzeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   closeText: {
     fontSize: 15,
@@ -423,7 +425,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   tabBtnActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   tabText: {
     fontSize: 12,
@@ -465,7 +467,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   pickerToggleBtn: {
-    backgroundColor: '#FFE4E6',
+    backgroundColor: theme.primaryTintBorder,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -499,7 +501,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   calcBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
@@ -535,7 +537,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   mbtiBadge: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -543,7 +545,7 @@ const styles = StyleSheet.create({
   mbtiBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   mbtiSolutionText: {
     fontSize: 13,
@@ -588,7 +590,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     marginTop: 4,
   },
   timelineLine: {
@@ -610,7 +612,7 @@ const styles = StyleSheet.create({
   timelineTiming: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   timelineAction: {
     fontSize: 13,

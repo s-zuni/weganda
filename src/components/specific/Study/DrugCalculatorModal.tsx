@@ -8,7 +8,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useDrugStore, CustomDrugPreset } from '../../../store/useDrugStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { FREE_LIMITS } from '../../../constants/membership';
@@ -26,6 +26,8 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
   visible,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { presets, addPreset, deletePreset, togglePinPreset } = useDrugStore();
   const { isPremium, dailyDrugCalcCount, incrementDailyDrugCalcCount } = useUserStore();
   const [paywallVisible, setPaywallVisible] = useState(false);
@@ -138,7 +140,7 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
       {/* 헤더 */}
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <CalculatorIcon size={20} color={COLORS.primary} />
+          <CalculatorIcon size={20} color={theme.primary} />
           <Text style={styles.headerTitle}>🧮 임상 약물 gtt/cc 계산기</Text>
           {!isPremium && (
             <View style={styles.limitBadge}>
@@ -416,7 +418,7 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -442,7 +444,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   limitBadge: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -451,7 +453,7 @@ const styles = StyleSheet.create({
   limitBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   presetHeaderRow: {
     flexDirection: 'row',
@@ -466,20 +468,20 @@ const styles = StyleSheet.create({
   addDrugToggleText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   addDrugCard: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 14,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
   },
   addDrugCardTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
     marginBottom: 8,
   },
   addDrugRow: {
@@ -517,7 +519,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   saveDrugBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
@@ -542,7 +544,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   presetChipDoseActive: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   scroll: {
     flex: 1,
@@ -571,8 +573,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   presetChipActive: {
-    backgroundColor: '#FFF1F4',
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primaryTint,
+    borderColor: theme.primary,
   },
   presetChipText: {
     fontSize: 14,
@@ -580,7 +582,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   presetChipTextActive: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   presetDescBox: {
@@ -595,11 +597,11 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   resultCard: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 20,
     padding: 20,
     marginBottom: 24,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
@@ -692,8 +694,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   factorBtnActive: {
-    backgroundColor: '#FFF1F4',
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primaryTint,
+    borderColor: theme.primary,
   },
   factorBtnText: {
     fontSize: 13,
@@ -701,20 +703,20 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   factorBtnTextActive: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   cautionBanner: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 14,
     padding: 14,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: theme.primary,
   },
   cautionTitle: {
     fontSize: 14,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
     marginBottom: 4,
   },
   cautionText: {

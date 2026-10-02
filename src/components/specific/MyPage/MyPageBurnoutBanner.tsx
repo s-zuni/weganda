@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
 import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 import { StethoscopeIcon } from '../../common/Icon';
 
@@ -9,6 +9,7 @@ interface MyPageBurnoutBannerProps {
 }
 
 export const MyPageBurnoutBanner: React.FC<MyPageBurnoutBannerProps> = ({ onPress }) => {
+  const theme = useAppTheme();
   return (
     <TouchableOpacity
       style={styles.burnoutBannerCard}
@@ -19,7 +20,7 @@ export const MyPageBurnoutBanner: React.FC<MyPageBurnoutBannerProps> = ({ onPres
     >
       <View style={styles.burnoutBannerLeft}>
         <View style={styles.burnoutBannerIconBox}>
-          <StethoscopeIcon size={18} color={COLORS.primary} />
+          <StethoscopeIcon size={18} color={theme.primary} />
         </View>
         <View style={styles.burnoutBannerTexts}>
           <View style={styles.burnoutBannerTitleRow}>

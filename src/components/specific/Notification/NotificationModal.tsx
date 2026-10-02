@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useNotificationStore } from '../../../store/useNotificationStore';
 import { BellIcon, TrashIcon } from '../../common/Icon';
 import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
@@ -21,6 +21,8 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   visible,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const {
     notifications,
     unreadCount,
@@ -39,7 +41,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   const getTypeBadge = (type: string) => {
     switch (type) {
       case 'swap':
-        return { label: '듀티 교환', bg: '#FFF1F4', text: COLORS.primary };
+        return { label: '듀티 교환', bg: theme.primaryTint, text: theme.primary };
       case 'shift':
         return { label: '근무 알림', bg: '#EFF6FF', text: '#2563EB' };
       case 'comment':
@@ -119,7 +121,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -161,7 +163,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   unreadBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 10,
@@ -179,7 +181,7 @@ const styles = StyleSheet.create({
   readAllText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   closeText: {
     fontSize: 16,
@@ -210,9 +212,9 @@ const styles = StyleSheet.create({
   },
   notifItemUnread: {
     backgroundColor: '#FFF9FA',
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: theme.primary,
   },
   itemTopRow: {
     flexDirection: 'row',

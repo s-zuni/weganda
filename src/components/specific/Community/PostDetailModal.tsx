@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
   Share,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { PostItem, CommentItem } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
 import { useUserStore } from '../../../store/useUserStore';
@@ -47,6 +47,8 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
   post,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const insets = useSafeAreaInsets();
   const {
@@ -271,7 +273,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
             >
               <BookmarkIcon
                 size={20}
-                color={currentPost.isBookmarked ? COLORS.primary : COLORS.textMuted}
+                color={currentPost.isBookmarked ? theme.primary : COLORS.textMuted}
                 filled={currentPost.isBookmarked}
               />
             </TouchableOpacity>
@@ -370,7 +372,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 >
                   <HeartIcon
                     size={18}
-                    color={currentPost.isLiked ? COLORS.primary : COLORS.textMuted}
+                    color={currentPost.isLiked ? theme.primary : COLORS.textMuted}
                     filled={currentPost.isLiked}
                   />
                   <Text style={[styles.likePillText, currentPost.isLiked && styles.likePillTextActive]}>
@@ -433,7 +435,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       >
                         <HeartIcon
                           size={13}
-                          color={comment.isLiked ? COLORS.primary : COLORS.textMuted}
+                          color={comment.isLiked ? theme.primary : COLORS.textMuted}
                         />
                         <Text
                           style={[
@@ -502,7 +504,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 >
                                   <HeartIcon
                                     size={12}
-                                    color={reply.isLiked ? COLORS.primary : COLORS.textMuted}
+                                    color={reply.isLiked ? theme.primary : COLORS.textMuted}
                                   />
                                   <Text
                                     style={[
@@ -568,7 +570,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
             >
               <LockIcon
                 size={13}
-                color={isAnonymousComment ? COLORS.primary : COLORS.textMuted}
+                color={isAnonymousComment ? theme.primary : COLORS.textMuted}
               />
               <Text
                 style={[
@@ -634,7 +636,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -652,7 +654,7 @@ const styles = StyleSheet.create({
   backBtnText: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   headerActionRow: {
     flexDirection: 'row',
@@ -688,7 +690,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoryBadge: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -696,7 +698,7 @@ const styles = StyleSheet.create({
   categoryBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   timeViewsText: {
     fontSize: 13,
@@ -712,14 +714,14 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
   authorAvatarText: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   authorInfo: {
     flex: 1,
@@ -786,21 +788,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
   },
   likePillBtnActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   likePillText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   likePillTextActive: {
     color: '#FFFFFF',
@@ -896,7 +898,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   commentLikeCountActive: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   commentBodyText: {
@@ -912,7 +914,7 @@ const styles = StyleSheet.create({
   replyActionText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   replyList: {
     marginTop: 10,
@@ -944,7 +946,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   mentionTag: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   inputStickyContainer: {
@@ -959,7 +961,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -968,7 +970,7 @@ const styles = StyleSheet.create({
   replyingTargetText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   replyingCancelText: {
     fontSize: 13,
@@ -990,9 +992,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   anonymousBtnActive: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderWidth: 1,
-    borderColor: COLORS.primaryLight,
+    borderColor: theme.primaryLight,
   },
   anonymousBtnText: {
     fontSize: 13,
@@ -1000,7 +1002,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   anonymousBtnTextActive: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   commentTextInput: {
@@ -1016,7 +1018,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

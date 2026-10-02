@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../constants/theme';
 import { Card } from '../common/Card';
 
 interface FortuneCardProps {
@@ -18,6 +18,8 @@ export const FortuneCard: React.FC<FortuneCardProps> = ({
   luckyColor,
   score = 92,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -52,13 +54,13 @@ export const FortuneCard: React.FC<FortuneCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 16,
     padding: 20,
     marginVertical: 8,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -84,13 +86,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   scoreBadge: {
-    backgroundColor: COLORS.primaryTint,
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
   scoreText: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontSize: 13,
     fontWeight: '800',
   },

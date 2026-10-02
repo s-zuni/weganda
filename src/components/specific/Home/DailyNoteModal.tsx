@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,15 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 import { PencilIcon } from '../../common/Icon';
 import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { useDailyNoteStore } from '../../../store/useDailyNoteStore';
 import { useUserStore } from '../../../store/useUserStore';
+import { DailyPatientNote } from '../../../types/dailyNote';
+import { DailyNoteDateBar, useDateKindColors } from './DailyNoteDateBar';
+import { getDateKind, todayKey, DATE_KIND_LABEL, formatDateKeyKorean } from '../../../utils/dateKind';
 import { SbarSummaryModal } from './SbarSummaryModal';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 
@@ -27,24 +30,52 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
   onClose,
 }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const userId = useUserStore((s) => s.id);
   const isPremium = useUserStore((s) => s.isPremium);
-  const { notes, fetchNotes, addNote, deleteNote } = useDailyNoteStore();
+  const { notes: allNotes, fetchNotes, addNote, updateNote, deleteNote } = useDailyNoteStore();
 
-  const today = new Date();
-  const defaultDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  const [date, setDate] = useState(defaultDate);
+  const [date, setDate] = useState(todayKey());
   const [patient, setPatient] = useState('');
   const [diagnosis, setDiagnosis] = useState('');
   const [noteContent, setNoteContent] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [sbarModalVisible, setSbarModalVisible] = useState(false);
   const [paywallVisible, setPaywallVisible] = useState(false);
 
+  // 모달을 열 때마다 오늘 날짜로 초기화하고 전체 노트를 동기화 (날짜가 바뀌어도 기록은 유지)
   React.useEffect(() => {
-    if (visible && userId) {
-      fetchNotes(userId, date);
-    }
-  }, [visible, userId, date, fetchNotes]);
+    if (!visible) return;
+    setDate(todayKey());
+    if (userId) fetchNotes(userId);
+  }, [visible, userId, fetchNotes]);
+
+  const notes = useMemo(
+    () => allNotes.filter((n) => n.date === date),
+    [allNotes, date]
+  );
+  const noteDates = useMemo(() => allNotes.map((n) => n.date), [allNotes]);
+  const kindColors = useDateKindColors();
+  const selectedKind = getDateKind(date);
+
+  const resetForm = () => {
+    setEditingId(null);
+    setPatient('');
+    setDiagnosis('');
+    setNoteContent('');
+  };
+
+  const handleSelectDate = (next: string) => {
+    setDate(next);
+    resetForm();
+  };
+
+  const handleStartEdit = (item: DailyPatientNote) => {
+    setEditingId(item.id);
+    setPatient(item.patient);
+    setDiagnosis(item.diagnosis === '미지정' ? '' : item.diagnosis);
+    setNoteContent(item.note);
+  };
 
   const handleOpenSbarSummary = () => {
     if (notes.length === 0) {
@@ -68,31 +99,22 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
       return;
     }
 
-    addNote(
-      {
-        date: date.trim(),
-        patient: patient.trim(),
-        diagnosis: diagnosis.trim() || '미지정',
-        note: noteContent.trim(),
-      },
-      userId || undefined
-    );
+    const payload = {
+      patient: patient.trim(),
+      diagnosis: diagnosis.trim() || '미지정',
+      note: noteContent.trim(),
+    };
 
-    setPatient('');
-    setDiagnosis('');
-    setNoteContent('');
-    Alert.alert('등록 완료', '환자 특이사항이 저장되었습니다.');
-  };
-
-  const handleDateChange = (text: string) => {
-    const digits = text.replace(/\D/g, '').slice(0, 8);
-    let formatted = digits;
-    if (digits.length > 4 && digits.length <= 6) {
-      formatted = `${digits.slice(0, 4)}-${digits.slice(4)}`;
-    } else if (digits.length > 6) {
-      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
+    if (editingId) {
+      updateNote(editingId, payload);
+      resetForm();
+      Alert.alert('수정 완료', '환자 특이사항이 수정되었습니다.');
+      return;
     }
-    setDate(formatted);
+
+    addNote({ date, ...payload }, userId || undefined);
+    resetForm();
+    Alert.alert('등록 완료', '환자 특이사항이 저장되었습니다.');
   };
 
   return (
@@ -117,34 +139,23 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.scrollContent}
           >
+            <DailyNoteDateBar selectedDate={date} noteDates={noteDates} onSelectDate={handleSelectDate} />
+
             {/* ── 1. 신규 특이사항 입력 폼 ── */}
             <View style={styles.formCard}>
-              <Text style={styles.formTitle}>새 특이사항 작성</Text>
+              <Text style={styles.formTitle}>
+                {editingId ? '특이사항 수정' : `${DATE_KIND_LABEL[selectedKind]} 특이사항 작성`}
+              </Text>
 
-              <View style={styles.rowInputs}>
-                <View style={[styles.inputGroup, { flex: 1 }]}>
-                  <Text style={styles.inputLabel}>일자</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={date}
-                    onChangeText={handleDateChange}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor={COLORS.textMuted}
-                    keyboardType="numeric"
-                    maxLength={10}
-                  />
-                </View>
-
-                <View style={[styles.inputGroup, { flex: 1.2 }]}>
-                  <Text style={styles.inputLabel}>환자명 / 병실</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={patient}
-                    onChangeText={setPatient}
-                    placeholder="예: 503호 정환자"
-                    placeholderTextColor={COLORS.textMuted}
-                  />
-                </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>환자명 / 병실</Text>
+                <TextInput
+                  style={styles.input}
+                  value={patient}
+                  onChangeText={setPatient}
+                  placeholder="예: 503호 정환자"
+                  placeholderTextColor={COLORS.textMuted}
+                />
               </View>
 
               <View style={styles.inputGroup}>
@@ -177,14 +188,19 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
                 onPress={handleSaveNote}
                 activeOpacity={0.85}
               >
-                <Text style={[styles.submitBtnText, { color: theme.onPrimaryText }]}>특이사항 등록하기</Text>
+                <Text style={[styles.submitBtnText, { color: theme.onPrimaryText }]}>{editingId ? '수정 저장' : '특이사항 등록하기'}</Text>
               </TouchableOpacity>
+              {editingId && (
+                <TouchableOpacity style={styles.cancelEditBtn} onPress={resetForm}>
+                  <Text style={styles.cancelEditText}>수정 취소</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* ── 2. 등록된 특이사항 목록 & AI SBAR 요약 ── */}
             <View style={styles.listHeaderRow}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.sectionSubtitle}>기록된 특이사항 목록 ({notes.length}건)</Text>
+                <Text style={styles.sectionSubtitle}>{formatDateKeyKorean(date)} 특이사항 ({notes.length}건)</Text>
                 <Text style={styles.listHeaderHint}>자유롭게 추가 및 삭제 가능</Text>
               </View>
 
@@ -207,7 +223,7 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
               </View>
             ) : (
               notes.map((item) => (
-                <View key={item.id} style={styles.noteCard}>
+                <View key={item.id} style={[styles.noteCard, { borderLeftWidth: 4, borderLeftColor: kindColors(selectedKind).fg }]}>
                   <View style={styles.noteCardHeader}>
                     <View style={styles.patientInfoRow}>
                       <View style={[styles.patientBadge, { backgroundColor: theme.primary }]}>
@@ -216,6 +232,13 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
                       <Text style={styles.diagnosisText}>{item.diagnosis}</Text>
                     </View>
 
+                    <TouchableOpacity
+                      onPress={() => handleStartEdit(item)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      style={styles.deleteBtn}
+                    >
+                      <Text style={[styles.editBtnText, { color: theme.primary }]}>수정</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => deleteNote(item.id)}
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -228,7 +251,7 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
                   <Text style={styles.noteContentText}>{item.note}</Text>
 
                   <View style={styles.noteFooter}>
-                    <Text style={styles.noteDateText}>{item.date}</Text>
+                    <Text style={[styles.noteDateText, { color: kindColors(selectedKind).fg }]}>{item.date}</Text>
                     <Text style={styles.noteTimeText}>작성: {item.createdAt}</Text>
                   </View>
                 </View>
@@ -253,7 +276,7 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -351,12 +374,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   submitBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
     marginTop: 4,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 6,
@@ -376,13 +399,13 @@ const styles = StyleSheet.create({
   sbarSummaryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 20,
     gap: 4,
     borderWidth: 1,
-    borderColor: TINT_COLORS.pinkTintBorder,
+    borderColor: theme.primaryTintBorder,
   },
   sbarSummaryBtnSparkle: {
     fontSize: 12,
@@ -390,7 +413,7 @@ const styles = StyleSheet.create({
   sbarSummaryBtnText: {
     fontSize: 12,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   sbarProBadge: {
     backgroundColor: PREMIUM_COLORS.gold,
@@ -449,7 +472,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   patientBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -468,6 +491,20 @@ const styles = StyleSheet.create({
   deleteBtn: {
     paddingHorizontal: 6,
     paddingVertical: 2,
+  },
+  editBtnText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  cancelEditBtn: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelEditText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textMuted,
   },
   deleteBtnText: {
     fontSize: 11,

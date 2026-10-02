@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { StudyGuideItem } from '../../../mocks/studyData';
 import { useStudyStore } from '../../../store/useStudyStore';
 import { BookmarkIcon, ShareIcon } from '../../common/Icon';
@@ -27,6 +27,8 @@ export const StudyDetailModal: React.FC<StudyDetailModalProps> = ({
   guide,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { studyGuides, toggleBookmarkGuide } = useStudyStore();
   const insets = useSafeAreaInsets();
 
@@ -60,7 +62,7 @@ export const StudyDetailModal: React.FC<StudyDetailModalProps> = ({
             >
               <BookmarkIcon
                 size={20}
-                color={currentGuide.isBookmarked ? COLORS.primary : COLORS.textMuted}
+                color={currentGuide.isBookmarked ? theme.primary : COLORS.textMuted}
                 filled={currentGuide.isBookmarked}
               />
             </TouchableOpacity>
@@ -132,7 +134,7 @@ export const StudyDetailModal: React.FC<StudyDetailModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
   backText: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   headerActionRow: {
     flexDirection: 'row',
@@ -170,7 +172,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoryBadge: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
   categoryBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   metaText: {
     fontSize: 13,
@@ -224,7 +226,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
@@ -242,7 +244,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   dangerCard: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 14,
     padding: 14,
     borderLeftWidth: 4,

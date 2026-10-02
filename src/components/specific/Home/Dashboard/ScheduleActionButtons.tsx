@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, useAppTheme } from '../../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../../constants/theme';
 import Svg, { Path, Rect } from 'react-native-svg';
 
 interface ScheduleActionButtonsProps {
@@ -13,6 +13,7 @@ export const ScheduleActionButtons: React.FC<ScheduleActionButtonsProps> = ({
   onOpenAddSchedule,
 }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
     <View style={styles.scheduleButtonRow}>
@@ -45,7 +46,7 @@ export const ScheduleActionButtons: React.FC<ScheduleActionButtonsProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   scheduleButtonRow: {
     flexDirection: 'row',
     gap: 10,
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   addBtnText: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontSize: 14,
     fontWeight: '700',
     letterSpacing: -0.2,

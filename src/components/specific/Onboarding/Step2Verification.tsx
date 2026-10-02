@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { Button } from '../../common';
 import { OnboardingRole } from './Step1ProfileSetup';
 import {
@@ -44,6 +44,8 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
   onSkip,
   onNext,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [track, setTrack] = useState<'email' | 'doc'>('doc');
   const [emailInput, setEmailInput] = useState('');
   const [selectedDocType, setSelectedDocType] = useState<VerificationType>(
@@ -315,7 +317,7 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -330,7 +332,7 @@ const styles = StyleSheet.create({
   },
   stepBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FFF0F3',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -339,7 +341,7 @@ const styles = StyleSheet.create({
   stepBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   mainTitle: {
     fontSize: 26,
@@ -368,7 +370,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   benefitBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -447,8 +449,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E8EB',
   },
   docTypeCardActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: '#FFF5F7',
+    borderColor: theme.primary,
+    backgroundColor: theme.primaryTint,
   },
   docTypeRow: {
     flexDirection: 'row',
@@ -462,10 +464,10 @@ const styles = StyleSheet.create({
     color: '#333D4B',
   },
   docTypeTitleActive: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   checkIcon: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '900',
     fontSize: 15,
   },
@@ -499,13 +501,13 @@ const styles = StyleSheet.create({
   uploadActionBtn: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: theme.primary,
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
   },
   uploadActionBtnText: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontSize: 13,
     fontWeight: '700',
   },
@@ -570,7 +572,7 @@ const styles = StyleSheet.create({
   submitBtn: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   skipBtn: {
     height: 44,

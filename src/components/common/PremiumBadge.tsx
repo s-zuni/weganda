@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import { CrownIcon } from './Icon';
-import { COLORS } from '../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../constants/theme';
 import { PREMIUM_COLORS } from '../../constants/premiumTheme';
 
 export interface PremiumBadgeProps {
@@ -15,6 +15,8 @@ export const PremiumBadge: React.FC<PremiumBadgeProps> = ({
   onPress,
   compact = false,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <TouchableOpacity
       style={[
@@ -46,7 +48,7 @@ export const PremiumBadge: React.FC<PremiumBadgeProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
     color: '#B8922E', // PREMIUM_COLORS.goldText
   },
   freeText: {
-    color: COLORS.primary, // #FF507C
+    color: theme.primary,
   },
   linkText: {
     fontSize: 14,

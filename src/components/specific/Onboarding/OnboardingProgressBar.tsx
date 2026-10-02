@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 interface OnboardingProgressBarProps {
   currentStep: number;
@@ -17,6 +17,8 @@ export const OnboardingProgressBar: React.FC<OnboardingProgressBarProps> = ({
   onBack,
   canGoBack = true,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const progressPercent = Math.min(Math.max((currentStep / totalSteps) * 100, 0), 100);
 
   return (
@@ -53,7 +55,7 @@ export const OnboardingProgressBar: React.FC<OnboardingProgressBarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     paddingHorizontal: 20,
     paddingTop: 8,
@@ -83,7 +85,7 @@ const styles = StyleSheet.create({
     width: 44,
   },
   stepBadge: {
-    backgroundColor: '#FFF0F3',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 16,
@@ -93,7 +95,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   stepCurrent: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   stepTotal: {
     color: COLORS.textMuted,
@@ -106,7 +108,7 @@ const styles = StyleSheet.create({
   },
   fill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 2,
   },
 });

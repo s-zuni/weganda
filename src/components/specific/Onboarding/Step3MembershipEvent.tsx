@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { Button } from '../../common';
 import { useMembershipEventStore } from '../../../store/useMembershipEventStore';
 import { PREMIUM_BENEFITS } from '../../../constants/membership';
@@ -19,6 +19,8 @@ interface Step3MembershipEventProps {
 export const Step3MembershipEvent: React.FC<Step3MembershipEventProps> = ({
   onComplete,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [showIapModal, setShowIapModal] = useState(false);
   const config = useMembershipEventStore((state) => state.config);
   const getPlanPricing = useMembershipEventStore((state) => state.getPlanPricing);
@@ -164,7 +166,7 @@ export const Step3MembershipEvent: React.FC<Step3MembershipEventProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   outerContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -182,7 +184,7 @@ const styles = StyleSheet.create({
   },
   stepBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FFF0F3',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -191,7 +193,7 @@ const styles = StyleSheet.create({
   stepBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   mainTitle: {
     fontSize: 26,
@@ -323,7 +325,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   benefitNumberText: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontSize: 12,
     fontWeight: '800',
   },
@@ -373,7 +375,7 @@ const styles = StyleSheet.create({
   trialButton: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   freePassBtn: {
     height: 44,

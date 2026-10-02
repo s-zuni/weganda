@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme, type ThemeColors } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
 import { authService } from '../../services/auth';
 import { authDebug, getAuthDebugLog } from '../../utils/authDebug';
@@ -42,6 +42,8 @@ const getFriendlyAuthErrorMessage = (error: any, provider: string): string => {
 };
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
   const socialDisabled = loadingProvider !== null;
@@ -151,7 +153,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
           {/* 1개월 무료 체험 혜택 프로모션 안내 배지 */}
           <View style={styles.promoBadge}>
-            <SparklesIcon size={16} color={COLORS.primary} />
+            <SparklesIcon size={16} color={theme.primary} />
             <Text style={styles.promoText}>
               첫 소셜 로그인 시 <Text style={styles.promoBold}>weganda+ 1개월 무료체험</Text> 자동 제공
             </Text>
@@ -170,10 +172,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             accessibilityLabel="Apple로 계속하기"
           >
             {loadingProvider === 'apple' ? (
-              <ActivityIndicator color={COLORS.onPrimaryText} />
+              <ActivityIndicator color={theme.onPrimaryText} />
             ) : (
               <View style={styles.buttonInner}>
-                <AppleLogo size={19} color={COLORS.onPrimaryText} />
+                <AppleLogo size={19} color={theme.onPrimaryText} />
                 <Text style={styles.appleButtonText}>Apple로 계속하기</Text>
               </View>
             )}
@@ -229,7 +231,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -267,7 +269,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   badge: {
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -276,7 +278,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   brandTitle: {
     fontSize: 44,
@@ -296,12 +298,12 @@ const styles = StyleSheet.create({
   promoBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: TINT_COLORS.pinkTintBorder,
+    borderColor: theme.primaryTintBorder,
     gap: 8,
   },
   promoEmoji: {
@@ -313,7 +315,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   promoBold: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   buttonGroup: {
@@ -339,7 +341,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   appleButtonText: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: -0.3,

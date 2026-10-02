@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { ocrApi } from '../../../services/ocrApi';
@@ -34,6 +34,8 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
   visible,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const {
     currentDate,
     schedules,
@@ -312,7 +314,7 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -372,7 +374,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabItemActive: {
-    borderBottomColor: COLORS.primary,
+    borderBottomColor: theme.primary,
   },
   tabText: {
     fontSize: 13,
@@ -380,7 +382,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   tabTextActive: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   scrollContent: {

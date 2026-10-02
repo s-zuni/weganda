@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, useAppTheme } from '../../../../constants/theme';
 import { useDailyNoteStore } from '../../../../store/useDailyNoteStore';
+import { useUserStore } from '../../../../store/useUserStore';
+import { todayKey } from '../../../../utils/dateKind';
 import Svg, { Path, Rect } from 'react-native-svg';
 
 interface DailyNoteSectionProps {
@@ -12,13 +14,27 @@ export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
   onOpenDailyNoteModal,
 }) => {
   const theme = useAppTheme();
-  const notes = useDailyNoteStore((s) => s.notes);
-  const latestNote = notes.length > 0 ? notes[0] : null;
+  const userId = useUserStore((s) => s.id);
+  const allNotes = useDailyNoteStore((s) => s.notes);
+  const fetchNotes = useDailyNoteStore((s) => s.fetchNotes);
+
+  useEffect(() => {
+    if (userId) fetchNotes(userId);
+  }, [userId, fetchNotes]);
+
+  // 오늘 날짜의 메모만 노출 — 지난 메모는 삭제되지 않고 모달에서 날짜별로 조회
+  const today = todayKey();
+  const todayNotes = allNotes.filter((n) => n.date === today);
+  const upcomingCount = allNotes.filter((n) => n.date > today).length;
+  const latestNote = todayNotes.length > 0 ? todayNotes[todayNotes.length - 1] : null;
 
   const hasNote = Boolean(latestNote && latestNote.note && latestNote.note.trim().length > 0);
+  const emptyText = upcomingCount > 0
+    ? `오늘 메모는 없어요 · 예정된 메모 ${upcomingCount}건`
+    : '오늘 등록된 인수인계 메모가 없어요';
   const notePreviewText = hasNote
-    ? `${latestNote!.patient ? `${latestNote!.patient} ` : ''}${latestNote!.note}`
-    : '아직 등록된 인수인계 메모가 없어요';
+    ? `${todayNotes.length > 1 ? `(${todayNotes.length}건) ` : ''}${latestNote!.patient ? `${latestNote!.patient} ` : ''}${latestNote!.note}`
+    : emptyText;
 
   return (
     <TouchableOpacity

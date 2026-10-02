@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { StarIcon, SearchIcon, PlusIcon } from '../../common/Icon';
 import { FriendDetail } from '../../../types/friends';
 import { FriendCard } from './FriendCard';
@@ -32,6 +32,8 @@ export const FriendsListTab: React.FC<FriendsListTabProps> = ({
   onOpenProfile,
   onOpenChat,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View>
       {/* 검색 & 친구 추가 바 */}
@@ -126,7 +128,7 @@ export const FriendsListTab: React.FC<FriendsListTabProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   searchRow: {
     flexDirection: 'row',
     gap: 10,
@@ -155,12 +157,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 14,
     paddingHorizontal: 16,
     height: 46,
     justifyContent: 'center',
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
@@ -227,11 +229,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 20,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,

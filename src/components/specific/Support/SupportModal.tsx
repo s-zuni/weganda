@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useUserStore } from '../../../store/useUserStore';
 import { useSupportStore } from '../../../store/useSupportStore';
 import {
@@ -35,6 +35,8 @@ export const SupportModal: React.FC<SupportModalProps> = ({
   onClose,
   initialCategory = '서비스 문의',
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [activeTab, setActiveTab] = useState<'create' | 'list' | 'faq'>('create');
   const [category, setCategory] = useState<InquiryCategory>(initialCategory);
   const [title, setTitle] = useState('');
@@ -465,7 +467,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({
               ) : (
                 /* 문의 목록 뷰 */
                 <View>
-                  {isLoading && <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 20 }} />}
+                  {isLoading && <ActivityIndicator color={theme.primary} style={{ marginVertical: 20 }} />}
 
                   {userInquiries.length === 0 ? (
                     <View style={styles.emptyListCard}>
@@ -577,7 +579,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -623,7 +625,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabItemActive: {
-    borderBottomColor: COLORS.primary,
+    borderBottomColor: theme.primary,
   },
   tabText: {
     fontSize: 14,
@@ -631,7 +633,7 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   tabTextActive: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   contentScroll: {
     flex: 1,
@@ -685,7 +687,7 @@ const styles = StyleSheet.create({
   },
   categoryChipActive: {
     backgroundColor: '#FFF1F2',
-    borderColor: COLORS.primary,
+    borderColor: theme.primary,
   },
   categoryChipText: {
     fontSize: 13,
@@ -693,7 +695,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   categoryChipTextActive: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   textInput: {
@@ -767,7 +769,7 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
   },
   submitButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 12,
     paddingVertical: 15,
     alignItems: 'center',
@@ -874,7 +876,7 @@ const styles = StyleSheet.create({
   },
   replyCountBadge: {
     fontSize: 12,
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '600',
   },
   emptyListCard: {
@@ -904,7 +906,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   goCreateBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
@@ -922,7 +924,7 @@ const styles = StyleSheet.create({
   backToListText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   detailCard: {
     backgroundColor: '#FFFFFF',
@@ -998,7 +1000,7 @@ const styles = StyleSheet.create({
   },
   replyBubbleAdmin: {
     backgroundColor: '#FFF1F2',
-    borderColor: '#FFE4E6',
+    borderColor: theme.primaryTintBorder,
   },
   replyHeader: {
     flexDirection: 'row',
@@ -1011,7 +1013,7 @@ const styles = StyleSheet.create({
     color: '#1E293B',
   },
   replyAuthorAdmin: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   replyDate: {
     fontSize: 11,
@@ -1040,7 +1042,7 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   replySendBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 16,
     borderRadius: 10,
     justifyContent: 'center',

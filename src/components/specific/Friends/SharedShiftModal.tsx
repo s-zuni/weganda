@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { FriendDetail } from '../../../mocks/friendsData';
 import { CommentIcon } from '../../common/Icon';
 import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
@@ -28,6 +28,8 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
   onClose,
   onOpenChat,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [activeTab, setActiveTab] = useState<TabType>('same_day');
 
   // 오늘 나와 같은 Day 근무인 동기 4명 (김민지, 송지원 등)
@@ -137,7 +139,7 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
                       }}
                       activeOpacity={0.8}
                     >
-                      <CommentIcon size={14} color={COLORS.primary} />
+                      <CommentIcon size={14} color={theme.primary} />
                       <Text style={styles.chatActionText}>톡하기</Text>
                     </TouchableOpacity>
                   </View>
@@ -149,7 +151,7 @@ export const SharedShiftModal: React.FC<SharedShiftModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -219,8 +221,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   tabBtnActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   tabText: {
     fontSize: 12,
@@ -236,17 +238,17 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   infoBanner: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 14,
     padding: 14,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: theme.primary,
     marginBottom: 16,
   },
   infoTitle: {
     fontSize: 13,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
     marginBottom: 3,
   },
   infoDesc: {
@@ -326,7 +328,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 10,
     paddingVertical: 7,
     borderRadius: 10,
@@ -334,7 +336,7 @@ const styles = StyleSheet.create({
   chatActionText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   emptyNoticeBox: {
     paddingVertical: 36,

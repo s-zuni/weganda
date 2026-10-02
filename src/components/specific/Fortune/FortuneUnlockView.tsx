@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useFortuneStore, SubFortuneType } from '../../../store/useFortuneStore';
 import { SparklesIcon, LockIcon } from '../../common/Icon';
 
@@ -27,6 +27,8 @@ export const FortuneUnlockView: React.FC<FortuneUnlockViewProps> = ({
   previewItems,
   onOpenBirthInfo,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const {
     birthInfo,
     unlockFortune,
@@ -71,14 +73,14 @@ export const FortuneUnlockView: React.FC<FortuneUnlockViewProps> = ({
       {/* 정밀 분석 보고서 항목 프리뷰 */}
       <View style={styles.previewCard}>
         <View style={styles.previewHeader}>
-          <SparklesIcon size={16} color={COLORS.primary} />
+          <SparklesIcon size={16} color={theme.primary} />
           <Text style={styles.previewTitle}>제공되는 맞춤형 정밀 리포트</Text>
         </View>
 
         {previewItems.map((item, idx) => (
           <View key={idx} style={styles.previewItemRow}>
             <View style={styles.lockBadge}>
-              <LockIcon size={12} color={COLORS.primary} />
+              <LockIcon size={12} color={theme.primary} />
             </View>
             <Text style={styles.previewItemText}>{item}</Text>
           </View>
@@ -88,7 +90,7 @@ export const FortuneUnlockView: React.FC<FortuneUnlockViewProps> = ({
       {/* 액션 버튼 / 로딩 상태 */}
       {isGenerating ? (
         <View style={styles.loadingBox}>
-          <ActivityIndicator size="small" color={COLORS.primary} />
+          <ActivityIndicator size="small" color={theme.primary} />
           <Text style={styles.loadingTitle}>AI 사주 원국 및 임상 데이터 분석 중...</Text>
           <Text style={styles.loadingSub}>정밀 분석 API를 호출하여 결과를 생성하고 있습니다.</Text>
         </View>
@@ -111,7 +113,7 @@ export const FortuneUnlockView: React.FC<FortuneUnlockViewProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     paddingVertical: 10,
     alignItems: 'center',
@@ -123,10 +125,10 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -170,7 +172,7 @@ const styles = StyleSheet.create({
   editLink: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   infoValue: {
     fontSize: 13,
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -219,11 +221,11 @@ const styles = StyleSheet.create({
   },
   confirmBtn: {
     width: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -248,13 +250,13 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
     gap: 6,
   },
   loadingTitle: {
     fontSize: 14,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
     marginTop: 4,
   },
   loadingSub: {

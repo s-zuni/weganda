@@ -238,6 +238,36 @@ export const chatApi = {
     return channel;
   },
 
+  // 내가 보낸 메시지의 변경(맞교환 수락/거절, 읽음 처리) 실시간 수신
+  subscribeToSentMessageUpdates(
+    myUserId: string,
+    onUpdate: (update: { id: string; receiverId: string; swapStatus?: string; isRead: boolean }) => void
+  ): RealtimeChannel {
+    const channel = supabase
+      .channel(`chat_messages_sent:${myUserId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `sender_id=eq.${myUserId}`,
+        },
+        (payload: { new: { id: string; receiver_id: string; swap_status?: string | null; is_read?: boolean | null } }) => {
+          const row = payload.new;
+          onUpdate({
+            id: row.id,
+            receiverId: row.receiver_id,
+            swapStatus: row.swap_status || undefined,
+            isRead: row.is_read ?? false,
+          });
+        }
+      )
+      .subscribe();
+
+    return channel;
+  },
+
   // 실시간 알림 구독 (N4 - Supabase Realtime)
   subscribeToNotifications(
     myUserId: string,
@@ -267,47 +297,50 @@ export const chatApi = {
     supabase.removeChannel(channel);
   },
 
-  // 단체 대화방 메시지 기록 조회 (CH7 - 서비스 계층 경유 및 게스트 폴백)
+  // 단체 대화방 메시지 기록 조회 (CH7) — 실제 방은 서버(RLS: 멤버만), 게스트/프리뷰 방은 mocks 폴백
   async getGroupChatMessages(
     groupId: string,
-    limit: number = 50
+    limit: number = 100
   ): Promise<GroupChatMessageItem[]> {
-    try {
-      const { data, error } = await supabase
-        .from('group_chat_messages')
-        .select('*')
-        .eq('group_id', groupId)
-        .order('created_at', { ascending: true })
-        .limit(limit);
-
-      if (!error && data && data.length > 0) {
-        return data.map((row) => ({
-          id: row.id,
-          groupId: row.group_id,
-          senderId: row.sender_id,
-          senderName: row.sender_name || '동료 간호사',
-          content: row.content,
-          createdAt: row.created_at || new Date().toISOString(),
-          isVerified: row.is_verified ?? true,
-        }));
-      }
-    } catch {
-      // Supabase 테이블 미존재 또는 오프라인 시 폴백 진행
+    if (!isValidUUID(groupId)) {
+      const mockList = INITIAL_GROUP_CHAT_MESSAGES[groupId] || [];
+      return mockList.map((m) => ({
+        id: m.id,
+        groupId,
+        senderId: m.senderId,
+        senderName: m.sender,
+        content: m.text,
+        createdAt: new Date().toISOString(),
+        isVerified: m.isVerified ?? true,
+      }));
     }
 
-    const mockList = INITIAL_GROUP_CHAT_MESSAGES[groupId] || [];
-    return mockList.map((m) => ({
-      id: m.id,
-      groupId,
-      senderId: m.senderId,
-      senderName: m.sender,
-      content: m.text,
-      createdAt: new Date().toISOString(),
-      isVerified: m.isVerified ?? true,
-    }));
+    const { data, error } = await supabase
+      .from('group_chat_messages')
+      .select('*')
+      .eq('group_id', groupId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Error fetching group chat messages:', error);
+      throw error;
+    }
+
+    return (data || [])
+      .map((row) => ({
+        id: row.id,
+        groupId: row.group_id,
+        senderId: row.sender_id,
+        senderName: row.sender_name || '동료 간호사',
+        content: row.content,
+        createdAt: row.created_at || new Date().toISOString(),
+        isVerified: row.is_verified ?? true,
+      }))
+      .reverse();
   },
 
-  // 단체 대화방 메시지 발송 (CH8)
+  // 단체 대화방 메시지 발송 (CH8) — 실패 시 예외를 던져 UI가 알 수 있게 한다
   async sendGroupChatMessage(params: {
     groupId: string;
     senderId: string;
@@ -315,26 +348,27 @@ export const chatApi = {
     content: string;
     isVerified?: boolean;
   }): Promise<string> {
-    try {
-      const { data, error } = await supabase
-        .from('group_chat_messages')
-        .insert({
-          group_id: params.groupId,
-          sender_id: params.senderId,
-          sender_name: params.senderName,
-          content: params.content,
-          is_verified: params.isVerified ?? true,
-        })
-        .select('id')
-        .single();
-
-      if (!error && data?.id) {
-        return data.id;
-      }
-    } catch {
-      // 테이블 미존재 시 로컬 id 반환
+    if (!isValidUUID(params.groupId) || !isValidUUID(params.senderId)) {
+      return `gmsg_${Date.now()}`; // 게스트/프리뷰 방: 로컬 전용
     }
-    return `gmsg_${Date.now()}`;
+
+    const { data, error } = await supabase
+      .from('group_chat_messages')
+      .insert({
+        group_id: params.groupId,
+        sender_id: params.senderId,
+        sender_name: params.senderName,
+        content: params.content,
+        is_verified: params.isVerified ?? true,
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Error sending group chat message:', error);
+      throw error;
+    }
+    return data.id;
   },
 
   // 단체 대화방 실시간 수신 구독 (CH9)

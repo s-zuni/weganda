@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { nativeCalendarService } from '../../../services/nativeCalendarService';
@@ -28,6 +28,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
   onOpenAddSchedule,
 }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { currentDate, schedules, customCodes, changeMonth } = useShiftScheduleStore();
   const userId = useUserStore((s) => s.id);
   const today = new Date();
@@ -99,7 +100,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
       const dayStr = String(day).padStart(2, '0');
       const dateKey = `${year}-${monthStr}-${dayStr}`;
       const code = schedules[dateKey];
-      const shiftInfo = code ? customCodes[code] || { code, name: code, color: COLORS.primary, textColor: '#FFF' } : null;
+      const shiftInfo = code ? customCodes[code] || { code, name: code, color: theme.primary, textColor: '#FFF' } : null;
       const isSelected = selectedDateStr === dateKey;
       const isToday = dateKey === defaultDateStr;
       const dayOfWeek = (firstDayIndex + day - 1) % 7;
@@ -299,7 +300,7 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -473,7 +474,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.offWhite,
   },
   dayCellSelected: {
-    backgroundColor: TINT_COLORS.pinkTintSoft,
+    backgroundColor: theme.primaryTint,
   },
   dateHeaderRow: {
     paddingHorizontal: 5,
@@ -484,7 +485,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   todayHeaderBg: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   dayNumberText: {
     fontSize: 12,
@@ -545,7 +546,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   editDateBtnText: {
     fontSize: 12,
@@ -595,9 +596,9 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   calendarSyncActionBtn: {
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     borderWidth: 1,
-    borderColor: TINT_COLORS.pinkTintBorder,
+    borderColor: theme.primaryTintBorder,
     borderRadius: 16,
     paddingVertical: 14,
     alignItems: 'center',
@@ -608,7 +609,7 @@ const styles = StyleSheet.create({
   calendarSyncActionText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
 });
 

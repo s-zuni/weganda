@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { COLORS, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useUserStore } from '../../../store/useUserStore';
 import { authService } from '../../../services/auth';
 import { LockIcon } from '../../common/Icon';
@@ -33,6 +33,8 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -146,7 +148,7 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
                 {/* 헤더 */}
                 <View style={styles.header}>
                   <View style={styles.iconCircle}>
-                    <LockIcon size={22} color={COLORS.primary} />
+                    <LockIcon size={22} color={theme.primary} />
                   </View>
                   <Text style={styles.title}>테스터 로그인</Text>
                   <Text style={styles.subtitle}>
@@ -221,7 +223,7 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -251,7 +253,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -309,7 +311,7 @@ const styles = StyleSheet.create({
     flex: 1.6,
     height: 48,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },

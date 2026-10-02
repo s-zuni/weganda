@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MembershipPlanKey, CurrentPlanPricing } from '../../../types/membershipEvent';
-import { COLORS, NEUTRAL } from '../../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { LegalDocumentModal } from '../Legal/LegalDocumentModal';
 import type { LegalTabKey } from '../../../constants/legal';
 
@@ -31,6 +31,8 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
   onRestore,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const insets = useSafeAreaInsets();
 
   const [legalTab, setLegalTab] = useState<LegalTabKey | null>(null);
@@ -113,7 +115,7 @@ export const MembershipStickyCTA: React.FC<MembershipStickyCTAProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   stickyCTA: {
     position: 'absolute',
     bottom: 0,
@@ -130,21 +132,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   subscribeButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     width: '100%',
     height: 56,
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
     elevation: 4,
   },
   subscribeText: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 17,
     fontWeight: '700',
     lineHeight: 22,

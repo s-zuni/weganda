@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../constants/theme';
 
 interface FortuneGaugeProps {
   score: number; // 0 ~ 100
@@ -15,8 +15,10 @@ export const FortuneGauge: React.FC<FortuneGaugeProps> = ({
   title,
   subtitle,
   badgeLabel = '궁합 지수',
-  color = COLORS.primary,
+  color: colorProp,
 }) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>

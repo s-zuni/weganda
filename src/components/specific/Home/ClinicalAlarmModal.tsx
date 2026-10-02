@@ -9,7 +9,7 @@ import {
   Switch,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { ClockIcon, PencilIcon } from '../../common/Icon';
 import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import { useAlarmStore, CustomAlarmPreset } from '../../../store/useAlarmStore';
@@ -25,6 +25,8 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
   visible,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const userId = useUserStore((s) => s.id);
   const {
     alarms,
@@ -182,7 +184,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
       {/* 헤더 */}
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <ClockIcon size={20} color={COLORS.primary} />
+          <ClockIcon size={20} color={theme.primary} />
           <Text style={styles.headerTitle}>⏰ 임상 알람 맞추기</Text>
         </View>
         <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -487,8 +489,8 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
                     <Switch
                       value={alarm.isActive}
                       onValueChange={() => toggleAlarm(alarm.id)}
-                      trackColor={{ false: '#E5E7EB', true: COLORS.primaryLight }}
-                      thumbColor={alarm.isActive ? COLORS.primary : '#9CA3AF'}
+                      trackColor={{ false: '#E5E7EB', true: theme.primaryLight }}
+                      thumbColor={alarm.isActive ? theme.primary : '#9CA3AF'}
                     />
                     <TouchableOpacity
                       onPress={() => deleteAlarm(alarm.id)}
@@ -506,7 +508,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -554,20 +556,20 @@ const styles = StyleSheet.create({
   addPresetToggleText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   addPresetCard: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 14,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
   },
   addPresetCardTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
     marginBottom: 8,
   },
   addPresetRow: {
@@ -604,7 +606,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   savePresetBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
@@ -629,8 +631,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   presetChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   presetChipTop: {
     flexDirection: 'row',
@@ -705,7 +707,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
   },
   modeTabActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   modeTabText: {
     fontSize: 12,
@@ -729,7 +731,7 @@ const styles = StyleSheet.create({
   },
   repeatBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -738,16 +740,16 @@ const styles = StyleSheet.create({
   repeatBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   submitBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 4,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 6,
@@ -810,7 +812,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   patientBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,

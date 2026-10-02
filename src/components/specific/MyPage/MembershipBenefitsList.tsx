@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import {
   PaletteIcon,
@@ -7,7 +7,7 @@ import {
   BotIcon,
   ShieldCheckIcon,
 } from '../../common/Icon';
-import { COLORS, NEUTRAL, TINT_COLORS, THEME_PALETTES } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, THEME_PALETTES, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export interface MembershipBenefitsListProps {
   isPremium: boolean;
@@ -59,6 +59,8 @@ export const MEMBERSHIP_BENEFITS = [
 export const MembershipBenefitsList: React.FC<MembershipBenefitsListProps> = ({
   isPremium,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.benefitsSection}>
       <Text style={styles.sectionTitle}>프리미엄 5대 혜택</Text>
@@ -87,7 +89,7 @@ export const MembershipBenefitsList: React.FC<MembershipBenefitsListProps> = ({
                     { backgroundColor: benefit.iconColor },
                   ]}
                 >
-                  <IconComponent size={22} color={COLORS.onPrimaryText} />
+                  <IconComponent size={22} color={theme.onPrimaryText} />
                 </View>
                 <View style={styles.cardTexts}>
                   <Text style={styles.cardTitle}>{benefit.title}</Text>
@@ -107,7 +109,7 @@ export const MembershipBenefitsList: React.FC<MembershipBenefitsListProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   benefitsSection: {
     backgroundColor: COLORS.background,
     paddingHorizontal: 20,
@@ -191,7 +193,7 @@ const styles = StyleSheet.create({
   },
   freeLimitText: {
     fontSize: 13,
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '600',
     marginTop: 6,
   },

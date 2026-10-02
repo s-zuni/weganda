@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { GroupChat, GroupChatMember } from '../types/friends';
-import { COLORS } from '../constants/theme';
+import { useAppTheme } from './useAppTheme';
+import { isOffShift } from '../utils/shiftDisplay';
 
 export interface CommonScheduleItem {
   id: string;
@@ -24,12 +25,12 @@ export function useCommonSchedules(
   currentYear: number,
   currentMonth: number
 ) {
+  const theme = useAppTheme();
   const [filter, setFilter] = useState<CommonScheduleFilterType>('all');
 
   const commonSchedules = useMemo(() => {
     if (!groupChat || !groupChat.members || groupChat.members.length === 0) return [];
     const list: CommonScheduleItem[] = [];
-    const totalMembers = groupChat.members.length;
 
     for (let d = 1; d <= 31; d++) {
       const dateObj = new Date(currentYear, currentMonth, d);
@@ -38,12 +39,15 @@ export function useCommonSchedules(
       const isSunday = dayOfWeekIdx === 0;
       const isSaturday = dayOfWeekIdx === 6;
 
-      const memberShifts = groupChat.members.map((m: GroupChatMember) => {
+      // 해당 날짜에 근무표가 등록된 멤버만 비교 (미등록 멤버를 오프로 간주하지 않음)
+      const memberShifts = groupChat.members.flatMap((m: GroupChatMember) => {
         const s = m.monthlyShifts.find((x) => x.day === d);
-        return { name: m.name, shift: s ? s.shift : 'O' };
+        return s ? [{ name: m.name, shift: s.shift as string }] : [];
       });
+      if (memberShifts.length < 2) continue;
+      const totalMembers = memberShifts.length;
 
-      const offMembers = memberShifts.filter((m) => m.shift === 'O');
+      const offMembers = memberShifts.filter((m) => isOffShift(m.shift));
       const dayMembers = memberShifts.filter((m) => m.shift === 'D');
       const eveMembers = memberShifts.filter((m) => m.shift === 'E');
       const nightMembers = memberShifts.filter((m) => m.shift === 'N');
@@ -59,8 +63,8 @@ export function useCommonSchedules(
           type: 'golden_off',
           title: '전원 OFF (골든오프) 🎉',
           badgeText: '전원 휴무',
-          badgeBg: '#FFF1F4',
-          badgeColor: COLORS.primary,
+          badgeBg: theme.primaryTint,
+          badgeColor: theme.primary,
           memberNames: offMembers.map((m) => m.name),
           desc: '전원 동시 휴무! 단체 회식 및 모임 최적일',
         });
@@ -138,7 +142,7 @@ export function useCommonSchedules(
     }
 
     return list;
-  }, [groupChat, currentYear, currentMonth]);
+  }, [groupChat, currentYear, currentMonth, theme]);
 
   const filteredCommonSchedules = useMemo(() => {
     if (filter === 'off') {

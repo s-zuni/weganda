@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ShinsalDetected } from '../../../services/manseryeokService';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export interface SajuShinsalCardProps {
   detectedShinsals: ShinsalDetected[];
@@ -11,6 +11,8 @@ export interface SajuShinsalCardProps {
 export const SajuShinsalCard: React.FC<SajuShinsalCardProps> = ({
   detectedShinsals,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.sectionContainer}>
       <View style={styles.sectionTitleRow}>
@@ -48,7 +50,7 @@ export const SajuShinsalCard: React.FC<SajuShinsalCardProps> = ({
               </View>
 
               <View style={[styles.shinsalDetailBox, { marginTop: 6 }]}>
-                <Text style={[styles.shinsalDetailLabel, { color: COLORS.primary }]}>
+                <Text style={[styles.shinsalDetailLabel, { color: theme.primary }]}>
                   처방 조언:
                 </Text>
                 <Text style={styles.shinsalDetailText}>{shinsal.clinicalAdvice}</Text>
@@ -67,7 +69,7 @@ export const SajuShinsalCard: React.FC<SajuShinsalCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   sectionContainer: {
     marginBottom: 24,
   },
@@ -112,7 +114,7 @@ const styles = StyleSheet.create({
   shinsalBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
   shinsalHanja: {
     fontSize: 12,

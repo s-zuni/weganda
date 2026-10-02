@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { REPORT_REASONS } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
 import { FlagIcon } from '../../common/Icon';
@@ -26,6 +26,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   targetType,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { reportContent } = useCommunityStore();
   const [selectedReason, setSelectedReason] = useState<string>(REPORT_REASONS[0]);
 
@@ -89,7 +91,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -153,8 +155,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   reasonRowSelected: {
-    backgroundColor: '#FFF1F4',
-    borderColor: COLORS.primaryLight,
+    backgroundColor: theme.primaryTint,
+    borderColor: theme.primaryLight,
   },
   radioCircle: {
     width: 20,
@@ -166,13 +168,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   radioCircleSelected: {
-    borderColor: COLORS.primary,
+    borderColor: theme.primary,
   },
   radioDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   reasonText: {
     fontSize: 13,
@@ -181,7 +183,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   reasonTextSelected: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   submitBtn: {

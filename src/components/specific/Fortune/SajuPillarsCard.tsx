@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ELEMENT_COLORS, PillarData, SajuAnalysisResult } from '../../../services/manseryeokService';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export interface SajuPillarsCardProps {
   pillars: SajuAnalysisResult['pillars'];
@@ -13,6 +13,8 @@ export const SajuPillarsCard: React.FC<SajuPillarsCardProps> = ({
   pillars,
   dayMaster,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const renderPillarColumn = (
     title: string,
     sub: string,
@@ -65,7 +67,7 @@ export const SajuPillarsCard: React.FC<SajuPillarsCardProps> = ({
   return (
     <View style={styles.sectionContainer}>
       <View style={styles.sectionTitleRow}>
-        <Ionicons name="grid" size={18} color={COLORS.primary} />
+        <Ionicons name="grid" size={18} color={theme.primary} />
         <Text style={styles.sectionHeaderTitle}>만세력 사주 원국표 (四柱原局)</Text>
       </View>
       <Text style={styles.sectionHeaderDesc}>
@@ -81,7 +83,7 @@ export const SajuPillarsCard: React.FC<SajuPillarsCardProps> = ({
         </View>
 
         <View style={styles.dayMasterCallout}>
-          <Ionicons name="star" size={16} color={COLORS.primary} />
+          <Ionicons name="star" size={16} color={theme.primary} />
           <Text style={styles.dayMasterCalloutText}>
             나를 상징하는 일간(본원):{' '}
             <Text style={styles.dayMasterHighlight}>{dayMaster.natureTitle}</Text>
@@ -92,7 +94,7 @@ export const SajuPillarsCard: React.FC<SajuPillarsCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   sectionContainer: {
     marginBottom: 24,
   },
@@ -137,9 +139,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   dayMasterColumn: {
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: theme.primary,
   },
   pillarHeaderTitle: {
     fontSize: 12,
@@ -174,7 +176,7 @@ const styles = StyleSheet.create({
   hanjaChar: {
     fontSize: 18,
     fontWeight: '800',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
   koreanChar: {
     fontSize: 12,
@@ -196,7 +198,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     padding: 10,
     borderRadius: 10,
     marginTop: 12,
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
   },
   dayMasterHighlight: {
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
   },
 });
 

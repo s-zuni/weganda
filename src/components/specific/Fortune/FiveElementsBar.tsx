@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { ElementRatio } from '../../../mocks/fortuneData';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 interface FiveElementsBarProps {
   elements: ElementRatio[];
 }
 
 export const FiveElementsBar: React.FC<FiveElementsBarProps> = ({ elements }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.container}>
       {/* ── 1. 오행 누적 수평 막대 그래프 ── */}
@@ -49,7 +51,7 @@ export const FiveElementsBar: React.FC<FiveElementsBarProps> = ({ elements }) =>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     borderLeftWidth: 3,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: theme.primary,
   },
   summaryTitle: {
     fontSize: 13,

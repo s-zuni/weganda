@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
-import { COLORS, TINT_COLORS } from '../../constants/theme';
+import { COLORS, TINT_COLORS, useAppTheme } from '../../constants/theme';
 import { useTabBarHeight } from '../../hooks/useTabBarHeight';
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
@@ -24,6 +24,7 @@ import { AlertCircleIcon } from '../../components/common/Icon';
 import {
   AddScheduleModal,
   DailyNoteModal,
+  DayScheduleModal,
   GreetingBanner,
   HomeMonthlyCalendar,
   ScheduleActionButtons,
@@ -33,6 +34,7 @@ import {
 } from '../../components/specific/Home';
 
 export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
+  const theme = useAppTheme();
   const userId = useUserStore((s) => s.id);
   const userName = useUserStore((s) => s.name);
   const userNickname = useUserStore((s) => s.nickname);
@@ -60,6 +62,9 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
   const [sharedShiftModalVisible, setSharedShiftModalVisible] = useState(false);
+  const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
+  const [dayModalVisible, setDayModalVisible] = useState(false);
+  const [eventsRefreshKey, setEventsRefreshKey] = useState(0);
 
   useEffect(() => {
     if (userId) {
@@ -152,7 +157,7 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
         {/* 최초 근무표 로딩 인디케이터 */}
         {isLoading && Object.keys(schedules).length === 0 && !error && (
           <View style={styles.loadingBanner}>
-            <ActivityIndicator size="small" color={COLORS.primary} />
+            <ActivityIndicator size="small" color={theme.primary} />
             <Text style={styles.loadingBannerText}>근무표를 불러오는 중이에요...</Text>
           </View>
         )}
@@ -170,6 +175,12 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
           schedules={schedules}
           customCodes={customCodes}
           onMonthChange={handleMonthChange}
+          onSelectDate={(dateKey) => {
+            setSelectedDateKey(dateKey);
+            setDayModalVisible(true);
+          }}
+          selectedDateKey={selectedDateKey}
+          eventsRefreshKey={eventsRefreshKey}
           isUnregistered={isScheduleUnregistered}
           onRegisterPress={() => setAddScheduleModalVisible(true)}
         />
@@ -197,6 +208,13 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
       <AddScheduleModal
         visible={addScheduleModalVisible}
         onClose={() => setAddScheduleModalVisible(false)}
+      />
+
+      <DayScheduleModal
+        visible={dayModalVisible}
+        dateKey={selectedDateKey}
+        onClose={() => setDayModalVisible(false)}
+        onEventsChanged={() => setEventsRefreshKey((k) => k + 1)}
       />
 
       <DailyNoteModal

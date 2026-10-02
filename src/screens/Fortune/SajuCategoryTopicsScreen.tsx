@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useFortuneStore, BirthInfo, PartnerBirthData } from '../../store/useFortuneStore';
-import { COLORS, NEUTRAL } from '../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme, type ThemeColors } from '../../constants/theme';
 import {
   SAJU_CATEGORIES,
   SAJU_TOPICS,
@@ -30,6 +30,8 @@ type RouteParams = {
 };
 
 export const SajuCategoryTopicsScreen: React.FC = () => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<RouteParams, 'SajuCategoryTopics'>>();
   const categoryId = route.params?.categoryId || 'nurse';
@@ -208,7 +210,7 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.cardBackground,
@@ -264,7 +266,7 @@ const styles = StyleSheet.create({
   masterBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
   topicsCountBadge: {
     fontSize: 12,
@@ -348,7 +350,7 @@ const styles = StyleSheet.create({
   badgePillText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
   readTimePill: {
     fontSize: 11,

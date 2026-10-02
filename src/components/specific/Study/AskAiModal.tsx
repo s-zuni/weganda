@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useStudyStore } from '../../../store/useStudyStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { FREE_LIMITS } from '../../../constants/membership';
@@ -39,6 +39,8 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
   onClose,
   initialQuestion,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const insets = useSafeAreaInsets();
   const { aiMessages, askAi } = useStudyStore();
@@ -91,7 +93,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
           </TouchableOpacity>
 
           <View style={styles.headerTitleRow}>
-            <BotIcon size={18} color={COLORS.primary} />
+            <BotIcon size={18} color={theme.primary} />
             <Text style={styles.headerTitle}>임상 간호 AI 멘토</Text>
             {!isPremium && (
               <View style={styles.limitBadge}>
@@ -135,7 +137,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
               >
                 {!isMe && (
                   <View style={styles.aiAvatar}>
-                    <BotIcon size={16} color={COLORS.primary} />
+                    <BotIcon size={16} color={theme.primary} />
                   </View>
                 )}
 
@@ -219,7 +221,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -236,7 +238,7 @@ const styles = StyleSheet.create({
   backText: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   headerTitleRow: {
     flexDirection: 'row',
@@ -292,7 +294,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
@@ -303,7 +305,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   bubbleMe: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderBottomRightRadius: 4,
   },
   bubbleAi: {
@@ -351,7 +353,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -359,7 +361,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
   },
   limitBadge: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -368,7 +370,7 @@ const styles = StyleSheet.create({
   limitBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   sourcesContainer: {
     marginTop: 12,

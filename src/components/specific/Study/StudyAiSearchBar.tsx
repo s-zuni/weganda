@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { BotIcon, SearchIcon } from '../../common/Icon';
 
 interface StudyAiSearchBarProps {
@@ -23,6 +23,8 @@ const AI_SUGGESTION_TAGS = [
 ];
 
 export const StudyAiSearchBar: React.FC<StudyAiSearchBarProps> = ({ onSearch }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [query, setQuery] = useState('');
 
   const handleSearch = (textToSearch?: string) => {
@@ -40,14 +42,14 @@ export const StudyAiSearchBar: React.FC<StudyAiSearchBarProps> = ({ onSearch }) 
       {/* 타이틀 */}
       <View style={styles.titleRow}>
         <View style={styles.titleLeft}>
-          <BotIcon size={18} color={COLORS.primary} />
+          <BotIcon size={18} color={theme.primary} />
           <Text style={styles.titleText}>간호 AI</Text>
         </View>
       </View>
 
       {/* 검색창 인풋 바 */}
       <View style={styles.searchBar}>
-        <SearchIcon size={18} color={COLORS.primary} />
+        <SearchIcon size={18} color={theme.primary} />
         <TextInput
           style={styles.input}
           placeholder="약물 계산, 응급 지침, 술기를 AI에게 검색해보세요..."
@@ -88,7 +90,7 @@ export const StudyAiSearchBar: React.FC<StudyAiSearchBarProps> = ({ onSearch }) 
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
@@ -96,8 +98,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 14,
     borderWidth: 1.5,
-    borderColor: '#FFE4EA',
-    shadowColor: COLORS.primary,
+    borderColor: theme.primaryTintBorder,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
@@ -145,7 +147,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   searchBtnActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   searchBtnText: {
     fontSize: 14,

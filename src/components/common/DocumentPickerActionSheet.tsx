@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
-import { COLORS } from '../../constants/theme';
+import { useAppTheme } from '../../constants/theme';
 import { ImageIcon, CameraIcon, DocumentTextIcon } from './Icon';
 
 export interface PickedDocument {
@@ -36,6 +36,7 @@ export const DocumentPickerActionSheet: React.FC<DocumentPickerActionSheetProps>
   title = '증빙 서류 첨부',
   useModal = true,
 }) => {
+  const theme = useAppTheme();
   // 📷 1. 카메라 직접 촬영
   const handleTakePhoto = async () => {
     onClose();
@@ -168,7 +169,7 @@ export const DocumentPickerActionSheet: React.FC<DocumentPickerActionSheetProps>
                 activeOpacity={0.7}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#FDF2F8' }]}>
-                  <CameraIcon size={22} color={COLORS.primary} />
+                  <CameraIcon size={22} color={theme.primary} />
                 </View>
                 <View style={styles.optionTextBox}>
                   <Text style={styles.optionTitle}>카메라로 직접 촬영</Text>

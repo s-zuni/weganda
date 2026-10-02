@@ -5,3 +5,4 @@ export * from './DailyNoteModal';
 export * from './SbarSummaryModal';
 export * from './Dashboard';
 
+export * from './DayScheduleModal';

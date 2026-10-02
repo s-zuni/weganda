@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
 import { BriefcaseIcon } from '../../common/Icon';
@@ -27,6 +27,8 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
   visible,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [activeTab, setActiveTab] = useState<TabType>('transfer');
   const { birthInfo, colleagueInfo, setColleagueInfo, unlockedFortunes, resetFortune } = useFortuneStore();
   const isUnlocked = unlockedFortunes.career;
@@ -60,7 +62,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
       {/* 헤더 */}
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <BriefcaseIcon size={20} color={COLORS.primary} />
+          <BriefcaseIcon size={20} color={theme.primary} />
           <View>
             <Text style={styles.headerTitle}>💼 직업운 & 이직·동료 케미</Text>
             <Text style={styles.headerSubtitle}>
@@ -91,7 +93,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
             fortuneType="career"
             title="💼 직업운 & 이직·동료 케미"
             subtitle="10년 사주 커리어 대운 흐름 그래프, 사주 오행 매칭 병원 추천, 동료 간호사 듀티 케미 정밀 분석"
-            icon={<BriefcaseIcon size={28} color={COLORS.primary} />}
+            icon={<BriefcaseIcon size={28} color={theme.primary} />}
             previewItems={[
               '📈 10년 사주 커리어 대운 흐름 및 전성기 예측',
               '🏥 사주 오행 매칭 상급종합·전문병원 추천 및 타이밍 표',
@@ -146,7 +148,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
                                     styles.chartBar,
                                     {
                                       height: `${item.score}%`,
-                                      backgroundColor: isPeak ? COLORS.primary : '#9CA3AF',
+                                      backgroundColor: isPeak ? theme.primary : '#9CA3AF',
                                     },
                                   ]}
                                 />
@@ -272,7 +274,7 @@ export const CareerFortuneDetailModal: React.FC<CareerFortuneDetailModalProps> =
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -331,7 +333,7 @@ const styles = StyleSheet.create({
   reanalyzeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   closeText: {
     fontSize: 15,
@@ -354,7 +356,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   tabBtnActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   tabText: {
     fontSize: 12,
@@ -410,7 +412,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   peakText: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '800',
   },
   chartTrack: {
@@ -447,7 +449,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   boldPink: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   tableCard: {
@@ -475,7 +477,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   matchBadge: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -483,7 +485,7 @@ const styles = StyleSheet.create({
   matchBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   advantageText: {
     fontSize: 12,
@@ -528,7 +530,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   calcBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
@@ -570,7 +572,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   chemScoreBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,

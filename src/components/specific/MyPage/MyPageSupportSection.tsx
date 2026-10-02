@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { InquiryCategory } from '../../../types/support';
 import { CommentIcon } from '../../common/Icon';
 
@@ -10,6 +10,7 @@ interface MyPageSupportSectionProps {
 
 export const MyPageSupportSection: React.FC<MyPageSupportSectionProps> = ({ onOpenSupport }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
     <View style={styles.sectionCard}>
@@ -61,7 +62,7 @@ export const MyPageSupportSection: React.FC<MyPageSupportSectionProps> = ({ onOp
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   sectionCard: {
     backgroundColor: COLORS.cardBackground,
     borderRadius: 18,
@@ -84,12 +85,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: TINT_COLORS.pinkTintSoft,
+    backgroundColor: theme.primaryTint,
     padding: 14,
     borderRadius: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: TINT_COLORS.pinkTintBorder,
+    borderColor: theme.primaryTintBorder,
   },
   supportBannerLeft: {
     flexDirection: 'row',

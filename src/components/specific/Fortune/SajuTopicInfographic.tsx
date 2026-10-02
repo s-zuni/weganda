@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GeneratedSajuReport } from '../../../utils/sajuAnalysisGenerator';
@@ -7,6 +7,7 @@ import {
   PillarData,
   ELEMENT_COLORS,
 } from '../../../services/manseryeokService';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 interface SajuTopicInfographicProps {
   report: GeneratedSajuReport;
@@ -19,6 +20,8 @@ export const SajuTopicInfographic: React.FC<SajuTopicInfographicProps> = ({
   userSaju,
   partnerSaju,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { infographicType, infographicData } = report;
 
   // ─── 4기둥 축약형 렌더링 헬퍼 ───
@@ -93,7 +96,7 @@ export const SajuTopicInfographic: React.FC<SajuTopicInfographicProps> = ({
             {/* 본인 4기둥 */}
             <View style={styles.pillarGroup}>
               <View style={styles.pillarLabelRow}>
-                <Ionicons name="person" size={14} color="#FF507C" />
+                <Ionicons name="person" size={14} color={theme.primary} />
                 <Text style={styles.pillarGroupLabel}>본인 ({userSaju.dayMaster.natureTitle})</Text>
               </View>
               <View style={styles.pillarsRow}>
@@ -163,7 +166,7 @@ export const SajuTopicInfographic: React.FC<SajuTopicInfographicProps> = ({
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <Ionicons name="pie-chart" size={20} color="#FF507C" />
+          <Ionicons name="pie-chart" size={20} color={theme.primary} />
           <Text style={styles.cardTitle}>병동 부서별 적합도 랭킹</Text>
         </View>
         <Text style={styles.cardSubtitle}>
@@ -190,7 +193,7 @@ export const SajuTopicInfographic: React.FC<SajuTopicInfographicProps> = ({
                     styles.wardBarFill,
                     {
                       width: `${item.score}%`,
-                      backgroundColor: idx === 0 ? '#FF507C' : idx === 1 ? '#3B82F6' : '#9CA3AF',
+                      backgroundColor: idx === 0 ? theme.primary : idx === 1 ? '#3B82F6' : '#9CA3AF',
                     },
                   ]}
                 />
@@ -337,7 +340,7 @@ export const SajuTopicInfographic: React.FC<SajuTopicInfographicProps> = ({
         </View>
 
         <View style={styles.fengshuiTipBox}>
-          <Ionicons name="color-palette" size={18} color="#FF507C" />
+          <Ionicons name="color-palette" size={18} color={theme.primary} />
           <Text style={styles.fengshuiTipText}>
             행운의 보완 컬러: <Text style={{ fontWeight: '700' }}>{luckyColor || '코랄 핑크 & 베이지'}</Text>
           </Text>
@@ -435,7 +438,7 @@ export const SajuTopicInfographic: React.FC<SajuTopicInfographicProps> = ({
   return null;
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
@@ -550,8 +553,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   compactPillarActive: {
-    borderColor: '#FF507C',
-    backgroundColor: '#FFF1F4',
+    borderColor: theme.primary,
+    backgroundColor: theme.primaryTint,
   },
   compactPillarTitle: {
     fontSize: 10,
@@ -758,11 +761,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#FFE4E6',
+    borderColor: theme.primaryTintBorder,
   },
   fengshuiTipText: {
     fontSize: 12,

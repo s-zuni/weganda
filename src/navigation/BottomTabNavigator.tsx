@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { COLORS, useAppTheme, ThemeColors } from '../constants/theme';
+import { useAppTheme, ThemeColors } from '../constants/theme';
 import { useHeaderModalStore } from '../store/useHeaderModalStore';
 import { useTabBarMetrics, CENTER_FAB_LIFT } from '../hooks/useTabBarHeight';
 import { NotificationModal } from '../components/specific/Notification/NotificationModal';
@@ -33,7 +33,10 @@ export type BottomTabParamList = {
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 // ─── 중앙 FAB 버튼 (Floating Action Button) ────────────────
-const CenterFAB = ({ onPress, theme }: { onPress: () => void; theme: ThemeColors }) => (
+const CenterFAB = ({ onPress, theme }: { onPress: () => void; theme: ThemeColors }) => {
+  const appTheme = useAppTheme();
+  const styles = useMemo(() => createStyles(appTheme), [appTheme]);
+  return ((
   <TouchableOpacity
     style={styles.fabContainer}
     onPress={onPress}
@@ -45,10 +48,12 @@ const CenterFAB = ({ onPress, theme }: { onPress: () => void; theme: ThemeColors
       <StethoscopeIcon size={28} color={theme.onPrimaryText} />
     </View>
   </TouchableOpacity>
-);
+));
+};
 
 export const BottomTabNavigator: React.FC = () => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { barHeight, safeBottom, fabClearance } = useTabBarMetrics();
   const {
     notificationModalVisible,
@@ -180,7 +185,7 @@ export const BottomTabNavigator: React.FC = () => {
 );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   rootContainer: {
     flex: 1,
   },
@@ -209,12 +214,12 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 29,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderWidth: 3.5,
     borderColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,

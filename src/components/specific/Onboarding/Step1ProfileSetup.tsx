@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { Input, Button } from '../../common';
 
 export type OnboardingRole = 'nurse' | 'student';
@@ -34,6 +34,8 @@ export const Step1ProfileSetup: React.FC<Step1ProfileSetupProps> = ({
   initialData,
   onNext,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [role, setRole] = useState<OnboardingRole>(initialData?.role || 'nurse');
   const [nickname, setNickname] = useState(initialData?.nickname || '');
   const [hospitalName, setHospitalName] = useState(initialData?.hospitalName || '');
@@ -261,7 +263,7 @@ export const Step1ProfileSetup: React.FC<Step1ProfileSetupProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -276,7 +278,7 @@ const styles = StyleSheet.create({
   },
   stepBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FFF0F3',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -285,7 +287,7 @@ const styles = StyleSheet.create({
   stepBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   mainTitle: {
     fontSize: 26,
@@ -316,8 +318,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   roleCardActiveNurse: {
-    borderColor: COLORS.primary,
-    backgroundColor: '#FFF5F7',
+    borderColor: theme.primary,
+    backgroundColor: theme.primaryTint,
   },
   roleCardActiveStudent: {
     borderColor: '#6D5D50',
@@ -333,7 +335,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
   },
   checkChipNurse: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 10,
@@ -362,7 +364,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   roleTitleActiveNurse: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   roleTitleActiveStudent: {
     color: '#5A4A3E',
@@ -419,7 +421,7 @@ const styles = StyleSheet.create({
   nextButton: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
 });
 

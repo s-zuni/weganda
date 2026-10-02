@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LockIcon } from './Icon';
-import { COLORS } from '../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../constants/theme';
 
 export interface PremiumLockOverlayProps {
   message?: string;
@@ -14,6 +14,8 @@ export const PremiumLockOverlay: React.FC<PremiumLockOverlayProps> = ({
   onUpgradePress,
   compact = false,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.overlay}>
       <View style={styles.content}>
@@ -39,7 +41,7 @@ export const PremiumLockOverlay: React.FC<PremiumLockOverlayProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     position: 'absolute',
     top: 0,
@@ -82,7 +84,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: COLORS.primary, // #FF507C
+    backgroundColor: theme.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 9999, // rounded-full (pill)

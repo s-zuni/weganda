@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { isOffShift } from '../../../utils/shiftDisplay';
 import {
   View,
   Text,
@@ -10,7 +11,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import {
   PlusIcon,
   UsersIcon,
@@ -33,12 +34,17 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
   onOpenGroup,
 }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { friends, createGroupChat } = useFriendsStore();
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
-  const handleCreateGroup = (name: string, category: string, chosenFriends: typeof friends) => {
-    createGroupChat(name, category, chosenFriends);
-    Alert.alert('개설 완료', `'${name}' 모임 방이 성공적으로 생성되었습니다!`);
+  const handleCreateGroup = async (name: string, category: string, chosenFriends: typeof friends) => {
+    const ok = await createGroupChat(name, category, chosenFriends);
+    if (ok) {
+      Alert.alert('개설 완료', `'${name}' 모임 방이 성공적으로 생성되었습니다!`);
+    } else {
+      Alert.alert('개설 실패', '모임 방을 만들지 못했어요. 친구로 등록된 동료만 초대할 수 있고, 네트워크 상태도 확인해주세요.');
+    }
   };
 
   const handleAiRecommendMeeting = () => {
@@ -65,7 +71,7 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
       const dayOfWeek = dayNames[dateObj.getDay()];
       const offMembers = members.filter((m) => {
         const s = m.monthlyShifts?.find((x) => x.day === d);
-        return s?.shift === 'O';
+        return !!s && isOffShift(s.shift as string);
       });
       daysOffCounts.push({
         day: d,
@@ -144,7 +150,7 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
               <View style={styles.groupTopRow}>
                 <View style={styles.groupLeft}>
                   <View style={styles.groupIconCircle}>
-                    <UsersIcon size={20} color={COLORS.primary} />
+                    <UsersIcon size={20} color={theme.primary} />
                   </View>
                   <View>
                     <View style={styles.groupNameRow}>
@@ -206,22 +212,22 @@ export const GroupsTab: React.FC<GroupsTabProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   groupContainer: {
     marginTop: 4,
   },
   groupNoticeCard: {
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     borderRadius: 16,
     padding: 14,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: theme.primary,
     marginBottom: 16,
   },
   groupNoticeTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
     marginBottom: 4,
   },
   groupNoticeSub: {
@@ -258,7 +264,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -289,7 +295,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   unreadBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 10,
@@ -320,7 +326,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
@@ -328,7 +334,7 @@ const styles = StyleSheet.create({
   matrixBtnText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
     lineHeight: 18,
   },
   emptyCardBox: {
@@ -365,11 +371,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 20,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -381,7 +387,7 @@ const styles = StyleSheet.create({
     color: COLORS.background,
   },
   aiRecommendBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 16,
     paddingVertical: 15,
     paddingHorizontal: 20,

@@ -7,7 +7,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS, useAppTheme } from '../../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../../constants/theme';
 import { useSalaryStore } from '../../../../store/useSalaryStore';
 import { useShiftScheduleStore } from '../../../../store/useShiftScheduleStore';
 import { ChartBarIcon } from '../../../common/Icon';
@@ -27,6 +27,7 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
   initialTab = 'forecast',
 }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [activeTab, setActiveTab] = useState<'forecast' | 'record' | 'settings'>(initialTab);
 
   const {
@@ -330,7 +331,7 @@ export const SalaryCalculatorModal: React.FC<SalaryCalculatorModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -380,7 +381,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabItemActive: {
-    borderBottomColor: '#FF507C',
+    borderBottomColor: theme.primary,
   },
   tabText: {
     fontSize: 13,

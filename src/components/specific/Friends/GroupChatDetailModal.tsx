@@ -9,9 +9,10 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, TINT_COLORS, useAppTheme } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { GroupChat } from '../../../mocks/friendsData';
 import { CalendarIcon, SendIcon, UsersIcon } from '../../common/Icon';
@@ -36,6 +37,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
   onClose,
 }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const insets = useSafeAreaInsets();
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const [activeTab, setActiveTab] = useState<TabMode>('matrix');
@@ -47,6 +49,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
     sendGroupChatMessage,
     subscribeRealtimeGroupChat,
     unsubscribeRealtimeGroupChat,
+    leaveGroup,
   } = useFriendsStore();
 
   const currentYear = new Date().getFullYear();
@@ -96,15 +99,40 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
     setActiveTab('chat');
     if (!groupChat) return;
     const shareText = `📢 [공통 스케줄] ${currentMonth + 1}월 ${item.day}일(${item.dayOfWeek}) : ${item.title} (${item.memberNames.join(', ')})`;
-    sendGroupChatMessage(groupChat.id, shareText, '나 (간호사)', 'me', true);
+    notifyIfFailed(sendGroupChatMessage(groupChat.id, shareText, '나 (간호사)', 'me', true));
+  };
+
+  const notifyIfFailed = async (sending: Promise<boolean>) => {
+    if (!(await sending)) {
+      Alert.alert('전송 실패', '메시지를 보내지 못했어요. 네트워크 상태를 확인하고 다시 시도해주세요.');
+    }
+  };
+
+  const handleLeaveGroup = () => {
+    if (!groupChat) return;
+    Alert.alert('모임 나가기', `'${groupChat.name}' 모임에서 나갈까요? 대화와 스케줄 공유가 중단돼요.`, [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '나가기',
+        style: 'destructive',
+        onPress: async () => {
+          if (await leaveGroup(groupChat.id)) {
+            onClose();
+          } else {
+            Alert.alert('실패', '모임에서 나가지 못했어요. 잠시 후 다시 시도해주세요.');
+          }
+        },
+      },
+    ]);
   };
 
   if (!groupChat) return null;
 
   const handleSendMessage = () => {
     if (!messageText.trim()) return;
-    sendGroupChatMessage(groupChat.id, messageText.trim(), '나 (간호사)', 'me', true);
+    const text = messageText.trim();
     setMessageText('');
+    notifyIfFailed(sendGroupChatMessage(groupChat.id, text, '나 (간호사)', 'me', true));
   };
 
   // 31일 중 가장 오프(Off)가 많이 겹치는 날짜 찾기
@@ -128,7 +156,9 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
             <Text style={styles.headerSub}>{groupChat.category} • 구성원 {groupChat.members.length}명</Text>
           </View>
 
-          <View style={{ width: 40 }} />
+          <TouchableOpacity onPress={handleLeaveGroup} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={[styles.backBtnText, { color: COLORS.textMuted }]}>나가기</Text>
+          </TouchableOpacity>
         </View>
 
         {/* 탭 네비게이션 */}
@@ -243,7 +273,11 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
                         </View>
                       </View>
 
-                      {member.monthlyShifts.map((s) => {
+                      {days.map((d) => {
+                        const s = member.monthlyShifts.find((x) => x.day === d);
+                        if (!s) {
+                          return <View key={`shift_${member.id}_${d}`} style={styles.shiftCell} />;
+                        }
                         const shiftColor = SHIFT_TYPES[s.shift]?.color || COLORS.textMuted;
                         return (
                           <View
@@ -374,7 +408,7 @@ export const GroupChatDetailModal: React.FC<GroupChatDetailModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.cardBackground,
@@ -392,7 +426,7 @@ const styles = StyleSheet.create({
   backBtnText: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   headerCenter: {
     alignItems: 'center',
@@ -429,8 +463,8 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   tabBtnActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   tabText: {
     fontSize: 12,
@@ -450,17 +484,17 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   goldenOffCard: {
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     borderRadius: 16,
     padding: 14,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: theme.primary,
     marginBottom: 20,
   },
   goldenOffTitle: {
     fontSize: 13,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
     marginBottom: 4,
   },
   goldenOffDesc: {
@@ -469,7 +503,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   boldPink: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '800',
   },
   matrixHeaderRow: {
@@ -577,7 +611,7 @@ const styles = StyleSheet.create({
     borderLeftColor: COLORS.divider,
   },
   offCellHighlight: {
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
   },
   shiftBadge: {
     width: 36,
@@ -676,7 +710,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   bubbleMe: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderBottomRightRadius: 4,
   },
   bubbleOther: {
@@ -724,7 +758,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

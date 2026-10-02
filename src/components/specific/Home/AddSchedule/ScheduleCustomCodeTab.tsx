@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import { COLORS } from '../../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../../constants/theme';
 import { CustomShiftCode } from '../../../../types/shift';
 
 interface ScheduleCustomCodeTabProps {
@@ -38,6 +38,8 @@ export const ScheduleCustomCodeTab: React.FC<ScheduleCustomCodeTabProps> = ({
   onDeleteCustomCode,
   onSaveCustomCode,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const colorPalette = [
     '#4F98CA',
     '#E2703A',
@@ -159,7 +161,7 @@ export const ScheduleCustomCodeTab: React.FC<ScheduleCustomCodeTabProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   tabDesc: {
     fontSize: 13,
     color: COLORS.textMuted,
@@ -274,7 +276,7 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.15 }],
   },
   saveCodeBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
@@ -321,8 +323,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   checkmark: {
     color: '#FFFFFF',

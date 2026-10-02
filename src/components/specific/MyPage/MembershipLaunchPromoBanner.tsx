@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export interface MembershipLaunchPromoBannerProps {
   isFreeTrialActive: boolean;
@@ -11,6 +11,8 @@ export const MembershipLaunchPromoBanner: React.FC<MembershipLaunchPromoBannerPr
   isFreeTrialActive,
   trialDays = 30,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   if (!isFreeTrialActive) return null;
 
   return (
@@ -28,7 +30,7 @@ export const MembershipLaunchPromoBanner: React.FC<MembershipLaunchPromoBannerPr
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   launchEventBanner: {
     alignItems: 'center',
     paddingHorizontal: 24,
@@ -37,14 +39,14 @@ const styles = StyleSheet.create({
   },
   eventBannerBadge: {
     alignSelf: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
     marginBottom: 10,
   },
   eventBannerBadgeText: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 11,
     fontWeight: '800',
   },

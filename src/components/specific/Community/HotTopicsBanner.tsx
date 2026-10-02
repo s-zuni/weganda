@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { FireIcon, HeartIcon, CommentIcon } from '../../common/Icon';
 import { HotTopic, PostItem } from '../../../types/community';
 
@@ -21,11 +21,13 @@ export const HotTopicsBanner: React.FC<HotTopicsBannerProps> = ({
   posts,
   onOpenDetail,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.hotSection}>
       <View style={styles.hotHeaderRow}>
         <View style={styles.hotTitleGroup}>
-          <FireIcon size={18} color={COLORS.primary} />
+          <FireIcon size={18} color={theme.primary} />
           <Text style={styles.hotSectionTitle}>실시간 간호 HOT 토픽</Text>
         </View>
         <Text style={styles.hotSectionSub}>오늘 추천수 급상승</Text>
@@ -66,7 +68,7 @@ export const HotTopicsBanner: React.FC<HotTopicsBannerProps> = ({
 
                 <View style={styles.hotStatsRow}>
                   <View style={styles.hotStatItem}>
-                    <HeartIcon size={12} color={COLORS.primary} />
+                    <HeartIcon size={12} color={theme.primary} />
                     <Text style={styles.hotStatText}>{hot.likes}</Text>
                   </View>
                   <View style={styles.hotStatItem}>
@@ -83,7 +85,7 @@ export const HotTopicsBanner: React.FC<HotTopicsBannerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   hotSection: {
     marginBottom: 20,
   },
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
   },
   hotSectionSub: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '600',
   },
   hotScroll: {
@@ -135,7 +137,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   rankBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 6,
     paddingHorizontal: 7,
     paddingVertical: 3,

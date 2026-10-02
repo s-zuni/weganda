@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 interface StudyAiBannerProps {
   onPress: () => void;
 }
 
 export const StudyAiBanner: React.FC<StudyAiBannerProps> = ({ onPress }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <TouchableOpacity
       style={styles.askAiBanner}
@@ -23,15 +25,15 @@ export const StudyAiBanner: React.FC<StudyAiBannerProps> = ({ onPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   askAiBanner: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 16,
     padding: 14,
     marginTop: 6,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
   },
   askAiLeft: {
     flexDirection: 'row',
@@ -44,7 +46,7 @@ const styles = StyleSheet.create({
   },
   askAiSub: {
     fontSize: 12,
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '600',
     marginTop: 2,
   },

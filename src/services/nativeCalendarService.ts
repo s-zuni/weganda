@@ -1,7 +1,8 @@
 import * as Calendar from 'expo-calendar';
 import { Platform } from 'react-native';
 import { SHIFT_TYPES, ShiftCode } from '../constants/shiftTypes';
-import { COLORS } from '../constants/theme';
+import { getAppTheme } from '../constants/theme';
+import { useUserStore } from '../store/useUserStore';
 
 const WEGANDA_CALENDAR_TITLE = '우간다 근무표 (Weganda)';
 
@@ -9,6 +10,24 @@ export interface NativeEventSummary {
   hasEvents: boolean;
   summaryText: string;
   eventsCount: number;
+}
+
+export interface PersonalCalendarEvent {
+  id: string;
+  calendarId: string;
+  title: string;
+  startDate: Date;
+  endDate: Date;
+  allDay: boolean;
+  /** 읽기 전용 캘린더(공휴일·구독 등)의 일정은 수정/삭제 불가 */
+  editable: boolean;
+}
+
+export interface PersonalEventInput {
+  title: string;
+  startDate: Date;
+  endDate: Date;
+  allDay: boolean;
 }
 
 export const nativeCalendarService = {
@@ -50,7 +69,7 @@ export const nativeCalendarService = {
 
       const newCalendarId = await Calendar.createCalendarAsync({
         title: WEGANDA_CALENDAR_TITLE,
-        color: COLORS.primary,
+        color: getAppTheme(useUserStore.getState().appThemeColor).primary,
         entityType: Calendar.EntityTypes.EVENT,
         sourceId: defaultCalendarSource?.id,
         source: defaultCalendarSource,
@@ -286,6 +305,108 @@ export const nativeCalendarService = {
     } catch (e) {
       console.warn('Error fetching monthly native calendar event counts:', e);
       return counts;
+    }
+  },
+
+  // 6. 특정 날짜의 개인 일정 목록 조회 (우간다 자체 캘린더 제외)
+  async getPersonalEventsForDate(dateKey: string): Promise<PersonalCalendarEvent[]> {
+    if (Platform.OS === 'web') return [];
+    try {
+      const hasPermission = await this.requestPermissions();
+      if (!hasPermission) return [];
+
+      const [y, m, d] = dateKey.split('-').map(Number);
+      const dayStart = new Date(y, m - 1, d, 0, 0, 0);
+      const dayEnd = new Date(y, m - 1, d, 23, 59, 59);
+
+      const allCalendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      const personal = allCalendars.filter((c) => c.title !== WEGANDA_CALENDAR_TITLE);
+      if (personal.length === 0) return [];
+      const modifiable = new Set(personal.filter((c) => c.allowsModifications).map((c) => c.id));
+
+      const events = await Calendar.getEventsAsync(personal.map((c) => c.id), dayStart, dayEnd);
+      return events
+        .map((ev) => ({
+          id: ev.id,
+          calendarId: ev.calendarId,
+          title: ev.title || '(제목 없음)',
+          startDate: new Date(ev.startDate),
+          endDate: new Date(ev.endDate),
+          allDay: Boolean(ev.allDay),
+          editable: modifiable.has(ev.calendarId),
+        }))
+        .sort((a, b) => Number(b.allDay) - Number(a.allDay) || a.startDate.getTime() - b.startDate.getTime());
+    } catch (e) {
+      console.warn('Error fetching personal events for date:', e);
+      return [];
+    }
+  },
+
+  // 7. 쓰기 가능한 개인 캘린더 ID 조회
+  async getWritablePersonalCalendarId(): Promise<string | null> {
+    try {
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      const writable = calendars.filter(
+        (c) => c.allowsModifications && c.title !== WEGANDA_CALENDAR_TITLE
+      );
+      if (Platform.OS === 'ios') {
+        try {
+          const def = await Calendar.getDefaultCalendarAsync();
+          if (def?.allowsModifications) return def.id;
+        } catch {
+          // 기본 캘린더 조회 실패 시 아래 목록에서 선택
+        }
+      }
+      const primary = writable.find((c) => (c as { isPrimary?: boolean }).isPrimary) || writable[0];
+      return primary ? primary.id : null;
+    } catch (e) {
+      console.warn('Error finding writable calendar:', e);
+      return null;
+    }
+  },
+
+  // 8. 개인 일정 추가
+  async createPersonalEvent(input: PersonalEventInput): Promise<boolean> {
+    try {
+      const calendarId = await this.getWritablePersonalCalendarId();
+      if (!calendarId) return false;
+      await Calendar.createEventAsync(calendarId, {
+        title: input.title,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        allDay: input.allDay,
+      });
+      return true;
+    } catch (e) {
+      console.warn('Error creating personal event:', e);
+      return false;
+    }
+  },
+
+  // 9. 개인 일정 수정
+  async updatePersonalEvent(eventId: string, input: PersonalEventInput): Promise<boolean> {
+    try {
+      await Calendar.updateEventAsync(eventId, {
+        title: input.title,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        allDay: input.allDay,
+      });
+      return true;
+    } catch (e) {
+      console.warn('Error updating personal event:', e);
+      return false;
+    }
+  },
+
+  // 10. 개인 일정 삭제
+  async deletePersonalEvent(eventId: string): Promise<boolean> {
+    try {
+      await Calendar.deleteEventAsync(eventId);
+      return true;
+    } catch (e) {
+      console.warn('Error deleting personal event:', e);
+      return false;
     }
   },
 };

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SAJU_TIME_SLOTS } from '../../../constants/saju';
+import { useAppTheme } from '../../../constants/theme';
 
 export interface SajuBirthPickerProps {
   title?: string;
@@ -45,10 +46,12 @@ export const SajuBirthPicker: React.FC<SajuBirthPickerProps> = ({
   onTimeChange,
   onCalendarTypeChange,
   onGenderChange,
-  accentColor = '#FF507C',
+  accentColor: accentColorProp,
   titlePrefix = '',
   isRegistered = false,
 }) => {
+  const theme = useAppTheme();
+  const accentColor = accentColorProp ?? theme.primary;
   const triggerDateChange = onChangeDate || onDateChange || (() => {});
   const triggerTimeChange = onChangeTime || onTimeChange || (() => {});
   const triggerCalendarChange = onChangeCalendarType || onCalendarTypeChange || (() => {});

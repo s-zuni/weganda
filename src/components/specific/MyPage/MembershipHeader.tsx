@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CrownIcon } from '../../common/Icon';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export interface MembershipHeaderProps {
   onClose: () => void;
 }
 
 export const MembershipHeader: React.FC<MembershipHeaderProps> = ({ onClose }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const insets = useSafeAreaInsets();
 
   return (
@@ -24,7 +26,7 @@ export const MembershipHeader: React.FC<MembershipHeaderProps> = ({ onClose }) =
       </TouchableOpacity>
 
       <View style={styles.crownCircle}>
-        <CrownIcon size={36} color={COLORS.onPrimaryText} />
+        <CrownIcon size={36} color={theme.onPrimaryText} />
       </View>
       <Text style={styles.heroTitle}>weganda+</Text>
       <Text style={styles.heroSubtitle}>당신의 간호력을</Text>
@@ -33,7 +35,7 @@ export const MembershipHeader: React.FC<MembershipHeaderProps> = ({ onClose }) =
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   heroSection: {
     backgroundColor: COLORS.background,
     alignItems: 'center',
@@ -48,13 +50,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 22,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeButtonText: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -62,7 +64,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -70,7 +72,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
     marginBottom: 12,
   },
   heroSubtitle: {

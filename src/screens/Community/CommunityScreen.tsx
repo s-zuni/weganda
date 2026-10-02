@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/common/AppHeader';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme, type ThemeColors } from '../../constants/theme';
 import { useTabBarHeight } from '../../hooks/useTabBarHeight';
 import { PencilIcon, SearchIcon, AlertCircleIcon } from '../../components/common/Icon';
 import { useCommunityStore } from '../../store/useCommunityStore';
@@ -30,6 +30,8 @@ import {
 } from '../../components/specific/Community';
 
 export const CommunityScreen: React.FC = () => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const {
     id: userId,
     role,
@@ -234,7 +236,7 @@ export const CommunityScreen: React.FC = () => {
             onPress={handlePressWrite}
             activeOpacity={0.85}
           >
-            <PencilIcon size={14} color={COLORS.onPrimaryText} />
+            <PencilIcon size={14} color={theme.onPrimaryText} />
             <Text style={styles.writeButtonText}>글쓰기</Text>
           </TouchableOpacity>
         </View>
@@ -243,7 +245,7 @@ export const CommunityScreen: React.FC = () => {
         <View style={styles.postList}>
           {isLoading && posts.length === 0 ? (
             <View style={{ paddingVertical: 48, alignItems: 'center' }}>
-              <ActivityIndicator color={COLORS.primary} size="large" />
+              <ActivityIndicator color={theme.primary} size="large" />
               <Text style={{ marginTop: 12, color: COLORS.textMuted, fontSize: 14 }}>게시글을 불러오는 중입니다...</Text>
             </View>
           ) : filteredPosts.length === 0 ? (
@@ -271,7 +273,7 @@ export const CommunityScreen: React.FC = () => {
                   onPress={handlePressWrite}
                   activeOpacity={0.85}
                 >
-                  <PencilIcon size={14} color={COLORS.onPrimaryText} />
+                  <PencilIcon size={14} color={theme.onPrimaryText} />
                   <Text style={styles.emptyFeedBtnText}>첫 글 작성하기</Text>
                 </TouchableOpacity>
               )}
@@ -313,7 +315,7 @@ export const CommunityScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -360,12 +362,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 5,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 16,
     paddingVertical: 9,
     minHeight: 44,
     borderRadius: 22,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -390,7 +392,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   writeButtonText: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -432,11 +434,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 20,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -445,15 +447,15 @@ const styles = StyleSheet.create({
   emptyFeedBtnText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
   verificationBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     borderWidth: 1,
-    borderColor: TINT_COLORS.pinkTintBorder,
+    borderColor: theme.primaryTintBorder,
     borderRadius: 16,
     padding: 14,
     marginBottom: 16,
@@ -473,7 +475,7 @@ const styles = StyleSheet.create({
   verificationBannerTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
     marginBottom: 2,
   },
   verificationBannerSub: {
@@ -482,7 +484,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   verificationBannerBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
@@ -491,7 +493,7 @@ const styles = StyleSheet.create({
   verificationBannerBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
 });
 

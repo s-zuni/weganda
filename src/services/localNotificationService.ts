@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { COLORS } from '../constants/theme';
+import { getAppTheme } from '../constants/theme';
+import { useUserStore } from '../store/useUserStore';
 import { AlarmRepeatMode } from '../types/alarm';
 
 /** repeat 설정으로부터 알림을 울릴 누적 경과 분(offset) 목록을 계산 (단일 원천) */
@@ -51,7 +52,7 @@ export const localNotificationService = {
           name: '우간다 알림',
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: COLORS.primary,
+          lightColor: getAppTheme(useUserStore.getState().appThemeColor).primary,
         });
       }
 

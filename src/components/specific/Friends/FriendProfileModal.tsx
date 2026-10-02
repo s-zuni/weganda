@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { SHIFT_TYPES, ShiftCode } from '../../../constants/shiftTypes';
 import { FriendDetail } from '../../../mocks/friendsData';
 import { useFriendsStore } from '../../../store/useFriendsStore';
@@ -37,6 +37,8 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
   onOpenChat,
   onProposeSwap,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { toggleFavorite } = useFriendsStore();
   const { schedules, customCodes } = useShiftScheduleStore();
   const currentYear = new Date().getFullYear();
@@ -146,7 +148,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
             {/* ── 2열 스케줄 대조표 (내 듀티 vs 친구 듀티) ── */}
             <View style={styles.scheduleHeaderRow}>
               <View style={styles.scheduleTitleGroup}>
-                <CalendarIcon size={18} color={COLORS.primary} />
+                <CalendarIcon size={18} color={theme.primary} />
                 <Text style={styles.sectionHeading}>{currentMonth + 1}월 듀티 스케줄 대조</Text>
               </View>
               <Text style={styles.scrollHint}>좌우 스크롤</Text>
@@ -199,7 +201,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
                   {/* 내 듀티 행 */}
                   <View style={styles.calendarRow}>
                     <View style={styles.rowLabelCell}>
-                      <Text style={[styles.rowLabelText, { color: COLORS.primary }]}>나</Text>
+                      <Text style={[styles.rowLabelText, { color: theme.primary }]}>나</Text>
                     </View>
                     {friend.monthlyShifts.map((s) => {
                       const yyyy = currentYear;
@@ -259,7 +261,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
                 onPress={() => onProposeSwap(friend)}
                 activeOpacity={0.85}
               >
-                <RepeatIcon size={18} color={COLORS.primary} />
+                <RepeatIcon size={18} color={theme.primary} />
                 <Text style={styles.swapBtnText}>듀티 맞교환 제안</Text>
               </TouchableOpacity>
 
@@ -277,7 +279,7 @@ export const FriendProfileModal: React.FC<FriendProfileModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -450,11 +452,11 @@ const styles = StyleSheet.create({
     color: '#B45309',
   },
   offSyncBanner: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
     marginBottom: 20,
   },
   offSyncLeft: {
@@ -466,7 +468,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   boldPink: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '800',
   },
   offSyncSub: {
@@ -554,7 +556,7 @@ const styles = StyleSheet.create({
     borderLeftColor: '#F3F4F6',
   },
   bothOffCell: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
   },
   shiftDot: {
     width: 36,
@@ -595,7 +597,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 2,
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: theme.primary,
   },
   legendText: {
     fontSize: 10,
@@ -613,7 +615,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: COLORS.primary,
+    borderColor: theme.primary,
     borderRadius: 14,
     paddingVertical: 14,
     gap: 6,
@@ -621,18 +623,18 @@ const styles = StyleSheet.create({
   swapBtnText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   messageBtn: {
     flex: 1.2,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 14,
     paddingVertical: 14,
     gap: 6,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 6,

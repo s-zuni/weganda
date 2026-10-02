@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SajuAnalysisResult } from '../../../services/manseryeokService';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export interface SajuDaewoonTimelineProps {
   daewoon: SajuAnalysisResult['daewoon'];
@@ -11,6 +11,8 @@ export interface SajuDaewoonTimelineProps {
 export const SajuDaewoonTimeline: React.FC<SajuDaewoonTimelineProps> = ({
   daewoon,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.sectionContainer}>
       <View style={styles.sectionTitleRow}>
@@ -62,7 +64,7 @@ export const SajuDaewoonTimeline: React.FC<SajuDaewoonTimelineProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   sectionContainer: {
     marginBottom: 24,
   },
@@ -110,7 +112,7 @@ const styles = StyleSheet.create({
   currentIndicatorText: {
     fontSize: 8,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
   daewoonAge: {
     fontSize: 11,

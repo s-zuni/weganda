@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { PREMIUM_COLORS } from '../../../constants/premiumTheme';
 
 export interface SajuHeaderBarProps {
@@ -31,6 +31,8 @@ export const SajuHeaderBar: React.FC<SajuHeaderBarProps> = ({
   onShare,
   onOpenGuideModal,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <>
       {/* 상단 네비게이션 헤더 */}
@@ -98,7 +100,7 @@ export const SajuHeaderBar: React.FC<SajuHeaderBarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   navHeader: {
     height: 52,
     flexDirection: 'row',
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     marginBottom: 8,
   },
   summaryQuote: {
@@ -196,7 +198,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 8,
     fontSize: 11,
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontWeight: '500',
   },
 });

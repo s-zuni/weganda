@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { FiveElementsBar } from './FiveElementsBar';
 import { FortuneGauge } from './FortuneGauge';
 import { FortuneUnlockView } from './FortuneUnlockView';
@@ -32,6 +32,8 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
   onClose,
   onOpenBirthInfo,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [activeTab, setActiveTab] = useState<TabType>('elements');
   const { birthInfo, unlockedFortunes, resetFortune } = useFortuneStore();
   const isUnlocked = unlockedFortunes.saju;
@@ -41,7 +43,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
       {/* 헤더 */}
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <StethoscopeIcon size={20} color={COLORS.primary} />
+          <StethoscopeIcon size={20} color={theme.primary} />
           <View>
             <Text style={styles.headerTitle}>🔮 간호 사주 & 직장 궁합</Text>
             <Text style={styles.headerSubtitle}>
@@ -72,7 +74,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
             fortuneType="saju"
             title="🔮 간호 사주 & 직장 궁합"
             subtitle="내 사주 오행과 직장의 풍수지리적 궁합, 최적 병동 랭킹 및 오늘의 업무 난이도 정밀 분석"
-            icon={<StethoscopeIcon size={28} color={COLORS.primary} />}
+            icon={<StethoscopeIcon size={28} color={theme.primary} />}
             previewItems={[
               '🌳 내 사주 오행(목/화/토/금/수) 밸런스 및 부족 오행 분석',
               '🏥 현재 병원 및 병동과의 풍수지리적 상생 궁합 지수',
@@ -160,7 +162,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
                   <View style={styles.careerBarRow}>
                     <Text style={styles.careerLabel}>임상 간호사 (병원)</Text>
                     <View style={styles.careerTrack}>
-                      <View style={[styles.careerFill, { width: '98%', backgroundColor: COLORS.primary }]} />
+                      <View style={[styles.careerFill, { width: '98%', backgroundColor: theme.primary }]} />
                     </View>
                     <Text style={styles.careerScore}>98%</Text>
                   </View>
@@ -230,7 +232,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
                             {
                               backgroundColor:
                                 item.status === '최고'
-                                  ? COLORS.primary
+                                  ? theme.primary
                                   : item.status === '좋음'
                                   ? '#10B981'
                                   : '#EF4444',
@@ -260,7 +262,7 @@ export const NurseSajuDetailModal: React.FC<NurseSajuDetailModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -319,7 +321,7 @@ const styles = StyleSheet.create({
   reanalyzeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   closeText: {
     fontSize: 15,
@@ -342,7 +344,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   tabBtnActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   tabText: {
     fontSize: 12,
@@ -384,7 +386,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   boldPink: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   careerGrid: {
@@ -441,7 +443,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
@@ -466,7 +468,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   wardBadge: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
@@ -474,7 +476,7 @@ const styles = StyleSheet.create({
   wardBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   wardReason: {
     fontSize: 12,
@@ -519,16 +521,16 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   adviceBanner: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 14,
     padding: 14,
     borderLeftWidth: 3,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: theme.primary,
   },
   adviceTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
     marginBottom: 4,
   },
   adviceText: {

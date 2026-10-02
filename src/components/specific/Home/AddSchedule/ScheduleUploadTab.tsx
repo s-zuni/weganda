@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { COLORS } from '../../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../../constants/theme';
 import { CustomShiftCode } from '../../../../types/shift';
 
 interface ScheduleUploadTabProps {
@@ -34,6 +34,8 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
   onGoToCustomCodeTab,
   onGoToManualTab,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View>
       {/* 준비 중 안내 공지 배너 */}
@@ -138,7 +140,7 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
       {/* AI 스캔 로딩 애니메이션 */}
       {isScanning && (
         <View style={styles.scanningCard}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={theme.primary} />
           <Text style={styles.scanningTitle}>AI가 근무표를 분석하고 있어요...</Text>
           <Text style={styles.scanningFile}>{uploadingFileType}</Text>
           <Text style={styles.scanningSub}>병동별 근무 코드 및 날짜 매핑 중 (약 1.5초)</Text>
@@ -163,7 +165,7 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
               const dStr = String(d).padStart(2, '0');
               const mStr = String(month + 1).padStart(2, '0');
               const code = scanResult[`${year}-${mStr}-${dStr}`] || 'D';
-              const info = customCodes[code] || { color: COLORS.primary, textColor: '#FFF' };
+              const info = customCodes[code] || { color: theme.primary, textColor: '#FFF' };
               return (
                 <View key={d} style={styles.previewItem}>
                   <Text style={styles.previewDayText}>{d}일</Text>
@@ -190,7 +192,7 @@ export const ScheduleUploadTab: React.FC<ScheduleUploadTabProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   noticeBanner: {
     backgroundColor: '#F8FAFC',
     borderRadius: 16,
@@ -225,7 +227,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   goManualBtn: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 10,
@@ -235,7 +237,7 @@ const styles = StyleSheet.create({
   goManualBtnText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   tabDesc: {
     fontSize: 13,
@@ -302,7 +304,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   scanningCard: {
-    backgroundColor: '#FFF0F3',
+    backgroundColor: theme.primaryTint,
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -312,7 +314,7 @@ const styles = StyleSheet.create({
   scanningTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
     marginTop: 8,
   },
   scanningFile: {
@@ -329,7 +331,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 18,
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: theme.primary,
     marginVertical: 12,
   },
   resultHeader: {
@@ -338,7 +340,7 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   resultSub: {
     fontSize: 12,
@@ -375,7 +377,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   applyBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
@@ -400,7 +402,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   customCodeShortcutLink: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
 });

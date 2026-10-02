@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../constants/theme';
 import { useUserStore } from '../../store/useUserStore';
 import { consentApi } from '../../services/consentApi';
 import {
@@ -16,6 +16,8 @@ interface ConsentScreenProps {
 
 // 로그인(최초 가입) 직후 필수 약관 동의 화면 — 동의가 기록되어야만 온보딩/메인으로 진행된다.
 export const ConsentScreen: React.FC<ConsentScreenProps> = ({ navigation }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [consent, setConsent] = useState<LoginConsentState>({ age: false, terms: false, privacy: false });
   const [submitting, setSubmitting] = useState(false);
   const setNeedsConsent = useUserStore((state) => state.setNeedsConsent);
@@ -63,7 +65,7 @@ export const ConsentScreen: React.FC<ConsentScreenProps> = ({ navigation }) => {
             accessibilityLabel="동의하고 계속하기"
           >
             {submitting ? (
-              <ActivityIndicator color={COLORS.onPrimaryText} />
+              <ActivityIndicator color={theme.onPrimaryText} />
             ) : (
               <Text style={styles.primaryText}>동의하고 계속하기</Text>
             )}
@@ -83,7 +85,7 @@ export const ConsentScreen: React.FC<ConsentScreenProps> = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { flex: 1, justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 48, paddingBottom: 24 },
   title: { fontSize: 26, fontWeight: '800', lineHeight: 36, color: COLORS.textPrimary, letterSpacing: -0.5 },
@@ -91,12 +93,12 @@ const styles = StyleSheet.create({
   primaryButton: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
   },
-  primaryText: { color: COLORS.onPrimaryText, fontSize: 16, fontWeight: '700' },
+  primaryText: { color: theme.onPrimaryText, fontSize: 16, fontWeight: '700' },
   disabled: { opacity: 0.4 },
   declineButton: { minHeight: 44, justifyContent: 'center', alignItems: 'center', marginTop: 8 },
   declineText: { fontSize: 13, color: COLORS.textMuted, textDecorationLine: 'underline' },

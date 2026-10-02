@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { COLORS } from '../../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../../constants/theme';
 import { CustomShiftCode } from '../../../../types/shift';
 
 interface ScheduleManualInputTabProps {
@@ -30,6 +30,8 @@ export const ScheduleManualInputTab: React.FC<ScheduleManualInputTabProps> = ({
   onSelectDay,
   onAssignShift,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View>
       <Text style={styles.tabDesc}>
@@ -67,7 +69,7 @@ export const ScheduleManualInputTab: React.FC<ScheduleManualInputTabProps> = ({
                   styles.dayPickerCode,
                   isSelected && styles.dayPickerCodeSelected,
                   currentCode
-                    ? { color: customCodes[currentCode]?.color || COLORS.primary }
+                    ? { color: customCodes[currentCode]?.color || theme.primary }
                     : null,
                 ]}
               >
@@ -107,7 +109,7 @@ export const ScheduleManualInputTab: React.FC<ScheduleManualInputTabProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   tabDesc: {
     fontSize: 13,
     color: COLORS.textMuted,
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
     minWidth: 50,
   },
   dayPickerChipSelected: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   dayPickerText: {
     fontSize: 12,

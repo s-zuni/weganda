@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { HeartIcon } from '../../common/Icon';
-import { COLORS, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export const MembershipImpactNote: React.FC = () => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.container}>
       <View style={styles.iconCircle}>
-        <HeartIcon size={18} color={COLORS.primary} />
+        <HeartIcon size={18} color={theme.primary} />
       </View>
       <View style={styles.textGroup}>
         <Text style={styles.title}>멤버십 수익의 일부가 나눔이 됩니다</Text>
@@ -21,7 +23,7 @@ export const MembershipImpactNote: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -31,7 +33,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: TINT_COLORS.pinkTint,
+    backgroundColor: theme.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,

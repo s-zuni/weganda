@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, useAppTheme } from '../../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { friendsApi } from '../../../services/friendsApi';
 import { contactService, DeviceContact } from '../../../services/contactService';
 import { useUserStore } from '../../../store/useUserStore';
@@ -27,6 +27,7 @@ type AddTab = 'code' | 'contacts';
 
 export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const insets = useSafeAreaInsets();
   const myUserId = useUserStore((s) => s.id);
   const myUserCode = useUserStore((s) => s.userCode);
@@ -361,7 +362,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -396,7 +397,7 @@ const styles = StyleSheet.create({
   },
   activeTabItem: {
     borderBottomWidth: 2.5,
-    borderBottomColor: COLORS.primary,
+    borderBottomColor: theme.primary,
   },
   tabText: {
     fontSize: 14,

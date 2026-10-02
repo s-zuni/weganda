@@ -1,7 +1,7 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, useAppTheme } from '../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../constants/theme';
 import { BellIcon, ClockIcon, UserIcon } from './Icon';
 import { WegandaLogo } from './WegandaLogo';
 import { UserAvatar } from './UserAvatar';
@@ -31,6 +31,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   style,
 }) => {
   const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<any>();
   const openNotifications = useHeaderModalStore((s) => s.openNotifications);
   const closeNotifications = useHeaderModalStore((s) => s.closeNotifications);
@@ -132,7 +133,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontSize: 24,
     fontWeight: '900',
-    color: COLORS.primary,
+    color: theme.primary,
     letterSpacing: -0.5,
   },
   subtitle: {
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 3.5,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
 });
 

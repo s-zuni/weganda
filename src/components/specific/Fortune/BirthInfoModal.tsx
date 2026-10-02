@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useFortuneStore } from '../../../store/useFortuneStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { profileApi } from '../../../services/profileApi';
@@ -36,6 +36,8 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
   visible,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { birthInfo, setBirthInfo } = useFortuneStore();
 
   const [date, setDate] = useState(birthInfo.birthDate || '1998-05-14');
@@ -517,7 +519,7 @@ export const BirthInfoModal: React.FC<BirthInfoModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
@@ -570,8 +572,8 @@ const styles = StyleSheet.create({
   },
   bannerNotice: {
     fontSize: 12,
-    color: COLORS.primary,
-    backgroundColor: '#FFF1F4',
+    color: theme.primary,
+    backgroundColor: theme.primaryTint,
     padding: 12,
     borderRadius: 12,
     lineHeight: 18,
@@ -605,7 +607,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   modeToggleBtnActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   modeToggleText: {
     fontSize: 11,
@@ -635,7 +637,7 @@ const styles = StyleSheet.create({
   selectedDateValue: {
     fontSize: 14,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   calendarPickerCard: {
     backgroundColor: '#FAFAFA',
@@ -683,8 +685,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   monthChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
   },
   monthChipText: {
     fontSize: 12,
@@ -724,7 +726,7 @@ const styles = StyleSheet.create({
     marginVertical: 1,
   },
   dayCellActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   dayCellText: {
     fontSize: 12,
@@ -771,8 +773,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   sajuCardActive: {
-    backgroundColor: '#FFF1F4',
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primaryTint,
+    borderColor: theme.primary,
   },
   sajuCardTitleRow: {
     flexDirection: 'row',
@@ -786,14 +788,14 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   sajuNameActive: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   sajuHanja: {
     fontSize: 10,
     color: COLORS.textMuted,
   },
   sajuHanjaActive: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   sajuRange: {
     fontSize: 9,
@@ -801,7 +803,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   sajuRangeActive: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '600',
   },
   unknownSlotBtn: {
@@ -814,8 +816,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   unknownSlotBtnActive: {
-    backgroundColor: '#FFF1F4',
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primaryTint,
+    borderColor: theme.primary,
   },
   unknownSlotText: {
     fontSize: 12,
@@ -823,7 +825,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   unknownSlotTextActive: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   segmentRow: {
@@ -841,7 +843,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   segmentBtnActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   segmentText: {
     fontSize: 13,
@@ -869,8 +871,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   mbtiChipActive: {
-    backgroundColor: '#FFF1F4',
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primaryTint,
+    borderColor: theme.primary,
   },
   mbtiChipText: {
     fontSize: 12,
@@ -878,15 +880,15 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   mbtiChipTextActive: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   saveBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 10,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

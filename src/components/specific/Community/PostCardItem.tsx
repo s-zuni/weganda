@@ -7,7 +7,7 @@ import {
   Image,
 } from 'react-native';
 import { Card } from '../../common/Card';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme } from '../../../constants/theme';
 import {
   HeartIcon,
   CommentIcon,
@@ -33,6 +33,7 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
   onToggleLike,
   onToggleBookmark,
 }) => {
+  const theme = useAppTheme();
   const avatarUrl = useUserStore((s) => s.avatarUrl);
 
   return (
@@ -98,12 +99,12 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
             >
               <HeartIcon
                 size={13}
-                color={post.isLiked ? COLORS.primary : COLORS.textMuted}
+                color={post.isLiked ? theme.primary : COLORS.textMuted}
               />
               <Text
                 style={[
                   styles.statText,
-                  post.isLiked && { color: COLORS.primary, fontWeight: '700' },
+                  post.isLiked && { color: theme.primary, fontWeight: '700' },
                 ]}
               >
                 {post.likes}
@@ -130,7 +131,7 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
             >
               <BookmarkIcon
                 size={13}
-                color={post.isBookmarked ? COLORS.primary : COLORS.textMuted}
+                color={post.isBookmarked ? theme.primary : COLORS.textMuted}
                 filled={post.isBookmarked}
               />
             </TouchableOpacity>

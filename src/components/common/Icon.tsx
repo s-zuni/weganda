@@ -1,5 +1,6 @@
 import React from 'react';
 import Svg, { Path, G, Circle, SvgProps } from 'react-native-svg';
+import { useAppTheme } from '../../constants/theme';
 
 export interface IconProps extends SvgProps {
   size?: number;
@@ -14,7 +15,8 @@ export const FortuneIcon: React.FC<IconProps> = ({
   focused = false,
   ...props
 }) => {
-  const activeColor = focused ? (color !== '#6B7280' ? color : '#FF507C') : color;
+  const theme = useAppTheme();
+  const activeColor = focused ? (color !== '#6B7280' ? color : theme.primary) : color;
   return (
     <Svg
       width={size}
@@ -38,7 +40,8 @@ export const FriendsIcon: React.FC<IconProps> = ({
   focused = false,
   ...props
 }) => {
-  const activeColor = focused ? (color !== '#6B7280' ? color : '#FF507C') : color;
+  const theme = useAppTheme();
+  const activeColor = focused ? (color !== '#6B7280' ? color : theme.primary) : color;
   return (
     <Svg
       width={size}
@@ -87,7 +90,8 @@ export const StudyIcon: React.FC<IconProps> = ({
   focused = false,
   ...props
 }) => {
-  const activeColor = focused ? (color !== '#6B7280' ? color : '#FF507C') : color;
+  const theme = useAppTheme();
+  const activeColor = focused ? (color !== '#6B7280' ? color : theme.primary) : color;
   return (
     <Svg
       width={size}
@@ -111,7 +115,8 @@ export const CommunityIcon: React.FC<IconProps> = ({
   focused = false,
   ...props
 }) => {
-  const activeColor = focused ? (color !== '#6B7280' ? color : '#FF507C') : color;
+  const theme = useAppTheme();
+  const activeColor = focused ? (color !== '#6B7280' ? color : theme.primary) : color;
   return (
     <Svg
       width={size}
@@ -131,9 +136,11 @@ export const CommunityIcon: React.FC<IconProps> = ({
 // ── 6. 밴드 로고 (Bandage / 우간다 심볼) ────────────────────
 export const BandageIcon: React.FC<IconProps> = ({
   size = 20,
-  color = '#FF507C',
+  color: colorProp,
   ...props
 }) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
   return (
     <Svg
       width={size}
@@ -227,9 +234,12 @@ export const ClockIcon: React.FC<IconProps> = ({
 // ── 10. 연필 / 작성 (Pencil / 특이사항 / 새 글) ─────────────
 export const PencilIcon: React.FC<IconProps> = ({
   size = 20,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M17 3C17.2626 2.73735 17.5744 2.52901 17.9176 2.38687C18.2608 2.24473 18.6286 2.17157 19 2.17157C19.3714 2.17157 19.7392 2.24473 20.0824 2.38687C20.4256 2.52901 20.7374 2.73735 21 3C21.2626 3.26264 21.471 3.57444 21.6131 3.9176C21.7553 4.26077 21.8284 4.62856 21.8284 5C21.8284 5.37144 21.7553 5.73923 21.6131 6.08239C21.471 6.42555 21.2626 6.73736 21 7L7.5 20.5L2 22L3.5 16.5L17 3Z"
@@ -239,14 +249,18 @@ export const PencilIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 11. 서류가방 / 키트 (Briefcase / 업무 가이드) ─────────────
 export const BriefcaseIcon: React.FC<IconProps> = ({
   size = 20,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z"
@@ -263,7 +277,8 @@ export const BriefcaseIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 12. 눈 / 조회수 (Eye / Views) ──────────────────────────
 export const EyeIcon: React.FC<IconProps> = ({
@@ -352,9 +367,12 @@ export const CommentIcon: React.FC<IconProps> = ({
 // ── 15. 코인 / 금전 (Coins / Wealth) ────────────────────────
 export const CoinsIcon: React.FC<IconProps> = ({
   size = 20,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
@@ -364,7 +382,8 @@ export const CoinsIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 16. 팔레트 / 컬러 (Palette / Lucky Color) ───────────────
 export const PaletteIcon: React.FC<IconProps> = ({
@@ -426,9 +445,12 @@ export const CompassIcon: React.FC<IconProps> = ({
 // ── 19. 나뭇잎 / 조언 (Leaf / Daily Advice) ──────────────────
 export const LeafIcon: React.FC<IconProps> = ({
   size = 20,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M11 20A7 7 0 0 1 4 13C4 6.13 9.42 2.72 16.74 2.03c.57-.05 1.08.38 1.13.95.7 7.32-2.7 12.74-9.57 12.74h-.3M2 22l10-10"
@@ -438,14 +460,18 @@ export const LeafIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 20. 스파클 / 탄생 (Sparkles / Birth Info) ─────────────────
 export const SparklesIcon: React.FC<IconProps> = ({
   size = 20,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M12 3v3m0 12v3M3 12h3m12 0h3M5.636 5.636l2.122 2.122m8.485 8.485l2.122 2.122M5.636 18.364l2.122-2.122m8.485-8.485l2.122-2.122"
@@ -455,7 +481,8 @@ export const SparklesIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 21. 별 / 즐겨찾기 (Star / Favorite) ──────────────────────
 export const StarIcon: React.FC<IconProps & { filled?: boolean }> = ({
@@ -520,9 +547,12 @@ export const PlusIcon: React.FC<IconProps> = ({
 // ── 24. 단체 / 그룹 (Users / Group Chat) ─────────────────────
 export const UsersIcon: React.FC<IconProps> = ({
   size = 20,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
@@ -553,7 +583,8 @@ export const UsersIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 25. 전송 (Send / Chat Message) ───────────────────────────
 export const SendIcon: React.FC<IconProps> = ({
@@ -575,9 +606,12 @@ export const SendIcon: React.FC<IconProps> = ({
 // ── 26. 맞교환 (Repeat / Shift Swap) ─────────────────────────
 export const RepeatIcon: React.FC<IconProps> = ({
   size = 18,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M17 1l4 4-4 4"
@@ -601,14 +635,18 @@ export const RepeatIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 27. 캘린더 (Calendar / Schedule Table) ───────────────────
 export const CalendarIcon: React.FC<IconProps> = ({
   size = 18,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM16 2v4M8 2v4M3 10h18"
@@ -618,7 +656,8 @@ export const CalendarIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 28. 공유 (Share / Share Post) ───────────────────────────
 export const ShareIcon: React.FC<IconProps> = ({
@@ -742,10 +781,13 @@ export const CornerDownRightIcon: React.FC<IconProps> = ({
 // ── 35. 북마크 / 보관함 (Bookmark / Scraps) ─────────────────
 export const BookmarkIcon: React.FC<IconProps & { filled?: boolean }> = ({
   size = 18,
-  color = '#FF507C',
+  color: colorProp,
   filled = false,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
@@ -756,7 +798,8 @@ export const BookmarkIcon: React.FC<IconProps & { filled?: boolean }> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 36. 병원 인증 뱃지 (Badge Check / Verified Hospital) ────
 export const BadgeCheckIcon: React.FC<IconProps> = ({
@@ -787,9 +830,12 @@ export const BadgeCheckIcon: React.FC<IconProps> = ({
 // ── 37. 불꽃 / 인기글 (Fire / HOT Topics) ────────────────────
 export const FireIcon: React.FC<IconProps> = ({
   size = 16,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"
@@ -800,14 +846,18 @@ export const FireIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 38. 계산기 (Calculator / Drug Dose) ──────────────────────
 export const CalculatorIcon: React.FC<IconProps> = ({
   size = 18,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M4 2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"
@@ -824,14 +874,18 @@ export const CalculatorIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 39. 플라스크 / 약물 (Flask / Pharmacology) ───────────────
 export const FlaskIcon: React.FC<IconProps> = ({
   size = 18,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M10 2v7.31L4.15 19.1A2 2 0 0 0 5.86 22h12.28a2 2 0 0 0 1.71-2.9L14 9.31V2h-4z"
@@ -848,7 +902,8 @@ export const FlaskIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 40. 번개 / 응급 (Zap / ACLS) ─────────────────────────────
 export const ZapIcon: React.FC<IconProps> = ({
@@ -904,9 +959,12 @@ export const BookOpenIcon: React.FC<IconProps> = ({
 // ── 43. 봇 / AI 질문 (Bot / AI Clinical Q&A) ─────────────────
 export const BotIcon: React.FC<IconProps> = ({
   size = 18,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M12 2v2M8 4h8M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z"
@@ -923,7 +981,8 @@ export const BotIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 44. 휴지통 / 삭제 (Trash / Delete Notification) ──────────
 export const TrashIcon: React.FC<IconProps> = ({
@@ -983,9 +1042,12 @@ export const ShieldCheckIcon: React.FC<IconProps> = ({
 // ── 47. 차트 / 연봉 예측 (Chart Bar / Salary) ─────────────────
 export const ChartBarIcon: React.FC<IconProps> = ({
   size = 20,
-  color = '#FF507C',
+  color: colorProp,
   ...props
-}) => (
+}) => {
+  const theme = useAppTheme();
+  const color = colorProp ?? theme.primary;
+  return ((
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...props}>
     <Path
       d="M18 20V10M12 20V4M6 20v-6"
@@ -995,7 +1057,8 @@ export const ChartBarIcon: React.FC<IconProps> = ({
       strokeLinejoin="round"
     />
   </Svg>
-);
+));
+};
 
 // ── 48. 카메라 (Camera / 프로필 사진 변경) ─────────────────
 export const CameraIcon: React.FC<IconProps> = ({

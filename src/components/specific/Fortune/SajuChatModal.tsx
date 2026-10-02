@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useUserStore } from '../../../store/useUserStore';
 import { useFortuneChatStore } from '../../../store/useFortuneChatStore';
 import { FREE_LIMITS } from '../../../constants/membership';
@@ -45,6 +45,8 @@ export const SajuChatModal: React.FC<SajuChatModalProps> = ({
   mbti,
   reportContext,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const insets = useSafeAreaInsets();
   const { messages, isThinking, startChatForTopic, askAboutTopic } = useFortuneChatStore();
@@ -88,7 +90,7 @@ export const SajuChatModal: React.FC<SajuChatModalProps> = ({
           </TouchableOpacity>
 
           <View style={styles.headerTitleRow}>
-            <SparklesIcon size={18} color={COLORS.primary} />
+            <SparklesIcon size={18} color={theme.primary} />
             <Text style={styles.headerTitle} numberOfLines={1}>{topic.title}</Text>
             {!isPremium && (
               <View style={styles.limitBadge}>
@@ -129,7 +131,7 @@ export const SajuChatModal: React.FC<SajuChatModalProps> = ({
               <View key={msg.id} style={[styles.msgRow, isMe ? styles.msgRowMe : styles.msgRowAi]}>
                 {!isMe && (
                   <View style={styles.aiAvatar}>
-                    <SparklesIcon size={16} color={COLORS.primary} />
+                    <SparklesIcon size={16} color={theme.primary} />
                   </View>
                 )}
 
@@ -192,7 +194,7 @@ export const SajuChatModal: React.FC<SajuChatModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -209,7 +211,7 @@ const styles = StyleSheet.create({
   backText: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   headerTitleRow: {
     flexDirection: 'row',
@@ -269,7 +271,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
@@ -280,7 +282,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   bubbleMe: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderBottomRightRadius: 4,
   },
   bubbleAi: {
@@ -328,7 +330,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -336,7 +338,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
   },
   limitBadge: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -345,7 +347,7 @@ const styles = StyleSheet.create({
   limitBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
 });
 

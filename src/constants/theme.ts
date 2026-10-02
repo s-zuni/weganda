@@ -15,6 +15,7 @@ export interface ThemeColors {
   primaryLight: string;
   primaryMuted: string;
   primaryTint: string;
+  primaryTintBorder: string; // primaryTint 배경 위의 은은한 테두리
   onPrimaryText: string;
   background: string;
   offWhite: string;
@@ -77,7 +78,7 @@ const COMMON_BASE = {
   subBeigeBadge: '#EDE5DA',
 };
 
-export const THEME_PALETTES: Record<AppThemeColor, ThemeColors> = {
+const RAW_PALETTES: Record<AppThemeColor, Omit<ThemeColors, 'primaryTintBorder'>> = {
   pink: {
     ...COMMON_BASE,
     primary: '#FF507C',
@@ -159,6 +160,24 @@ export const THEME_PALETTES: Record<AppThemeColor, ThemeColors> = {
     onPrimaryText: '#FFFFFF',
   },
 };
+
+// primary를 흰색과 섞어 틴트 테두리 색을 파생 (핑크는 기존 브랜드 값 유지)
+const tintBorderOf = (hex: string, key: AppThemeColor): string => {
+  if (key === 'pink') return '#FFE4E6';
+  const ratio = 0.22;
+  const channel = (i: number) => {
+    const v = parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
+    return Math.round(v * ratio + 255 * (1 - ratio)).toString(16).padStart(2, '0');
+  };
+  return `#${channel(0)}${channel(1)}${channel(2)}`.toUpperCase();
+};
+
+export const THEME_PALETTES = Object.fromEntries(
+  (Object.keys(RAW_PALETTES) as AppThemeColor[]).map((key) => [
+    key,
+    { ...RAW_PALETTES[key], primaryTintBorder: tintBorderOf(RAW_PALETTES[key].primary, key) },
+  ])
+) as Record<AppThemeColor, ThemeColors>;
 
 // 기본 호환용 COLORS 객체 (핑크 테마 기본)
 export const COLORS: ThemeColors = THEME_PALETTES.pink;
@@ -263,3 +282,9 @@ export const TYPOGRAPHY = {
   },
 };
 
+
+// 날짜 구분 컬러 (과거 / 오늘 / 미래) — 오늘은 앱 테마 primary를 사용
+export const DATE_KIND_COLORS = {
+  past: { fg: NEUTRAL.gray500, bg: NEUTRAL.gray100, border: NEUTRAL.gray200 },
+  future: { fg: '#2563EB', bg: TINT_COLORS.blueTint, border: TINT_COLORS.blueTintBorder },
+} as const;

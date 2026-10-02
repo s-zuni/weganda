@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { PostItem, MOCK_SAMPLE_IMAGES } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
 import { useUserStore } from '../../../store/useUserStore';
@@ -48,6 +48,8 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { id: userId, role, verificationRole } = useUserStore();
   const { createPost, updatePost } = useCommunityStore();
   const insets = useSafeAreaInsets();
@@ -175,7 +177,7 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
             activeOpacity={0.85}
           >
             <View style={styles.anonymousLeft}>
-              <LockIcon size={16} color={isAnonymous ? COLORS.primary : COLORS.textMuted} />
+              <LockIcon size={16} color={isAnonymous ? theme.primary : COLORS.textMuted} />
               <View>
                 <Text style={[styles.anonymousTitle, isAnonymous && styles.anonymousTitleActive]}>
                   익명으로 안심 작성
@@ -234,7 +236,7 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
 
               {images.length < 3 && (
                 <TouchableOpacity style={styles.addPhotoBtn} onPress={handleAddPhoto} activeOpacity={0.8}>
-                  <ImageIcon size={22} color={COLORS.primary} />
+                  <ImageIcon size={22} color={theme.primary} />
                   <Text style={styles.addPhotoText}>사진 추가</Text>
                 </TouchableOpacity>
               )}
@@ -246,7 +248,7 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -272,7 +274,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   submitHeaderBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 12,
@@ -310,8 +312,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   categoryChipSelected: {
-    backgroundColor: '#FFF1F4',
-    borderColor: COLORS.primary,
+    backgroundColor: theme.primaryTint,
+    borderColor: theme.primary,
   },
   categoryChipText: {
     fontSize: 12,
@@ -319,7 +321,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   categoryChipTextSelected: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '700',
   },
   anonymousToggle: {
@@ -334,8 +336,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   anonymousToggleActive: {
-    backgroundColor: '#FFF1F4',
-    borderColor: COLORS.primaryLight,
+    backgroundColor: theme.primaryTint,
+    borderColor: theme.primaryLight,
   },
   anonymousLeft: {
     flexDirection: 'row',
@@ -349,7 +351,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   anonymousTitleActive: {
-    color: COLORS.primary,
+    color: theme.primary,
   },
   anonymousDesc: {
     fontSize: 11,
@@ -365,7 +367,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   switchCircleActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
   },
   switchCheckText: {
     fontSize: 12,
@@ -444,10 +446,10 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 12,
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: COLORS.primaryLight,
+    borderColor: theme.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
@@ -455,7 +457,7 @@ const styles = StyleSheet.create({
   addPhotoText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
 });
 

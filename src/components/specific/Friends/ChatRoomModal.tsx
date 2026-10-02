@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,11 +12,14 @@ import {
   Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { SHIFT_TYPES } from '../../../constants/shiftTypes';
 import { FriendDetail, ChatMessage } from '../../../mocks/friendsData';
 import { useFriendsStore } from '../../../store/useFriendsStore';
 import { useUserStore } from '../../../store/useUserStore';
+import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
+import { shiftDisplayName } from '../../../utils/shiftDisplay';
+import { toDateKey } from '../../../utils/dateKind';
 import { SendIcon, RepeatIcon } from '../../common/Icon';
 import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
@@ -33,10 +36,13 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
   friend,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const insets = useSafeAreaInsets();
   const myUserId = useUserStore((s) => s.id);
   const { chatMessages, fetchChatMessages, sendMessage, respondToSwap } = useFriendsStore();
+  const customCodes = useShiftScheduleStore((st) => st.customCodes);
   const [inputText, setInputText] = useState('');
 
   React.useEffect(() => {
@@ -58,41 +64,66 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
 
   const shiftInfo = SHIFT_TYPES[friend.todayShift];
 
+  const notifyIfFailed = async (sending: Promise<boolean>) => {
+    if (!(await sending)) {
+      Alert.alert('전송 실패', '메시지를 보내지 못했어요. 네트워크 상태를 확인하고 다시 시도해주세요.');
+    }
+  };
+
   const handleSend = () => {
     if (!inputText.trim()) return;
-    sendMessage(friend.id, inputText.trim(), false, undefined, myUserId || undefined);
+    const text = inputText.trim();
     setInputText('');
+    notifyIfFailed(sendMessage(friend.id, text, false, undefined, myUserId || undefined));
   };
 
   const handleQuickCheer = (cheerText: string) => {
-    sendMessage(friend.id, cheerText, false, undefined, myUserId || undefined);
+    notifyIfFailed(sendMessage(friend.id, cheerText, false, undefined, myUserId || undefined));
   };
 
+  // 실제 내 근무표와 친구 근무표를 대조해 다음으로 근무가 서로 다른 날을 맞교환 후보로 제안
   const handleQuickSwap = () => {
-    // 오늘 기준 3일 뒤 또는 다음 근무일 동적 계산
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 3);
-    const month = targetDate.getMonth() + 1;
-    const date = targetDate.getDate();
-    const dayName = ['일', '월', '화', '수', '목', '금', '토'][targetDate.getDay()];
-    const dateLabel = `${month}월 ${date}일(${dayName})`;
-    const dateIso = targetDate.toISOString().split('T')[0];
+    const todayStr = toDateKey(new Date());
+    const ym = todayStr.slice(0, 7);
+    const mySchedules = useShiftScheduleStore.getState().schedules;
+    const candidate = [...friend.monthlyShifts]
+      .sort((x, y) => x.day - y.day)
+      .map((fs) => ({ date: `${ym}-${String(fs.day).padStart(2, '0')}`, friendCode: fs.shift as string }))
+      .find((c) => {
+        const myCode = mySchedules[c.date];
+        return c.date > todayStr && !!myCode && myCode !== c.friendCode;
+      });
 
-    sendMessage(
-      friend.id,
-      `선생님, 혹시 다음 주 ${dateLabel} 제 Day 근무와 선생님 Evening 맞교환 가능할까요?`,
-      true,
-      {
-        myDate: dateIso,
-        myShift: `${dateLabel} Day`,
-        theirDate: dateIso,
-        theirShift: `${dateLabel} Evening`,
-        targetShift: `${dateLabel} Evening`,
-        status: 'pending',
-      },
-      myUserId || undefined
+    if (!candidate) {
+      Alert.alert('교환 가능한 날이 없어요', '이번 달 남은 날 중 서로 근무가 다른 날을 찾지 못했어요. 근무표 등록 상태를 확인해주세요.');
+      return;
+    }
+
+    const myCode = mySchedules[candidate.date];
+    const customCodes = useShiftScheduleStore.getState().customCodes;
+    const myName = shiftDisplayName(myCode, customCodes);
+    const theirName = shiftDisplayName(candidate.friendCode, customCodes);
+    const dateObj = new Date(`${candidate.date}T00:00:00`);
+    const dayName = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
+    const dateLabel = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일(${dayName})`;
+
+    notifyIfFailed(
+      sendMessage(
+        friend.id,
+        `선생님, 혹시 ${dateLabel} 제 ${myName} 근무와 선생님 ${theirName} 근무 맞교환 가능할까요?`,
+        true,
+        {
+          myDate: candidate.date,
+          myShift: myCode,
+          theirDate: candidate.date,
+          theirShift: candidate.friendCode,
+          targetShift: candidate.friendCode,
+          status: 'pending',
+        },
+        myUserId || undefined
+      )
     );
-    Alert.alert('교환 제안 전송', `${friend.name}님께 듀티 맞교환 제안을 보냈습니다.`);
+    Alert.alert('교환 제안 전송', `${friend.name}님께 ${dateLabel} 듀티 맞교환 제안을 보냈습니다.`);
   };
 
   return (
@@ -132,7 +163,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.quickChip} onPress={handleQuickSwap}>
-            <RepeatIcon size={14} color={COLORS.primary} />
+            <RepeatIcon size={14} color={theme.primary} />
             <Text style={styles.quickChipText}>듀티 맞교환 제안</Text>
           </TouchableOpacity>
 
@@ -186,15 +217,23 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
                         <Text style={styles.swapCardTitle}>🗓️ 듀티 맞교환 요청서</Text>
                         <View style={styles.swapDetailRow}>
                           <Text style={styles.swapDetailLabel}>내 근무:</Text>
-                          <Text style={styles.swapDetailVal}>{msg.swapDetails.myShift}</Text>
+                          <Text style={styles.swapDetailVal}>
+                            {shiftDisplayName(isMe ? msg.swapDetails.myShift : (msg.swapDetails.theirShift ?? msg.swapDetails.targetShift ?? ''), customCodes)}
+                          </Text>
                         </View>
                         <View style={styles.swapDetailRow}>
                           <Text style={styles.swapDetailLabel}>상대 근무:</Text>
-                          <Text style={styles.swapDetailVal}>{msg.swapDetails.targetShift}</Text>
+                          <Text style={styles.swapDetailVal}>
+                            {shiftDisplayName(isMe ? (msg.swapDetails.theirShift ?? msg.swapDetails.targetShift ?? '') : msg.swapDetails.myShift, customCodes)}
+                          </Text>
                         </View>
 
                         <View style={styles.swapBtnRow}>
-                          {msg.swapDetails.status === 'pending' ? (
+                          {msg.swapDetails.status === 'pending' && isMe ? (
+                            <View style={styles.statusResultBox}>
+                              <Text style={styles.statusResultText}>상대방 응답 대기 중</Text>
+                            </View>
+                          ) : msg.swapDetails.status === 'pending' ? (
                             <>
                               <TouchableOpacity
                                 style={styles.swapDeclineBtn}
@@ -204,9 +243,12 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
                               </TouchableOpacity>
                               <TouchableOpacity
                                 style={styles.swapAcceptBtn}
-                                onPress={() => {
-                                  respondToSwap(friend.id, msg.id, true);
-                                  Alert.alert('교환 완료', '듀티 맞교환이 수락되어 스케줄에 반영되었습니다!');
+                                onPress={async () => {
+                                  if (await respondToSwap(friend.id, msg.id, true)) {
+                                    Alert.alert('교환 완료', '듀티 맞교환이 수락되어 스케줄에 반영되었습니다!');
+                                  } else {
+                                    Alert.alert('교환 실패', '맞교환을 처리하지 못했어요. 이미 처리되었거나 네트워크 오류일 수 있어요.');
+                                  }
                                 }}
                               >
                                 <Text style={styles.swapAcceptText}>수락하기</Text>
@@ -264,7 +306,7 @@ export const ChatRoomModal: React.FC<ChatRoomModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -282,7 +324,7 @@ const styles = StyleSheet.create({
   backBtnText: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   headerCenter: {
     alignItems: 'center',
@@ -375,7 +417,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   bubbleMe: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderBottomRightRadius: 4,
   },
   bubbleOther: {
@@ -426,7 +468,7 @@ const styles = StyleSheet.create({
   swapDetailVal: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   swapBtnRow: {
     flexDirection: 'row',
@@ -447,7 +489,7 @@ const styles = StyleSheet.create({
   },
   swapAcceptBtn: {
     flex: 1.5,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 8,
     paddingVertical: 8,
     alignItems: 'center',
@@ -467,7 +509,7 @@ const styles = StyleSheet.create({
   statusResultText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
   inputBar: {
     flexDirection: 'row',
@@ -492,7 +534,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

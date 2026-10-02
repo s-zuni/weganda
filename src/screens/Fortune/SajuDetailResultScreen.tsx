@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -23,9 +23,11 @@ import {
   SajuChatModal,
 } from '../../components/specific/Fortune';
 import { SparklesIcon } from '../../components/common/Icon';
-import { COLORS, NEUTRAL } from '../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme, type ThemeColors } from '../../constants/theme';
 
 export const SajuDetailResultScreen: React.FC = () => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<any>();
   const {
     currentManseryeokAnalysis,
@@ -127,7 +129,7 @@ export const SajuDetailResultScreen: React.FC = () => {
               accessibilityRole="button"
               accessibilityLabel="명인에게 직접 물어보기"
             >
-              <SparklesIcon size={18} color={COLORS.onPrimaryText} />
+              <SparklesIcon size={18} color={theme.onPrimaryText} />
               <Text style={styles.chatBtnText}>명인에게 직접 물어보기 (사주 · MBTI)</Text>
             </TouchableOpacity>
           )}
@@ -168,7 +170,7 @@ export const SajuDetailResultScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -192,7 +194,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backHomeBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
@@ -200,7 +202,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   backHomeBtnText: {
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
     fontWeight: '700',
     fontSize: 14,
   },
@@ -218,13 +220,13 @@ const styles = StyleSheet.create({
   chatBtn: {
     flexDirection: 'row',
     gap: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 48,
-    shadowColor: COLORS.primary,
+    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -233,7 +235,7 @@ const styles = StyleSheet.create({
   chatBtnText: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
   reselectBtn: {
     backgroundColor: NEUTRAL.gray900,
@@ -246,6 +248,6 @@ const styles = StyleSheet.create({
   reselectBtnText: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
 });

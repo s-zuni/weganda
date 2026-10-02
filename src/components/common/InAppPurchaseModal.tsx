@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Modal,
   View,
@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import { COLORS } from '../../constants/theme';
+import { useAppTheme, type ThemeColors } from '../../constants/theme';
 import { ShieldCheckIcon, LockIcon } from './Icon';
 import { inAppPurchaseService } from '../../services/inAppPurchaseService';
 
@@ -33,8 +33,12 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
   sku,
   options,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [step, setStep] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  // 서버 검증 결과 실제로 무료 체험이 적용되었는지 (이미 체험을 사용한 계정은 바로 정기결제로 시작됨)
+  const [trialApplied, setTrialApplied] = useState<boolean>(Boolean(options?.isTrial));
 
   const handleConfirmSuccess = () => {
     onPaymentSuccess();
@@ -50,6 +54,7 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
         .requestSubscription(sku, options)
         .then((result) => {
           if (result.success) {
+            setTrialApplied(result.isTrial ?? Boolean(options?.isTrial));
             setStep('success');
           } else {
             setStep('error');
@@ -83,7 +88,7 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
           {step === 'processing' && (
             <View style={styles.contentContainer}>
               <View style={styles.indicatorContainer}>
-                <ActivityIndicator size="large" color={COLORS.primary} />
+                <ActivityIndicator size="large" color={theme.primary} />
               </View>
               <Text style={styles.titleText}>
                 {options?.isTrial ? `${options?.trialDays ?? 30}일 무료 체험 등록 중` : '스토어 결제 진행 중'}
@@ -116,10 +121,10 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
                 <ShieldCheckIcon color="#10B981" size={56} />
               </View>
               <Text style={styles.successTitle}>
-                {options?.isTrial ? `${options?.trialDays ?? 30}일 무료 체험 시작!` : '구독이 완료되었습니다!'}
+                {trialApplied ? `${options?.trialDays ?? 30}일 무료 체험 시작!` : '구독이 완료되었습니다!'}
               </Text>
               <Text style={styles.successDescription}>
-                {options?.isTrial
+                {trialApplied
                   ? `${options?.trialDays ?? 30}일 동안 우간다+의 모든 프리미엄 기능을 마음껏 경험해보세요. 마이페이지에서 언제든 구독 상태를 관리하거나 해지할 수 있습니다.`
                   : 'weganda+ 프리미엄 멤버십의 5대 핵심 혜택을 지금 바로 경험해보세요.'}
               </Text>
@@ -148,9 +153,10 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
                   onPress={() => {
                     setStep('processing');
                     inAppPurchaseService
-                      .requestSubscription(sku)
+                      .requestSubscription(sku, options)
                       .then((res) => {
                         if (res.success) {
+                          setTrialApplied(res.isTrial ?? Boolean(options?.isTrial));
                           setStep('success');
                         } else {
                           setStep('error');
@@ -178,7 +184,7 @@ export const InAppPurchaseModal: React.FC<InAppPurchaseModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -215,7 +221,7 @@ const styles = StyleSheet.create({
   },
   subText: {
     fontSize: 13,
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '600',
     marginBottom: 10,
   },
@@ -258,7 +264,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   confirmButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 9999,
     width: '100%',
     paddingVertical: 14,
@@ -300,7 +306,7 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     flex: 1,
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 9999,
     paddingVertical: 12,
     alignItems: 'center',

@@ -163,7 +163,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
               <View style={styles.metricCard}>
                 <View style={styles.metricHeaderRow}>
                   <View style={styles.metricTitleGroup}>
-                    <ClockIcon size={16} color={COLORS.primary} />
+                    <ClockIcon size={16} color={theme.primary} />
                     <Text style={styles.metricTitle}>나이트 3연속 이상 고위험군</Text>
                   </View>
                   <View style={[styles.countBadge, report.consecutiveNightIncidents > 0 ? styles.countBadgeDanger : styles.countBadgeSafe]}>

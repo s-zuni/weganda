@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { SparklesIcon } from '../../common/Icon';
 import { BirthInfo } from '../../../types/fortune';
 
@@ -13,6 +13,8 @@ export const BirthInfoBanner: React.FC<BirthInfoBannerProps> = ({
   birthInfo,
   onPress,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <TouchableOpacity
       style={styles.birthBanner}
@@ -21,7 +23,7 @@ export const BirthInfoBanner: React.FC<BirthInfoBannerProps> = ({
     >
       <View style={styles.birthBannerLeft}>
         <View style={styles.birthIconDot}>
-          <SparklesIcon size={18} color={COLORS.primary} />
+          <SparklesIcon size={18} color={theme.primary} />
         </View>
         <View style={styles.birthInfoTexts}>
           <Text style={styles.birthBannerTitle}>
@@ -45,18 +47,18 @@ export const BirthInfoBanner: React.FC<BirthInfoBannerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   birthBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 16,
     padding: 12,
     marginTop: 6,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
   },
   birthBannerLeft: {
     flexDirection: 'row',
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
   editBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: theme.primary,
   },
 });
 

@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   SAJU_ANALYSIS_GUIDE_MD,
   SAJU_GUIDE_METADATA,
 } from '../../../constants/sajuAnalysisGuide';
-import { COLORS, NEUTRAL, TINT_COLORS } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 
 export interface SajuGuideInfoModalProps {
   visible: boolean;
@@ -22,6 +22,8 @@ export const SajuGuideInfoModal: React.FC<SajuGuideInfoModalProps> = ({
   totalCharCount,
   onClose,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <Modal
       visible={visible}
@@ -58,25 +60,25 @@ export const SajuGuideInfoModal: React.FC<SajuGuideInfoModalProps> = ({
 
             <Text style={styles.guideSectionHeading}>적용된 핵심 원칙 및 거버넌스</Text>
             <View style={styles.guideRuleItem}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.primary} />
+              <Ionicons name="checkmark-circle" size={16} color={theme.primary} />
               <Text style={styles.guideRuleText}>
                 <Text style={styles.guideRuleBold}>최소 1,000자 이상 심층 분석:</Text> 단편적 풀이를 배제하고 5대 정밀 섹션 체계 준수 (현재 {totalCharCount}자).
               </Text>
             </View>
             <View style={styles.guideRuleItem}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.primary} />
+              <Ionicons name="checkmark-circle" size={16} color={theme.primary} />
               <Text style={styles.guideRuleText}>
                 <Text style={styles.guideRuleBold}>간호 임상 십신·신살 매트릭스:</Text> 비견(동기애), 상관(직언/돌발상황), 귀문관살(예민한 관찰력/임상 촉) 등 병원 현장 맞춤 해석.
               </Text>
             </View>
             <View style={styles.guideRuleItem}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.primary} />
+              <Ionicons name="checkmark-circle" size={16} color={theme.primary} />
               <Text style={styles.guideRuleText}>
                 <Text style={styles.guideRuleBold}>객관적 대운 & 금기/행동 직언:</Text> 뜬구름 잡는 위로 대신 실질적인 태움 방어, 이직 타이밍, 나이트 근무 행동 수칙 명시.
               </Text>
             </View>
             <View style={styles.guideRuleItem}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.primary} />
+              <Ionicons name="checkmark-circle" size={16} color={theme.primary} />
               <Text style={styles.guideRuleText}>
                 <Text style={styles.guideRuleBold}>인포그래픽 시각화 연동:</Text> 텍스트뿐만 아니라 스펙트럼 게이지, 밸런스 차트 등 시각 지표 동시 제공.
               </Text>
@@ -105,7 +107,7 @@ export const SajuGuideInfoModal: React.FC<SajuGuideInfoModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.55)',
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   modalConfirmBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     borderRadius: 16,
     paddingVertical: 15,
     alignItems: 'center',
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
   modalConfirmBtnText: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.onPrimaryText,
+    color: theme.onPrimaryText,
   },
 });
 

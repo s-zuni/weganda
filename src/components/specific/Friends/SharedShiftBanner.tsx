@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { CalendarIcon } from '../../common/Icon';
 import { FriendDetail } from '../../../types/friends';
 
@@ -15,6 +15,8 @@ export const SharedShiftBanner: React.FC<SharedShiftBannerProps> = ({
   overlappingFriends,
   onPress,
 }) => {
+  const theme = useAppTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <TouchableOpacity
       style={styles.sharedBanner}
@@ -23,7 +25,7 @@ export const SharedShiftBanner: React.FC<SharedShiftBannerProps> = ({
     >
       <View style={styles.sharedBannerLeft}>
         <View style={styles.calendarIconWrapper}>
-          <CalendarIcon size={18} color={COLORS.primary} />
+          <CalendarIcon size={18} color={theme.primary} />
         </View>
         <View style={styles.sharedTexts}>
           {friendsCount === 0 ? (
@@ -60,15 +62,15 @@ export const SharedShiftBanner: React.FC<SharedShiftBannerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemeColors) => StyleSheet.create({
   sharedBanner: {
-    backgroundColor: '#FFF1F4',
+    backgroundColor: theme.primaryTint,
     borderRadius: 16,
     padding: 14,
     marginTop: 6,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#FFE4EA',
+    borderColor: theme.primaryTintBorder,
   },
   sharedBannerLeft: {
     flexDirection: 'row',
@@ -92,12 +94,12 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   boldPink: {
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '800',
   },
   sharedBannerSub: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: theme.primary,
     fontWeight: '600',
     marginTop: 3,
   },
