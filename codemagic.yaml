@@ -63,16 +63,34 @@ workflows:
       - name: 4. Set up Apple Code Signing
         script: |
           keychain initialize
+          
+          # 1. Apple WWDR Intermediate CA 인증서 설치 (신뢰 체인 보증)
+          echo "=== Installing Apple WWDR CA Certificates ==="
+          curl -fSL "https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer" -o /tmp/AppleWWDRCAG3.cer
+          curl -fSL "https://www.apple.com/certificateauthority/AppleWWDRCAG4.cer" -o /tmp/AppleWWDRCAG4.cer
+          curl -fSL "https://www.apple.com/certificateauthority/AppleWWDRCAG6.cer" -o /tmp/AppleWWDRCAG6.cer
+          security import /tmp/AppleWWDRCAG3.cer -k $(keychain list-keychains | head -n 1 | tr -d '" ') || true
+          security import /tmp/AppleWWDRCAG4.cer -k $(keychain list-keychains | head -n 1 | tr -d '" ') || true
+          security import /tmp/AppleWWDRCAG6.cer -k $(keychain list-keychains | head -n 1 | tr -d '" ') || true
+
+          # 2. Codemagic에 등록된 배포 인증서 설치
           keychain add-certificates
+          
+          # 3. 키체인 내 유효한 코드 사이닝 인증서 진단
+          echo "=== Available Code Signing Identities in Keychain ==="
+          security find-identity -v -p codesigning || true
+          
+          # 4. 설치된 프로비저닝 프로파일 정보 확인
           echo "=== Installed Provisioning Profiles in ~/Library/MobileDevice ==="
           ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
-          echo "=== Provisioning Profile Details ==="
           for p in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
             if [ -f "$p" ]; then
-              echo "Profile: $p"
-              security cms -D -i "$p" 2>/dev/null | grep -E -A 1 "(<key>Name</key>|<key>UUID</key>|<key>application-identifier</key>)" || true
+              echo "--- Profile: $p ---"
+              security cms -D -i "$p" 2>/dev/null | grep -E -A 1 "(<key>Name</key>|<key>UUID</key>|<key>application-identifier</key>|<key>ExpirationDate</key>)" || true
             fi
           done
+
+          # 5. Xcode 프로젝트에 프로비저닝 프로파일 적용
           echo "=== Applying Provisioning Profiles to Xcode Project ==="
           xcode-project use-profiles \
             --project "ios/weganda.xcodeproj" \
@@ -151,4 +169,3 @@ workflows:
           cd ..
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
-
