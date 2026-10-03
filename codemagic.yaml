@@ -39,6 +39,10 @@ workflows:
       - name: 2. Expo Prebuild (Generate Native iOS Project)
         script: |
           npx expo prebuild --platform ios --clean --no-install
+          # Configure Node.js path for Xcode script build phases
+          echo "export NODE_BINARY=$(which node)" > ios/.xcode.env.local
+          echo "=== Configured ios/.xcode.env.local ==="
+          cat ios/.xcode.env.local
       - name: 3. Install CocoaPods Dependencies
         script: |
           set -e
@@ -47,12 +51,14 @@ workflows:
           echo "=== iOS directory contents after pod install ==="
           ls -la
           cd ..
+          # Disable User Script Sandboxing on Pods and Xcode project for Xcode 15/16 compatibility
+          find ios -name "project.pbxproj" -exec sed -i '' 's/ENABLE_USER_SCRIPT_SANDBOXING = YES/ENABLE_USER_SCRIPT_SANDBOXING = NO/g' {} + 2>/dev/null || true
       - name: 4. Set up Apple Code Signing
         script: |
-          # Codemagic에 업로드한 인증서/프로파일(weganda_2)을 사용한다.
-          # fetch-signing-files는 만료된 이전 인증서를 다시 가져올 수 있어 제거했다.
           keychain initialize
           keychain add-certificates
+          echo "=== Available Code Signing Identities in Keychain ==="
+          security find-identity -v -p codesigning || true
           echo "=== Installed Provisioning Profiles in ~/Library/MobileDevice ==="
           ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
           echo "=== Applying Provisioning Profiles to Xcode Project ==="
@@ -60,22 +66,30 @@ workflows:
             --project "ios/weganda.xcodeproj"
       - name: 5. Build iOS IPA (App Store Distribution)
         script: |
-          # 1. 생성된 workspace 및 project 파일 위치 확인
-          echo "=== Searching for Xcode workspace and project ==="
-          find . -maxdepth 3 \( -name "*.xcworkspace" -o -name "*.xcodeproj" \) -not -path "*/Pods/*"
-
-          # 2. ios 디렉터리 내의 .xcworkspace 우선 탐색 (Pods 내부 파일 제외)
           WORKSPACE=$(find ios -maxdepth 2 -name "*.xcworkspace" -not -path "*/Pods/*" -not -path "*.xcodeproj/*" | head -n 1)
+          SCHEME="weganda"
           
+          echo "=== Building iOS IPA ==="
           if [ -n "$WORKSPACE" ]; then
-            SCHEME="weganda"
             echo "Found workspace: $WORKSPACE, building scheme: $SCHEME"
-            xcode-project build-ipa --workspace "$WORKSPACE" --scheme "$SCHEME"
+            TARGET_ARG="--workspace $WORKSPACE"
           else
             PROJECT=$(find ios -maxdepth 1 -name "*.xcodeproj" | head -n 1)
-            SCHEME="weganda"
             echo "Workspace not found. Falling back to project: $PROJECT, scheme: $SCHEME"
-            xcode-project build-ipa --project "$PROJECT" --scheme "$SCHEME"
+            TARGET_ARG="--project $PROJECT"
+          fi
+
+          if ! xcode-project build-ipa $TARGET_ARG --scheme "$SCHEME" --archive-xcargs "ENABLE_USER_SCRIPT_SANDBOXING=NO"; then
+            echo "=========================================================="
+            echo "❌ xcodebuild failed! Showing root cause error..."
+            echo "=========================================================="
+            for log in /tmp/xcodebuild_logs/*.log; do
+              if [ -f "$log" ]; then
+                echo "--- Filtered errors from $log ---"
+                grep -E -C 2 -i "(error:|failed to|fatal error)" "$log" | tail -n 50 || true
+              fi
+            done
+            exit 1
           fi
     artifacts:
       - build/ios/ipa/*.ipa
