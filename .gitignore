@@ -85,3 +85,14 @@ check-*.mjs
 *.pkg
 *.deb
 *.rpm
+
+# marketing_automation 런타임 산출물
+marketing_automation/state.db
+marketing_automation/assets/temp/
+
+# 마케팅 자동화 브랜드 로고는 배포에 필요하므로 예외로 추적
+!marketing_automation/assets/logo/*.png
+
+# Python 컴파일 캐시
+__pycache__/
+*.pyc
