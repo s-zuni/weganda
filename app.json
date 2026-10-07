@@ -13,9 +13,9 @@
       "resizeMode": "contain"
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.weganda.app",
-      "buildNumber": "16",
+      "buildNumber": "17",
       "usesAppleSignIn": true,
       "entitlements": {
         "aps-environment": "production"
@@ -37,7 +37,7 @@
     },
     "android": {
       "package": "com.weganda.app",
-      "versionCode": 16,
+      "versionCode": 17,
       "splash": {
         "image": "./src/assets/splash.png",
         "backgroundColor": "#FFFFFF",

@@ -18,9 +18,10 @@ workflows:
         EXPO_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZ3RsbmhnZmp4ZG50bnhienRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NjU2NzUsImV4cCI6MjEwNDE0MTY3NX0.BouXAkcbuwwUvIBWxpP6Rxs7BhzN9evcEQMJiIwqo2g"
       ios_signing:
         certificates:
-          - weganda_2
+          - weganda_AppStore
         provisioning_profiles:
-          - weganda_2
+          - weganda_appstore
+          - weganda_AppStore
       node: 20.18.0
       xcode: latest
       cocoapods: default
@@ -36,9 +37,14 @@ workflows:
       - name: 1. Install Node Dependencies
         script: |
           npm ci --legacy-peer-deps
-      - name: 2. Expo Prebuild (Generate Native iOS Project)
+      - name: 2. Expo Prebuild & Enforce iPhone-Only Target
         script: |
           npx expo prebuild --platform ios --clean --no-install
+          # iPhone 전용 타깃 보장 (TARGETED_DEVICE_FAMILY: 1 = iPhone)
+          sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2"/TARGETED_DEVICE_FAMILY = "1"/g' ios/weganda.xcodeproj/project.pbxproj || true
+          sed -i '' 's/TARGETED_DEVICE_FAMILY = 1,2/TARGETED_DEVICE_FAMILY = 1/g' ios/weganda.xcodeproj/project.pbxproj || true
+          echo "=== Verified TARGETED_DEVICE_FAMILY in Xcode Project ==="
+          grep -n "TARGETED_DEVICE_FAMILY" ios/weganda.xcodeproj/project.pbxproj || true
           # Configure Node.js path for Xcode script build phases
           echo "export NODE_BINARY=$(which node)" > ios/.xcode.env.local
           echo "=== Configured ios/.xcode.env.local ==="
@@ -61,6 +67,19 @@ workflows:
           security find-identity -v -p codesigning || true
           echo "=== Installed Provisioning Profiles in ~/Library/MobileDevice ==="
           ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
+          for p in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
+            if [ -f "$p" ]; then
+              echo "--- Inspecting Profile: $p ---"
+              security cms -D -i "$p" > /tmp/profile.plist 2>/dev/null || true
+              /usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile.plist 2>/dev/null || true
+              /usr/libexec/PlistBuddy -c "Print :Type" /tmp/profile.plist 2>/dev/null || true
+              if /usr/libexec/PlistBuddy -c "Print :ProvisionedDevices" /tmp/profile.plist 2>/dev/null; then
+                echo "⚠️ WARNING: This profile contains ProvisionedDevices! It is an AD HOC profile, NOT App Store!"
+              else
+                echo "✅ Profile is valid for App Store distribution (No ProvisionedDevices)."
+              fi
+            fi
+          done
           echo "=== Applying Provisioning Profiles to Xcode Project ==="
           xcode-project use-profiles \
             --project "ios/weganda.xcodeproj"
