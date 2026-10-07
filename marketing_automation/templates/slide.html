@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      width: 1080px;
+      height: 1350px;
+      background-color: #F8F9FD;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 80px 70px 70px 70px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 정중앙 배경 워터마크 로고 */
+    .bg-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 700px;
+      height: 700px;
+      transform: translate(-50%, -50%);
+      opacity: 0.10;
+      filter: blur(3px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .header, .content-container, .footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 상단 헤더 & 뱃지 */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 24px;
+      background-color: #FFE6ED;
+      color: #FF507C;
+      font-size: 26px;
+      font-weight: 800;
+      border-radius: 9999px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-logo {
+      font-size: 30px;
+      font-weight: 900;
+      color: #1B254B;
+      letter-spacing: -1px;
+    }
+
+    .brand-logo span {
+      color: #FF507C;
+    }
+
+    /* 본문 콘텐츠 카드 */
+    .content-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-top: 40px;
+      margin-bottom: 40px;
+    }
+
+    .title {
+      font-size: 64px;
+      font-weight: 900;
+      color: #1B254B;
+      line-height: 1.25;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+      white-space: pre-line;
+    }
+
+    .subtitle {
+      font-size: 32px;
+      font-weight: 600;
+      color: #6B7280;
+      margin-bottom: 48px;
+      line-height: 1.4;
+    }
+
+    /* 불렛포인트 카드 리스트 */
+    .bullet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .bullet-card {
+      background-color: rgba(255, 255, 255, 0.88);
+      border-radius: 28px;
+      padding: 30px 36px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(230, 235, 245, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .bullet-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #FF507C;
+      flex-shrink: 0;
+    }
+
+    .bullet-text {
+      font-size: 32px;
+      font-weight: 700;
+      color: #2D3748;
+      letter-spacing: -0.5px;
+      line-height: 1.35;
+    }
+
+    /* 하단 푸터 */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 30px;
+      border-top: 2px solid #EDF2F7;
+    }
+
+    .page-indicator {
+      font-size: 26px;
+      font-weight: 700;
+      color: #A0AEC0;
+    }
+
+    .swipe-hint {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 26px;
+      font-weight: 800;
+      color: #FF507C;
+    }
+  </style>
+</head>
+<body>
+  <img class="bg-logo" src="{{ logo_src }}" alt="">
+  <!-- 상단 헤더 -->
+  <div class="header">
+    <div class="badge">{{ badge }}</div>
+    <div class="brand-logo">weganda <span>우간다</span></div>
+  </div>
+
+  <!-- 메인 영역 -->
+  <div class="content-container">
+    <h1 class="title">{{ title }}</h1>
+    {% if subtitle %}
+    <p class="subtitle">{{ subtitle }}</p>
+    {% endif %}
+
+    {% if bullets %}
+    <div class="bullet-list">
+      {% for item in bullets %}
+      <div class="bullet-card">
+        <div class="bullet-icon"></div>
+        <div class="bullet-text">{{ item }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- 하단 푸터 -->
+  <div class="footer">
+    <div class="page-indicator">{{ page_str }}</div>
+    <div class="swipe-hint">
+      <span>{{ footer_hint }}</span>
+    </div>
+  </div>
+</body>
+</html>

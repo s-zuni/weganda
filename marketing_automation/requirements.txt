@@ -1,0 +1,17 @@
+# Core & Environment
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+
+# AI & LLM (Gemini)
+google-genai>=1.0.0
+
+# Image Rendering (카드뉴스 — Pillow 렌더러, 번들 폰트 사용)
+Pillow>=10.0.0
+
+# 타임존 (slim Linux 이미지에는 시스템 tzdata가 없을 수 있음 — KST 스케줄러에 필수)
+tzdata
+
+# (선택) HTML/CSS 정밀 렌더링 — 설치하면 자동으로 우선 사용됩니다. 미설치 시 Pillow 렌더러 사용.
+# playwright>=1.40.0
