@@ -21,7 +21,6 @@ workflows:
           - weganda_AppStore
         provisioning_profiles:
           - weganda_appstore
-          - weganda_AppStore
       node: 20.18.0
       xcode: latest
       cocoapods: default
