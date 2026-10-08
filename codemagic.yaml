@@ -48,6 +48,16 @@ workflows:
           echo "export NODE_BINARY=$(which node)" > ios/.xcode.env.local
           echo "=== Configured ios/.xcode.env.local ==="
           cat ios/.xcode.env.local
+          # TestFlight 최신 빌드 번호 조회 후 자동 증가 (중복 업로드 에러 원천 방지)
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" 2>/dev/null || echo "0")
+          echo "=== Latest TestFlight build number: $LATEST_BUILD ==="
+          if [ -n "$LATEST_BUILD" ] && [ "$LATEST_BUILD" -gt 0 ]; then
+            NEXT_BUILD=$((LATEST_BUILD + 1))
+            echo "=== Auto-incrementing build number to: $NEXT_BUILD ==="
+            cd ios && agvtool new-version -all "$NEXT_BUILD" 2>/dev/null || true && cd ..
+            /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEXT_BUILD" ios/weganda/Info.plist 2>/dev/null || true
+            find ios -name "project.pbxproj" -exec sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = $NEXT_BUILD/g" {} + 2>/dev/null || true
+          fi
       - name: 3. Install CocoaPods Dependencies
         script: |
           set -e
