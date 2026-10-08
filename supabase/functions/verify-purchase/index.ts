@@ -10,7 +10,8 @@ const corsHeaders = {
 const SKU_INFO: Record<string, { planType: "monthly" | "yearly"; isEarlybird: boolean; price: number }> = {
   "com.weganda.app.sub.monthly.standard": { planType: "monthly", isEarlybird: false, price: 7900 },
   "com.weganda.app.sub.yearly.standard": { planType: "yearly", isEarlybird: false, price: 79000 },
-  "com.weganda.app.sub.monthly.earlybird.plus": { planType: "monthly", isEarlybird: true, price: 5900 },
+  "com.weganda.app.sub.monthly.earlybird.pl": { planType: "monthly", isEarlybird: true, price: 5900 },
+  "com.weganda.app.sub.monthly.earlybird.plus": { planType: "monthly", isEarlybird: true, price: 5900 }, // 하위 호환
   "com.weganda.app.sub.monthly.earlybird": { planType: "monthly", isEarlybird: true, price: 5900 }, // 하위 호환
   "com.weganda.app.sub.yearly.earlybird": { planType: "yearly", isEarlybird: true, price: 59000 },
 };

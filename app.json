@@ -2,7 +2,7 @@
   "expo": {
     "name": "weganda",
     "slug": "weganda",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "weganda",
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.weganda.app",
-      "buildNumber": "17",
+      "buildNumber": "18",
       "usesAppleSignIn": true,
       "entitlements": {
         "aps-environment": "production"
@@ -37,7 +37,7 @@
     },
     "android": {
       "package": "com.weganda.app",
-      "versionCode": 17,
+      "versionCode": 18,
       "splash": {
         "image": "./src/assets/splash.png",
         "backgroundColor": "#FFFFFF",

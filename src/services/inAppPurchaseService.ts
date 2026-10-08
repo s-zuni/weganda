@@ -367,6 +367,28 @@ class InAppPurchaseService {
       try {
         console.log('[IAP] Invoking native requestPurchase for SKU:', targetSku);
 
+        // iOS(StoreKit 2)도 구매 전에 상품을 먼저 조회(fetchProducts)해야 SKU를 찾을 수 있다.
+        // 조회 결과가 비어 있으면 App Store Connect 상품 미등록/미승인 상태이므로 명확한 안내를 반환한다.
+        if (Platform.OS === 'ios') {
+          try {
+            if (!isConnected) await this.init();
+            const iosProducts = await RNIap.fetchProducts({ skus: [targetSku], type: 'subs' });
+            if (!Array.isArray(iosProducts) || iosProducts.length === 0) {
+              console.warn('[IAP] App Store에서 상품을 찾지 못했습니다:', targetSku);
+              return {
+                success: false,
+                errorMessage: '현재 App Store에서 구독 상품 정보를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.',
+              };
+            }
+          } catch (fetchErr: any) {
+            console.warn('[IAP] iOS fetchProducts failed:', fetchErr?.message);
+            return {
+              success: false,
+              errorMessage: '구독 상품 정보를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해주세요.',
+            };
+          }
+        }
+
         const androidSubscriptionOffers =
           Platform.OS === 'android' ? await this.getAndroidSubscriptionOffers(RNIap, targetSku, isTrial) : undefined;
 

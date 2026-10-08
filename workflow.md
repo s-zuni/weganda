@@ -149,7 +149,7 @@
 
 ### 3-4. 가격 표기 및 스토어 SKU 일원화
 - [x] `src/components/common/PaywallBottomSheet.tsx`의 7,800원 하드코딩 텍스트를 `membership.ts` 상수의 5,900원(얼리버드) / 7,900원(정규)으로 수정
-- [x] `STORE_RELEASE_GUIDE.md`의 SKU(`com.weganda.app.premium.monthly`)를 실제 코드의 `com.weganda.app.sub.monthly.earlybird`로 통일
+- [x] `STORE_RELEASE_GUIDE.md`의 SKU(`com.weganda.app.premium.monthly`)를 실제 코드의 `com.weganda.app.sub.monthly.earlybird.pl`로 통일
 
 ### 3-5. 백그라운드 장기 대기 복귀 시 세션 토큰 자동 갱신
 - [x] `App.tsx`: `AppState.addEventListener('change')` 리스너 등록
