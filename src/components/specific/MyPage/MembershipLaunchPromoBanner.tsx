@@ -34,8 +34,8 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
   launchEventBanner: {
     alignItems: 'center',
     paddingHorizontal: 24,
-    marginTop: -8,
-    marginBottom: 16,
+    marginTop: 8,
+    marginBottom: 24,
   },
   eventBannerBadge: {
     alignSelf: 'center',

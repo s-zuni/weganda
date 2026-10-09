@@ -46,7 +46,7 @@ export interface FortuneGenerateParams {
   };
 }
 
-import { getDailyLuckyInfo, getDailyOverallScore, cleanLuckyColorName, getLuckyColorHex } from '../utils/dailyFortuneGenerator';
+import { getDailyLuckyInfo, getDailyOverallScore } from '../utils/dailyFortuneGenerator';
 
 // 오프라인 또는 일시적 오류 시 기본 제공 운세 폴백 (매일 날짜 기반 자동 갱신)
 function getDefaultFortuneFallback(params?: FortuneGenerateParams): FortuneResult {
@@ -162,17 +162,20 @@ async function fetchFromOpenAiDirect(params?: FortuneGenerateParams): Promise<Fo
   return JSON.parse(content) as FortuneResult;
 }
 
-function normalizeFortuneResult(result: FortuneResult): FortuneResult {
-  if (!result.lucky) return result;
-  const rawColor = result.lucky.color;
-  const color = cleanLuckyColorName(rawColor);
-  const colorHex = result.lucky.colorHex || getLuckyColorHex(color);
+// 서버(Edge Function/GPT)가 프롬프트 예시값(95점·비바 코랄 핑크·7·스테이션 동쪽·3색 볼펜)을 그대로 돌려주거나
+// 캐시/폴백으로 고정값이 내려오는 문제를 막기 위해, 총점과 행운 5종은 날짜+생년월일 기반 값을 단일 원천으로 사용한다.
+function normalizeFortuneResult(result: FortuneResult, params?: FortuneGenerateParams): FortuneResult {
+  const birthDate = params?.birthInfo?.birthDate;
+  const dailyLucky = getDailyLuckyInfo(new Date(), birthDate);
   return {
     ...result,
+    overallScore: getDailyOverallScore(new Date(), birthDate),
     lucky: {
-      ...result.lucky,
-      color,
-      colorHex,
+      item: dailyLucky.item,
+      color: dailyLucky.colorName,
+      colorHex: dailyLucky.colorHex,
+      number: dailyLucky.number,
+      direction: dailyLucky.direction,
     },
   };
 }
@@ -200,7 +203,7 @@ export const fortuneApi = {
       });
 
       if (edgeResult) {
-        return normalizeFortuneResult(edgeResult);
+        return normalizeFortuneResult(edgeResult, params);
       }
 
       // 2. Edge Function 미배포/오류 시 OpenAI 직접 호출 시도 (키 설정 시)
@@ -210,7 +213,7 @@ export const fortuneApi = {
       });
 
       if (directResult && directResult.title) {
-        return normalizeFortuneResult(directResult);
+        return normalizeFortuneResult(directResult, params);
       }
 
       return getDefaultFortuneFallback(params);

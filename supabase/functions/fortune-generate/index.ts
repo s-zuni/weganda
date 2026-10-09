@@ -9,11 +9,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// 총점(overallScore)과 행운 5종(lucky)은 앱이 날짜+생년월일 기반으로 직접 산출하므로 서버는 생성/고정하지 않는다.
+// (예시값을 프롬프트/폴백에 두면 매일 같은 값이 내려가는 원인이 됨)
+
 // 운세 스마트 기본값 (네트워크 또는 장애 시 안전한 폴백)
 const DEFAULT_FORTUNE = {
   title: "오늘의 간호 운세",
   fortuneText: "동료들과의 인수인계 호흡이 매끄럽고 라운딩이 여유로운 날입니다. 꼼꼼한 투약 확인으로 환자에게 큰 신뢰를 얻겠습니다.",
-  overallScore: 94,
   scores: {
     colleague: 92,
     career: 95,
@@ -23,12 +25,6 @@ const DEFAULT_FORTUNE = {
     injectionScore: 98,
     communicationScore: 90,
     mentalScore: 94,
-  },
-  lucky: {
-    item: "3색 볼펜",
-    color: "비바 코랄 핑크 (#FF507C)",
-    number: 7,
-    direction: "스테이션 동쪽",
   },
   advice: "스스로를 아끼는 마음이 최고의 간호입니다. 오늘도 칼퇴를 응원해요!",
 };
@@ -63,7 +59,8 @@ Deno.serve(async (req: Request) => {
     const birthInfo = body.birth_info || {};
     const partnerInfo = body.partner_info || {};
     const colleagueInfo = body.colleague_info || {};
-    const today = new Date().toISOString().split("T")[0];
+    // 한국 시간(KST, UTC+9) 기준 날짜 — UTC 기준이면 자정~오전 9시에 전날 캐시가 재사용됨
+    const today = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().split("T")[0];
 
     // 2. 캐시 확인 (로그인 사용자인 경우 당일 기생성 운세 재활용)
     if (userId) {
@@ -95,25 +92,20 @@ Deno.serve(async (req: Request) => {
 {
   "title": "오늘의 간호 운세",
   "fortuneText": "오늘 근무 중 일어날 수 있는 상황과 칼퇴 팁, 위로가 되는 문장 (2~3문장)",
-  "overallScore": 95,
   "scores": {
-    "colleague": 92,
-    "career": 95,
-    "rest": 98
+    "colleague": 0~100 사이 정수,
+    "career": 0~100 사이 정수,
+    "rest": 0~100 사이 정수
   },
   "biorhythm": {
-    "injectionScore": 98,
-    "communicationScore": 88,
-    "mentalScore": 92
-  },
-  "lucky": {
-    "item": "3색 볼펜",
-    "color": "비바 코랄 핑크 (#FF507C)",
-    "number": 7,
-    "direction": "스테이션 동쪽"
+    "injectionScore": 0~100 사이 정수,
+    "communicationScore": 0~100 사이 정수,
+    "mentalScore": 0~100 사이 정수
   },
   "advice": "오늘의 한줄 힐링 조언"
-}`;
+}
+각 점수는 70~98 범위에서 날짜와 생년월일에 따라 매번 다르게 산출하고, 같은 값을 반복하지 마세요.
+총점·행운 컬러/숫자/방향/아이템은 앱에서 별도로 산출하므로 응답에 포함하지 마세요.`;
 
     if (fortuneType === "saju") {
       systemPrompt += `\n[간호사주 모드]: 직장 오행 궁합, 간호사 적합도(%), 추천 병동 랭킹 및 10년 대운 해석을 상세히 포함하세요.`;
@@ -160,12 +152,13 @@ Deno.serve(async (req: Request) => {
     }
 
     // 5. OpenAI 미응답/크레딧 오류 시 스마트 운세 폴백 적용
-    if (!resultJson) {
+    const isFallback = !resultJson;
+    if (isFallback) {
       resultJson = DEFAULT_FORTUNE;
     }
 
-    // 캐시에 저장 (로그인 사용자인 경우)
-    if (userId) {
+    // 캐시에 저장 (로그인 사용자인 경우, 폴백 결과는 캐시하지 않아 이후 정상 생성이 가능하도록 함)
+    if (userId && !isFallback) {
       try {
         await supabaseClient.from("fortune_cache").upsert({
           user_id: userId,

@@ -8,7 +8,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme } from '../../../constants/theme';
 import { useBurnoutStore } from '../../../store/useBurnoutStore';
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
@@ -63,9 +63,9 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
 
   return (
     <SwipeDismissModal visible={visible} onClose={onClose}>
-      <SafeAreaView style={styles.safeArea}>
-        {/* 헤더 */}
-        <View style={styles.header}>
+      <View style={styles.safeArea}>
+        {/* 헤더 — Modal 내부에서는 SafeAreaView가 상단 inset을 못 잡는 경우가 있어 insets.top을 직접 반영 */}
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, Platform.OS === 'ios' ? 44 : 24) + 8 }]}>
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={[styles.backText, { color: theme.primary }]}>‹ 닫기</Text>
           </TouchableOpacity>
@@ -230,7 +230,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
             </>
           )}
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </SwipeDismissModal>
   );
 };

@@ -8,6 +8,12 @@ import { sajuEngine } from '../services/sajuEngine';
 import { SajuCategoryId, SajuTopicItem } from '../mocks/sajuCategories';
 import { ExpoSecureStoreAdapter } from '../services/supabase';
 
+// 기기 로컬(KST 등) 기준 YYYY-MM-DD — toISOString()은 UTC라 한국 시간 자정~오전 9시에 날짜가 어긋남
+const getLocalDateStr = (): string => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 export interface BirthInfo {
   birthDate: string; // YYYY-MM-DD
   birthTime: string; // HH:mm or '미상'
@@ -121,7 +127,7 @@ export const useFortuneStore = create<FortuneState>()(
   },
 
   checkDailyRefresh: () => {
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getLocalDateStr();
     const { lastDailyDate } = get();
     if (lastDailyDate && lastDailyDate !== todayStr) {
       // 날짜가 바뀌었으므로 전날 캐시 리셋
@@ -212,7 +218,7 @@ export const useFortuneStore = create<FortuneState>()(
         colleagueInfo,
       });
 
-      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayStr = getLocalDateStr();
       set({ currentFortune: result, lastDailyDate: todayStr, isLoading: false });
       return result;
     } catch (e: any) {

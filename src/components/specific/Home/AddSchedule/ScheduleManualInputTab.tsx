@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -32,6 +32,26 @@ export const ScheduleManualInputTab: React.FC<ScheduleManualInputTabProps> = ({
 }) => {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+
+  // 선택된 날짜 칩이 항상 가로 스크롤 중앙에 오도록 위치 보정
+  const scrollRef = useRef<ScrollView>(null);
+  const chipLayouts = useRef<Record<number, { x: number; width: number }>>({});
+  const [viewportWidth, setViewportWidth] = useState(0);
+
+  const centerDay = useCallback(
+    (day: number, animated: boolean) => {
+      const layout = chipLayouts.current[day];
+      if (!layout || viewportWidth === 0) return;
+      const targetX = layout.x + layout.width / 2 - viewportWidth / 2;
+      scrollRef.current?.scrollTo({ x: Math.max(0, targetX), animated });
+    },
+    [viewportWidth]
+  );
+
+  useEffect(() => {
+    centerDay(selectedDay, true);
+  }, [selectedDay, centerDay]);
+
   return (
     <View>
       <Text style={styles.tabDesc}>
@@ -41,9 +61,11 @@ export const ScheduleManualInputTab: React.FC<ScheduleManualInputTabProps> = ({
       {/* 날짜 가로 휠/스크롤 */}
       <Text style={styles.subSectionTitle}>날짜 선택 ({month + 1}월)</Text>
       <ScrollView
+        ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.dayPickerScroll}
+        onLayout={(e) => setViewportWidth(e.nativeEvent.layout.width)}
       >
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
           const isSelected = selectedDay === d;
@@ -55,6 +77,11 @@ export const ScheduleManualInputTab: React.FC<ScheduleManualInputTabProps> = ({
               key={d}
               style={[styles.dayPickerChip, isSelected && styles.dayPickerChipSelected]}
               onPress={() => onSelectDay(d)}
+              onLayout={(e) => {
+                const { x, width } = e.nativeEvent.layout;
+                chipLayouts.current[d] = { x, width };
+                if (d === selectedDay) centerDay(d, false);
+              }}
             >
               <Text
                 style={[
