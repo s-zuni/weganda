@@ -35,6 +35,15 @@ export interface CommentItem {
   replies?: CommentItem[];
 }
 
+// UI 신고 사유 → reports_reason_check 허용값 매핑
+const mapReportReason = (reason: string): string => {
+  if (reason.includes('개인정보')) return '개인정보 노출';
+  if (reason.includes('욕설') || reason.includes('혐오')) return '불쾌한 내용';
+  if (reason.includes('스팸') || reason.includes('홍보')) return '스팸/광고';
+  if (reason.includes('허위')) return '허위 정보';
+  return '기타';
+};
+
 export const communityApi = {
   // 게시글 목록 조회 (C1)
   async getPosts(params?: {
@@ -362,15 +371,19 @@ export const communityApi = {
     reason: string;
     description?: string;
   }): Promise<boolean> {
+    // reports.reason은 DB CHECK 제약(고정 6종)이 있어 UI 사유를 매핑하고, 원문은 description에 보존한다.
+    const dbReason = mapReportReason(params.reason);
+    const description = (params.description || (dbReason === params.reason ? '' : params.reason)).slice(0, 500);
     const { error } = await supabase.from('reports').insert({
       reporter_id: params.reporterId,
       target_type: params.targetType,
       target_id: params.targetId,
-      reason: params.reason,
-      description: params.description || null,
+      reason: dbReason,
+      description: description || null,
     });
 
-    if (error) {
+    // 동일 대상 중복 신고(UNIQUE 위반)는 이미 접수된 것으로 간주한다.
+    if (error && error.code !== '23505') {
       console.error('Error reporting content:', error);
       throw error;
     }
@@ -384,11 +397,36 @@ export const communityApi = {
       blocked_id: blockedId,
     });
 
-    if (error) {
+    // 이미 차단한 사용자(UNIQUE 위반)는 성공으로 간주한다.
+    if (error && error.code !== '23505') {
       console.error('Error blocking user:', error);
       throw error;
     }
     return true;
+  },
+
+  // 내가 차단한 사용자 ID 목록 (재실행 후에도 차단 유지)
+  async getBlockedUserIds(blockerId: string): Promise<string[]> {
+    const { data, error } = await supabase.from('blocks').select('blocked_id').eq('blocker_id', blockerId);
+    if (error) {
+      console.error('Error fetching blocks:', error);
+      return [];
+    }
+    return (data || []).map((r) => r.blocked_id);
+  },
+
+  // 내가 신고한 게시글 ID 목록 (신고한 게시글은 피드에서 계속 숨김)
+  async getReportedPostIds(reporterId: string): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('reports')
+      .select('target_id')
+      .eq('reporter_id', reporterId)
+      .eq('target_type', 'post');
+    if (error) {
+      console.error('Error fetching reports:', error);
+      return [];
+    }
+    return (data || []).map((r) => r.target_id);
   },
 };
 

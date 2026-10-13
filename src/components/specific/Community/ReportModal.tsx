@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
+import { COLORS, NEUTRAL, TINT_COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { REPORT_REASONS } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
 import { FlagIcon } from '../../common/Icon';
@@ -17,6 +17,8 @@ interface ReportModalProps {
   visible: boolean;
   targetId: string;
   targetType: 'post' | 'comment';
+  /** 댓글 신고 시 해당 댓글이 속한 게시글 ID (신고 즉시 댓글을 숨기기 위함) */
+  parentPostId?: string;
   onClose: () => void;
 }
 
@@ -24,21 +26,24 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   visible,
   targetId,
   targetType,
+  parentPostId,
   onClose,
 }) => {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const { reportContent, hidePost } = useCommunityStore();
+  const { reportContent, hidePost, hideComment } = useCommunityStore();
   const [selectedReason, setSelectedReason] = useState<string>(REPORT_REASONS[0]);
 
   const handleSubmit = () => {
     reportContent(targetId, targetType, selectedReason);
     if (targetType === 'post') {
       hidePost(targetId);
+    } else if (parentPostId) {
+      hideComment(parentPostId, targetId);
     }
     Alert.alert(
       '신고 접수 및 즉시 숨김 완료',
-      '신고가 정상 접수되었습니다. 해당 콘텐츠는 즉시 피드에서 제외되었으며, 운영팀이 24시간 이내에 검토하여 유해 콘텐츠 영구 삭제 및 작성자 계정 강제 퇴출(Ejection) 조치를 완료합니다.\n\n운영팀 직통 이메일: support@weganda.kr',
+      '신고가 정상 접수되었습니다. 해당 콘텐츠는 즉시 피드에서 제외되었으며, 운영팀이 24시간 이내에 검토하여 유해 콘텐츠 영구 삭제 및 작성자 계정 강제 퇴출(Ejection) 조치를 완료합니다.\n\n운영팀 직통 이메일: buiszuni@gmail.com',
       [{ text: '확인', onPress: onClose }]
     );
   };
@@ -91,7 +96,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             <Text style={styles.slaText}>
               접수된 신고는 24시간 이내에 운영팀이 직접 검토하여 유해 콘텐츠 영구 삭제 및 가해 이용자 강제 퇴출(Ejection)을 집행합니다.
             </Text>
-            <Text style={styles.slaContact}>직통 이메일 문의/신고: support@weganda.kr</Text>
+            <Text style={styles.slaContact}>직통 이메일 문의/신고: buiszuni@gmail.com</Text>
           </View>
 
           {/* 하단 액션 버튼 */}
@@ -210,30 +215,30 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
     fontWeight: '800',
   },
   slaBanner: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: TINT_COLORS.redTint,
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#FEE2E2',
+    borderColor: TINT_COLORS.redTintBorder,
     marginTop: 8,
     marginBottom: 14,
   },
   slaTitle: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#E11D48',
+    color: theme.primary,
     marginBottom: 2,
   },
   slaText: {
     fontSize: 11,
-    color: '#991B1B',
+    color: NEUTRAL.gray700,
     lineHeight: 16,
     marginBottom: 4,
   },
   slaContact: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#E11D48',
+    color: theme.primary,
   },
 });
 

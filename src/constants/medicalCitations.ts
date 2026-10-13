@@ -66,3 +66,4 @@ export const OFFICIAL_MEDICAL_CITATIONS: MedicalCitation[] = [
 
 export const MEDICAL_DISCLAIMER_TEXT =
   '본 학습 콘텐츠 및 약물 계산기는 간호 실무 보조 및 학습 목적의 참고 자료입니다. 실제 환자 처치 및 투약 시에는 반드시 담당 의사의 처방전과 소속 의료기관의 최신 표준 임상 프로토콜을 최종 확인하고 동료 간호사와 교차 검증해야 합니다.';
+

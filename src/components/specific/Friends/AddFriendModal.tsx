@@ -9,6 +9,7 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Share,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme, type ThemeColors } from '../../../constants/theme';
@@ -111,21 +112,21 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
     }
   };
 
-  // 연락처 개별 수동 추가 (원칙: 사용자가 직접 '추가' 버튼을 눌러야만 친구 등록)
+  // 연락처 개별 초대 (연락처는 기기 안에서만 사용하며 서버로 전송하지 않는다.
+  // 사용자가 직접 '초대' 버튼을 눌러야 공유 시트가 열리고, 동료가 내 고유번호로 친구 추가를 진행한다)
   const handleAddIndividualContact = async (contact: DeviceContact) => {
-    // 이미 추가된 경우 방지
     if (addedContactIds[contact.id]) return;
 
-    // 로컬 상태 및 안내
-    setAddedContactIds((prev) => ({ ...prev, [contact.id]: true }));
-    Alert.alert(
-      '친구 추가 완료',
-      `${contact.name}님을 친구 목록에 추가했습니다.`
-    );
-
-    // 스토어 친구 목록 갱신
-    if (myUserId) {
-      fetchFriends(myUserId);
+    const codeLine = myUserCode ? `\n내 고유번호: #${myUserCode}` : '';
+    try {
+      const result = await Share.share({
+        message: `${contact.name}님, 우간다(weganda)에서 듀티를 공유해요!${codeLine}\n앱 설치 후 [친구 추가]에서 제 고유번호를 입력해 주세요.\nhttps://weganda.kr`,
+      });
+      if (result.action === Share.sharedAction) {
+        setAddedContactIds((prev) => ({ ...prev, [contact.id]: true }));
+      }
+    } catch {
+      Alert.alert('초대 실패', '초대 메시지를 공유하지 못했습니다. 잠시 후 다시 시도해 주세요.');
     }
   };
 
@@ -268,9 +269,9 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
               <View style={styles.infoCard}>
                 <Text style={styles.infoCardIcon}>📱</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.infoCardTitle}>연락처에서 친구 선택 추가</Text>
+                  <Text style={styles.infoCardTitle}>연락처에서 동료 초대하기</Text>
                   <Text style={styles.infoCardSub}>
-                    자동으로 추가되지 않으며, 원하시는 동료 간호사의 [추가] 버튼을 직접 눌러야만 친구로 등록됩니다.
+                    연락처는 이 기기에서만 사용되며 서버로 전송되지 않습니다. [초대]를 누르면 내 고유번호가 담긴 초대 메시지를 보낼 수 있습니다.
                   </Text>
                 </View>
               </View>
@@ -346,7 +347,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ visible, onClose
                               isAdded ? styles.addedBtnText : { color: theme.onPrimaryText },
                             ]}
                           >
-                            {isAdded ? '추가됨 ✓' : '추가'}
+                            {isAdded ? '초대함 ✓' : '초대'}
                           </Text>
                         </TouchableOpacity>
                       </View>

@@ -8,6 +8,7 @@ import {
   LoginConsentSection,
   LoginConsentState,
   isAllConsented,
+  INITIAL_CONSENT_STATE,
 } from '../../components/specific/Auth/LoginConsentSection';
 
 interface ConsentScreenProps {
@@ -18,7 +19,7 @@ interface ConsentScreenProps {
 export const ConsentScreen: React.FC<ConsentScreenProps> = ({ navigation }) => {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const [consent, setConsent] = useState<LoginConsentState>({ age: false, terms: false, privacy: false });
+  const [consent, setConsent] = useState<LoginConsentState>(INITIAL_CONSENT_STATE);
   const [submitting, setSubmitting] = useState(false);
   const setNeedsConsent = useUserStore((state) => state.setNeedsConsent);
   const clearUser = useUserStore((state) => state.clearUser);

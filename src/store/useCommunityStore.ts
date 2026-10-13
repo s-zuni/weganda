@@ -49,8 +49,23 @@ interface CommunityState {
   // Block & Report & Hide
   blockUser: (authorId: string, blockerId?: string) => void;
   hidePost: (postId: string) => void;
+  hideComment: (postId: string, commentId: string) => void;
+  loadModeration: () => Promise<void>;
   reportContent: (targetId: string, targetType: 'post' | 'comment', reason: string, reporterId?: string) => void;
 }
+
+// 게스트/프리뷰가 아닌 실제 로그인 사용자 ID (신고·차단 서버 기록용)
+const getRealUserId = (): string | undefined => {
+  const u = useUserStore.getState();
+  if (u.isGuest || !u.id || u.id === 'guest_user_preview') return undefined;
+  return u.id;
+};
+
+// 숨김/차단된 항목을 피드에서 제외 (호출 시점에 스토어 상태를 읽는다)
+const filterModerated = (list: PostItem[]): PostItem[] => {
+  const { hiddenPostIds, blockedUserIds } = useCommunityStore.getState();
+  return list.filter((p) => !hiddenPostIds.includes(p.id) && !blockedUserIds.includes(p.authorId));
+};
 
 export const useCommunityStore = create<CommunityState>((set, get) => ({
   posts: [],
@@ -63,6 +78,7 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
   fetchPosts: async (category?: string, userId?: string) => {
     try {
       set({ isLoading: true, error: null });
+      await get().loadModeration();
       const serverPosts = await communityApi.getPosts({ category, userId });
       if (serverPosts && serverPosts.length > 0) {
         const mapped: PostItem[] = serverPosts.map((p) => ({
@@ -91,31 +107,17 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
           images: p.images,
           comments: [],
         }));
-        const hiddenIds = get().hiddenPostIds;
-        const blockedIds = get().blockedUserIds;
-        const filtered = mapped.filter(
-          (p) => !hiddenIds.includes(p.id) && !blockedIds.includes(p.authorId)
-        );
-        set({ posts: filtered, isLoading: false, error: null });
+        set({ posts: filterModerated(mapped), isLoading: false, error: null });
       } else {
         const userState = useUserStore.getState();
         const isGuest = userState.isGuest || userState.id === 'guest_user_preview';
-        const hiddenIds = get().hiddenPostIds;
-        const blockedIds = get().blockedUserIds;
-        const filteredMocks = MOCK_POSTS_DATA.filter(
-          (p) => !hiddenIds.includes(p.id) && !blockedIds.includes(p.authorId)
-        );
-        set({ posts: isGuest ? filteredMocks : [], isLoading: false, error: null });
+        set({ posts: isGuest ? filterModerated(MOCK_POSTS_DATA) : [], isLoading: false, error: null });
       }
     } catch (e: any) {
       console.warn('Notice fetching posts from backend:', e);
       const userState = useUserStore.getState();
       const isGuest = userState.isGuest || userState.id === 'guest_user_preview';
-      const hiddenIds = get().hiddenPostIds;
-      const blockedIds = get().blockedUserIds;
-      const filteredMocks = MOCK_POSTS_DATA.filter(
-        (p) => !hiddenIds.includes(p.id) && !blockedIds.includes(p.authorId)
-      );
+      const filteredMocks = filterModerated(MOCK_POSTS_DATA);
       set({
         posts: isGuest ? filteredMocks : [],
         isLoading: false,
@@ -341,28 +343,57 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
       }),
     })),
 
+  // 서버 차단/신고 이력을 불러와 재실행 후에도 피드에서 계속 제외한다(게스트는 제외).
+  loadModeration: async () => {
+    const userId = getRealUserId();
+    if (!userId) return;
+    const [blocked, reportedPosts] = await Promise.all([
+      communityApi.getBlockedUserIds(userId),
+      communityApi.getReportedPostIds(userId),
+    ]);
+    set((state) => ({
+      blockedUserIds: Array.from(new Set([...state.blockedUserIds, ...blocked])),
+      hiddenPostIds: Array.from(new Set([...state.hiddenPostIds, ...reportedPosts])),
+    }));
+  },
+
   blockUser: (authorId, blockerId) => {
     set((state) => ({
-      blockedUserIds: [...state.blockedUserIds, authorId],
+      blockedUserIds: Array.from(new Set([...state.blockedUserIds, authorId])),
       posts: state.posts.filter((p) => p.authorId !== authorId),
     }));
 
-    if (blockerId) {
-      communityApi.blockUser(blockerId, authorId).catch((e) => console.error('Failed to block on backend:', e));
+    const resolvedBlockerId = blockerId ?? getRealUserId();
+    if (resolvedBlockerId) {
+      communityApi.blockUser(resolvedBlockerId, authorId).catch((e) => console.error('Failed to block on backend:', e));
     }
   },
 
   hidePost: (postId: string) => {
     set((state) => ({
-      hiddenPostIds: [...state.hiddenPostIds, postId],
+      hiddenPostIds: Array.from(new Set([...state.hiddenPostIds, postId])),
       posts: state.posts.filter((p) => p.id !== postId),
     }));
   },
 
+  hideComment: (postId: string, commentId: string) =>
+    set((state) => ({
+      posts: state.posts.map((p) =>
+        p.id !== postId
+          ? p
+          : {
+              ...p,
+              comments: p.comments.filter((c) => c.id !== commentId),
+              commentsCount: Math.max(0, p.commentsCount - 1),
+            }
+      ),
+    })),
+
   reportContent: (targetId, targetType, reason, reporterId) => {
-    if (reporterId) {
+    const resolvedReporterId = reporterId ?? getRealUserId();
+    if (resolvedReporterId) {
       communityApi.reportContent({
-        reporterId,
+        reporterId: resolvedReporterId,
         targetType,
         targetId,
         reason,

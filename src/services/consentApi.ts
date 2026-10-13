@@ -1,17 +1,20 @@
 import { Platform } from 'react-native';
 import { supabase } from './supabase';
-import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '../constants/legal';
+import { TERMS_OF_SERVICE, PRIVACY_POLICY, COMMUNITY_TERMS } from '../constants/legal';
 
 // 로그인 시점에 사용자가 동의한 약관 버전을 서버에 기록한다(분쟁·법적 입증 대비). RLS: 본인 행만 추가/조회.
 // 세션이 없으면(게스트 등) no-op. 기록 실패가 로그인 흐름을 막지 않도록 호출부에서 예외를 삼킨다.
-type ConsentType = 'age14' | 'terms' | 'privacy';
+type ConsentType = 'age18' | 'terms' | 'privacy' | 'community';
 
-const AGE14_VERSION = 'v1'; // 만 14세 이상 확인 문구 버전
+const AGE18_VERSION = 'v1'; // 만 18세 이상 확인 문구 버전 (App Store Guideline 1.2: 18+)
 
+// 주의: 'age18', 'community'는 consent_logs_consent_type_check 제약에 포함되어야 한다
+// (supabase/migrations/20261013_consent_logs_age18_community.sql 적용 필수).
 const CURRENT_CONSENTS: { type: ConsentType; version: string }[] = [
-  { type: 'age14', version: AGE14_VERSION },
+  { type: 'age18', version: AGE18_VERSION },
   { type: 'terms', version: TERMS_OF_SERVICE.version },
   { type: 'privacy', version: PRIVACY_POLICY.version },
+  { type: 'community', version: COMMUNITY_TERMS.version },
 ];
 
 export const consentApi = {

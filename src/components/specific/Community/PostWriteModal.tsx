@@ -13,7 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
+import { COLORS, NEUTRAL, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { PostItem, MOCK_SAMPLE_IMAGES } from '../../../mocks/communityData';
 import { useCommunityStore } from '../../../store/useCommunityStore';
 import { useUserStore } from '../../../store/useUserStore';
@@ -479,13 +479,13 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
     color: theme.primary,
   },
   eulaNoticeBox: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: NEUTRAL.gray50,
     borderRadius: 14,
     padding: 14,
     marginTop: 16,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: NEUTRAL.gray200,
   },
   eulaNoticeTitle: {
     fontSize: 13,

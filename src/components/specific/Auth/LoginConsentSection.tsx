@@ -8,9 +8,12 @@ export interface LoginConsentState {
   age: boolean;
   terms: boolean;
   privacy: boolean;
+  community: boolean; // 커뮤니티 이용약관(부적절 콘텐츠·악성 이용자 무관용 원칙) — App Store Guideline 1.2
 }
 
-export const isAllConsented = (c: LoginConsentState): boolean => c.age && c.terms && c.privacy;
+export const INITIAL_CONSENT_STATE: LoginConsentState = { age: false, terms: false, privacy: false, community: false };
+
+export const isAllConsented = (c: LoginConsentState): boolean => c.age && c.terms && c.privacy && c.community;
 
 interface LoginConsentSectionProps {
   value: LoginConsentState;
@@ -69,12 +72,14 @@ export const LoginConsentSection: React.FC<LoginConsentSectionProps> = ({ value,
         bold
         checked={allChecked}
         label="필수 약관에 모두 동의합니다"
-        onToggle={() => onChange({ age: !allChecked, terms: !allChecked, privacy: !allChecked })}
+        onToggle={() =>
+          onChange({ age: !allChecked, terms: !allChecked, privacy: !allChecked, community: !allChecked })
+        }
       />
       <View style={styles.divider} />
       <ConsentRow
         checked={value.age}
-        label="[필수] 만 14세 이상입니다"
+        label="[필수] 만 18세 이상입니다"
         onToggle={() => onChange({ ...value, age: !value.age })}
       />
       <ConsentRow
@@ -88,6 +93,12 @@ export const LoginConsentSection: React.FC<LoginConsentSectionProps> = ({ value,
         label="[필수] 개인정보 수집·이용 및 국외 이전(AI 처리 등) 동의"
         onView={() => setLegalTab('privacy')}
         onToggle={() => onChange({ ...value, privacy: !value.privacy })}
+      />
+      <ConsentRow
+        checked={value.community}
+        label="[필수] 커뮤니티 이용약관 동의 (부적절 콘텐츠·악성 이용자 무관용)"
+        onView={() => setLegalTab('community')}
+        onToggle={() => onChange({ ...value, community: !value.community })}
       />
       <LegalDocumentModal tab={legalTab} onClose={() => setLegalTab(null)} />
     </View>

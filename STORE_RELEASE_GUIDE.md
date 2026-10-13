@@ -109,7 +109,7 @@ Thank you for reviewing Weganda!
 | **기본 카테고리** | 건강/운동 (Health & Fitness) |
 | **웹사이트** | `https://www.weganda.kr` |
 | **개인정보처리방침 URL** | `https://www.weganda.kr/privacy` |
-| **이메일** | `support@weganda.kr` (또는 개발자 대표 이메일) |
+| **이메일** | `buiszuni@gmail.com` |
 
 ### Google Play 데이터 보안 (Data Safety) 답변 요약
 - **연락처(Contacts)**:

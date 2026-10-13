@@ -636,6 +636,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
           visible={reportModalVisible}
           targetId={reportTarget.id}
           targetType={reportTarget.type}
+          parentPostId={currentPost.id}
           onClose={() => setReportModalVisible(false)}
         />
 
