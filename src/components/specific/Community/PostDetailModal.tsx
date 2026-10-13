@@ -35,6 +35,7 @@ import { VerificationModal } from '../Verification';
 import { UserAvatar } from '../../common/UserAvatar';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
 import { SwipeDismissModal } from '../../common/SwipeDismissModal';
+import { checkObjectionableContent } from '../../../utils/contentFilter';
 
 interface PostDetailModalProps {
   visible: boolean;
@@ -62,6 +63,7 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     toggleLikeComment,
     toggleLikeReply,
     blockUser,
+    hidePost,
   } = useCommunityStore();
   const { id: userId, role, verificationStatus, verificationRole, avatarUrl: myAvatarUrl } = useUserStore();
   const isNurse = role === 'admin' || role === 'nurse' || (verificationStatus === 'verified' && verificationRole === 'nurse');
@@ -133,6 +135,15 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
       ]);
     } else {
       Alert.alert('게시글 옵션', '원하시는 작업을 선택해 주세요.', [
+        {
+          text: '이 게시글 피드에서 즉시 숨기기',
+          style: 'destructive',
+          onPress: () => {
+            hidePost(currentPost.id);
+            Alert.alert('숨김 완료', '해당 게시글이 피드에서 즉시 숨겨졌습니다.');
+            onClose();
+          },
+        },
         {
           text: '게시글 신고하기',
           onPress: () => {
@@ -222,6 +233,16 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
 
     if (!commentText.trim()) return;
+
+    // 부적절/유해 콘텐츠 검사 (Guideline 1.2 준수)
+    const filterCheck = checkObjectionableContent(commentText);
+    if (filterCheck.hasObjectionableContent) {
+      Alert.alert(
+        '작성 불가 (가이드라인 위반)',
+        '댓글에 커뮤니티 가이드라인에 위배되는 부적절한 단어가 포함되어 있습니다.'
+      );
+      return;
+    }
 
     const STUDENT_ALLOWED_CATEGORIES: string[] = ['간호대생 라운지', '채용/취업 정보', '임상/질문'];
     if (isStudent && !STUDENT_ALLOWED_CATEGORIES.includes(currentPost.category)) {

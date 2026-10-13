@@ -19,6 +19,7 @@ import { useCommunityStore } from '../../../store/useCommunityStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { ImageIcon, LockIcon } from '../../common/Icon';
 import { SwipeDismissModal } from '../../common/SwipeDismissModal';
+import { validatePostContent } from '../../../utils/contentFilter';
 
 interface PostWriteModalProps {
   visible: boolean;
@@ -103,6 +104,16 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
     }
     if (!content.trim()) {
       Alert.alert('입력 확인', '글 내용을 입력해 주세요.');
+      return;
+    }
+
+    // 부적절/유해 콘텐츠(Objectionable Content) 필터링 (Guideline 1.2 준수)
+    const filterCheck = validatePostContent(title, content);
+    if (!filterCheck.isValid) {
+      Alert.alert(
+        '작성 불가 (가이드라인 위반)',
+        filterCheck.errorMessage || '커뮤니티 가이드라인에 위배되는 부적절한 단어가 포함되어 있습니다.'
+      );
       return;
     }
 
@@ -241,6 +252,14 @@ export const PostWriteModal: React.FC<PostWriteModalProps> = ({
                 </TouchableOpacity>
               )}
             </View>
+          </View>
+
+          {/* EULA 무관용 원칙(Zero-Tolerance Policy) 동의 및 가이드라인 안내 (Guideline 1.2 준수) */}
+          <View style={styles.eulaNoticeBox}>
+            <Text style={styles.eulaNoticeTitle}>🛡️ 클린 커뮤니티 준수 서약 (Zero-Tolerance Policy)</Text>
+            <Text style={styles.eulaNoticeText}>
+              우간다는 만 18세 이상 의료진을 위한 청정 커뮤니티입니다. 타인에 대한 욕설, 비방, 음란물, 허위 사실 유포 및 불쾌감을 주는 콘텐츠(Objectionable Content)는 엄격히 금지되며, 위반 시 24시간 이내에 게시물이 영구 삭제되고 이용자 계정이 즉시 강제 퇴출(Ejection) 처리됩니다.
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -458,6 +477,26 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: theme.primary,
+  },
+  eulaNoticeBox: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  eulaNoticeTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  eulaNoticeText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
   },
 });
 

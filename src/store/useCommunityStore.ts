@@ -7,6 +7,7 @@ import { getAppTheme } from '../constants/theme';
 interface CommunityState {
   posts: PostItem[];
   blockedUserIds: string[];
+  hiddenPostIds: string[];
   isLoading: boolean;
   error: string | null;
 
@@ -45,14 +46,16 @@ interface CommunityState {
   toggleLikeComment: (postId: string, commentId: string, userId?: string) => void;
   toggleLikeReply: (postId: string, commentId: string, replyId: string) => void;
 
-  // Block & Report
+  // Block & Report & Hide
   blockUser: (authorId: string, blockerId?: string) => void;
+  hidePost: (postId: string) => void;
   reportContent: (targetId: string, targetType: 'post' | 'comment', reason: string, reporterId?: string) => void;
 }
 
 export const useCommunityStore = create<CommunityState>((set, get) => ({
   posts: [],
   blockedUserIds: [],
+  hiddenPostIds: [],
   isLoading: false,
   error: null,
 
@@ -88,18 +91,33 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
           images: p.images,
           comments: [],
         }));
-        set({ posts: mapped, isLoading: false, error: null });
+        const hiddenIds = get().hiddenPostIds;
+        const blockedIds = get().blockedUserIds;
+        const filtered = mapped.filter(
+          (p) => !hiddenIds.includes(p.id) && !blockedIds.includes(p.authorId)
+        );
+        set({ posts: filtered, isLoading: false, error: null });
       } else {
         const userState = useUserStore.getState();
         const isGuest = userState.isGuest || userState.id === 'guest_user_preview';
-        set({ posts: isGuest ? MOCK_POSTS_DATA : [], isLoading: false, error: null });
+        const hiddenIds = get().hiddenPostIds;
+        const blockedIds = get().blockedUserIds;
+        const filteredMocks = MOCK_POSTS_DATA.filter(
+          (p) => !hiddenIds.includes(p.id) && !blockedIds.includes(p.authorId)
+        );
+        set({ posts: isGuest ? filteredMocks : [], isLoading: false, error: null });
       }
     } catch (e: any) {
       console.warn('Notice fetching posts from backend:', e);
       const userState = useUserStore.getState();
       const isGuest = userState.isGuest || userState.id === 'guest_user_preview';
+      const hiddenIds = get().hiddenPostIds;
+      const blockedIds = get().blockedUserIds;
+      const filteredMocks = MOCK_POSTS_DATA.filter(
+        (p) => !hiddenIds.includes(p.id) && !blockedIds.includes(p.authorId)
+      );
       set({
-        posts: isGuest ? MOCK_POSTS_DATA : [],
+        posts: isGuest ? filteredMocks : [],
         isLoading: false,
         error: isGuest ? null : '게시글 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
       });
@@ -332,6 +350,13 @@ export const useCommunityStore = create<CommunityState>((set, get) => ({
     if (blockerId) {
       communityApi.blockUser(blockerId, authorId).catch((e) => console.error('Failed to block on backend:', e));
     }
+  },
+
+  hidePost: (postId: string) => {
+    set((state) => ({
+      hiddenPostIds: [...state.hiddenPostIds, postId],
+      posts: state.posts.filter((p) => p.id !== postId),
+    }));
   },
 
   reportContent: (targetId, targetType, reason, reporterId) => {

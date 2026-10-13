@@ -9,11 +9,13 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useStudyStore } from '../../../store/useStudyStore';
 import { useUserStore } from '../../../store/useUserStore';
+import { OFFICIAL_MEDICAL_CITATIONS } from '../../../constants/medicalCitations';
 import { FREE_LIMITS } from '../../../constants/membership';
 import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
@@ -33,6 +35,16 @@ const QUICK_QUESTIONS = [
   '수혈 간호 핵심 3원칙',
   'SBAR 인수인계 작성 요령',
 ];
+
+const getCitationUrl = (agency: string) => {
+  if (agency.includes('간호협회') || agency.includes('KNA')) return 'https://www.koreanurse.or.kr';
+  if (agency.includes('병원간호') || agency.includes('KHNA')) return 'https://khna.or.kr';
+  if (agency.includes('식약처') || agency.includes('MFDS')) return 'https://nedrug.mfds.go.kr';
+  if (agency.includes('질병관리청') || agency.includes('KDCA')) return 'https://health.kdca.go.kr';
+  if (agency.includes('심폐소생') || agency.includes('KACPR') || agency.includes('ACLS')) return 'https://www.kacpr.org';
+  if (agency.includes('INS')) return 'https://www.ins1.org';
+  return 'https://health.kdca.go.kr';
+};
 
 export const AskAiModal: React.FC<AskAiModalProps> = ({
   visible,
@@ -121,6 +133,28 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
           </ScrollView>
         </View>
 
+        {/* 의학 면책조항 및 공식 출처 안내 배너 (Guideline 1.4.1 준수) */}
+        <View style={styles.medicalNoticeBar}>
+          <Text style={styles.medicalNoticeTitle}>
+            🩺 임상 참고 및 보건의료 공식 출처 안내
+          </Text>
+          <Text style={styles.medicalNoticeDesc}>
+            본 AI 자문은 실무 참고용이며, 실제 투약 시 의사 처방 및 기관 프로토콜을 확인해야 합니다.
+          </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.citationPillRow}>
+            {OFFICIAL_MEDICAL_CITATIONS.map((cit) => (
+              <TouchableOpacity
+                key={cit.id}
+                style={styles.citationPill}
+                onPress={() => Linking.openURL(cit.url)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.citationPillText}>{cit.agency} ↗</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
         {/* 메시지 스트림 */}
         <ScrollView
           style={styles.chatScroll}
@@ -155,14 +189,22 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
                           <Text style={styles.sourceHeaderText}>공식 표준 임상 출처 (Grounding)</Text>
                         </View>
                         {msg.sources.map((src, sIdx) => (
-                          <View key={sIdx} style={styles.sourceBadge}>
+                          <TouchableOpacity
+                            key={sIdx}
+                            style={styles.sourceBadge}
+                            onPress={() => Linking.openURL(getCitationUrl(src.sourceAgency))}
+                            activeOpacity={0.7}
+                          >
                             <View style={styles.agencyPill}>
                               <Text style={styles.agencyPillText}>{src.sourceAgency}</Text>
                             </View>
                             <Text style={styles.sourceBadgeTitle} numberOfLines={1} ellipsizeMode="tail">
                               {src.title}
                             </Text>
-                          </View>
+                            <Text style={{ fontSize: 10, color: '#2563EB', fontWeight: '700', marginLeft: 4 }}>
+                              출처 ↗
+                            </Text>
+                          </TouchableOpacity>
                         ))}
                       </View>
                     )}
@@ -423,6 +465,42 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
     color: '#334155',
     lineHeight: 16,
     flex: 1,
+  },
+  medicalNoticeBar: {
+    backgroundColor: '#F0F9FF',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#BAE6FD',
+  },
+  medicalNoticeTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0369A1',
+    marginBottom: 2,
+  },
+  medicalNoticeDesc: {
+    fontSize: 11,
+    color: '#0C4A6E',
+    lineHeight: 15,
+    marginBottom: 6,
+  },
+  citationPillRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  citationPill: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#7DD3FC',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  citationPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#0284C7',
   },
 });
 

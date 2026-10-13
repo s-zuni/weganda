@@ -258,12 +258,15 @@ Deno.serve(async (req: Request) => {
     );
 
     // 1. 반드시 인증된 사용자만 허용 (프리미엄을 부여받을 본인 확인)
+    // 서버 클라이언트에는 저장된 세션이 없으므로 getUser()에 JWT를 명시적으로 전달해야 한다.
+    const accessToken = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
     const {
       data: { user },
       error: authError,
-    } = await supabaseClient.auth.getUser();
+    } = await supabaseClient.auth.getUser(accessToken);
 
     if (authError || !user) {
+      console.warn("[verify-purchase] 인증 실패:", authError?.message ?? "user 없음");
       return new Response(JSON.stringify({ error: "인증이 필요합니다." }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

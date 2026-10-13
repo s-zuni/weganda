@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
 import { Card } from '../../common/Card';
 import { COLORS, useAppTheme } from '../../../constants/theme';
@@ -18,7 +19,9 @@ import {
 import { VerifiedNurseBadge } from '../../common/VerifiedNurseBadge';
 import { UserAvatar } from '../../common/UserAvatar';
 import { useUserStore } from '../../../store/useUserStore';
+import { useCommunityStore } from '../../../store/useCommunityStore';
 import { PostItem } from '../../../types/community';
+import { ReportModal } from './ReportModal';
 
 interface PostCardItemProps {
   post: PostItem;
@@ -35,6 +38,53 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
 }) => {
   const theme = useAppTheme();
   const avatarUrl = useUserStore((s) => s.avatarUrl);
+  const { hidePost, blockUser } = useCommunityStore();
+  const [reportVisible, setReportVisible] = useState(false);
+
+  const handlePressMore = () => {
+    Alert.alert(
+      '게시글 관리 및 신고',
+      '원하시는 작업을 선택해 주세요.',
+      [
+        {
+          text: '이 게시글 피드에서 즉시 숨기기',
+          style: 'destructive',
+          onPress: () => {
+            hidePost(post.id);
+            Alert.alert('숨김 완료', '해당 게시글이 피드에서 즉시 숨겨졌습니다.');
+          },
+        },
+        {
+          text: `작성자(${post.authorName}) 차단하기`,
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              '작성자 차단',
+              `'${post.authorName}' 님의 모든 게시글과 댓글을 더 이상 표시하지 않습니다. 차단하시겠습니까?`,
+              [
+                { text: '취소', style: 'cancel' },
+                {
+                  text: '차단',
+                  style: 'destructive',
+                  onPress: () => {
+                    blockUser(post.authorId);
+                    Alert.alert('차단 완료', `'${post.authorName}' 님이 차단되었습니다.`);
+                  },
+                },
+              ]
+            );
+          },
+        },
+        {
+          text: '게시글 신고하기 (부적절한 콘텐츠)',
+          onPress: () => {
+            setReportVisible(true);
+          },
+        },
+        { text: '취소', style: 'cancel' },
+      ]
+    );
+  };
 
   return (
     <Card style={styles.postCard}>
@@ -47,7 +97,16 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
             </View>
           </View>
 
-          <Text style={styles.postTimeText}>{post.timeAgo}</Text>
+          <View style={styles.metaRightRow}>
+            <Text style={styles.postTimeText}>{post.timeAgo}</Text>
+            <TouchableOpacity
+              onPress={handlePressMore}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              style={styles.moreBtn}
+            >
+              <Text style={styles.moreBtnText}>•••</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* 제목 & 본문 프리뷰 */}
@@ -138,6 +197,13 @@ export const PostCardItem: React.FC<PostCardItemProps> = ({
           </View>
         </View>
       </TouchableOpacity>
+
+      <ReportModal
+        visible={reportVisible}
+        targetId={post.id}
+        targetType="post"
+        onClose={() => setReportVisible(false)}
+      />
     </Card>
   );
 };
@@ -155,6 +221,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
+  },
+  metaRightRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  moreBtn: {
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+  },
+  moreBtnText: {
+    fontSize: 14,
+    color: COLORS.textMuted,
+    fontWeight: '700',
+    letterSpacing: -1,
   },
   badgeRow: {
     flexDirection: 'row',

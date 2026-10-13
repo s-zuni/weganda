@@ -28,20 +28,23 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 }) => {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const { reportContent } = useCommunityStore();
+  const { reportContent, hidePost } = useCommunityStore();
   const [selectedReason, setSelectedReason] = useState<string>(REPORT_REASONS[0]);
 
   const handleSubmit = () => {
     reportContent(targetId, targetType, selectedReason);
+    if (targetType === 'post') {
+      hidePost(targetId);
+    }
     Alert.alert(
-      '신고 접수 완료',
-      '신고해 주신 내용이 정상적으로 접수되었습니다. 커뮤니티 가이드라인에 따라 24시간 이내에 검토 및 블라인드 처리됩니다.',
+      '신고 접수 및 즉시 숨김 완료',
+      '신고가 정상 접수되었습니다. 해당 콘텐츠는 즉시 피드에서 제외되었으며, 운영팀이 24시간 이내에 검토하여 유해 콘텐츠 영구 삭제 및 작성자 계정 강제 퇴출(Ejection) 조치를 완료합니다.\n\n운영팀 직통 이메일: support@weganda.kr',
       [{ text: '확인', onPress: onClose }]
     );
   };
 
   return (
-    <SwipeableBottomSheet visible={visible} onClose={onClose} height={540}>
+    <SwipeableBottomSheet visible={visible} onClose={onClose} height={600}>
       <View style={styles.container}>
         {/* 헤더 */}
         <View style={styles.header}>
@@ -82,9 +85,18 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             })}
           </View>
 
+          {/* 24시간 내 신속 처리 SLA 및 직통 신고 연락처 안내 (Guideline 1.2 준수) */}
+          <View style={styles.slaBanner}>
+            <Text style={styles.slaTitle}>🛡️ 24시간 이내 조치 원칙 & 직통 문의처</Text>
+            <Text style={styles.slaText}>
+              접수된 신고는 24시간 이내에 운영팀이 직접 검토하여 유해 콘텐츠 영구 삭제 및 가해 이용자 강제 퇴출(Ejection)을 집행합니다.
+            </Text>
+            <Text style={styles.slaContact}>직통 이메일 문의/신고: support@weganda.kr</Text>
+          </View>
+
           {/* 하단 액션 버튼 */}
           <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} activeOpacity={0.85}>
-            <Text style={styles.submitBtnText}>신고 접수하기</Text>
+            <Text style={styles.submitBtnText}>신고 접수 및 즉시 숨기기</Text>
           </TouchableOpacity>
         </View>
     </SwipeableBottomSheet>
@@ -196,6 +208,32 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '800',
+  },
+  slaBanner: {
+    backgroundColor: '#FEF2F2',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+    marginTop: 8,
+    marginBottom: 14,
+  },
+  slaTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#E11D48',
+    marginBottom: 2,
+  },
+  slaText: {
+    fontSize: 11,
+    color: '#991B1B',
+    lineHeight: 16,
+    marginBottom: 4,
+  },
+  slaContact: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#E11D48',
   },
 });
 

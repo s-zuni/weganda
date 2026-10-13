@@ -8,6 +8,7 @@ import {
   ScrollView,
   Share,
   Alert,
+  Linking,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
@@ -15,6 +16,7 @@ import { StudyGuideItem } from '../../../mocks/studyData';
 import { useStudyStore } from '../../../store/useStudyStore';
 import { BookmarkIcon, ShareIcon } from '../../common/Icon';
 import { SwipeDismissModal } from '../../common/SwipeDismissModal';
+import { OFFICIAL_MEDICAL_CITATIONS, MEDICAL_DISCLAIMER_TEXT } from '../../../constants/medicalCitations';
 
 interface StudyDetailModalProps {
   visible: boolean;
@@ -124,9 +126,35 @@ export const StudyDetailModal: React.FC<StudyDetailModalProps> = ({
             ))}
           </View>
 
+          {/* 공식 의학 출처 및 표준 가이드라인 링크 (Guideline 1.4.1 준수) */}
+          <View style={styles.citationSection}>
+            <Text style={styles.citationSectionTitle}>공식 의학 출처 및 표준 가이드라인 링크</Text>
+            <Text style={styles.disclaimerText}>{MEDICAL_DISCLAIMER_TEXT}</Text>
+
+            <View style={styles.citationList}>
+              {OFFICIAL_MEDICAL_CITATIONS.map((cit) => (
+                <TouchableOpacity
+                  key={cit.id}
+                  style={styles.citationCard}
+                  onPress={() => Linking.openURL(cit.url)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.citationBadge}>
+                    <Text style={styles.citationBadgeText}>{cit.agency}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.citationItemTitle}>{cit.title}</Text>
+                    <Text style={styles.citationItemDesc}>{cit.description}</Text>
+                    <Text style={styles.citationItemUrl}>{cit.url} ↗</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
           {/* 출처 */}
           <View style={styles.authorFooter}>
-            <Text style={styles.authorFooterText}>출처: {currentGuide.author}</Text>
+            <Text style={styles.authorFooterText}>작성 및 실무 검수: {currentGuide.author}</Text>
           </View>
         </ScrollView>
       </View>
@@ -280,6 +308,67 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
     fontSize: 15,
     color: COLORS.textPrimary,
     lineHeight: 22,
+  },
+  citationSection: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginBottom: 20,
+  },
+  citationSectionTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    marginBottom: 6,
+  },
+  disclaimerText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+    marginBottom: 12,
+  },
+  citationList: {
+    gap: 10,
+  },
+  citationCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  citationBadge: {
+    backgroundColor: '#EEF2FF',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+  },
+  citationBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4F46E5',
+  },
+  citationItemTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 2,
+  },
+  citationItemDesc: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    lineHeight: 15,
+    marginBottom: 4,
+  },
+  citationItemUrl: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#2563EB',
   },
   authorFooter: {
     alignItems: 'center',

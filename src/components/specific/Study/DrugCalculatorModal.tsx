@@ -7,10 +7,12 @@ import {
   ScrollView,
   TextInput,
   Alert,
+  Linking,
 } from 'react-native';
 import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { useDrugStore, CustomDrugPreset } from '../../../store/useDrugStore';
 import { useUserStore } from '../../../store/useUserStore';
+import { OFFICIAL_MEDICAL_CITATIONS, MEDICAL_DISCLAIMER_TEXT } from '../../../constants/medicalCitations';
 import { FREE_LIMITS } from '../../../constants/membership';
 import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
@@ -393,6 +395,32 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
               • 고위험 혈관수축제는 말초 유출 시 피부 괴사 위험이 있으므로 C-line 투여를 권장합니다.
             </Text>
           </View>
+
+          {/* 공식 의학 출처 및 계산 공식 근거 (Guideline 1.4.1 준수) */}
+          <View style={styles.citationSection}>
+            <Text style={styles.citationSectionTitle}>공식 계산 공식 및 의학 지침 출처</Text>
+            <Text style={styles.disclaimerText}>{MEDICAL_DISCLAIMER_TEXT}</Text>
+
+            <View style={styles.citationList}>
+              {OFFICIAL_MEDICAL_CITATIONS.filter((c) => c.category === '약물' || c.category === '간호술기').map((cit) => (
+                <TouchableOpacity
+                  key={cit.id}
+                  style={styles.citationCard}
+                  onPress={() => Linking.openURL(cit.url)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.citationBadge}>
+                    <Text style={styles.citationBadgeText}>{cit.agency}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.citationItemTitle}>{cit.title}</Text>
+                    <Text style={styles.citationItemDesc}>{cit.description}</Text>
+                    <Text style={styles.citationItemUrl}>{cit.url} ↗</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
         </BottomSheetScrollView>
 
         <PaywallBottomSheet
@@ -723,6 +751,67 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
     lineHeight: 19,
+  },
+  citationSection: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 14,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  citationSectionTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  disclaimerText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    lineHeight: 17,
+    marginBottom: 10,
+  },
+  citationList: {
+    gap: 8,
+  },
+  citationCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  citationBadge: {
+    backgroundColor: '#EEF2FF',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  citationBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4F46E5',
+  },
+  citationItemTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 2,
+  },
+  citationItemDesc: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    lineHeight: 14,
+    marginBottom: 2,
+  },
+  citationItemUrl: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#2563EB',
   },
 });
 
