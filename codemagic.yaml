@@ -75,10 +75,10 @@ workflows:
           curl -fSL "https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer" -o /tmp/AppleWWDRCAG3.cer
           curl -fSL "https://www.apple.com/certificateauthority/AppleWWDRCAG4.cer" -o /tmp/AppleWWDRCAG4.cer
           curl -fSL "https://www.apple.com/certificateauthority/AppleWWDRCAG6.cer" -o /tmp/AppleWWDRCAG6.cer
-          KC=$(keychain list-keychains | head -n 1 | tr -d '" ')
-          security import /tmp/AppleWWDRCAG3.cer -k "$KC" || true
-          security import /tmp/AppleWWDRCAG4.cer -k "$KC" || true
-          security import /tmp/AppleWWDRCAG6.cer -k "$KC" || true
+          DEFAULT_KC=$(keychain get-default)
+          security import /tmp/AppleWWDRCAG3.cer -k "$DEFAULT_KC" || true
+          security import /tmp/AppleWWDRCAG4.cer -k "$DEFAULT_KC" || true
+          security import /tmp/AppleWWDRCAG6.cer -k "$DEFAULT_KC" || true
 
           # 2. App Store Connect API로 배포 인증서 및 프로비저닝 프로파일 자동 발급 및 동기화
           echo "=== Fetching and generating signing files from Apple Developer ==="
