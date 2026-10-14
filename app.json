@@ -18,7 +18,8 @@
       "buildNumber": "20",
       "usesAppleSignIn": true,
       "entitlements": {
-        "aps-environment": "production"
+        "aps-environment": "production",
+        "com.apple.developer.applesignin": ["Default"]
       },
       "splash": {
         "image": "./src/assets/splash.png",
