@@ -71,6 +71,18 @@ workflows:
       - name: 4. Set up Apple Code Signing
         script: |
           keychain initialize
+
+          # 1. Apple WWDR Intermediate CA 인증서 설치 (인증서 신뢰 체인 및 유효성 보증)
+          echo "=== Installing Apple WWDR CA Certificates ==="
+          curl -fSL "https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer" -o /tmp/AppleWWDRCAG3.cer
+          curl -fSL "https://www.apple.com/certificateauthority/AppleWWDRCAG4.cer" -o /tmp/AppleWWDRCAG4.cer
+          curl -fSL "https://www.apple.com/certificateauthority/AppleWWDRCAG6.cer" -o /tmp/AppleWWDRCAG6.cer
+          KC=$(keychain list-keychains | head -n 1 | tr -d '" ')
+          security import /tmp/AppleWWDRCAG3.cer -k "$KC" || true
+          security import /tmp/AppleWWDRCAG4.cer -k "$KC" || true
+          security import /tmp/AppleWWDRCAG6.cer -k "$KC" || true
+
+          # 2. Codemagic 배포 인증서 설치
           keychain add-certificates
           echo "=== Available Code Signing Identities in Keychain ==="
           security find-identity -v -p codesigning || true
