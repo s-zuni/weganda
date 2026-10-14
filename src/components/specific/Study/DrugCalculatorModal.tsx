@@ -428,11 +428,11 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
           onClose={() => setPaywallVisible(false)}
           onSubscribe={() => {
             setPaywallVisible(false);
-            setMembershipVisible(true);
+            setTimeout(() => setMembershipVisible(true), 250);
           }}
           onLearnMore={() => {
             setPaywallVisible(false);
-            setMembershipVisible(true);
+            setTimeout(() => setMembershipVisible(true), 250);
           }}
           featureTitle="약물 계산기 무제한 이용"
           featureDescription="무료 일일 3회 초과 시 weganda+로 무제한 임상 약물 계산기를 이용하세요"

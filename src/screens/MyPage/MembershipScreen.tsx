@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserStore } from '../../store/useUserStore';
@@ -46,7 +47,10 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
 
   const handlePaymentSuccess = () => {
     setPaymentVisible(false);
-    onClose();
+    // iOS window hierarchy: 모달 오버레이가 언마운트된 후 안전하게 부모 모달 닫기
+    setTimeout(() => {
+      onClose();
+    }, 150);
   };
 
   // 구매 복원 (Apple / Google 스토어 필수 정책)
@@ -55,8 +59,9 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
     try {
       const res = await inAppPurchaseService.restorePurchases();
       if (res.success) {
-        Alert.alert('구매 복원 완료', '이전 구독 내역이 성공적으로 복원되었습니다.');
-        onClose();
+        Alert.alert('구매 복원 완료', '이전 구독 내역이 성공적으로 복원되었습니다.', [
+          { text: '확인', onPress: () => setTimeout(() => onClose(), 150) },
+        ]);
       } else {
         Alert.alert('복원 안내', res.errorMessage || '복원 가능한 이전 결제 내역이 없습니다.');
       }
@@ -71,7 +76,9 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
     <Modal
       visible={visible}
       animationType="slide"
-      transparent={false}
+      transparent={true}
+      presentationStyle="overFullScreen"
+      statusBarTranslucent={Platform.OS === 'android'}
       onRequestClose={onClose}
     >
       <SafeAreaView style={styles.safeArea}>
@@ -124,23 +131,23 @@ export const MembershipScreen: React.FC<MembershipScreenProps> = ({ visible, onC
             onClose={onClose}
           />
         </View>
-
-        {paymentVisible && (
-          <InAppPurchaseModal
-            visible={paymentVisible}
-            sku={currentPricing.sku}
-            options={{
-              planType: selectedPlan,
-              price: currentPricing.currentPrice,
-              isTrial: currentPricing.isFreeTrialActive,
-              isEarlybird: currentPricing.isDiscountActive,
-              trialDays,
-            }}
-            onClose={() => setPaymentVisible(false)}
-            onPaymentSuccess={handlePaymentSuccess}
-          />
-        )}
       </SafeAreaView>
+
+      {paymentVisible && (
+        <InAppPurchaseModal
+          visible={paymentVisible}
+          sku={currentPricing.sku}
+          options={{
+            planType: selectedPlan,
+            price: currentPricing.currentPrice,
+            isTrial: currentPricing.isFreeTrialActive,
+            isEarlybird: currentPricing.isDiscountActive,
+            trialDays,
+          }}
+          onClose={() => setPaymentVisible(false)}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
+      )}
     </Modal>
   );
 };

@@ -244,11 +244,11 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
           onClose={() => setPaywallVisible(false)}
           onSubscribe={() => {
             setPaywallVisible(false);
-            setMembershipVisible(true);
+            setTimeout(() => setMembershipVisible(true), 250);
           }}
           onLearnMore={() => {
             setPaywallVisible(false);
-            setMembershipVisible(true);
+            setTimeout(() => setMembershipVisible(true), 250);
           }}
           featureTitle="Ask AI 무제한 질문"
           featureDescription="무료 일일 3회 초과 시 weganda+로 무제한 임상 멘토링을 이용하세요"

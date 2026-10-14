@@ -175,11 +175,11 @@ export const SajuChatModal: React.FC<SajuChatModalProps> = ({
           onClose={() => setPaywallVisible(false)}
           onSubscribe={() => {
             setPaywallVisible(false);
-            setMembershipVisible(true);
+            setTimeout(() => setMembershipVisible(true), 250);
           }}
           onLearnMore={() => {
             setPaywallVisible(false);
-            setMembershipVisible(true);
+            setTimeout(() => setMembershipVisible(true), 250);
           }}
           featureTitle="사주·MBTI AI 대화 무제한"
           featureDescription="무료 일일 5회 초과 시 weganda+로 무제한 심층 상담을 이용하세요"

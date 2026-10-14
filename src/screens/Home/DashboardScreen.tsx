@@ -242,11 +242,11 @@ export const DashboardScreen: React.FC<{ navigation?: any }> = ({ navigation }) 
         onClose={() => setPaywallVisible(false)}
         onSubscribe={() => {
           setPaywallVisible(false);
-          setMembershipVisible(true);
+          setTimeout(() => setMembershipVisible(true), 250);
         }}
         onLearnMore={() => {
           setPaywallVisible(false);
-          setMembershipVisible(true);
+          setTimeout(() => setMembershipVisible(true), 250);
         }}
         featureTitle="월급/수당 예측기"
         featureDescription="D/E/N 근무 패턴 기반으로 다음 달 예상 월급을 자동 계산"

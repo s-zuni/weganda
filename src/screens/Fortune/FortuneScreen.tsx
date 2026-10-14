@@ -155,11 +155,11 @@ export const FortuneScreen: React.FC = () => {
         onClose={() => setPaywallVisible(false)}
         onSubscribe={() => {
           setPaywallVisible(false);
-          setMembershipVisible(true);
+          setTimeout(() => setMembershipVisible(true), 250);
         }}
         onLearnMore={() => {
           setPaywallVisible(false);
-          setMembershipVisible(true);
+          setTimeout(() => setMembershipVisible(true), 250);
         }}
         featureTitle="사주 서비스"
         featureDescription="매달 횟수 제한 없이 간호 운세와 정밀 사주를 확인하세요"

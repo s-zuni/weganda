@@ -37,7 +37,9 @@ export const Step3MembershipEvent: React.FC<Step3MembershipEventProps> = ({
 
   const handleIapSuccess = () => {
     setShowIapModal(false);
-    onComplete();
+    setTimeout(() => {
+      onComplete();
+    }, 150);
   };
 
   return (
