@@ -80,13 +80,47 @@ workflows:
           security import /tmp/AppleWWDRCAG4.cer -k "$DEFAULT_KC" || true
           security import /tmp/AppleWWDRCAG6.cer -k "$DEFAULT_KC" || true
 
-          # 2. App Store Connect API로 배포 인증서 및 프로비저닝 프로파일 자동 발급 및 동기화
+          # 2. RSA 개인키 설정 (Codemagic CLI가 Apple에 새 인증서를 등록할 때 필수)
+          cat << 'EOF' > /tmp/certificate_private_key
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEArnCCAWMO3DsKnN9bTq2rH7OD8lWmpIdG1YB181e106Szth02
+lZX9nF7XFztE4dsDJ0ReOsBHobEnsfYbsjOvTOKB2PHoACKSR0hAlleByDHLpB5p
+sS8GHdzrrMS4s2gFHmeEsd31IfDsTDAMY2b6GCED8otc8a8TUAuvMoPCYHsDr5UL
+9sC42f0XRirYoSO+bWlT6Zom/jiZmr47/1Ky47e94T6sKusC4FGVGvGHRLOe3RKZ
+H0j61j/VBKfr0G9OvH5BFBkW2znHZL3YOec70aF9WIzdn6IP3rSx8G97bArwmdl5
+7Kjc23/bLvAUwrhvf1WAKKAe+C/pvN0yf7zR/wIDAQABAoIBAAFTrMF68el973o6
+/rROAN+4W1gUC7TzrHfCRuNnduQZvB42AazIm8m9NPChzEfVhSQe0oKq5MCXmuAx
+KYvE9d/lVyyBxox9ttQg+hDKsJuHuW9RpecpnufKPuatBmSi9WsCSZGayRsNfJal
+xOpapataUO/e3IGgHcr9k8MUGn3mXmwER1Rgp06NBFbr5WrvNC8mVvSETfcc+gJS
+7DQhCJXs1QGj1AFNEgHLzZ7M7kUG2tji3YD3E6qgJMWHe3W4EPqiaCaJUybooO86
+Vv30bY1WG8D8TUFqPUxS86RogYF9r1yAA1eLhwwj0x7zDgAfG09fY4YLcUU0mhCV
+0YRJAcUCgYEA34SmdIfZhmFxkfweitp3BevLgC5RmpC9clY4x1BThdiYU7iv1Z8q
+dKaWenCUJe8VL2xH+YJZHX0QmvS0CLzcrnKXNo/fPIuB6y7LfgTjH0OO3m67+dXt
+J/Uq44yawpZHRyebiaIZeJraCEO+3I49Pqvss71Eizyrw0tpf88NhLUCgYEAx8oG
+zo8CEDcouGsM5mJ4ys/rUV2vhcs7aVwt4gqKv6420OGEfiaLwmsg1AAZjow/PP1k
+fEQNlReMfLvbwZfLyMFb+2VtHC5zYg/Nxy7lCe6JM8q32/k2NWyenzdVaHewOSSB
+Syh6CD4lTgcXDgESdq2P4YI6SrvWsQDKLV+IgGMCgYARmTgh5LBTzEhM3jTpadoF
+NVOIfB0gtlS0M+W0i7aHy03zCY+OmkGVfahLa6G+etyIJ1ZjZsftcnNkP/AM4BHg
+ClWtjhZdhf5srfqHqYrYY1FUYhOa0CUkCEGgOOnWeE6UY6HzbDflLwwLqonUg75+
+uLqiTDyhWd2MOtvLnFnMIQKBgB3VIvMRE6PMOL5g7coxBgxyw5agwKbf0/1FkGxi
+WpmIsBK8ugYER3Y+fOZrJWXNt1uqEqkjmEuc+pNdkdD0k69kgBGn8YT1wrDv3zBQ
+5k53WfFr4cxtCBUuJPltT8mLbrCorPQVXiJnxRppp2mt1UVUZjA02d5aPOBRK9F
+xqI1AoGBAMd4IsPPh7etG5BPtY1aIRZhFsy6rgwsF8X9oJPsAWhqn0lbu6j9Fqj9
+V/lhxfTToy/gYxJBg9Sz4wQ5aOUbwxsk+E/r4zHG/Tk2xzYnY+N9f6SQ0YvF6AdN
+BNdLtaf4cm+qIAwRdDTP241IIlxiD66d6yfP/1yxAb8bkbnvzPyM
+-----END RSA PRIVATE KEY-----
+EOF
+          chmod 600 /tmp/certificate_private_key
+          export CERTIFICATE_PRIVATE_KEY=$(cat /tmp/certificate_private_key)
+
+          # 3. App Store Connect API로 배포 인증서 및 프로비저닝 프로파일 자동 발급 및 동기화
           echo "=== Fetching and generating signing files from Apple Developer ==="
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
-            --create
+            --create \
+            --certificate-key "@file:/tmp/certificate_private_key"
 
-          # 3. 인증서를 키체인에 등록
+          # 4. 인증서를 키체인에 등록
           keychain add-certificates
           echo "=== Available Code Signing Identities in Keychain ==="
           security find-identity -v -p codesigning || true
