@@ -1,95 +1,57 @@
-# 🏥 weganda 마케팅 & 커뮤니티 동시 발행 자동화 파이프라인
+# 🏥 weganda 마케팅 전자동 시스템 (인스타그램 · 쓰레드 · 앱 커뮤니티)
 
-본 파이프라인은 병원 간호사 채용 공고(공적 정보)를 수집하여 **인스타그램(카드뉴스/캐러셀), 쓰레드(속보 타래), 그리고 weganda 앱 커뮤니티 [채용/취업 정보] 게시판**에 원클릭으로 동시 발행하는 올인원 마케팅 자동화 시스템입니다.
+본 파이프라인은 병원 간호사 채용 공고(잡알리오 실시간 수집 및 수동 제보)와 간호사 3교대 라이프사이클 콘텐츠를 결합하여 **승인 대기 없이 100% 무인 자동**으로 **쓰레드(1일 3회 바이럴 타래), 인스타그램(카드뉴스 6장), 그리고 weganda 앱 커뮤니티 [채용/취업 정보] 게시판**에 발행하는 올인원 마케팅 자동화 시스템입니다.
 
 ---
 
-## 🔒 보안 아키텍처 (Security Design)
+## ⏰ 일일 무인 자동 발행 스케줄 (Asia/Seoul KST)
+
+| 시각 (KST) | 채널 | 슬롯 및 콘텐츠 전략 | 동작 방식 |
+| :---: | :--- | :--- | :--- |
+| **06:30** | **Threads** (`morning`) | **데이 출근길 / 나이트 퇴근 직전**<br>잡알리오 실시간 채용 비교 & 병원 선택 체크리스트 | 승인 없이 즉시 자동 게시 + 텔레그램 완료 알림 |
+| **08:30** | **Instagram + 앱 커뮤니티** | **일일 공식 채용 패키지**<br>1080×1350 카드뉴스(6장) + 앱 `[채용/취업 정보]` 게시글 | 승인 없이 즉시 동시 발행 + 텔레그램 완료 알림 |
+| **12:30** | **Threads** (`afternoon`) | **점심 / 이브닝 출근 준비**<br>극단적 병원·병동 밸런스 게임 & 면접/임상 족보 (댓글 유발) | 승인 없이 즉시 자동 게시 + 텔레그램 완료 알림 |
+| **17:30** | **Threads** (`evening`) | **데이 퇴근길 / 나이트 기상 후**<br>3교대 수면·수당·번아웃 공감 루틴 + **weganda 앱 CTA (1일 1회)** | 승인 없이 즉시 자동 게시 + 텔레그램 완료 알림 |
+| **매주 월 04:00** | **System** | **Threads 장기 액세스 토큰(60일) 자동 연장** | 무중단 토큰 갱신 및 SQLite 영구 저장 |
+
+---
+
+## 🔒 보안 및 안정성 아키텍처 (Security & Reliability)
 
 1. **텔레그램 관리자 화이트리스트 보호**:
-   - `TELEGRAM_ADMIN_CHAT_ID`와 일치하는 사용자만 승인 버튼 조작 및 명령어 실행이 가능합니다. (미인가자의 조작 100% 차단)
-2. **비밀 키 마스킹 및 유출 방지**:
-   - `.env` 파일은 Git 커밋에서 원천 제외됩니다 (`.gitignore` 등록 완료).
-   - CLI 상태 확인 시 모든 API 키가 `sk-...1234` 형태로 안전하게 마스킹 처리되어 콘솔에 노출되지 않습니다.
-3. **데이터 정제 & XSS/인젝션 방어**:
-   - 크롤링한 텍스트에서 악성 HTML/스크립트 태그를 원천 제거(`BeautifulSoup`)하고, URL 스키마(`http/https`) 검증을 거칩니다.
-4. **Supabase 커뮤니티 안전 연동**:
-   - SQL Injection 없는 Supabase 공식 REST API 바인딩 사용 및 공식 채용 봇 뱃지(`is_anonymous: false`) 자동 부여.
+   - `TELEGRAM_ADMIN_CHAT_ID`와 일치하는 관리자만 봇 명령어 실행 및 수동 공고 제보가 가능합니다.
+2. **원자적 중복 발행 차단 (SQLite Persistence)**:
+   - `state.db`의 `threads_slot_logs`, `dispatch_logs`, `posted_jobs` 테이블을 통해 서버가 재시작되거나 스케줄러가 중복 트리거되더라도 같은 슬롯이나 같은 공고가 두 번 올라가지 않습니다.
+3. **최근 15개 쓰레드 이력 추적**:
+   - 최근 게시된 15개 쓰레드 본문을 저장하여 동일한 후킹·소재·질문이 연속으로 생성되지 않도록 방지합니다.
+4. **사전 점검(Preflight) & 토큰 자동 복구**:
+   - 발행 전 이미지 호스팅·API 토큰 상태를 사전 검증하며, 토큰 만료 오류 시 자동 복구 및 관리자 알림을 수행합니다.
 
 ---
 
-## 📁 디렉토리 구조
+## 🚀 실행 및 테스트 명령어
 
-```text
-marketing_automation/
-├── .env.example                     # 안전한 환경변수 설정 가이드 (키 제외)
-├── requirements.txt                 # 필수 의존성 패키지
-├── config.py                        # 보안 환경변수 로더 및 검증
-├── main.py                          # 원클릭 CLI 실행 및 상시 봇 데몬 엔트리포인트
-│
-├── security/                        # 보안 유틸리티
-│   ├── auth_guard.py                # 텔레그램 관리자 ID 검증
-│   └── sanitizer.py                 # HTML/텍스트 정제 및 URL 보안 검증
-│
-├── crawlers/                        # 채용 정보 수집기
-│   ├── base_crawler.py              # User-Agent, 타임아웃, SSL 검증 베이스
-│   └── hospital_crawler.py          # 병원/알리오 채용공고 크롤러 (안정적 Mock 폴백 내장)
-│
-├── pipeline/                        # 콘텐츠 생성 파이프라인
-│   ├── content_planner.py           # Gemini 기반 인스타/쓰레드/앱 커뮤니티 동시 기획
-│   ├── card_renderer.py            # 1080x1350 비바 코랄 핑크 테마 카드뉴스 렌더러
-│   ├── media_host.py                # 이미지 호스팅 (Cloudinary / 임시 URL 변환)
-│   └── publishers/                  # 멀티 채널 발행기
-│       ├── community_publisher.py   # 🏥 weganda Supabase [채용/취업 정보] 게시판 등록
-│       ├── instagram_publisher.py   # 📸 Instagram Graph API (캐러셀 발행)
-│       └── threads_publisher.py     # 🧵 Threads API (3단 타래 체이닝 발행)
-│
-├── templates/                       # 카드뉴스 HTML/CSS 템플릿
-│   └── slide.html                   # Pretendard + 토스 스타일 디자인 템플릿
-│
-└── bot/                             # 텔레그램 승인 워커
-    └── telegram_bot.py              # 인라인 승인 버튼 + SQLite 상태 영속화
-```
-
----
-
-## 🚀 사용 방법
-
-### 1. 환경변수 설정 (`.env`)
-`marketing_automation/.env.example`을 복사하여 `.env`를 생성하고 발급받은 키를 입력합니다:
-```bash
-cp marketing_automation/.env.example marketing_automation/.env
-```
-
-### 2. 보안 환경 및 키 상태 확인
+### 1. 보안 환경 및 스케줄 상태 확인
 ```bash
 python marketing_automation/main.py --status
 ```
 
-### 3. 크롤링 ➔ 기획 ➔ 카드뉴스 렌더링 1회 즉시 테스트
+### 2. 쓰레드 10만 뷰 바이럴 타래 3슬롯 생성 미리보기 (발행 없음)
 ```bash
-python marketing_automation/main.py --test-plan
+python marketing_automation/main.py --test-threads all
 ```
-*생성된 고화질 카드뉴스 이미지는 `marketing_automation/assets/output/`에서 즉시 확인할 수 있습니다.*
 
-### 4. 텔레그램 상시 승인 봇 및 KST 아침 스케줄러 가동
+### 3. 지금 즉시 특정 슬롯 쓰레드 실제 발행
+```bash
+python marketing_automation/main.py --publish-threads morning
+```
+
+### 4. 지금 즉시 인스타 카드뉴스(6장) + 앱 커뮤니티 자동 발행 실행
+```bash
+python marketing_automation/main.py --trigger-briefing
+```
+
+### 5. 24시간 무인 전자동 데몬 가동 (스케줄러 + 텔레그램 제보 봇)
 ```bash
 python marketing_automation/main.py --bot
 ```
-*매일 아침 지정된 시각(기본 08:30 KST)에 관리자 텔레그램으로 기획안 카드가 전송되며, **[🚀 3개 채널 전면 발행]** 버튼 클릭 한 번으로 인스타, 쓰레드, 앱 커뮤니티에 동시 등록됩니다.*
-
----
-
-## 📮 채용공고 수집 & 텔레그램 제보
-
-| 경로 | 대상 | 방식 |
-|---|---|---|
-| 자동 수집 | 공공기관·국립대병원 등 (잡알리오) | `DATA_GO_KR_SERVICE_KEY`, 매일 브리핑 (`/briefing`) |
-| 제보 | 사립 병원 등 API에 없는 공고 | 텔레그램에 **URL / 캡처 이미지·PDF / 본문 텍스트** 전송 |
-
-- 제보는 관리자 개인 채팅에서만 동작하며, 그 외 사용자·그룹 메시지는 무시합니다.
-- URL은 내부망·사설 IP·비표준 포트·과다 리다이렉트를 차단한 안전 fetch로만 가져옵니다.
-- AI(Gemini)가 원문에 있는 내용만 추출하며, 공고가 아니거나 이미 마감된 경우 거부합니다.
-- 발행/건너뜀 처리된 공고는 `state.db`에 기록되어 다시 추천되지 않습니다.
-- `python main.py --test-crawl` 로 수집 결과만 확인할 수 있습니다 (발행 없음).
-- ⚠️ 고용24(워크넷) 채용정보 API는 **기업회원** 키만 사용 가능합니다 (개인회원 키는 호출 불가).

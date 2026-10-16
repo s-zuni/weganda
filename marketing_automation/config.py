@@ -80,11 +80,13 @@ class Config:
     INSTAGRAM_GRAPH_VERSION: str = os.getenv("INSTAGRAM_GRAPH_VERSION", "v21.0")
     THREADS_API_VERSION: str = os.getenv("THREADS_API_VERSION", "v1.0")
 
-    # 운영 안전장치 (기본값은 모두 '안전한 쪽')
+    # 운영 안전장치 및 무인 자동 발행 설정
     DRY_RUN: bool = _env_bool("DRY_RUN", True)
     ALLOW_MOCK_JOBS: bool = _env_bool("ALLOW_MOCK_JOBS", False)
-    MAX_POSTS_PER_DAY: int = _env_int("MAX_POSTS_PER_DAY", 1)
+    MAX_POSTS_PER_DAY: int = _env_int("MAX_POSTS_PER_DAY", 3)
     JOB_MIN_DDAY: int = _env_int("JOB_MIN_DDAY", 2)  # 마감 N일 미만 공고는 추천 제외
+    DAILY_AUTO_PUBLISH: bool = _env_bool("DAILY_AUTO_PUBLISH", True)  # 08:30 인스타 카드뉴스+앱 커뮤니티 무인 자동 발행
+    THREADS_AUTO_POST: bool = _env_bool("THREADS_AUTO_POST", True)    # 06:30 / 12:30 / 17:30 쓰레드 무인 자동 발행
     DATA_GO_KR_SERVICE_KEY: str = os.getenv("DATA_GO_KR_SERVICE_KEY", "")  # 잡알리오(공공기관 채용) API
     WORKNET_API_KEY: str = os.getenv("WORKNET_API_KEY", "")  # 고용24 채용정보 API (기업회원 키 필요)
     APP_DOWNLOAD_URL: str = os.getenv("APP_DOWNLOAD_URL", "")
@@ -93,8 +95,11 @@ class Config:
     # Media Hosting
     CLOUDINARY_URL: str = os.getenv("CLOUDINARY_URL", "")
 
-    # System & Scheduler
+    # System & Scheduler (KST 기준)
     SCHEDULE_TIME_KST: str = os.getenv("SCHEDULE_TIME_KST", "08:30")
+    THREADS_MORNING_KST: str = os.getenv("THREADS_MORNING_KST", "06:30")
+    THREADS_AFTERNOON_KST: str = os.getenv("THREADS_AFTERNOON_KST", "12:30")
+    THREADS_EVENING_KST: str = os.getenv("THREADS_EVENING_KST", "17:30")
     TIMEZONE: str = os.getenv("TIMEZONE", "Asia/Seoul")
 
     # Directories
@@ -133,7 +138,8 @@ class Config:
         print(f"• Official Bot ID     : {cls.OFFICIAL_BOT_AUTHOR_ID or '[미지정 (기본 프로필 대체)]'}")
         print(f"• Instagram Account   : {cls.INSTAGRAM_ACCOUNT_ID or '[미설정]'}")
         print(f"• Threads User ID     : {cls.THREADS_USER_ID or '[미설정]'}")
-        print(f"• Timezone / Schedule : {cls.TIMEZONE} / {cls.SCHEDULE_TIME_KST}")
+        print(f"• Daily Card/App Time : {cls.TIMEZONE} / {cls.SCHEDULE_TIME_KST} (무인발행: {cls.DAILY_AUTO_PUBLISH})")
+        print(f"• Threads 3-Slot KST  : {cls.THREADS_MORNING_KST} / {cls.THREADS_AFTERNOON_KST} / {cls.THREADS_EVENING_KST} (무인발행: {cls.THREADS_AUTO_POST})")
         print(f"• DRY_RUN             : {cls.DRY_RUN} ({'실제 발행 안 함' if cls.DRY_RUN else '⚠️ 실제 발행 활성'})")
         print(f"• Mock 공고 허용      : {cls.ALLOW_MOCK_JOBS} / 일일 발행 한도: {cls.MAX_POSTS_PER_DAY}")
         print(f"• Instagram Token     : {'[미설정/예시값]' if is_placeholder(cls.INSTAGRAM_ACCESS_TOKEN) else mask_secret(cls.INSTAGRAM_ACCESS_TOKEN)}")
