@@ -3,9 +3,11 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from config import Config, is_placeholder
+from config import Config, is_placeholder, redact_secrets
+from pipeline.insights import FetchResult, fetch_insights
 
 MAX_CAPTION_LEN = 2200
+IG_INSIGHT_METRIC_SETS = ("reach,saved,shares,total_interactions,likes,comments", "reach,saved")
 
 
 class InstagramPublisher:
@@ -47,7 +49,7 @@ class InstagramPublisher:
                 if ig:
                     return str(ig)
         except requests.RequestException as e:
-            print(f"[인스타그램] 계정 ID 자동 확인 중 알림: {e}")
+            print(f"[인스타그램] 계정 ID 자동 확인 중 알림: {redact_secrets(e)}")
         return self.account_id
 
     def check_token(self, account_id: Optional[str] = None) -> Optional[str]:
@@ -59,7 +61,7 @@ class InstagramPublisher:
                 timeout=15,
             )
         except requests.RequestException as e:
-            return f"토큰 사전 점검 중 네트워크 오류: {e}"
+            return f"토큰 사전 점검 중 네트워크 오류: {redact_secrets(e)}"
         if res.ok:
             return None
         try:
@@ -70,6 +72,21 @@ class InstagramPublisher:
         if err.get("code") in (190, 102) or "expired" in msg.lower():
             return f"Instagram 액세스 토큰이 만료/무효 상태입니다: {msg} → 토큰을 재발급해 .env의 INSTAGRAM_ACCESS_TOKEN을 갱신하세요."
         return f"Instagram 토큰/계정 점검 실패: {msg}"
+
+    def fetch_insights(self, media_id: str, http_get: Optional[Any] = None) -> FetchResult:
+        """캐러셀 성과 조회. 지표 조합이 계정/버전에 따라 거부될 수 있어 넓은 조합 → 좁은 조합 순으로 시도한다."""
+        if not self.is_configured():
+            return FetchResult(False, error="INSTAGRAM 계정/토큰 미설정", fatal=True)
+        last = FetchResult(False, error="지표 조회 실패")
+        for metrics in IG_INSIGHT_METRIC_SETS:
+            last = fetch_insights(
+                self._graph(f"{media_id}/insights"),
+                {"metric": metrics, "access_token": self.access_token},
+                http_get=http_get,
+            )
+            if last.ok or last.fatal:
+                return last
+        return last
 
     def _wait_container(self, container_id: str, timeout: int = 120, interval: int = 3) -> Optional[str]:
         """FINISHED가 되면 None, 실패/타임아웃이면 원인 메시지."""
@@ -90,7 +107,7 @@ class InstagramPublisher:
                     if last in ("ERROR", "EXPIRED"):
                         return f"미디어 처리 실패({last}): {body.get('status', '')}"
             except requests.RequestException as e:
-                print(f"[인스타그램] 컨테이너 상태 조회 일시 오류: {e}")
+                print(f"[인스타그램] 컨테이너 상태 조회 일시 오류: {redact_secrets(e)}")
             time.sleep(interval)
         return f"미디어 처리 대기 시간 초과({timeout}초, 마지막 상태: {last})"
 
@@ -168,4 +185,4 @@ class InstagramPublisher:
                 pass
             return {"success": True, "post_id": post_id, "permalink": permalink}
         except (requests.RequestException, KeyError, ValueError) as e:
-            return {"success": False, "error": str(e)}
+            return {"success": False, "error": redact_secrets(e)}

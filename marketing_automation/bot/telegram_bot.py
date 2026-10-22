@@ -1,24 +1,25 @@
 import json
-import random
 import re
-import sqlite3
 import threading
 import time
 from datetime import datetime
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 import requests
 
-from config import Config
+from bot.analytics_service import AnalyticsService
+from bot.storage import Storage
+from config import Config, redact_secrets
 from security.auth_guard import is_authorized_user
 from crawlers.hospital_crawler import HospitalCrawler
 from crawlers.models import RawJobPosting
 from pipeline.content_planner import ContentPlanner, ContentPackage
 from pipeline.card_renderer import CardRenderer
+from pipeline.content_pillars import PILLAR_JOB
 from pipeline.job_extractor import ExtractionError, JobExtractor, find_urls
 from pipeline.media_host import MediaHost, MediaUploadError
+from pipeline.quality_gate import GateResult, check_texts
 from pipeline.threads_viral_engine import (
     SLOT_LABELS,
     THREADS_SLOTS,
@@ -29,7 +30,6 @@ from pipeline.publishers.community_publisher import CommunityPublisher
 from pipeline.publishers.instagram_publisher import InstagramPublisher
 from pipeline.publishers.threads_publisher import ThreadsPublisher
 
-DB_PATH = Config.DATA_DIR / "state.db"
 
 PLAN_ID_RE = re.compile(r"^job_\d+$")
 THREAD_DRAFT_RE = re.compile(r"^thr_\d+$")
@@ -51,218 +51,9 @@ HELP_TEXT = (
     "/briefing — 지금 즉시 채용 카드뉴스+커뮤니티 발행(또는 기획안 받기)\n"
     "/threads [morning|afternoon|evening] — 지금 즉시 10만 뷰 바이럴 쓰레드 생성·발행\n"
     "/status — 현재 자동화 설정 및 오늘 발행 현황 확인\n"
+    "/report — 최근 성과 리포트(필러·포맷·후킹별 참여율, 실험 결과)\n"
     "/help — 이 도움말"
 )
-
-
-class Storage:
-    """SQLite 기반의 안전한 상태 영속화 엔진"""
-
-    def __init__(self):
-        self.conn = sqlite3.connect(str(DB_PATH), check_same_thread=False)
-        self._lock = threading.Lock()
-        self._init_db()
-
-    def _init_db(self):
-        with self._lock, self.conn:
-            self.conn.execute("""
-                CREATE TABLE IF NOT EXISTS pending_proposals (
-                    id TEXT PRIMARY KEY,
-                    package_json TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            self.conn.execute("""
-                CREATE TABLE IF NOT EXISTS dispatch_logs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    date_str TEXT UNIQUE,
-                    status TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            self.conn.execute("""
-                CREATE TABLE IF NOT EXISTS posted_jobs (
-                    source_id TEXT PRIMARY KEY,
-                    status TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            self.conn.execute("""
-                CREATE TABLE IF NOT EXISTS publish_logs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    date_str TEXT,
-                    plan_id TEXT,
-                    channel TEXT,
-                    status TEXT,
-                    detail TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            self.conn.execute("""
-                CREATE TABLE IF NOT EXISTS threads_slot_logs (
-                    slot_key TEXT PRIMARY KEY,
-                    date_str TEXT,
-                    slot TEXT,
-                    status TEXT,
-                    permalink TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            self.conn.execute("""
-                CREATE TABLE IF NOT EXISTS bot_settings (
-                    key TEXT PRIMARY KEY,
-                    value TEXT
-                )
-            """)
-
-    # ------------------------------------------------------------------ 범용 설정 K/V
-    def set_setting(self, key: str, value: str):
-        with self._lock, self.conn:
-            self.conn.execute(
-                "INSERT OR REPLACE INTO bot_settings (key, value) VALUES (?, ?)",
-                (key, value),
-            )
-
-    def get_setting(self, key: str, default: str = "") -> str:
-        with self._lock:
-            cur = self.conn.cursor()
-            cur.execute("SELECT value FROM bot_settings WHERE key = ?", (key,))
-            row = cur.fetchone()
-            return row[0] if row else default
-
-    def del_setting(self, key: str):
-        with self._lock, self.conn:
-            self.conn.execute("DELETE FROM bot_settings WHERE key = ?", (key,))
-
-    # ------------------------------------------------------------------ 쓰레드 슬롯 & 최근 글 관리
-    def claim_threads_slot(self, date_str: str, slot: str) -> bool:
-        """
-        하루 3회(morning/afternoon/evening) 슬롯의 중복 실행을 원자적으로 방지합니다.
-        이미 오늘 해당 슬롯이 실행되었으면 False를 반환합니다.
-        """
-        slot_key = f"{date_str}:{slot}"
-        with self._lock, self.conn:
-            cur = self.conn.execute(
-                "INSERT OR IGNORE INTO threads_slot_logs (slot_key, date_str, slot, status, permalink) VALUES (?, ?, ?, 'RUNNING', '')",
-                (slot_key, date_str, slot),
-            )
-            return cur.rowcount == 1
-
-    def update_threads_slot(self, date_str: str, slot: str, status: str, permalink: str = ""):
-        slot_key = f"{date_str}:{slot}"
-        with self._lock, self.conn:
-            self.conn.execute(
-                "UPDATE threads_slot_logs SET status = ?, permalink = ? WHERE slot_key = ?",
-                (status, permalink, slot_key),
-            )
-
-    def get_today_threads_slots(self, date_str: str) -> Dict[str, str]:
-        with self._lock:
-            cur = self.conn.cursor()
-            cur.execute("SELECT slot, status FROM threads_slot_logs WHERE date_str = ?", (date_str,))
-            return {row[0]: row[1] for row in cur.fetchall()}
-
-    def get_recent_threads_posts(self) -> List[str]:
-        raw = self.get_setting("threads_recent_posts", "[]")
-        try:
-            data = json.loads(raw)
-            return data if isinstance(data, list) else []
-        except ValueError:
-            return []
-
-    def remember_threads_post(self, main_post: str):
-        if not main_post:
-            return
-        recent = [main_post] + [p for p in self.get_recent_threads_posts() if p != main_post]
-        self.set_setting("threads_recent_posts", json.dumps(recent[:15], ensure_ascii=False))
-
-    def pick_daily_cta_slot(self, date_str: str) -> str:
-        """하루 3개 쓰레드 슬롯 중 단 1개에만 CTA 답글이 붙도록 고정 (기본: evening 우선 또는 당일 고정)."""
-        key = f"threads_cta_slot:{date_str}"
-        slot = self.get_setting(key)
-        if slot not in THREADS_SLOTS:
-            # 퇴근길/출근전(evening 17:30) 슬롯에 70% 가중치, 점심(afternoon 12:30)에 30% 가중치
-            slot = random.choices(["evening", "afternoon"], weights=[70, 30], k=1)[0]
-            self.set_setting(key, slot)
-        return slot
-
-    # ------------------------------------------------------------------ 채용 공고/패키지 관리
-    def mark_job(self, source_id: str, status: str):
-        """발행/건너뜀 처리된 공고 기록 — 같은 공고를 다시 추천하지 않기 위함"""
-        if not source_id:
-            return
-        with self._lock, self.conn:
-            self.conn.execute(
-                "INSERT OR REPLACE INTO posted_jobs (source_id, status) VALUES (?, ?)", (source_id, status)
-            )
-
-    def handled_job_ids(self) -> set:
-        with self._lock:
-            cur = self.conn.cursor()
-            cur.execute("SELECT source_id FROM posted_jobs")
-            return {row[0] for row in cur.fetchall()}
-
-    def save_pending(self, plan_id: str, pkg: ContentPackage):
-        with self._lock, self.conn:
-            self.conn.execute(
-                "INSERT OR REPLACE INTO pending_proposals (id, package_json) VALUES (?, ?)",
-                (plan_id, pkg.model_dump_json()),
-            )
-
-    def claim_pending(self, plan_id: str) -> Optional[ContentPackage]:
-        """기획안을 원자적으로 꺼내며 삭제한다 (중복 클릭 방어)."""
-        with self._lock, self.conn:
-            cur = self.conn.execute("SELECT package_json FROM pending_proposals WHERE id = ?", (plan_id,))
-            row = cur.fetchone()
-            if not row:
-                return None
-            deleted = self.conn.execute("DELETE FROM pending_proposals WHERE id = ?", (plan_id,)).rowcount
-            if deleted != 1:
-                return None
-        return ContentPackage.model_validate_json(row[0])
-
-    def delete_pending(self, plan_id: str):
-        with self._lock, self.conn:
-            self.conn.execute("DELETE FROM pending_proposals WHERE id = ?", (plan_id,))
-
-    def claim_daily_dispatch(self, date_str: str) -> bool:
-        """08:30 일일 카드뉴스+커뮤니티 자동 발행의 중복 실행을 원자적으로 방지합니다."""
-        with self._lock, self.conn:
-            cur = self.conn.execute(
-                "INSERT OR IGNORE INTO dispatch_logs (date_str, status) VALUES (?, 'RUNNING')",
-                (date_str,),
-            )
-            return cur.rowcount == 1
-
-    def has_dispatched_today(self, date_str: str) -> bool:
-        with self._lock:
-            cur = self.conn.cursor()
-            cur.execute("SELECT id FROM dispatch_logs WHERE date_str = ?", (date_str,))
-            return cur.fetchone() is not None
-
-    def record_dispatch(self, date_str: str, status: str = "COMPLETED"):
-        with self._lock, self.conn:
-            self.conn.execute(
-                "INSERT OR REPLACE INTO dispatch_logs (date_str, status) VALUES (?, ?)",
-                (date_str, status),
-            )
-
-    def record_publish(self, date_str: str, plan_id: str, channel: str, status: str, detail: str = ""):
-        with self._lock, self.conn:
-            self.conn.execute(
-                "INSERT INTO publish_logs (date_str, plan_id, channel, status, detail) VALUES (?, ?, ?, ?, ?)",
-                (date_str, plan_id, channel, status, detail[:500]),
-            )
-
-    def count_published_today(self, date_str: str) -> int:
-        """오늘 한 채널이라도 성공한 '채용 기획안(job_*)' 수 (일일 발행 한도 판단용)"""
-        with self._lock:
-            cur = self.conn.cursor()
-            cur.execute(
-                "SELECT COUNT(DISTINCT plan_id) FROM publish_logs WHERE date_str = ? AND status = 'success' AND plan_id LIKE 'job_%'",
-                (date_str,),
-            )
-            return cur.fetchone()[0]
 
 
 class TelegramApprovalBot:
@@ -288,6 +79,13 @@ class TelegramApprovalBot:
         self.instagram_pub = InstagramPublisher()
         saved_thr_token = self.storage.get_setting("threads_refreshed_token")
         self.threads_pub = ThreadsPublisher(access_token=saved_thr_token or None)
+        self.analytics = AnalyticsService(
+            self.storage,
+            get_threads_pub=lambda: self.threads_pub,  # 토큰 갱신/복구로 교체될 수 있으므로 지연 참조
+            instagram_pub=self.instagram_pub,
+            community_pub=self.community_pub,
+            notify=lambda text: self.send_message(self.admin_id, text),
+        )
         self.last_update_id = 0
         self._publish_lock = threading.Lock()
 
@@ -306,7 +104,7 @@ class TelegramApprovalBot:
         try:
             requests.post(f"{self.base_url}/sendMessage", json=payload, timeout=10)
         except requests.RequestException as e:
-            print(f"[텔레그램 발송 오류] {e}")
+            print(f"[텔레그램 발송 오류] {redact_secrets(e)}")
 
     def send_photo(self, chat_id: int, photo_path: str, caption: str = ""):
         if not self._token_ready():
@@ -321,7 +119,7 @@ class TelegramApprovalBot:
                     timeout=30,
                 )
         except (OSError, requests.RequestException) as e:
-            print(f"[텔레그램 사진 발송 오류] {e}")
+            print(f"[텔레그램 사진 발송 오류] {redact_secrets(e)}")
 
     def _answer_callback(self, query_id: Optional[str], text: str = "", alert: bool = False):
         if not (self._token_ready() and query_id):
@@ -365,15 +163,25 @@ class TelegramApprovalBot:
                 jobs=jobs,
                 recent_posts=recent,
                 with_cta=with_cta,
+                choice=self.analytics.choose_for_slot(slot, has_jobs=bool(jobs)),
             )
         except Exception as e:
             self.storage.update_threads_slot(today, slot, "FAILED")
-            self.send_message(self.admin_id, f"❌ [Threads {label}] 글 생성 실패: {e}")
+            self.send_message(
+                self.admin_id,
+                f"❌ [Threads {label}] 글 생성 실패: {redact_secrets(e)}\n"
+                f"(당일 최대 {Config.MAX_RETRY_ATTEMPTS}회까지 자동 재시도)",
+            )
             return
 
         preview_block = "\n\n".join(
             f"[{'본문' if i == 0 else f'답글 {i}'} ({len(p)}자)]\n{p}"
             for i, p in enumerate(viral_res.posts)
+        )
+
+        review_note = (
+            "\n⚠️ 품질 게이트: 사람 확인 필요\n" + "\n".join(f"  - {r}" for r in viral_res.review_reasons) + "\n"
+            if viral_res.needs_review else ""
         )
 
         # DRY_RUN 모드일 때는 실제 게시 없이 텔레그램으로 전문 미리보기 전송
@@ -383,15 +191,18 @@ class TelegramApprovalBot:
                 self.admin_id,
                 f"🧪 [DRY_RUN · Threads 자동 슬롯 미리보기]\n"
                 f"슬롯: {label}\n"
-                f"토픽 태그: #{viral_res.topic_tag} | CTA 포함: {'예' if viral_res.has_cta else '아니오'}\n\n"
+                f"토픽 태그: #{viral_res.topic_tag} | CTA 포함: {'예' if viral_res.has_cta else '아니오'}\n"
+                f"{review_note}\n"
                 f"{preview_block}",
             )
             return
 
-        # THREADS_AUTO_POST=false로 설정한 경우에만 수동 승인 버튼 발송 (기본값은 true로 무인 즉시 게시)
-        if not Config.THREADS_AUTO_POST:
+        # 수동 승인 버튼 발송: THREADS_AUTO_POST=false 이거나, 품질 게이트가 사람 확인을 요구한 글
+        # (기본값은 THREADS_AUTO_POST=true 로 무인 즉시 게시)
+        if not Config.THREADS_AUTO_POST or viral_res.needs_review:
             draft_id = f"thr_{int(time.time() * 1000)}"
             self.storage.set_setting(f"thread_draft:{draft_id}", viral_res.model_dump_json())
+            self.storage.update_threads_slot(today, slot, "PENDING_REVIEW")
             markup = {
                 "inline_keyboard": [
                     [{"text": "🧵 이대로 Threads 게시", "callback_data": f"thr_pub:{draft_id}"}],
@@ -400,7 +211,7 @@ class TelegramApprovalBot:
             }
             self.send_message(
                 self.admin_id,
-                f"🧵 [Threads {label} 초안]\n토픽: #{viral_res.topic_tag}\n\n{preview_block}",
+                f"🧵 [Threads {label} 초안 — 승인 대기]\n토픽: #{viral_res.topic_tag}\n{review_note}\n{preview_block}",
                 reply_markup=markup,
             )
             return
@@ -419,6 +230,7 @@ class TelegramApprovalBot:
 
         if res.get("success"):
             permalink = res.get("permalink") or (res.get("thread_ids") or [""])[0]
+            self._record_threads_post(today, slot, viral_res, res)
             self.storage.remember_threads_post(viral_res.posts[0])
             self.storage.update_threads_slot(today, slot, "PUBLISHED", permalink=permalink)
             self.storage.record_publish(today, f"thr_{slot}_{int(time.time())}", "threads", "success", permalink)
@@ -432,12 +244,49 @@ class TelegramApprovalBot:
                 f"📝 본문 첫 줄:\n{viral_res.posts[0].splitlines()[0]}",
             )
         else:
-            err = str(res.get("error", "알 수 없는 오류"))
+            err = redact_secrets(res.get("error", "알 수 없는 오류"))
+            if res.get("thread_ids"):
+                # 본문은 이미 올라갔고 답글(CTA 등)만 실패 — 재시도하면 같은 본문이 중복 게시되므로 PARTIAL로 종료
+                permalink = res.get("permalink") or res["thread_ids"][0]
+                self._record_threads_post(today, slot, viral_res, res)
+                self.storage.remember_threads_post(viral_res.posts[0])
+                self.storage.update_threads_slot(today, slot, "PARTIAL", permalink=permalink)
+                self.storage.record_publish(today, f"thr_{slot}_{int(time.time())}", "threads", "partial", err)
+                self.send_message(
+                    self.admin_id,
+                    f"⚠️ [Threads 부분 게시]\n• 슬롯: {label}\n• 링크: {permalink or '(확인 필요)'}\n"
+                    f"• 본문은 게시됐으나 답글 단계에서 실패 (중복 방지를 위해 재시도 안 함)\n• 사유: {err}",
+                )
+                return
             self.storage.update_threads_slot(today, slot, "FAILED", permalink=err[:200])
             self.send_message(
                 self.admin_id,
-                f"❌ [Threads 무인 자동 게시 실패]\n• 슬롯: {label}\n• 사유: {err}",
+                f"❌ [Threads 무인 자동 게시 실패]\n• 슬롯: {label}\n• 사유: {err}\n"
+                f"(당일 최대 {Config.MAX_RETRY_ATTEMPTS}회까지 자동 재시도)",
             )
+
+    def _record_threads_post(self, today: str, slot: str, viral_res: ViralThreadResult, res: Dict[str, Any]) -> None:
+        """게시된 본문(첫 글)의 메타데이터를 기록한다. 성과 수집·실험·포맷 순환의 기준 데이터가 된다."""
+        thread_ids = res.get("thread_ids") or []
+        if not thread_ids:
+            return
+        try:
+            self.storage.record_content_post(
+                channel="threads",
+                external_id=str(thread_ids[0]),
+                slot=slot,
+                pillar=viral_res.pillar,
+                format_id=viral_res.format_id,
+                hook_id=viral_res.hook_used,
+                has_cta=viral_res.has_cta,
+                cta_variant=viral_res.cta_variant,
+                experiment_id=viral_res.experiment_id,
+                arm=viral_res.arm,
+                permalink=str(res.get("permalink") or ""),
+                date_str=today,
+            )
+        except Exception as e:  # 기록 실패가 발행 결과 처리를 막아서는 안 된다
+            print(f"[콘텐츠 기록 오류] {type(e).__name__}: {redact_secrets(e)}")
 
     def refresh_threads_token(self):
         """매주 월요일 새벽 04:00 KST에 Threads 장기 토큰(60일)을 자동 연장합니다."""
@@ -452,11 +301,56 @@ class TelegramApprovalBot:
             self.send_message(self.admin_id, f"⚠️ Threads 장기 토큰 자동 갱신 실패:\n{out['error']}")
 
     # ------------------------------------------------------------------ 2. 아침 08:30 인스타 카드뉴스 + 앱 커뮤니티 자동 발행
-    def send_morning_briefing(self, force_manual: bool = False):
+    def run_daily_dispatch(self):
+        """08:30 일일 발행의 스케줄러 진입점. 성공했을 때만 COMPLETED로 기록하고, 실패는 FAILED로 남겨 재시도 대상이 된다."""
+        today = datetime.now(ZoneInfo(Config.TIMEZONE)).strftime("%Y-%m-%d")
+        if not self.storage.claim_daily_dispatch(today):
+            return
+        print(f"[스케줄러] {Config.SCHEDULE_TIME_KST} KST 인스타 카드뉴스 + 앱 커뮤니티 자동 발행 트리거!")
+        try:
+            ok = self.send_morning_briefing()
+        except Exception as e:
+            print(f"[일일 발행 예외] {type(e).__name__}: {redact_secrets(e)}")
+            self.send_message(self.admin_id, f"❌ [일일 자동 발행] 예외 발생: {redact_secrets(e)}")
+            ok = False
+        self.storage.record_dispatch(today, "COMPLETED" if ok else "FAILED")
+        if not ok:
+            self.send_message(
+                self.admin_id,
+                f"⚠️ [일일 자동 발행] 오늘 발행이 완료되지 않았습니다. 당일 최대 {Config.MAX_RETRY_ATTEMPTS}회까지 자동 재시도합니다.",
+            )
+
+    def retry_failed_jobs(self):
+        """FAILED로 끝난 오늘의 일일 발행/쓰레드 슬롯을 시도 횟수 한도 내에서 다시 실행한다. (주기 스케줄러가 호출)"""
+        today = datetime.now(ZoneInfo(Config.TIMEZONE)).strftime("%Y-%m-%d")
+        try:
+            if self.storage.daily_dispatch_retryable(today):
+                self.run_daily_dispatch()
+            for slot in self.storage.retryable_threads_slots(today):
+                self.run_scheduled_threads_slot(slot)
+        except Exception as e:
+            print(f"[재시도 오류] {type(e).__name__}: {redact_secrets(e)}")
+
+    def check_instagram_health(self):
+        """Instagram 토큰 상태를 점검하고 문제가 있으면 하루 1회만 관리자에게 알린다."""
+        if not self.instagram_pub.is_configured():
+            return
+        err = self.instagram_pub.check_token()
+        if not err:
+            return
+        today = datetime.now(ZoneInfo(Config.TIMEZONE)).strftime("%Y-%m-%d")
+        key = f"ig_health_alert:{today}"
+        if self.storage.get_setting(key):
+            return
+        self.storage.set_setting(key, "1")
+        self.send_message(self.admin_id, f"⚠️ [Instagram 토큰 점검] {redact_secrets(err)}")
+
+    def send_morning_briefing(self, force_manual: bool = False) -> bool:
         """
         매일 아침 08:30 KST 채용공고 큐레이션.
         - Config.DAILY_AUTO_PUBLISH=True(기본값)이면 승인 대기 없이 즉시 인스타그램 카드뉴스 + 앱 커뮤니티에 자동 발행합니다.
         - force_manual=True 이거나 DAILY_AUTO_PUBLISH=False 이면 승인 버튼 카드를 발송합니다.
+        반환값: 재시도가 필요 없으면 True(성공·발행할 공고 없음·승인 대기), 발행에 실패해 재시도가 필요하면 False.
         """
         print("[텔레그램 봇] 오늘자 간호사 공채 추천 공고 수집 시작...")
         jobs = self.crawler.fetch_latest_jobs(limit=1, exclude_ids=self.storage.handled_job_ids())
@@ -466,22 +360,35 @@ class TelegramApprovalBot:
                 "ℹ️ 오늘 자동 수집된 신규 간호사 공고가 없습니다.\n"
                 "사립/대학병원 공고는 URL·캡처 이미지·본문 텍스트를 채팅방에 보내주시면 즉시 발행됩니다.",
             )
-            return
+            return True
 
         job = jobs[0]
         origin = "🤖 잡알리오 자동 수집" if job.source == "alio" else "🤖 자동 수집"
 
         if Config.DAILY_AUTO_PUBLISH and not force_manual:
-            self._auto_publish_job(job, origin=origin)
-        else:
-            self._propose(job, origin=origin)
+            return self._auto_publish_job(job, origin=origin)
+        self._propose(job, origin=origin)
+        return True
 
-    def _auto_publish_job(self, job: RawJobPosting, origin: str = ""):
-        """승인 버튼 없이 즉시 인스타 카드뉴스(6장) + weganda 앱 커뮤니티에 무인 발행합니다."""
+    def _auto_publish_job(self, job: RawJobPosting, origin: str = "") -> bool:
+        """승인 버튼 없이 즉시 인스타 카드뉴스(6장) + weganda 앱 커뮤니티에 무인 발행합니다. 반환값: 재시도 불필요 여부."""
         with self._publish_lock:
             today = datetime.now(ZoneInfo(Config.TIMEZONE)).strftime("%Y-%m-%d")
+            if not Config.DRY_RUN and self.storage.count_published_today(today) >= Config.MAX_POSTS_PER_DAY:
+                self.send_message(
+                    self.admin_id,
+                    f"⛔ 오늘 채용 패키지 발행 한도({Config.MAX_POSTS_PER_DAY}건)에 도달해 자동 발행을 건너뜁니다.",
+                )
+                return True  # 한도 초과는 재시도해도 소용없다
             package = self.planner.plan_job_package(job)
             plan_id = f"job_{int(time.time() * 1000)}"
+
+            gate = self._gate_package(package, job)
+            if gate.issues and not Config.DRY_RUN:
+                # 문구에 위험 신호가 있으면 무인 발행을 멈추고 승인 요청으로 전환 (같은 공고가 매일 재제안되지 않도록 기록)
+                self.storage.mark_job(job.source_id, "pending_review")
+                self._propose(job, origin=origin, package=package, gate_notes=gate.reasons)
+                return True
 
             self.send_message(
                 self.admin_id,
@@ -494,21 +401,48 @@ class TelegramApprovalBot:
             # 쓰레드(Threads)는 06:30 / 12:30 / 17:30 전용 스케줄러가 담당하므로,
             # 08:30 채용 패키지는 인스타그램 카드뉴스 + 앱 커뮤니티(pub_ig_app)를 동시 자동 발행
             if Config.DRY_RUN:
+                if gate.issues:
+                    self.send_message(
+                        self.admin_id,
+                        "⚠️ [DRY_RUN] 품질 게이트 — 실발행이었다면 승인 요청으로 전환됩니다:\n"
+                        + "\n".join(f"  - {r}" for r in gate.reasons),
+                    )
                 self._run_dry(package, plan_id, "pub_ig_app")
-            else:
-                self._run_publish(package, plan_id, "pub_ig_app", today)
+                return True
+            return self._run_publish(package, plan_id, "pub_ig_app", today)
 
-    def _propose(self, job: RawJobPosting, origin: str = ""):
-        """공고 → 3채널 기획안 생성 → 승인 요청 메시지 (수동 제보 / 수동 브리핑 경로)"""
-        package = self.planner.plan_job_package(job)
+    @staticmethod
+    def _gate_package(package: ContentPackage, job: RawJobPosting) -> GateResult:
+        """채용 패키지(카드뉴스·캡션·쓰레드·커뮤니티)의 모든 문구를 품질 게이트로 검사한다."""
+        texts: List[str] = [package.carousel.caption, package.community.title, package.community.content]
+        texts += package.threads.posts
+        for slide in package.carousel.slides:
+            texts += [slide.title, slide.subtitle or "", *slide.bullets]
+        return check_texts(texts, [job])
+
+    def _propose(
+        self,
+        job: RawJobPosting,
+        origin: str = "",
+        package: Optional[ContentPackage] = None,
+        gate_notes: Optional[List[str]] = None,
+    ):
+        """공고 → 3채널 기획안 생성 → 승인 요청 메시지 (수동 제보 / 수동 브리핑 / 품질 게이트 전환 경로)"""
+        package = package or self.planner.plan_job_package(job)
         plan_id = f"job_{int(time.time() * 1000)}"
         self.storage.save_pending(plan_id, package)
 
         mode = "🧪 DRY_RUN (실제 발행 안 함, 미리보기만)" if Config.DRY_RUN else "🔴 실발행 모드"
         origin_line = f"{origin}\n" if origin else ""
+        gate_block = (
+            "⚠️ 품질 게이트가 자동 발행을 멈췄습니다. 확인 후 선택해 주세요:\n"
+            + "\n".join(f"  - {n}" for n in gate_notes) + "\n\n"
+            if gate_notes else ""
+        )
         text = (
             f"📢 [weganda 채용 속보 기획안]\n"
             f"{origin_line}"
+            f"{gate_block}"
             f"모드: {mode}\n\n"
             f"🏥 {job.hospital_name}\n"
             f"📋 {job.title}\n"
@@ -570,6 +504,7 @@ class TelegramApprovalBot:
             f"• 08:30 인스타+커뮤니티 무인발행: {'ON ✅' if Config.DAILY_AUTO_PUBLISH else 'OFF (승인형)'}\n"
             f"• 06:30/12:30/17:30 쓰레드 무인발행: {'ON ✅' if Config.THREADS_AUTO_POST else 'OFF (승인형)'}\n"
             f"• 오늘 쓰레드 슬롯 상태: {slot_summary}\n"
+            f"• 실패 시 당일 최대 시도: {Config.MAX_RETRY_ATTEMPTS}회\n"
             f"• 오늘 채용 패키지 발행: {self.storage.count_published_today(today)} / {Config.MAX_POSTS_PER_DAY}건\n"
             f"• 누적 처리 공고: {len(self.storage.handled_job_ids())}건"
         )
@@ -590,6 +525,8 @@ class TelegramApprovalBot:
                 self.send_message(self.admin_id, HELP_TEXT)
             elif cmd == "/status":
                 self.send_message(self.admin_id, self._status_text())
+            elif cmd == "/report":
+                self.analytics.send_weekly_report()
             elif cmd == "/briefing":
                 self.send_morning_briefing()
             elif cmd in ("/threads", "/thread"):
@@ -632,7 +569,7 @@ class TelegramApprovalBot:
             self.send_message(self.admin_id, f"⚠️ 제보를 처리하지 못했습니다.\n{e}")
             return
         except Exception as e:
-            print(f"[제보 처리 예외] {type(e).__name__}: {e}")
+            print(f"[제보 처리 예외] {type(e).__name__}: {redact_secrets(e)}")
             self.send_message(self.admin_id, "❗ 제보 처리 중 예기치 못한 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.")
             return
 
@@ -724,6 +661,19 @@ class TelegramApprovalBot:
             ok = bool(res.get("success"))
             any_success = any_success or ok
             link = res.get("permalink") or res.get("post_id") or ""
+            if ok:
+                try:
+                    self.storage.record_content_post(
+                        channel=name,
+                        external_id=str(res.get("post_id") or (res.get("thread_ids") or [""])[0]),
+                        slot="daily",
+                        pillar=PILLAR_JOB,
+                        format_id="daily_job_package",
+                        permalink=str(res.get("permalink") or ""),
+                        date_str=today,
+                    )
+                except Exception as e:
+                    print(f"[콘텐츠 기록 오류] {type(e).__name__}: {redact_secrets(e)}")
             self.storage.record_publish(today, plan_id, name, "success" if ok else "failed", str(res.get("error", link)))
             report.append(f"• {label}: {'성공 ✅ ' + str(link) if ok else '실패 ❌ ' + str(res.get('error', ''))}")
 
@@ -798,8 +748,8 @@ class TelegramApprovalBot:
             else:
                 keep_consumed = self._run_publish(pkg, target_id, action, today)
         except Exception as e:
-            print(f"[발행 처리 예외] {e}")
-            self.send_message(self.admin_id, f"❗ 처리 중 예외가 발생했습니다 (기획안은 보존): {e}")
+            print(f"[발행 처리 예외] {redact_secrets(e)}")
+            self.send_message(self.admin_id, f"❗ 처리 중 예외가 발생했습니다 (기획안은 보존): {redact_secrets(e)}")
         finally:
             if not keep_consumed:
                 self.storage.save_pending(target_id, pkg)
@@ -829,11 +779,11 @@ class TelegramApprovalBot:
                         else:
                             self.handle_message([msg])
                 except Exception as e:
-                    print(f"[업데이트 처리 오류] {type(e).__name__}: {e}")
+                    print(f"[업데이트 처리 오류] {type(e).__name__}: {redact_secrets(e)}")
             for group in albums.values():
                 try:
                     self.handle_message(group)
                 except Exception as e:
-                    print(f"[앨범 처리 오류] {type(e).__name__}: {e}")
+                    print(f"[앨범 처리 오류] {type(e).__name__}: {redact_secrets(e)}")
         except (requests.RequestException, ValueError) as e:
-            print(f"[텔레그램 폴링 오류] {e}")
+            print(f"[텔레그램 폴링 오류] {redact_secrets(e)}")

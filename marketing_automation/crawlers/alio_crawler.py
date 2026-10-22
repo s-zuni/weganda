@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, List
 from urllib.parse import unquote
 
 from config import Config, is_placeholder

@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Optional
@@ -55,6 +56,31 @@ def mask_secret(value: Optional[str], show_chars: int = 4) -> str:
     return f"{value[:show_chars]}...{value[-show_chars:]}"
 
 
+_SECRET_PATTERNS = (
+    re.compile(r"(access_token=)[^&\s)'\"]+"),
+    re.compile(r"(bot)\d{6,}:[A-Za-z0-9_-]{20,}"),
+    re.compile(r"(bearer\s+)[A-Za-z0-9._-]+", re.IGNORECASE),
+)
+
+
+def redact_secrets(text: object) -> str:
+    """예외 메시지·URL이 로그/텔레그램으로 나가기 전에 토큰·키를 가립니다.
+    (requests 예외 문자열에는 쿼리스트링의 access_token, /bot<TOKEN>/ 경로가 그대로 들어갑니다.)"""
+    out = str(text)
+    for pat in _SECRET_PATTERNS:
+        out = pat.sub(r"\1***", out)
+    for secret in (
+        Config.TELEGRAM_BOT_TOKEN,
+        Config.SUPABASE_SERVICE_ROLE_KEY,
+        Config.THREADS_ACCESS_TOKEN,
+        Config.INSTAGRAM_ACCESS_TOKEN,
+        Config.GEMINI_API_KEY,
+    ):
+        if secret and len(secret) >= 8:
+            out = out.replace(secret, "***")
+    return out
+
+
 class Config:
     # Google Gemini
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
@@ -85,6 +111,9 @@ class Config:
     ALLOW_MOCK_JOBS: bool = _env_bool("ALLOW_MOCK_JOBS", False)
     MAX_POSTS_PER_DAY: int = _env_int("MAX_POSTS_PER_DAY", 3)
     JOB_MIN_DDAY: int = _env_int("JOB_MIN_DDAY", 2)  # 마감 N일 미만 공고는 추천 제외
+    INSIGHTS_ENABLED: bool = _env_bool("INSIGHTS_ENABLED", True)        # 발행 24h/72h 후 성과 수집·주간 리포트
+    EXPERIMENTS_ENABLED: bool = _env_bool("EXPERIMENTS_ENABLED", True)  # pipeline/optimizer.py의 A/B 실험 배정
+    MAX_RETRY_ATTEMPTS: int = _env_int("MAX_RETRY_ATTEMPTS", 3)  # 실패한 슬롯/일일 발행의 당일 총 시도 횟수(최초 포함)
     DAILY_AUTO_PUBLISH: bool = _env_bool("DAILY_AUTO_PUBLISH", True)  # 08:30 인스타 카드뉴스+앱 커뮤니티 무인 자동 발행
     THREADS_AUTO_POST: bool = _env_bool("THREADS_AUTO_POST", True)    # 06:30 / 12:30 / 17:30 쓰레드 무인 자동 발행
     DATA_GO_KR_SERVICE_KEY: str = os.getenv("DATA_GO_KR_SERVICE_KEY", "")  # 잡알리오(공공기관 채용) API

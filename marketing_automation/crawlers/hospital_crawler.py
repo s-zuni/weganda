@@ -3,7 +3,7 @@ from typing import Iterable, List, Optional
 from config import Config
 from .alio_crawler import AlioCrawler
 from .base_crawler import BaseCrawler
-from .models import RawJobPosting, d_day_label
+from .models import RawJobPosting
 
 __all__ = ["HospitalCrawler", "RawJobPosting", "FALLBACK_JOB_POSTS"]
 

@@ -3,9 +3,11 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from config import Config, clean_token, is_placeholder
+from config import Config, clean_token, is_placeholder, redact_secrets
+from pipeline.insights import FetchResult, fetch_insights
 
 MAX_TEXT_LEN = 500
+THREADS_INSIGHT_METRICS = "views,likes,replies,reposts,quotes"
 THREADS_API_BASE = "https://graph.threads.net"
 
 
@@ -52,7 +54,17 @@ class ThreadsPublisher:
                 self.access_token = clean_token(data["access_token"])
             return data
         except (requests.RequestException, ValueError) as e:
-            return {"error": str(e)}
+            return {"error": redact_secrets(e)}
+
+    def fetch_insights(self, media_id: str, http_get: Optional[Any] = None) -> FetchResult:
+        """게시물(본문) 성과를 조회한다. threads_manage_insights 권한이 없으면 fatal 오류로 돌려준다."""
+        if not self.is_configured():
+            return FetchResult(False, error="THREADS_USER_ID / THREADS_ACCESS_TOKEN 미설정", fatal=True)
+        return fetch_insights(
+            f"{self.base}/{media_id}/insights",
+            {"metric": THREADS_INSIGHT_METRICS, "access_token": self.access_token},
+            http_get=http_get,
+        )
 
     def _post_one(self, text: str, reply_to_id: str = "", topic_tag: Optional[str] = None) -> Dict[str, Any]:
         payload: Dict[str, Any] = {"media_type": "TEXT", "text": text, "access_token": self.access_token}
@@ -131,5 +143,5 @@ class ThreadsPublisher:
                 if i == 0:
                     permalink = r.get("permalink", "")
         except (requests.RequestException, ValueError) as e:
-            return {"success": False, "thread_ids": ids, "permalink": permalink, "error": str(e)}
+            return {"success": False, "thread_ids": ids, "permalink": permalink, "error": redact_secrets(e)}
         return {"success": True, "thread_ids": ids, "permalink": permalink}
