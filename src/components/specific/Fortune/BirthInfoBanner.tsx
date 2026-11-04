@@ -28,13 +28,13 @@ export const BirthInfoBanner: React.FC<BirthInfoBannerProps> = ({
         <View style={styles.birthInfoTexts}>
           <Text style={styles.birthBannerTitle}>
             {birthInfo.isRegistered && birthInfo.birthDate
-              ? `🔮 ${birthInfo.birthDate} (${birthInfo.calendarType === 'solar' ? '양력' : '음력'} ${birthInfo.birthTime || '시간 미상'})`
-              : '🔮 사주 탄생 정보를 입력해주세요'}
+              ? `✨ ${birthInfo.birthDate} (${birthInfo.calendarType === 'solar' ? '양력' : '음력'} ${birthInfo.birthTime || '시간 미상'})`
+              : '✨ 리듬 & 성향 프로필을 설정해주세요'}
           </Text>
           <Text style={styles.birthBannerSub}>
             {birthInfo.isRegistered
-              ? '✨ 사주 탄생 정보 등록됨 (오행·대운 정밀 분석 적용)'
-              : '생년월일시를 등록하면 정확한 AI 맞춤 운세를 분석해드려요 🍀'}
+              ? '🌱 기질 및 워크스타일 분석 프로필 설정됨'
+              : '생년월일을 등록하면 내 기질에 맞는 맞춤 리포트를 제공해드려요'}
           </Text>
         </View>
       </View>

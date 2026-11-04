@@ -144,12 +144,12 @@ export const CommunityScreen: React.FC = () => {
   const handlePressWrite = () => {
     if (!isVerified) {
       Alert.alert(
-        '간호 인증 필요',
-        '커뮤니티 글을 작성하시려면 간호사 또는 간호대학생 인증이 필요합니다.',
+        '소속 배지 인증 필요',
+        '게시글을 작성하시려면 소속 배지(직무/캠퍼스) 인증이 필요합니다.',
         [
           { text: '닫기', style: 'cancel' },
           {
-            text: '인증 신청하기',
+            text: '배지 신청하기',
             onPress: () => setVerificationModalVisible(true),
           },
         ]
@@ -158,25 +158,6 @@ export const CommunityScreen: React.FC = () => {
     }
     setWriteModalVisible(true);
   };
-
-  // ── A안: 미인증 회원은 커뮤니티 전면 잠금 게이트(CommunityLockGate) 렌더링 ──
-  if (!isVerified) {
-    return (
-      <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
-        <AppHeader />
-        <CommunityLockGate
-          verificationStatus={verificationStatus}
-          rejectReason={verificationRejectReason}
-          onPressVerify={() => setVerificationModalVisible(true)}
-        />
-        <VerificationModal
-          visible={verificationModalVisible}
-          onClose={() => setVerificationModalVisible(false)}
-          onSuccess={() => setVerificationModalVisible(false)}
-        />
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
@@ -187,6 +168,27 @@ export const CommunityScreen: React.FC = () => {
         contentContainerStyle={[styles.contentContainer, { paddingBottom: tabBarHeight + 24 }]}
         showsVerticalScrollIndicator={false}
       >
+        {/* 미인증 회원 안내 배너 (글/댓글 작성 시 인증 유도) */}
+        {!isVerified && (
+          <TouchableOpacity
+            style={styles.unverifiedBanner}
+            onPress={() => setVerificationModalVisible(true)}
+            activeOpacity={0.85}
+          >
+            <View style={styles.unverifiedBannerLeft}>
+              <Text style={styles.unverifiedBannerEmoji}>🛡️</Text>
+              <View style={styles.unverifiedBannerTexts}>
+                <Text style={styles.unverifiedBannerTitle}>소속 배지를 인증하고 소통해 보세요</Text>
+                <Text style={styles.unverifiedBannerSub}>
+                  배지를 인증하면 글과 댓글을 자유롭게 작성할 수 있어요
+                </Text>
+              </View>
+            </View>
+            <View style={[styles.verifyBadgeBtn, { backgroundColor: theme.primary }]}>
+              <Text style={styles.verifyBadgeBtnText}>인증하기</Text>
+            </View>
+          </TouchableOpacity>
+        )}
 
         {/* 실시간 인기글 (HOT 토픽) 가로 스크롤 배너 */}
         <HotTopicsBanner
@@ -325,6 +327,56 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
+  },
+  unverifiedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: `${theme.primary}30`,
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    shadowColor: theme.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  unverifiedBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
+    gap: 10,
+  },
+  unverifiedBannerEmoji: {
+    fontSize: 22,
+  },
+  unverifiedBannerTexts: {
+    flex: 1,
+  },
+  unverifiedBannerTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 2,
+  },
+  unverifiedBannerSub: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    lineHeight: 15,
+  },
+  verifyBadgeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+  },
+  verifyBadgeBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.onPrimaryText,
   },
   searchRow: {
     marginBottom: 16,

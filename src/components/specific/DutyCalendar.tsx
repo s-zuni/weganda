@@ -23,34 +23,28 @@ export const DutyCalendar: React.FC<DutyCalendarProps> = ({
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
   const renderDays = () => {
-    const days = [];
+    const days: React.ReactNode[] = [];
 
-    // Empty padding days before the 1st
-    for (let i = 0; i < firstDayIndex; i++) {
-      days.push(<View key={`empty-${i}`} style={styles.dayCell} />);
-    }
-
-    // Actual days of the month
-    for (let day = 1; day <= daysInMonth; day++) {
-      const monthStr = String(month + 1).padStart(2, '0');
-      const dayStr = String(day).padStart(2, '0');
-      const dateKey = `${year}-${monthStr}-${dayStr}`;
+    const renderCell = (dateKey: string, dayNum: number, isCurrentMonth: boolean) => {
       const shiftCode = schedules[dateKey];
       const shiftInfo = shiftCode ? SHIFT_TYPES[shiftCode] : null;
 
-      days.push(
+      return (
         <TouchableOpacity
           key={dateKey}
-          style={styles.dayCell}
+          style={[styles.dayCell, !isCurrentMonth && { opacity: 0.85 }]}
           onPress={() => onSelectDate?.(dateKey)}
           activeOpacity={0.7}
         >
-          <Text style={styles.dayText}>{day}</Text>
+          <Text style={[styles.dayText, !isCurrentMonth && { color: '#9CA3AF', fontWeight: '500' }]}>
+            {dayNum}
+          </Text>
           {shiftInfo ? (
             <View
               style={[
                 styles.shiftBadge,
                 { backgroundColor: shiftInfo.color },
+                !isCurrentMonth && { opacity: 0.65 },
               ]}
             >
               <Text style={[styles.shiftBadgeText, { color: shiftInfo.textColor }]}>
@@ -62,6 +56,46 @@ export const DutyCalendar: React.FC<DutyCalendarProps> = ({
           )}
         </TouchableOpacity>
       );
+    };
+
+    // 1. 이전 달 날짜 및 스케줄 연결
+    if (firstDayIndex > 0) {
+      const prevMonthLastDate = new Date(year, month, 0).getDate();
+      const prevMonthDate = new Date(year, month - 1, 1);
+      const prevYear = prevMonthDate.getFullYear();
+      const prevMonth = prevMonthDate.getMonth();
+      const prevMonthStr = String(prevMonth + 1).padStart(2, '0');
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const prevDay = prevMonthLastDate - firstDayIndex + 1 + i;
+        const prevDayStr = String(prevDay).padStart(2, '0');
+        const prevDateKey = `${prevYear}-${prevMonthStr}-${prevDayStr}`;
+        days.push(renderCell(prevDateKey, prevDay, false));
+      }
+    }
+
+    // 2. 당월 날짜들
+    for (let day = 1; day <= daysInMonth; day++) {
+      const monthStr = String(month + 1).padStart(2, '0');
+      const dayStr = String(day).padStart(2, '0');
+      const dateKey = `${year}-${monthStr}-${dayStr}`;
+      days.push(renderCell(dateKey, day, true));
+    }
+
+    // 3. 다음 달 날짜 및 스케줄 연결 (7의 배수로 패딩)
+    const remainder = days.length % 7;
+    if (remainder > 0) {
+      const trailingCount = 7 - remainder;
+      const nextMonthDate = new Date(year, month + 1, 1);
+      const nextYear = nextMonthDate.getFullYear();
+      const nextMonth = nextMonthDate.getMonth();
+      const nextMonthStr = String(nextMonth + 1).padStart(2, '0');
+
+      for (let day = 1; day <= trailingCount; day++) {
+        const nextDayStr = String(day).padStart(2, '0');
+        const nextDateKey = `${nextYear}-${nextMonthStr}-${nextDayStr}`;
+        days.push(renderCell(nextDateKey, day, false));
+      }
     }
 
     return days;

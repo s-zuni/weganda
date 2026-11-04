@@ -34,13 +34,13 @@ export const PREMIUM_BENEFITS: PremiumBenefit[] = [
   // 1. Custom theme colors
   { key: 'theme', icon: 'PaletteIcon', title: '앱 커스텀 컬러 설정', description: '세이지, 더스티로즈, 차콜 등 8종\n나만의 프리미엄 테마 컬러를 설정하세요', freeLimit: '기본 핑크, 네이비 무료' },
   // 2. Unlimited fortune
-  { key: 'fortune', icon: 'FortuneIcon', title: '사주 서비스 무제한 제공', description: '매달 횟수 제한 없이\n간호 운세와 정밀 사주를 확인하세요', freeLimit: '월 5회 제한' },
+  { key: 'fortune', icon: 'SparklesIcon', title: '워크스타일 리포트 무제한 제공', description: '매달 횟수 제한 없이\n교대근무 리듬과 워크스타일 리포트를 확인하세요', freeLimit: '월 5회 제한' },
   // 3. Salary predictor (Killer feature)
   { key: 'salary', icon: 'ChartBarIcon', title: '야간/휴일 수당 및 월급 자동 예측기', description: 'D/E/N 근무 패턴 기반으로\n다음 달 예상 월급을 자동 계산해요', freeLimit: 'weganda+ 전용 기능' },
   // 4. Unlimited AI & Drug Calculator
   { key: 'ai', icon: 'BotIcon', title: '약물 계산기 & Ask AI 무제한', description: '복잡한 약물 용량 계산 프리셋과\nAI 임상 어시스턴트를 무제한 사용하세요', freeLimit: '일일 3회 제한' },
   // 5. Smart duty health & burnout analysis
-  { key: 'burnout', icon: 'SparklesIcon', title: '스마트 듀티 건강 & 번아웃 위험도 AI 분석', description: 'N-O-D 패턴, 수면 부채, 연속 근무 피로도를\nAI가 분석하여 회복 골든타임을 알려드려요', freeLimit: 'weganda+ 전용 기능' },
+  { key: 'burnout', icon: 'SparklesIcon', title: '근무표 워라밸 & 휴식 밸런스 분석', description: 'N-O-D 패턴, 수면 부채, 연속 근무 피로도를\n분석하여 회복 골든타임을 알려드려요', freeLimit: 'weganda+ 전용 기능' },
 ];
 
 export const FREE_LIMITS = {

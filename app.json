@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.weganda.app",
-      "buildNumber": "20",
+      "buildNumber": "21",
       "usesAppleSignIn": true,
       "entitlements": {
         "aps-environment": "production",
@@ -29,7 +29,7 @@
       "infoPlist": {
         "CFBundleDisplayName": "우간다",
         "NSCalendarsUsageDescription": "근무표를 스마트폰 기본 캘린더에 동기화하기 위해 캘린더 접근 권한이 필요합니다.",
-        "NSRemindersUsageDescription": "임상 알람을 리마인더에 등록하기 위해 접근 권한이 필요합니다.",
+        "NSRemindersUsageDescription": "근무 및 업무 타이머를 리마인더에 등록하기 위해 접근 권한이 필요합니다.",
         "NSPhotoLibraryUsageDescription": "근무표 이미지를 업로드하거나 커뮤니티 게시글에 사진을 첨부하기 위해 사진 접근 권한이 필요합니다.",
         "NSCameraUsageDescription": "근무표를 직접 촬영하여 OCR로 자동 입력하기 위해 카메라 접근 권한이 필요합니다.",
         "NSContactsUsageDescription": "동료 간호사를 찾아 근무표를 공유하고 친구로 추가하기 위해 연락처 접근 권한이 필요합니다.",
@@ -38,7 +38,7 @@
     },
     "android": {
       "package": "com.weganda.app",
-      "versionCode": 20,
+      "versionCode": 21,
       "splash": {
         "image": "./src/assets/splash.png",
         "backgroundColor": "#FFFFFF",

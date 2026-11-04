@@ -101,19 +101,13 @@ export const SajuDetailResultScreen: React.FC = () => {
           partnerSaju={currentPartnerAnalysis}
         />
 
-        {/* 1. 만세력 사주 원국표 (四柱原局) */}
-        <SajuPillarsCard pillars={pillars} dayMaster={dayMaster} />
-
-        {/* 2. 오행 분포 분석 (五行) */}
+        {/* 1. 에너지 밸런스 분포 분석 */}
         <SajuFiveElementsCard fiveElements={fiveElements} />
 
-        {/* 3. 검출된 기운 및 신살 (神煞) */}
-        <SajuShinsalCard detectedShinsals={detectedShinsals} />
-
-        {/* 4. 10년 대운 흐름표 (大運) */}
+        {/* 2. 중장기 라이프 주기 흐름표 */}
         <SajuDaewoonTimeline daewoon={daewoon} />
 
-        {/* 5. 50년 명인의 심층 명리학·심리 리포트 본문 & 6. 명인의 최종 직언 */}
+        {/* 3. 워크스타일 & 심리 분석 리포트 본문 및 핵심 제안 */}
         <SajuReportContentCard
           sections={report.sections}
           directAdvice={report.directAdvice}
@@ -127,10 +121,10 @@ export const SajuDetailResultScreen: React.FC = () => {
               onPress={() => setShowChatModal(true)}
               activeOpacity={0.85}
               accessibilityRole="button"
-              accessibilityLabel="명인에게 직접 물어보기"
+              accessibilityLabel="AI 어시스턴트에게 질문하기"
             >
               <SparklesIcon size={18} color={theme.onPrimaryText} />
-              <Text style={styles.chatBtnText}>명인에게 직접 물어보기 (사주 · MBTI)</Text>
+              <Text style={styles.chatBtnText}>AI 어시스턴트에게 질문하기 (성향 · 워크스타일)</Text>
             </TouchableOpacity>
           )}
 

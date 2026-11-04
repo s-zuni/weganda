@@ -31,7 +31,7 @@ export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
   const hasNote = Boolean(latestNote && latestNote.note && latestNote.note.trim().length > 0);
   const emptyText = upcomingCount > 0
     ? `오늘 메모는 없어요 · 예정된 메모 ${upcomingCount}건`
-    : '오늘 등록된 인수인계 메모가 없어요';
+    : '오늘 등록된 듀티 메모가 없어요';
   const notePreviewText = hasNote
     ? `${todayNotes.length > 1 ? `(${todayNotes.length}건) ` : ''}${latestNote!.patient ? `${latestNote!.patient} ` : ''}${latestNote!.note}`
     : emptyText;
@@ -53,7 +53,7 @@ export const DailyNoteSection: React.FC<DailyNoteSectionProps> = ({
 
       {/* 중앙 텍스트 */}
       <View style={styles.textCol}>
-        <Text style={styles.memoTitle}>오늘의 인수인계 메모</Text>
+        <Text style={styles.memoTitle}>오늘의 듀티 메모</Text>
         <Text
           style={[
             styles.memoPreview,

@@ -8,22 +8,22 @@ import { NotificationModal } from '../components/specific/Notification/Notificat
 import { MyPageModal } from '../components/specific/MyPage/MyPageModal';
 import { ClinicalAlarmModal } from '../components/specific/Home';
 import {
-  FortuneIcon,
+  ChartBarIcon,
   FriendsIcon,
-  StethoscopeIcon,
+  CalendarIcon,
   StudyIcon,
   CommunityIcon,
 } from '../components/common/Icon';
 
 // 화면 컴포넌트
 import { DashboardScreen } from '../screens/Home/DashboardScreen';
-import { FortuneStackNavigator } from './FortuneStackNavigator';
+import { ShiftReportScreen } from '../screens/Report/ShiftReportScreen';
 import { FriendsScreen } from '../screens/Friends/FriendsScreen';
 import { StudyScreen } from '../screens/Study/StudyScreen';
 import { CommunityScreen } from '../screens/Community/CommunityScreen';
 
 export type BottomTabParamList = {
-  FortuneTab: undefined;
+  ReportTab: undefined;
   FriendsTab: undefined;
   HomeTab: undefined;
   StudyTab: undefined;
@@ -45,7 +45,7 @@ const CenterFAB = ({ onPress, theme }: { onPress: () => void; theme: ThemeColors
     accessibilityLabel="홈 근무표 대시보드"
   >
     <View style={[styles.fabButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]}>
-      <StethoscopeIcon size={28} color={theme.onPrimaryText} />
+      <CalendarIcon size={26} color={theme.onPrimaryText} />
     </View>
   </TouchableOpacity>
 ));
@@ -97,15 +97,15 @@ export const BottomTabNavigator: React.FC = () => {
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
-      {/* Tab 1: 운세 */}
+      {/* Tab 1: 리포트 */}
       <Tab.Screen
-        name="FortuneTab"
-        component={FortuneStackNavigator}
+        name="ReportTab"
+        component={ShiftReportScreen}
         options={{
-          tabBarLabel: '운세',
-          tabBarAccessibilityLabel: '임상 운세 및 사주',
+          tabBarLabel: '리포트',
+          tabBarAccessibilityLabel: '근무 분석 및 수당 리포트',
           tabBarIcon: ({ focused }) => (
-            <FortuneIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
+            <ChartBarIcon size={22} focused={focused} color={focused ? theme.primary : '#6B7280'} />
           ),
         }}
       />

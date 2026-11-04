@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -78,7 +81,22 @@ export const FortuneScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
-      <AppHeader />
+      <AppHeader
+        leftElement={
+          navigation.canGoBack() ? (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              style={{ flexDirection: 'row', alignItems: 'center' }}
+            >
+              <Text style={{ fontSize: 24, marginRight: 6, color: COLORS.textPrimary }}>‹</Text>
+              <Text style={{ fontSize: 17, fontWeight: '700', color: COLORS.textPrimary }}>
+                워크스타일 리포트
+              </Text>
+            </TouchableOpacity>
+          ) : undefined
+        }
+      />
 
       <ScrollView
         style={styles.scrollView}
@@ -161,8 +179,8 @@ export const FortuneScreen: React.FC = () => {
           setPaywallVisible(false);
           setTimeout(() => setMembershipVisible(true), 250);
         }}
-        featureTitle="사주 서비스"
-        featureDescription="매달 횟수 제한 없이 간호 운세와 정밀 사주를 확인하세요"
+        featureTitle="워크스타일 리포트"
+        featureDescription="매달 횟수 제한 없이 근무 리듬과 워크스타일 리포트를 확인하세요"
       />
 
       <MembershipScreen

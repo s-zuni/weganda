@@ -69,7 +69,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
           <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={[styles.backText, { color: theme.primary }]}>‹ 닫기</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>스마트 듀티 건강 & 번아웃 분석</Text>
+          <Text style={styles.headerTitle}>근무표 워라밸 & 휴식 밸런스</Text>
           <View style={{ width: 40 }} />
         </View>
 
@@ -84,9 +84,9 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
               <ShieldCheckIcon size={24} color={theme.primary} />
             </View>
             <View style={styles.bannerTexts}>
-              <Text style={styles.bannerTitle}>{monthLabel} 간호 듀티 생체 리듬 사정</Text>
+              <Text style={styles.bannerTitle}>{monthLabel} 교대근무 워라밸 & 휴식 리포트</Text>
               <Text style={styles.bannerSub}>
-                3교대 취약 패턴(N-O-D, 연속 나이트, 수면 부채)을 AI가 정밀 분석합니다.
+                근무 패턴(연속 근무, 교대 주기, 휴식 시간)을 기반으로 워라밸을 분석합니다.
               </Text>
             </View>
           </View>
@@ -94,7 +94,7 @@ export const BurnoutGuardModal: React.FC<BurnoutGuardModalProps> = ({
           {/* 메인 번아웃 스코어 카드 */}
           <View style={styles.scoreCard}>
             <View style={styles.scoreHeader}>
-              <Text style={styles.scoreLabel}>이번 달 번아웃 위험 지수</Text>
+              <Text style={styles.scoreLabel}>이번 달 피로도 & 휴식 밸런스 지수</Text>
               <View style={[styles.riskTag, { backgroundColor: `${riskColor}18` }]}>
                 <Text style={[styles.riskTagText, { color: riskColor }]}>{report.riskTitle}</Text>
               </View>

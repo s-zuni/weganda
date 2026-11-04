@@ -119,7 +119,7 @@ export const SbarSummaryModal: React.FC<SbarSummaryModalProps> = ({
     if (!activeItem) return;
     const text = `[SBAR 인계] ${activeItem.patient} (${activeItem.diagnosis})\n• S: ${activeItem.situation}\n• B: ${activeItem.background}\n• A: ${activeItem.assessment}\n• R: ${activeItem.recommendation}`;
     await Clipboard.setStringAsync(text);
-    Alert.alert('복사 완료', `${activeItem.patient} 환자의 SBAR 요약이 복사되었습니다.`);
+    Alert.alert('복사 완료', `${activeItem.patient} 메모 요약이 복사되었습니다.`);
   };
 
   return (
@@ -131,7 +131,7 @@ export const SbarSummaryModal: React.FC<SbarSummaryModalProps> = ({
             <Text style={[styles.closeBtn, { color: theme.primary }]}>‹ 닫기</Text>
           </TouchableOpacity>
           <View style={styles.headerTitleRow}>
-            <Text style={styles.headerTitle}>AI SBAR 인수인계 요약</Text>
+            <Text style={styles.headerTitle}>AI 듀티 메모 템플릿 요약</Text>
             <View style={styles.proTag}>
               <Text style={styles.proTagText}>weganda+</Text>
             </View>
@@ -144,9 +144,9 @@ export const SbarSummaryModal: React.FC<SbarSummaryModalProps> = ({
           <View style={styles.infoBanner}>
             <SparklesIcon size={20} color={theme.primary} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.infoBannerTitle}>표준 SBAR 프로토콜 자동 정돈</Text>
+              <Text style={styles.infoBannerTitle}>업무 메모 템플릿 자동 정리</Text>
               <Text style={styles.infoBannerSub}>
-                당일 기록된 환자 메모를 Situation, Background, Assessment, Recommendation 표준 양식으로 요약했습니다.
+                기록된 업무 메모를 구조화된 템플릿 양식으로 요약했습니다.
               </Text>
             </View>
           </View>

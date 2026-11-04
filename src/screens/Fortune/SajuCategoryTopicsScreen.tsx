@@ -110,7 +110,7 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
         <View style={[styles.heroCard, { backgroundColor: category.bgLightColor, borderColor: category.themeColor }]}>
           <View style={styles.masterBadgeRow}>
             <View style={[styles.masterBadge, { backgroundColor: category.themeColor }]}>
-              <Text style={styles.masterBadgeText}>50년 사주명리학 & 간호심리 명인 감정</Text>
+              <Text style={styles.masterBadgeText}>교대근무 라이프 & 심리 분석 리포트</Text>
             </View>
             <Text style={styles.topicsCountBadge}>총 {topics.length}개 주제</Text>
           </View>
@@ -120,7 +120,7 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
           <View style={styles.personaCallout}>
             <Ionicons name="sparkles" size={16} color={category.themeColor} />
             <Text style={styles.personaCalloutText}>
-              만세력 절기 정본 데이터 기반 1,000자+ 심층 분석 & 현실 직언(直言) 제공
+              생체 리듬 및 기질 프로필 기반 1,000자+ 심층 리포트 & 실전 가이드 제공
             </Text>
           </View>
         </View>

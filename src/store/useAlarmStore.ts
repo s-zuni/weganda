@@ -14,11 +14,11 @@ export interface CustomAlarmPreset {
 }
 
 const DEFAULT_PRESETS: CustomAlarmPreset[] = [
-  { id: 'preset_ast', label: '+15분', minutes: 15, hint: '💉 항생제 AST 알러지 확인', isPinned: true },
-  { id: 'preset_transfusion', label: '+15분', minutes: 15, hint: '🩸 수혈 1차 바이탈 모니터링', isPinned: true },
-  { id: 'preset_bst', label: '+30분', minutes: 30, hint: '🩺 식후 혈당(BST) 재측정', isPinned: true },
-  { id: 'preset_fluid', label: '+60분', minutes: 60, hint: '💧 수액 잔여량 & 주입속도 점검', isPinned: false },
-  { id: 'preset_drain', label: '+120분', minutes: 120, hint: '🧪 배액관(H/V) 배액량 체크', isPinned: false },
+  { id: 'preset_water', label: '+30분', minutes: 30, hint: '💧 수분 섭취 & 스트레칭', isPinned: true },
+  { id: 'preset_routine', label: '+60분', minutes: 60, hint: '📋 정기 업무 루틴 체크', isPinned: true },
+  { id: 'preset_rest', label: '+15분', minutes: 15, hint: '☕ 휴식 시간 종료 리마인더', isPinned: true },
+  { id: 'preset_duty', label: '+120분', minutes: 120, hint: '⏰ 인수인계 및 스케줄 정리', isPinned: false },
+  { id: 'preset_shift', label: '+180분', minutes: 180, hint: '🏃 퇴근 전 할 일 점검', isPinned: false },
 ];
 
 interface AlarmState {

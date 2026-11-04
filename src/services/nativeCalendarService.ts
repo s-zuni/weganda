@@ -278,8 +278,9 @@ export const nativeCalendarService = {
         };
       }
 
-      const startOfMonth = new Date(year, month, 1, 0, 0, 0);
-      const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
+      // 이전 달 및 다음 달 캘린더 그리드에 노출되는 날짜(최대 7일 오버플로우)까지 포함 조회
+      const startOfMonth = new Date(year, month, -6, 0, 0, 0);
+      const endOfMonth = new Date(year, month + 1, 7, 23, 59, 59);
 
       const allCalendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
       const personalCalendarIds = allCalendars

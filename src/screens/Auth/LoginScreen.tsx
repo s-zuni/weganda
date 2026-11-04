@@ -148,7 +148,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             우간다
           </Text>
           <Text style={styles.subtitle}>
-            교대근무 캘린더부터 임상 운세,{'\n'}동기 톡과 익명 커뮤니티까지 한곳에서
+            교대근무 캘린더부터 근무 리포트,{'\n'}동기 톡과 익명 커뮤니티까지 한곳에서
           </Text>
 
           {/* 1개월 무료 체험 혜택 프로모션 안내 배지 */}

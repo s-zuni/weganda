@@ -143,7 +143,7 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
           <CalculatorIcon size={20} color={theme.primary} />
-          <Text style={styles.headerTitle}>🧮 임상 약물 gtt/cc 계산기</Text>
+          <Text style={styles.headerTitle}>🧮 간호 산수 & 수액 단위 환산기</Text>
           {!isPremium && (
             <View style={styles.limitBadge}>
               <Text style={styles.limitBadgeText}>{dailyDrugCalcCount}/3회</Text>
@@ -163,7 +163,7 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
       >
         {/* 병동 맞춤 약물 프로토콜 헤더 */}
         <View style={styles.presetHeaderRow}>
-          <Text style={styles.sectionLabel}>🏥 내 병동 맞춤 약물 프로토콜</Text>
+          <Text style={styles.sectionLabel}>📋 수액 및 기본 단위 변환 프로토콜</Text>
           <TouchableOpacity
             style={styles.addDrugToggleBtn}
             onPress={() => setIsAddingDrug((p) => !p)}
@@ -389,10 +389,10 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
 
           {/* 주의사항 배너 */}
           <View style={styles.cautionBanner}>
-            <Text style={styles.cautionTitle}>임상 투약 안전 수칙 (Double Check)</Text>
+            <Text style={styles.cautionTitle}>수액 계산 확인 수칙 (Double Check)</Text>
             <Text style={styles.cautionText}>
               • 계산된 주입 속도는 참고용이며, 반드시 동료 간호사 2인 교차 확인 후 주입하세요.{'\n'}
-              • 고위험 혈관수축제는 말초 유출 시 피부 괴사 위험이 있으므로 C-line 투여를 권장합니다.
+              • 계산된 주입 속도는 학습 및 참고용이며, 실제 투약 시 공식 지침 및 처방을 반드시 재확인하세요.
             </Text>
           </View>
 

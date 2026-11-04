@@ -88,27 +88,22 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
   });
 
   const renderDays = () => {
-    const cells = [];
-    // 이전 달 빈칸 패딩
-    for (let i = 0; i < firstDayIndex; i++) {
-      cells.push(<View key={`empty-${i}`} style={styles.dayCellEmpty} />);
-    }
+    const cells: React.ReactNode[] = [];
 
-    // 당월 날짜들
-    for (let day = 1; day <= daysInMonth; day++) {
-      const monthStr = String(month + 1).padStart(2, '0');
-      const dayStr = String(day).padStart(2, '0');
-      const dateKey = `${year}-${monthStr}-${dayStr}`;
+    const renderCell = (dateKey: string, dayNum: number, isCurrentMonth: boolean, dayOfWeek: number) => {
       const code = schedules[dateKey];
       const shiftInfo = code ? customCodes[code] || { code, name: code, color: theme.primary, textColor: '#FFF' } : null;
       const isSelected = selectedDateStr === dateKey;
       const isToday = dateKey === defaultDateStr;
-      const dayOfWeek = (firstDayIndex + day - 1) % 7;
 
-      cells.push(
+      return (
         <TouchableOpacity
           key={dateKey}
-          style={[styles.dayCell, isSelected && styles.dayCellSelected]}
+          style={[
+            styles.dayCell,
+            isSelected && styles.dayCellSelected,
+            !isCurrentMonth && styles.adjacentDayCell,
+          ]}
           onPress={() => setSelectedDateStr(dateKey)}
           activeOpacity={0.7}
         >
@@ -116,16 +111,28 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
             <Text
               style={[
                 styles.dayNumberText,
-                dayOfWeek === 0 ? styles.sundayText : dayOfWeek === 6 ? styles.saturdayText : null,
+                !isCurrentMonth
+                  ? styles.adjacentDayNumberText
+                  : dayOfWeek === 0
+                  ? styles.sundayText
+                  : dayOfWeek === 6
+                  ? styles.saturdayText
+                  : null,
                 isToday && [styles.todayNumberText, { color: theme.onPrimaryText }],
               ]}
             >
-              {day}
+              {dayNum}
             </Text>
           </View>
 
           {shiftInfo ? (
-            <View style={[styles.shiftBlock, { backgroundColor: shiftInfo.color }]}>
+            <View
+              style={[
+                styles.shiftBlock,
+                { backgroundColor: shiftInfo.color },
+                !isCurrentMonth && { opacity: 0.65 },
+              ]}
+            >
               <Text style={[styles.shiftBlockText, { color: shiftInfo.textColor || COLORS.background }]}>
                 {shiftInfo.code === 'O' ? '🛏️' : shiftInfo.code}
               </Text>
@@ -135,6 +142,48 @@ export const FullScheduleModal: React.FC<FullScheduleModalProps> = ({
           )}
         </TouchableOpacity>
       );
+    };
+
+    // 1. 이전 달 날짜 및 스케줄 연결
+    if (firstDayIndex > 0) {
+      const prevMonthLastDate = new Date(year, month, 0).getDate();
+      const prevMonthDate = new Date(year, month - 1, 1);
+      const prevYear = prevMonthDate.getFullYear();
+      const prevMonth = prevMonthDate.getMonth();
+      const prevMonthStr = String(prevMonth + 1).padStart(2, '0');
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const prevDay = prevMonthLastDate - firstDayIndex + 1 + i;
+        const prevDayStr = String(prevDay).padStart(2, '0');
+        const prevDateKey = `${prevYear}-${prevMonthStr}-${prevDayStr}`;
+        cells.push(renderCell(prevDateKey, prevDay, false, i));
+      }
+    }
+
+    // 2. 당월 날짜들
+    for (let day = 1; day <= daysInMonth; day++) {
+      const monthStr = String(month + 1).padStart(2, '0');
+      const dayStr = String(day).padStart(2, '0');
+      const dateKey = `${year}-${monthStr}-${dayStr}`;
+      const dayOfWeek = (firstDayIndex + day - 1) % 7;
+      cells.push(renderCell(dateKey, day, true, dayOfWeek));
+    }
+
+    // 3. 다음 달 날짜 및 스케줄 연결 (7의 배수로 패딩)
+    const remainder = cells.length % 7;
+    if (remainder > 0) {
+      const trailingCount = 7 - remainder;
+      const nextMonthDate = new Date(year, month + 1, 1);
+      const nextYear = nextMonthDate.getFullYear();
+      const nextMonth = nextMonthDate.getMonth();
+      const nextMonthStr = String(nextMonth + 1).padStart(2, '0');
+
+      for (let day = 1; day <= trailingCount; day++) {
+        const nextDayStr = String(day).padStart(2, '0');
+        const nextDateKey = `${nextYear}-${nextMonthStr}-${nextDayStr}`;
+        const dayOfWeek = (firstDayIndex + daysInMonth + day - 1) % 7;
+        cells.push(renderCell(nextDateKey, day, false, dayOfWeek));
+      }
     }
 
     return cells;
@@ -491,6 +540,14 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: COLORS.textPrimary,
+  },
+  adjacentDayCell: {
+    opacity: 0.85,
+    backgroundColor: COLORS.offWhite,
+  },
+  adjacentDayNumberText: {
+    color: '#9CA3AF',
+    fontWeight: '500',
   },
   todayNumberText: {
     color: COLORS.background,

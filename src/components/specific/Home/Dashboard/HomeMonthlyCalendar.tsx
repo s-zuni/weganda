@@ -177,17 +177,7 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
   const renderCalendarWeeks = () => {
     const allCells: React.ReactNode[] = [];
 
-    // 1일 이전 빈칸 패딩
-    for (let i = 0; i < firstDayIndex; i++) {
-      allCells.push(<View key={`empty-start-${i}`} style={styles.dayCell} />);
-    }
-
-    // 1일 ~ 말일 셀
-    for (let day = 1; day <= daysInMonth; day++) {
-      const monthStr = String(month + 1).padStart(2, '0');
-      const dayStr = String(day).padStart(2, '0');
-      const dateKey = `${year}-${monthStr}-${dayStr}`;
-
+    const renderCell = (dateKey: string, dayNum: number, isCurrentMonth: boolean) => {
       const isToday = dateKey === todayKey;
       const isSelected = dateKey === selectedDateKey;
       const { code, shiftInfo, nativeCount } = getShiftDisplay(dateKey);
@@ -195,14 +185,14 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
       // 근무 코드 색상 결정 (D: 파랑, E: 초록, N: 네이비, O: 핑크)
       const codeColor = shiftInfo ? shiftInfo.color : COLORS.textMuted;
 
-      allCells.push(
+      return (
         <TouchableOpacity
           key={dateKey}
-          style={styles.dayCell}
+          style={[styles.dayCell, !isCurrentMonth && styles.adjacentDayCell]}
           onPress={() => handleCellPress(dateKey)}
           activeOpacity={0.7}
         >
-          {/* 날짜 숫자 컨테이너 (오늘 또는 선택일일 때 시안 13일 형태의 라운드 박스 하이라이트) */}
+          {/* 날짜 숫자 컨테이너 */}
           <View
             style={[
               styles.dateNumberBox,
@@ -212,42 +202,98 @@ export const HomeMonthlyCalendar: React.FC<HomeMonthlyCalendarProps> = ({
             <Text
               style={[
                 styles.dayNumberText,
+                !isCurrentMonth && styles.adjacentDayNumberText,
                 (isToday || isSelected) && styles.todayNumberText,
               ]}
             >
-              {day}
+              {dayNum}
             </Text>
           </View>
 
-          {/* 날짜 하단 근무 코드 및 개인 일정 카운트 표기 (예: D, E+1, O) */}
-          <View style={styles.dutyContainer}>
+          {/* 날짜 하단 근무 코드 및 개인 일정 카운트 표기 */}
+          <View
+            style={[
+              styles.dutyContainer,
+              !isCurrentMonth && styles.adjacentDutyContainer,
+            ]}
+          >
             {code ? (
               <View style={styles.dutyBadgeRow}>
-                <Text style={[styles.dutyCodeText, { color: codeColor }]}>
+                <Text
+                  style={[
+                    styles.dutyCodeText,
+                    { color: codeColor },
+                    !isCurrentMonth && styles.adjacentDutyCodeText,
+                  ]}
+                >
                   {code}
                 </Text>
                 {nativeCount > 0 && (
-                  <Text style={[styles.nativeCountText, { color: codeColor }]}>
+                  <Text
+                    style={[
+                      styles.nativeCountText,
+                      { color: codeColor },
+                      !isCurrentMonth && { opacity: 0.65 },
+                    ]}
+                  >
                     +{nativeCount}
                   </Text>
                 )}
               </View>
             ) : nativeCount > 0 ? (
-              <Text style={styles.standaloneCountText}>+{nativeCount}</Text>
+              <Text
+                style={[
+                  styles.standaloneCountText,
+                  !isCurrentMonth && { opacity: 0.6 },
+                ]}
+              >
+                +{nativeCount}
+              </Text>
             ) : (
               <View style={styles.emptyDutyPlaceholder} />
             )}
           </View>
         </TouchableOpacity>
       );
+    };
+
+    // 1. 이전 달 날짜 및 스케줄 연결 (첫째 주 빈칸 채우기)
+    if (firstDayIndex > 0) {
+      const prevMonthLastDate = new Date(year, month, 0).getDate();
+      const prevMonthDate = new Date(year, month - 1, 1);
+      const prevYear = prevMonthDate.getFullYear();
+      const prevMonth = prevMonthDate.getMonth();
+      const prevMonthStr = String(prevMonth + 1).padStart(2, '0');
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const prevDay = prevMonthLastDate - firstDayIndex + 1 + i;
+        const prevDayStr = String(prevDay).padStart(2, '0');
+        const prevDateKey = `${prevYear}-${prevMonthStr}-${prevDayStr}`;
+        allCells.push(renderCell(prevDateKey, prevDay, false));
+      }
     }
 
-    // 마지막 주 빈칸 패딩 (7의 배수로 맞추기)
+    // 2. 이번 달 1일 ~ 말일 날짜 및 스케줄
+    const curMonthStr = String(month + 1).padStart(2, '0');
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayStr = String(day).padStart(2, '0');
+      const dateKey = `${year}-${curMonthStr}-${dayStr}`;
+      allCells.push(renderCell(dateKey, day, true));
+    }
+
+    // 3. 다음 달 날짜 및 스케줄 연결 (마지막 주 빈칸 7의 배수로 매끄럽게 연결)
     const remainder = allCells.length % 7;
     if (remainder > 0) {
-      const emptyCount = 7 - remainder;
-      for (let i = 0; i < emptyCount; i++) {
-        allCells.push(<View key={`empty-end-${i}`} style={styles.dayCell} />);
+      const trailingCount = 7 - remainder;
+      const nextMonthDate = new Date(year, month + 1, 1);
+      const nextYear = nextMonthDate.getFullYear();
+      const nextMonth = nextMonthDate.getMonth();
+      const nextMonthStr = String(nextMonth + 1).padStart(2, '0');
+
+      for (let day = 1; day <= trailingCount; day++) {
+        const nextDayStr = String(day).padStart(2, '0');
+        const nextDateKey = `${nextYear}-${nextMonthStr}-${nextDayStr}`;
+        allCells.push(renderCell(nextDateKey, day, false));
       }
     }
 
@@ -530,6 +576,19 @@ const createStyles = (theme: ThemeColors) => StyleSheet.create({
   },
   emptyDutyPlaceholder: {
     height: 14,
+  },
+  adjacentDayCell: {
+    opacity: 0.9,
+  },
+  adjacentDayNumberText: {
+    color: '#9CA3AF',
+    fontWeight: '500',
+  },
+  adjacentDutyContainer: {
+    opacity: 0.65,
+  },
+  adjacentDutyCodeText: {
+    fontWeight: '700',
   },
 });
 

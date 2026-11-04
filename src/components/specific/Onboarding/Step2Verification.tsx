@@ -26,15 +26,15 @@ interface Step2VerificationProps {
 }
 
 const NURSE_DOCS = [
-  { type: 'license' as VerificationType, label: '간호사 면허증', desc: '보건복지부 발급 면허증' },
-  { type: 'employee_id' as VerificationType, label: '병원 사원증', desc: '성명/병원명 표기 사원증' },
+  { type: 'license' as VerificationType, label: '직무 자격 확인서 / 면허 증빙', desc: '직무 자격 확인서 또는 면허 사본' },
+  { type: 'employee_id' as VerificationType, label: '소속 사원증 / 명찰', desc: '성명/소속명 표기 사원증 또는 명찰' },
   { type: 'employment_cert' as VerificationType, label: '재직증명서', desc: '3개월 이내 발급 서류' },
 ];
 
 const STUDENT_DOCS = [
-  { type: 'student_id' as VerificationType, label: '학생증', desc: '간호학과 표기 학생증' },
+  { type: 'student_id' as VerificationType, label: '학생증', desc: '전공/학과 표기 학생증' },
   { type: 'enrollment_cert' as VerificationType, label: '재학증명서', desc: '최근 발급 재학증명서' },
-  { type: 'tuition_bill' as VerificationType, label: '등록금 납부서', desc: '당해 학기 납부 영수증' },
+  { type: 'tuition_bill' as VerificationType, label: '학기 등록확인서', desc: '당해 학기 납부 영수증' },
 ];
 
 export const Step2Verification: React.FC<Step2VerificationProps> = ({
@@ -118,15 +118,13 @@ export const Step2Verification: React.FC<Step2VerificationProps> = ({
       {/* 헤딩 영역 */}
       <View style={styles.headingSection}>
         <View style={styles.stepBadge}>
-          <Text style={styles.stepBadgeText}>2단계 · 신원 인증</Text>
+          <Text style={styles.stepBadgeText}>2단계 · 소속 인증 배지 (선택)</Text>
         </View>
         <Text style={styles.mainTitle}>
-          {role === 'nurse'
-            ? '간호사 면허를 인증해 주세요 🛡️'
-            : '간호대학생 학생증을 인증해 주세요 🎓'}
+          소속 인증 배지를 신청해 보세요 🛡️
         </Text>
         <Text style={styles.subtitle}>
-          철저한 비밀 유지와 신뢰도 높은 임상 커뮤니티를 위해 필요해요.
+          신뢰할 수 있고 안전한 소통을 위한 선택 사항이에요. 언제든 마이페이지에서 신청하실 수 있어요.
         </Text>
       </View>
 

@@ -56,7 +56,7 @@ export const HeroFortuneCard: React.FC<HeroFortuneCardProps> = ({
       <View style={styles.heroTopRow}>
         <View style={styles.heroDateCol}>
           <Text style={styles.heroDate}>{formattedToday}</Text>
-          <Text style={styles.heroHeading}>오늘의 행운 지수</Text>
+          <Text style={styles.heroHeading}>오늘의 컨디션 & 듀티 지수</Text>
         </View>
 
         <TouchableOpacity
@@ -79,11 +79,11 @@ export const HeroFortuneCard: React.FC<HeroFortuneCardProps> = ({
       {/* 구분선 */}
       <View style={styles.divider} />
 
-      {/* 하단: 오늘의 행운 4종 아이템 (HeroFortuneCard 단일 카드 내 통합) */}
+      {/* 하단: 오늘의 리프레시 4종 아이템 */}
       <View style={styles.luckyItemsGrid}>
-        {/* 행운 컬러 */}
+        {/* 리프레시 컬러 */}
         <View style={styles.luckyItemRow}>
-          <Text style={styles.luckyItemLabel}>행운 컬러</Text>
+          <Text style={styles.luckyItemLabel}>리프레시 컬러</Text>
           <View style={styles.luckyValueRow}>
             <View style={[styles.colorDot, { backgroundColor: displayColorHex }]} />
             <Text style={[styles.luckyValueText, { color: displayColorHex }]}>{displayColor}</Text>
@@ -92,25 +92,25 @@ export const HeroFortuneCard: React.FC<HeroFortuneCardProps> = ({
 
         <View style={styles.innerDivider} />
 
-        {/* 행운 숫자 */}
+        {/* 집중 타임 */}
         <View style={styles.luckyItemRow}>
-          <Text style={styles.luckyItemLabel}>행운 숫자</Text>
-          <Text style={styles.luckyValueText}>{displayNumber}</Text>
+          <Text style={styles.luckyItemLabel}>집중 타임</Text>
+          <Text style={styles.luckyValueText}>{displayNumber}시</Text>
         </View>
 
         <View style={styles.innerDivider} />
 
-        {/* 행운 방향 */}
+        {/* 리프레시 방향 */}
         <View style={styles.luckyItemRow}>
-          <Text style={styles.luckyItemLabel}>행운 방향</Text>
+          <Text style={styles.luckyItemLabel}>리프레시 방향</Text>
           <Text style={styles.luckyValueText}>{displayDirection}</Text>
         </View>
 
         <View style={styles.innerDivider} />
 
-        {/* 행운 아이템 */}
+        {/* 힐링 아이템 */}
         <View style={styles.luckyItemRow}>
-          <Text style={styles.luckyItemLabel}>추천 아이템</Text>
+          <Text style={styles.luckyItemLabel}>힐링 아이템</Text>
           <Text style={[styles.luckyValueText, { color: theme.primary }]}>{displayItem}</Text>
         </View>
       </View>

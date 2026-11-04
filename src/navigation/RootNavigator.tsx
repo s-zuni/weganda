@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useUserStore } from '../store/useUserStore';
 import AuthNavigator from './AuthNavigator';
 import BottomTabNavigator from './BottomTabNavigator';
+import FortuneStackNavigator from './FortuneStackNavigator';
 import { authDebug } from '../utils/authDebug';
 
 const Stack = createNativeStackNavigator();
@@ -16,11 +17,12 @@ const linking: LinkingOptions<any> = {
         screens: {
           HomeTab: 'home',
           FriendsTab: 'friends',
-          FortuneTab: 'fortune',
+          ReportTab: 'report',
           StudyTab: 'study',
           CommunityTab: 'community',
         },
       },
+      FortuneStack: 'fortune',
       Auth: {
         screens: {
           Login: 'login',
@@ -46,7 +48,10 @@ export const RootNavigator: React.FC = () => {
     <NavigationContainer linking={linking}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {showMain ? (
-          <Stack.Screen name="Main" component={BottomTabNavigator} />
+          <>
+            <Stack.Screen name="Main" component={BottomTabNavigator} />
+            <Stack.Screen name="FortuneStack" component={FortuneStackNavigator} />
+          </>
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />
         )}

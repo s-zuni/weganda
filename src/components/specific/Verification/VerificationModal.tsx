@@ -30,16 +30,16 @@ interface VerificationModalProps {
 }
 
 const NURSE_DOC_TYPES: { type: VerificationType; label: string; desc: string }[] = [
-  { type: 'license', label: '간호사 면허증', desc: '보건복지부 발급 간호사 면허증 사본/사진' },
-  { type: 'employment_cert', label: '재직증명서', desc: '최근 3개월 이내 발급된 병원 재직증명서' },
-  { type: 'work_email', label: '병원 업무 이메일', desc: '병원 도메인 웹메일 수신함/인증 화면' },
-  { type: 'employee_id', label: '병원 사원증', desc: '성명과 병원명이 명확히 표기된 사원증' },
+  { type: 'license', label: '직무 자격 확인서 / 면허 증빙', desc: '직무 자격 확인서 또는 면허 사본/사진' },
+  { type: 'employment_cert', label: '재직증명서', desc: '최근 3개월 이내 발급된 기관/병원 재직확인서' },
+  { type: 'work_email', label: '기관 업무 이메일', desc: '소속 기관 도메인 웹메일 수신함/인증 화면' },
+  { type: 'employee_id', label: '소속 사원증 / 명찰', desc: '성명과 소속 기관명이 명확히 표기된 사원증 또는 명찰' },
 ];
 
 const STUDENT_DOC_TYPES: { type: VerificationType; label: string; desc: string }[] = [
-  { type: 'student_id', label: '학생증', desc: '간호학과 표기된 모바일 또는 실물 학생증' },
+  { type: 'student_id', label: '학생증', desc: '전공/학과가 표기된 모바일 또는 실물 학생증' },
   { type: 'enrollment_cert', label: '재학증명서', desc: '최근 1개월 이내 발급된 재학증명서' },
-  { type: 'tuition_bill', label: '등록금 납부확인서', desc: '당해 학기 간호학과 등록금 납부 영수증' },
+  { type: 'tuition_bill', label: '등록금 납부확인서', desc: '당해 학기 등록금 납부 영수증' },
 ];
 
 
@@ -148,9 +148,9 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
         {/* Header */}
           <View style={styles.header}>
             <View>
-              <Text style={styles.headerTitle}>간호 전문직 및 학생 인증</Text>
+              <Text style={styles.headerTitle}>소속 배지 신청 (선택)</Text>
               <Text style={styles.headerSubtitle}>
-                커뮤니티 및 전문 서비스 이용을 위한 안전한 인증 시스템
+                신뢰할 수 있고 안전한 소통을 위한 소속 배지 시스템
               </Text>
             </View>
             <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.7}>
@@ -271,9 +271,9 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                         targetRole === 'nurse' && [styles.roleTabTextActive, { color: theme.primary }],
                       ]}
                     >
-                      👩‍⚕️ 임상 간호사
+                      🏢 직무 회원 배지
                     </Text>
-                    <Text style={styles.roleTabSub}>면허증 / 재직증명서 / 웹메일</Text>
+                    <Text style={styles.roleTabSub}>사원증 / 명찰 / 재직증빙 / 자격확인서</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -290,7 +290,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                         targetRole === 'student' && [styles.roleTabTextActive, { color: theme.primary }],
                       ]}
                     >
-                      🎓 간호대학생
+                      🎓 캠퍼스 회원 배지
                     </Text>
                     <Text style={styles.roleTabSub}>학생증 / 재학증명서</Text>
                   </TouchableOpacity>
@@ -327,7 +327,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
 
                 {/* Organization & License Inputs */}
                 <Text style={styles.sectionLabel}>
-                  {targetRole === 'nurse' ? '3. 소속 병원명' : '3. 소속 대학교 및 학과'}
+                  {targetRole === 'nurse' ? '3. 소속 기관/직장명' : '3. 소속 대학교 및 학과'}
                 </Text>
                 <TextInput
                   style={styles.textInput}
@@ -335,14 +335,14 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                   placeholderTextColor="#9CA3AF"
                   value={organizationName}
                   onChangeText={setOrganizationName}
-                  returnKeyType={targetRole === 'nurse' ? 'next' : 'done'}
+                  returnKeyType="done"
                   onSubmitEditing={() =>
-                    targetRole === 'nurse' ? licenseNumberRef.current?.focus() : Keyboard.dismiss()
+                    Keyboard.dismiss()
                   }
-                  blurOnSubmit={targetRole !== 'nurse'}
+                  blurOnSubmit={true}
                 />
 
-                {targetRole === 'nurse' && (
+                {false && (
                   <>
                     <Text style={styles.sectionLabel}>4. 간호사 면허번호 (선택)</Text>
                     <TextInput
@@ -361,7 +361,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
 
                 {/* Document Attachment */}
                 <Text style={styles.sectionLabel}>
-                  {targetRole === 'nurse' ? '5. 증빙 서류 첨부' : '4. 증빙 서류 첨부'}
+                  '4. 증빙 서류 첨부'
                 </Text>
                 <View style={styles.fileBox}>
                   {documentUrl ? (
@@ -401,10 +401,10 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                     <View style={styles.fileEmptyBox}>
                       <Text style={styles.fileEmptyIcon}>📂</Text>
                       <Text style={styles.fileEmptyTitle}>
-                        면허증 / 학생증 증빙 서류를 업로드해 주세요
+                        소속 증빙 서류를 업로드해 주세요
                       </Text>
                       <Text style={styles.fileEmptyDesc}>
-                        주민등록번호 뒷자리는 마스킹(가림) 처리 후 첨부해 주세요.{'\n'}
+                        생년월일 및 고유식별번호는 마스킹(가림) 처리 후 첨부해 주세요.{'\n'}
                         사진 보관함, 카메라 촬영, PDF 전자문서를 지원합니다.
                       </Text>
                       <TouchableOpacity
@@ -438,7 +438,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                     {agreedPrivacy && <Text style={styles.checkboxCheck}>✓</Text>}
                   </View>
                   <Text style={styles.consentText}>
-                    [필수] 전문직/학생 자격 인증을 위한 개인정보(신분·소속 증빙 서류) 수집 및 이용에 동의합니다.
+                    [필수] 소속 배지 발급을 위한 개인정보(소속 증빙 서류) 수집 및 이용에 동의합니다. (심사 후 안전하게 파기됩니다)
                   </Text>
                 </TouchableOpacity>
 
@@ -466,7 +466,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
         visible={pickerSheetVisible}
         onClose={() => setPickerSheetVisible(false)}
         onSelect={handleSelectDoc}
-        title={targetRole === 'nurse' ? '간호사 자격 증빙 서류 첨부' : '간호대학생 증빙 서류 첨부'}
+        title={targetRole === 'nurse' ? '직무 소속 증빙 서류 첨부' : '캠퍼스 소속 증빙 서류 첨부'}
       />
     </SwipeableBottomSheet>
   );

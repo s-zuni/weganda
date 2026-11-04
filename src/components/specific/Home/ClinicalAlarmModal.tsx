@@ -115,7 +115,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
 
   const handleAddAlarm = () => {
     if (!patient.trim()) {
-      Alert.alert('알림', '환자명 또는 병실 번호를 입력해주세요.');
+      Alert.alert('알림', '알람 라벨을 입력해주세요 (예: 출근 준비, 수분 섭취).');
       return;
     }
     if (!content.trim()) {
@@ -176,7 +176,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
     setPatient('');
     setContent('');
     setCustomTime('');
-    Alert.alert('알람 설정 완료', `${patient} 환자 알람이 ${triggerTimeStr}로 설정되었습니다.`);
+    Alert.alert('알람 설정 완료', `${patient} 알람이 ${triggerTimeStr}로 설정되었습니다.`);
   };
 
   return (
@@ -185,7 +185,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
           <ClockIcon size={20} color={theme.primary} />
-          <Text style={styles.headerTitle}>⏰ 임상 알람 맞추기</Text>
+          <Text style={styles.headerTitle}>⏰ 스마트 듀티 타이머 & 알람</Text>
         </View>
         <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Text style={styles.closeText}>닫기</Text>
@@ -199,7 +199,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
       >
         {/* ── 1. 병동 맞춤 퀵 프리셋 섹션 ── */}
         <View style={styles.presetHeaderRow}>
-          <Text style={styles.sectionSubtitle}>내 병동 맞춤 빠른 알람 📌</Text>
+          <Text style={styles.sectionSubtitle}>내 맞춤 빠른 타이머 📌</Text>
           <TouchableOpacity
             style={styles.addPresetToggleBtn}
             onPress={() => setIsAddingPreset((prev) => !prev)}
@@ -214,7 +214,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
         {/* 직접 프리셋 등록 폼 */}
         {isAddingPreset && (
           <View style={styles.addPresetCard}>
-            <Text style={styles.addPresetCardTitle}>새 병동 알람 프리셋 등록</Text>
+            <Text style={styles.addPresetCardTitle}>새 맞춤 타이머 등록</Text>
             <View style={styles.addPresetRow}>
               <TextInput
                 style={[styles.addPresetInput, { flex: 1 }]}
@@ -234,7 +234,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
             </View>
             <TextInput
               style={[styles.addPresetInput, { marginTop: 8 }]}
-              placeholder="알람 내용 힌트 (예: 진통제 20분 후 통증 재평가 💉)"
+              placeholder="알람 내용 힌트 (예: 스트레칭, 휴식 종료 ☕)"
               placeholderTextColor={COLORS.textMuted}
               value={newPresetHint}
               onChangeText={setNewPresetHint}
@@ -315,10 +315,10 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
               <Text style={styles.formTitle}>새 알람 등록</Text>
               
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>환자명 / 병상</Text>
+                <Text style={styles.inputLabel}>알람 라벨 / 태그</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="예: 502호 김환자"
+                  placeholder="예: 출근 준비, 수분 섭취, 정기 체크"
                   placeholderTextColor={COLORS.textMuted}
                   value={patient}
                   onChangeText={setPatient}
@@ -329,7 +329,7 @@ export const ClinicalAlarmModal: React.FC<ClinicalAlarmModalProps> = ({
                 <Text style={styles.inputLabel}>알람 내용</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="예: AST 알러지 테스트 판독, 수혈 바이탈"
+                  placeholder="예: 인수인계 준비, 스트레칭하기, 휴식 종료"
                   placeholderTextColor={COLORS.textMuted}
                   value={content}
                   onChangeText={setContent}

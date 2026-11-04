@@ -44,14 +44,14 @@ export const ThemeFortuneGrid: React.FC<ThemeFortuneGridProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>5대 정밀 맞춤 사주 & 케미</Text>
+        <Text style={styles.sectionTitle}>교대근무 워크스타일 & 라이프 리포트 5종</Text>
       </View>
 
-      {/* weganda+ 운세 횟수 제한 배너 */}
+      {/* weganda+ 리포트 횟수 제한 배너 */}
       {!isPremium && (
         <View style={styles.fortuneLimitBanner}>
           <Text style={styles.fortuneLimitText}>
-            이번 달 무료 운세 {monthlyFortuneCount}/{FREE_LIMITS.maxMonthlyFortune}회 사용
+            이번 달 무료 리포트 {monthlyFortuneCount}/{FREE_LIMITS.maxMonthlyFortune}회 사용
           </Text>
           {isLocked && (
             <TouchableOpacity onPress={onOpenPaywall}>

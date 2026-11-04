@@ -219,12 +219,12 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const handleSendComment = () => {
     if (!isVerified) {
       Alert.alert(
-        '간호 인증 필요',
-        '댓글을 작성하시려면 간호사 또는 간호대학생 인증이 필요합니다.',
+        '소속 배지 인증 필요',
+        '댓글을 작성하시려면 소속 배지(직무/캠퍼스) 인증이 필요합니다.',
         [
           { text: '닫기', style: 'cancel' },
           {
-            text: '인증 신청하기',
+            text: '배지 신청하기',
             onPress: () => setVerificationModalVisible(true),
           },
         ]

@@ -127,7 +127,7 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
           <PencilIcon size={20} color={theme.primary} />
-          <Text style={styles.headerTitle}>특이사항 기록하기 (인수인계)</Text>
+          <Text style={styles.headerTitle}>듀티 체크리스트 & 업무 메모</Text>
         </View>
         <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Text style={styles.closeText}>닫기</Text>
@@ -148,34 +148,34 @@ export const DailyNoteModal: React.FC<DailyNoteModalProps> = ({
               </Text>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>환자명 / 병실</Text>
+                <Text style={styles.inputLabel}>업무 항목 / 일정</Text>
                 <TextInput
                   style={styles.input}
                   value={patient}
                   onChangeText={setPatient}
-                  placeholder="예: 503호 정환자"
+                  placeholder="예: 데이 인계, 오전 라운딩, 물품 확인"
                   placeholderTextColor={COLORS.textMuted}
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>진단명 / 주호소(CC)</Text>
+                <Text style={styles.inputLabel}>시간 / 중요도 태그</Text>
                 <TextInput
                   style={styles.input}
                   value={diagnosis}
                   onChangeText={setDiagnosis}
-                  placeholder="예: Acute Appendicitis s/p Op, Pneumonia"
+                  placeholder="예: 09:00, 중요, 출근 직후, 퇴근 전"
                   placeholderTextColor={COLORS.textMuted}
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>특이사항 및 인수인계 내용</Text>
+                <Text style={styles.inputLabel}>체크리스트 및 메모 내용</Text>
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   value={noteContent}
                   onChangeText={setNoteContent}
-                  placeholder="투약, 드레싱 삼출물, 바이탈 변화, 검사 결과 등 다음 듀티를 위해 전달할 특이사항을 기록하세요."
+                  placeholder="오늘 근무 중 챙겨야 할 업무, 인계 사항, 체크리스트를 기록하세요."
                   placeholderTextColor={COLORS.textMuted}
                   multiline={true}
                   numberOfLines={4}
