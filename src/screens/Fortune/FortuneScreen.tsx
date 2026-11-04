@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { AppHeader } from '../../components/common/AppHeader';
 import { useFortuneStore } from '../../store/useFortuneStore';
 import { useUserStore } from '../../store/useUserStore';
@@ -79,22 +80,35 @@ export const FortuneScreen: React.FC = () => {
     }
   };
 
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+    const parent = navigation.getParent();
+    if (parent?.canGoBack()) {
+      parent.goBack();
+      return;
+    }
+    navigation.navigate('Main');
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       <AppHeader
         leftElement={
-          navigation.canGoBack() ? (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              style={{ flexDirection: 'row', alignItems: 'center' }}
-            >
-              <Text style={{ fontSize: 24, marginRight: 6, color: COLORS.textPrimary }}>‹</Text>
-              <Text style={{ fontSize: 17, fontWeight: '700', color: COLORS.textPrimary }}>
-                워크스타일 리포트
-              </Text>
-            </TouchableOpacity>
-          ) : undefined
+          <TouchableOpacity
+            onPress={handleBack}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            accessibilityRole="button"
+            accessibilityLabel="뒤로 가기"
+          >
+            <Ionicons name="chevron-back" size={24} color={COLORS.textPrimary} style={{ marginRight: 4 }} />
+            <Text style={{ fontSize: 17, fontWeight: '700', color: COLORS.textPrimary }}>
+              워크스타일 리포트
+            </Text>
+          </TouchableOpacity>
         }
       />
 

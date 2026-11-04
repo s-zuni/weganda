@@ -65,7 +65,7 @@ export const SajuHeaderBar: React.FC<SajuHeaderBarProps> = ({
         <View style={styles.masterBadgeRow}>
           <View style={styles.masterBadge}>
             <Ionicons name="medal" size={14} color={PREMIUM_COLORS.gold} />
-            <Text style={styles.masterBadgeText}>50년 명인 정밀 사주 감정서</Text>
+            <Text style={styles.masterBadgeText}>교대근무 워크스타일 & 심리 분석 리포트</Text>
           </View>
           <Text style={styles.wordCountBadge}>
             심층 분석 {totalCharCount}자 수록
@@ -79,7 +79,7 @@ export const SajuHeaderBar: React.FC<SajuHeaderBarProps> = ({
         >
           <Ionicons name="shield-checkmark" size={13} color={PREMIUM_COLORS.heroBg} />
           <Text style={styles.guideCertificationText}>
-            사주 분석 가이드({appliedGuideVersion || 'v1.0.0'}) 준수 감정
+            워크스타일 분석 가이드({appliedGuideVersion || 'v1.0.0'}) 적용
           </Text>
           <Ionicons name="information-circle-outline" size={14} color={PREMIUM_COLORS.heroBg} />
         </TouchableOpacity>
@@ -92,7 +92,7 @@ export const SajuHeaderBar: React.FC<SajuHeaderBarProps> = ({
             {birthInfo.year}. {birthInfo.month}. {birthInfo.day} ({birthInfo.isLunar ? '음력' : '양력'})
           </Text>
           <Text style={styles.birthInfoTag}>
-            {birthInfo.gender === 'female' ? '여명(女命)' : '남명(男命)'}
+            {birthInfo.gender === 'female' ? '여성' : '남성'}
           </Text>
         </View>
       </View>

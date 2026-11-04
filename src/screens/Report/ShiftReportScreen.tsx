@@ -47,7 +47,7 @@ export const ShiftReportScreen: React.FC = () => {
     let eveningCount = 0;
     let nightCount = 0;
     let offCount = 0;
-    let totalWorked = 0;
+    let otherWorkCount = 0;
 
     Object.entries(schedules).forEach(([dateKey, code]) => {
       if (!dateKey.startsWith(monthPrefix)) return;
@@ -55,10 +55,10 @@ export const ShiftReportScreen: React.FC = () => {
       else if (code === 'E') eveningCount++;
       else if (code === 'N') nightCount++;
       else if (code === 'O') offCount++;
-      else if (code !== 'O' && code) totalWorked++;
+      else if (code) otherWorkCount++;
     });
 
-    totalWorked += dayCount + eveningCount + nightCount;
+    const totalWorked = dayCount + eveningCount + nightCount + otherWorkCount;
 
     return { dayCount, eveningCount, nightCount, offCount, totalWorked };
   }, [schedules, monthPrefix]);
@@ -96,25 +96,25 @@ export const ShiftReportScreen: React.FC = () => {
           <View style={styles.statsRow}>
             <View style={styles.statBox}>
               <View style={[styles.statDot, { backgroundColor: SHIFT_TYPES.D.color }]} />
-              <Text style={styles.statLabel}>Day (낮)</Text>
+              <Text style={styles.statLabel}>주간 (D)</Text>
               <Text style={styles.statValue}>{shiftStats.dayCount}회</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statBox}>
               <View style={[styles.statDot, { backgroundColor: SHIFT_TYPES.E.color }]} />
-              <Text style={styles.statLabel}>Evening (저녁)</Text>
+              <Text style={styles.statLabel}>저녁 (E)</Text>
               <Text style={styles.statValue}>{shiftStats.eveningCount}회</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statBox}>
               <View style={[styles.statDot, { backgroundColor: SHIFT_TYPES.N.color }]} />
-              <Text style={styles.statLabel}>Night (야간)</Text>
+              <Text style={styles.statLabel}>야간 (N)</Text>
               <Text style={styles.statValue}>{shiftStats.nightCount}회</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statBox}>
               <View style={[styles.statDot, { backgroundColor: SHIFT_TYPES.O.color }]} />
-              <Text style={styles.statLabel}>Off (휴무)</Text>
+              <Text style={styles.statLabel}>휴무 (O)</Text>
               <Text style={styles.statValue}>{shiftStats.offCount}일</Text>
             </View>
           </View>
