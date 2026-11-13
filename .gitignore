@@ -96,3 +96,6 @@ marketing_automation/assets/temp/
 # Python 컴파일 캐시
 __pycache__/
 *.pyc
+
+# 출근 브리핑(morning-shift) 산출물 — 운영 로그 요약이 들어가므로 커밋하지 않음
+reports/
