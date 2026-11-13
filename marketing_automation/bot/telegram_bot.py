@@ -86,7 +86,10 @@ class TelegramApprovalBot:
             community_pub=self.community_pub,
             notify=lambda text: self.send_message(self.admin_id, text),
         )
-        self.last_update_id = 0
+        # 처리한 마지막 텔레그램 update_id. 저장해 두지 않으면 재시작(또는 1회 실행 방식의 매 실행)마다
+        # 24시간 이내의 지난 메시지·버튼 클릭을 다시 처리하게 된다.
+        raw_offset = self.storage.get_setting("tg_last_update_id", "0")
+        self.last_update_id = int(raw_offset) if raw_offset.isdigit() else 0
         self._publish_lock = threading.Lock()
 
     # ------------------------------------------------------------------ 텔레그램 I/O
@@ -758,6 +761,7 @@ class TelegramApprovalBot:
         """단일 롱폴링 루프"""
         if not self._token_ready():
             return
+        start_update_id = self.last_update_id
         try:
             res = requests.get(
                 f"{self.base_url}/getUpdates",
@@ -785,5 +789,7 @@ class TelegramApprovalBot:
                     self.handle_message(group)
                 except Exception as e:
                     print(f"[앨범 처리 오류] {type(e).__name__}: {redact_secrets(e)}")
+            if self.last_update_id != start_update_id:
+                self.storage.set_setting("tg_last_update_id", str(self.last_update_id))
         except (requests.RequestException, ValueError) as e:
             print(f"[텔레그램 폴링 오류] {redact_secrets(e)}")

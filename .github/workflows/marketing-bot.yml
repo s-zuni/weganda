@@ -1,0 +1,136 @@
+# weganda 마케팅 자동화 — GitHub Actions 스케줄 실행 (Railway 상시 데몬 대체)
+#
+# 동작: cron이 정해진 시각에 깨우면 `python main.py --tick` 이 "지금 시각에 해당하는 예약 작업"만 실행하고 종료한다.
+# 상태(state.db: 중복 발행 방지·재시도 횟수·갱신된 Threads 토큰·성과)는 실행 전후로 Supabase Storage 비공개 버킷에 동기화한다.
+#
+# 주의
+# - schedule 트리거는 '기본 브랜치(main)'에 있는 이 파일만 실행한다.
+# - cron은 UTC 기준이다. KST = UTC + 9.
+# - GitHub cron은 수 분~수십 분 늦게 시작할 수 있다. main.py 가 유예 시간(발행 120분, 유지보수 360분) 안에서 따라잡는다.
+# - Railway 봇과 동시에 켜 두면 같은 글이 두 번 발행된다. 이 워크플로를 켜기 전에 Railway 서비스를 반드시 중지한다.
+# - 저장소 변수 MARKETING_DRY_RUN 이 'false' 로 설정되기 전까지는 DRY_RUN(실제 발행 안 함)으로 동작한다.
+
+name: marketing-bot
+
+on:
+  schedule:
+    - cron: "30 18 * * *"   # 03:30 KST  성과 수집 · 토큰 점검(04:00/04:10 작업은 유예 안에서 함께 처리)
+    - cron: "30 21 * * *"   # 06:30 KST  Threads morning
+    - cron: "30 23 * * *"   # 08:30 KST  인스타 카드뉴스 + 앱 커뮤니티
+    - cron: "10 0 * * 1"    # 월 09:10 KST  주간 성과 리포트
+    - cron: "30 3 * * *"    # 12:30 KST  Threads afternoon
+    - cron: "30 8 * * *"    # 17:30 KST  Threads evening
+    # 텔레그램 승인 버튼·수동 제보를 더 빨리 처리하고 싶다면 아래 줄의 주석을 풀 것(30분마다 실행, 실행 시간이 늘어난다).
+    # - cron: "7,37 * * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "실행 모드 (tick: 지금 시각의 예약 작업 / 나머지는 즉시 1회 실행)"
+        type: choice
+        default: tick
+        options:
+          - tick
+          - threads-morning
+          - threads-afternoon
+          - threads-evening
+          - daily-briefing
+          - status
+      dry_run:
+        description: "DRY_RUN (true면 실제 발행 안 함)"
+        type: choice
+        default: "true"
+        options:
+          - "true"
+          - "false"
+
+# 같은 상태 파일을 동시에 쓰지 않도록 한 번에 하나만 실행한다(대기 중인 실행을 취소하지 않는다).
+concurrency:
+  group: marketing-bot
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: marketing_automation
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: marketing_automation/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 값이 있는 설정만 환경변수로 내보낸다. 빈 문자열을 그대로 넘기면 config.py 의 기본값(예: GEMINI_MODEL)을 덮어쓴다.
+      - name: Export config
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ADMIN_CHAT_ID: ${{ secrets.TELEGRAM_ADMIN_CHAT_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OFFICIAL_BOT_AUTHOR_ID: ${{ secrets.OFFICIAL_BOT_AUTHOR_ID }}
+          INSTAGRAM_ACCOUNT_ID: ${{ secrets.INSTAGRAM_ACCOUNT_ID }}
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          FB_APP_ID: ${{ secrets.FB_APP_ID }}
+          FB_APP_SECRET: ${{ secrets.FB_APP_SECRET }}
+          THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
+          CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+          DATA_GO_KR_SERVICE_KEY: ${{ secrets.DATA_GO_KR_SERVICE_KEY }}
+          WORKNET_API_KEY: ${{ secrets.WORKNET_API_KEY }}
+          APP_DOWNLOAD_URL: ${{ secrets.APP_DOWNLOAD_URL }}
+          INSTAGRAM_HANDLE: ${{ secrets.INSTAGRAM_HANDLE }}
+          # 운영 플래그: 저장소 변수(Settings > Secrets and variables > Actions > Variables)
+          DAILY_AUTO_PUBLISH: ${{ vars.DAILY_AUTO_PUBLISH }}
+          THREADS_AUTO_POST: ${{ vars.THREADS_AUTO_POST }}
+          MAX_POSTS_PER_DAY: ${{ vars.MAX_POSTS_PER_DAY }}
+          # 수동 실행은 입력값, 예약 실행은 저장소 변수(기본 true = 실제 발행 안 함)
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || (vars.MARKETING_DRY_RUN || 'true') }}
+        run: |
+          for name in GEMINI_API_KEY GEMINI_MODEL TELEGRAM_BOT_TOKEN TELEGRAM_ADMIN_CHAT_ID \
+                      SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY OFFICIAL_BOT_AUTHOR_ID \
+                      INSTAGRAM_ACCOUNT_ID INSTAGRAM_ACCESS_TOKEN THREADS_USER_ID THREADS_ACCESS_TOKEN \
+                      FB_APP_ID FB_APP_SECRET THREADS_APP_SECRET CLOUDINARY_URL \
+                      DATA_GO_KR_SERVICE_KEY WORKNET_API_KEY APP_DOWNLOAD_URL INSTAGRAM_HANDLE \
+                      DAILY_AUTO_PUBLISH THREADS_AUTO_POST MAX_POSTS_PER_DAY DRY_RUN; do
+            value="${!name}"
+            if [ -n "$value" ]; then
+              echo "$name=$value" >> "$GITHUB_ENV"
+            fi
+          done
+          echo "DATA_DIR=$RUNNER_TEMP/marketing-state" >> "$GITHUB_ENV"
+
+      # 실패하면 실행을 중단한다(상태를 못 받은 채 실행하면 이미 올린 글을 다시 발행할 수 있다).
+      - name: Pull state snapshot
+        id: pull
+        run: python scripts/state_sync.py pull
+
+      - name: Run
+        env:
+          MODE: ${{ inputs.mode || 'tick' }}
+        run: |
+          case "$MODE" in
+            tick)            python main.py --tick ;;
+            threads-morning|threads-afternoon|threads-evening)
+                             python main.py --publish-threads "${MODE#threads-}" ;;
+            daily-briefing)  python main.py --trigger-briefing ;;
+            status)          python main.py --status ;;
+            *) echo "알 수 없는 모드: $MODE"; exit 1 ;;
+          esac
+
+      # 실행이 실패해도 그때까지의 기록(선점·재시도 횟수)은 올린다. 단, 상태를 받지 못한 실행은 올리지 않는다.
+      - name: Push state snapshot
+        if: always() && steps.pull.outcome == 'success'
+        run: python scripts/state_sync.py push

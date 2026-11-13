@@ -3,7 +3,7 @@
 중복 방지: 발행 작업(일일 발행·쓰레드 슬롯)은 내부에서 DB claim을 하고, 유지보수 작업은 claim_once=True로
 하루 1회 claim을 먼저 얻는다. 따라서 두 스케줄러가 동시에 동작해도 한 번만 실행된다.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -61,6 +61,15 @@ def build_schedule(bot) -> List[ScheduledItem]:
                       grace_min=MAINTENANCE_GRACE_MIN, claim_once=True),
     ]
     return items
+
+
+def with_grace(items: List[ScheduledItem], publish_min: int, maintenance_min: int) -> List[ScheduledItem]:
+    """유예 시간을 늘린 사본을 반환한다. GitHub Actions cron은 수 분~수십 분 늦게 시작할 수 있어서,
+    상시 데몬(30분/90분)보다 넉넉한 유예가 필요하다. 이미 처리된 작업은 DB claim이 막으므로 늘려도 중복 실행되지 않는다."""
+    return [
+        replace(i, grace_min=max(i.grace_min, maintenance_min if i.claim_once else publish_min))
+        for i in items
+    ]
 
 
 def is_due(item: ScheduledItem, now: datetime) -> bool:

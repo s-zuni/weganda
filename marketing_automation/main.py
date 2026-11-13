@@ -10,6 +10,7 @@ if sys.platform == "win32":
         pass
 
 from datetime import datetime
+from typing import List, Optional
 from zoneinfo import ZoneInfo
 
 from config import Config, redact_secrets
@@ -18,7 +19,7 @@ from crawlers.hospital_crawler import HospitalCrawler
 from pipeline.content_planner import ContentPlanner
 from pipeline.card_renderer import CardRenderer
 from pipeline.threads_viral_engine import SLOT_LABELS, ThreadsViralEngine
-from scheduling import build_schedule, configured_slots, execute, is_due, parse_hhmm
+from scheduling import build_schedule, configured_slots, execute, is_due, parse_hhmm, with_grace
 
 RETRY_INTERVAL_MIN = 15  # 실패한 발행을 다시 시도하는 간격(분)
 
@@ -197,6 +198,38 @@ def run_bot_daemon():
             time.sleep(2.0)
 
 
+TICK_PUBLISH_GRACE_MIN = 120      # GitHub cron 지연을 감안한 발행 작업 유예
+TICK_MAINTENANCE_GRACE_MIN = 360  # 유지보수 작업(성과 수집·토큰 점검·주간 리포트) 유예
+PUBLISH_PREFIXES = ("daily_dispatch", "threads_")
+
+
+def run_tick(bot=None, now: Optional[datetime] = None) -> List[str]:
+    """GitHub Actions용 1회 실행: 텔레그램 대기 메시지 처리 → 지금 시각에 해당하는 예약 작업 실행 → 종료.
+    상시 데몬(--bot)과 같은 스케줄 표·DB claim을 쓰므로 같은 시각에 두 번 실행돼도 한 번만 처리된다.
+    실행한 작업 이름 목록을 반환한다."""
+    Config.validate_essential()
+    bot = bot or TelegramApprovalBot()
+    tz = ZoneInfo(Config.TIMEZONE)
+    now = now or datetime.now(tz)
+    print(f"[tick] {now:%Y-%m-%d %H:%M} {Config.TIMEZONE} (DRY_RUN={Config.DRY_RUN})")
+
+    bot.poll_updates_once()  # 승인 버튼·수동 제보. 오프셋은 DB에 저장되어 다음 실행에서 이어진다.
+
+    schedule = with_grace(build_schedule(bot), TICK_PUBLISH_GRACE_MIN, TICK_MAINTENANCE_GRACE_MIN)
+    ran: List[str] = []
+    for item in schedule:
+        if is_due(item, now) and execute(item, bot.storage, now):
+            ran.append(item.name)
+            print(f"[tick] 실행: {item.name}")
+    if not ran:
+        print("[tick] 지금 시각에 실행할 예약 작업이 없습니다.")
+
+    # 발행 작업이 이번 실행에서 돌았다면 FAILED 재시도는 다음 실행으로 미룬다(같은 실행에서 시도 횟수를 연달아 소진하지 않도록).
+    if not any(name.startswith(PUBLISH_PREFIXES) for name in ran):
+        bot.retry_failed_jobs()
+    return ran
+
+
 def main():
     parser = argparse.ArgumentParser(description="weganda 마케팅 전자동 시스템 CLI")
     parser.add_argument("--status", action="store_true", help="보안 설정 및 스케줄 상태 점검")
@@ -215,6 +248,7 @@ def main():
         help="지정한 슬롯의 바이럴 쓰레드를 지금 즉시 생성 및 실제 발행",
     )
     parser.add_argument("--bot", action="store_true", help="24시간 무인 자동화 스케줄러 및 텔레그램 봇 실행")
+    parser.add_argument("--tick", action="store_true", help="GitHub Actions용: 지금 시각에 해당하는 예약 작업을 1회 실행하고 종료")
     parser.add_argument("--trigger-briefing", action="store_true", help="지금 즉시 인스타 카드뉴스+앱 커뮤니티 자동 발행 실행")
 
     args = parser.parse_args()
@@ -233,6 +267,8 @@ def main():
     elif args.trigger_briefing:
         bot = TelegramApprovalBot()
         bot.send_morning_briefing()
+    elif args.tick:
+        run_tick()
     elif args.bot:
         run_bot_daemon()
     else:
