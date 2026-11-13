@@ -5,7 +5,8 @@ GitHub Actions 러너는 실행마다 새 머신이라 SQLite 상태(중복 발�
 
 사용법 (marketing_automation 폴더에서):
     python scripts/state_sync.py pull
-    python scripts/state_sync.py push [--file 경로]   # --file 은 기존 state.db 를 처음 올릴 때(시드)
+    python scripts/state_sync.py push [--file 경로] [--allow-missing]
+        --file 은 기존 state.db 를 처음 올릴 때(시드), --allow-missing 은 파일이 없으면 건너뛴다(워크플로가 사용)
 
 필요한 환경변수: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DATA_DIR(없으면 marketing_automation 폴더)
 
@@ -141,10 +142,16 @@ def pull() -> str:
     return "restored"
 
 
-def push(source: Optional[Path] = None) -> None:
-    """일관된 사본을 만들어 검사한 뒤 덮어써 올린다."""
+def push(source: Optional[Path] = None, allow_missing: bool = False) -> bool:
+    """일관된 사본을 만들어 검사한 뒤 덮어써 올린다. 올렸으면 True.
+
+    allow_missing: 파일이 없으면 오류 대신 건너뛴다. 최초 실행(스냅샷 없음)에서 DB를 만들지 않는
+    모드(status 등)는 올릴 것이 없기 때문이다. 이전 스냅샷을 받은 뒤라면 파일은 항상 존재한다."""
     source = source or db_path()
     if not source.exists():
+        if allow_missing:
+            print(f"::notice::올릴 state.db 가 없어 건너뜁니다(DB를 만들지 않은 실행): {source}")
+            return False
         raise SyncError(f"올릴 파일이 없습니다: {source}")
 
     fd, tmp_name = tempfile.mkstemp(suffix=".db.snapshot")
@@ -173,18 +180,20 @@ def push(source: Optional[Path] = None) -> None:
     if res.status_code not in (200, 201):
         raise SyncError(f"스냅샷 업로드 실패: HTTP {res.status_code} {res.text[:200]}")
     print(f"스냅샷 업로드 완료 ({len(data)} bytes)")
+    return True
 
 
 def main(argv: Optional[list] = None) -> int:
     parser = argparse.ArgumentParser(description="state.db ↔ Supabase Storage 동기화")
     parser.add_argument("action", choices=["pull", "push"])
     parser.add_argument("--file", type=Path, help="push 할 파일(기본: DATA_DIR/state.db)")
+    parser.add_argument("--allow-missing", action="store_true", help="push 할 파일이 없으면 오류 대신 건너뜀")
     args = parser.parse_args(argv)
     try:
         if args.action == "pull":
             pull()
         else:
-            push(args.file)
+            push(args.file, allow_missing=args.allow_missing)
     except SyncError as e:
         print(f"::error::state_sync {args.action} 실패: {e}")
         return 1
