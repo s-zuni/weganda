@@ -133,4 +133,4 @@ jobs:
       # 실행이 실패해도 그때까지의 기록(선점·재시도 횟수)은 올린다. 단, 상태를 받지 못한 실행은 올리지 않는다.
       - name: Push state snapshot
         if: always() && steps.pull.outcome == 'success'
-        run: python scripts/state_sync.py push
+        run: python scripts/state_sync.py push --allow-missing

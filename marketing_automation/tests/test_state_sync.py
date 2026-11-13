@@ -114,6 +114,12 @@ class StateSync(unittest.TestCase):
         with self.assertRaises(state_sync.SyncError):
             state_sync.push()
 
+    def test_push_without_file_is_skipped_when_allowed(self):
+        with mock.patch.object(state_sync.requests, "request") as req:
+            self.assertFalse(state_sync.push(allow_missing=True))
+            self.assertEqual(state_sync.main(["push", "--allow-missing"]), 0)
+        req.assert_not_called()  # 올릴 것이 없으면 네트워크 호출도 하지 않는다
+
     def test_secret_is_not_printed_on_failure(self):
         with self.route(Resp(200), Resp(401, "unauthorized")):
             with mock.patch("builtins.print") as printed:
