@@ -27,6 +27,35 @@ APScheduler가 설치돼 있지 않아도 메인 루프가 같은 표를 처리�
 
 ---
 
+## ☁️ GitHub Actions 스케줄 실행 (Railway 대체)
+
+`.github/workflows/marketing-bot.yml`이 정해진 시각에 `python main.py --tick`을 실행한다. 상시 서버가 없으므로 상태(`state.db`)는 실행 전후로 Supabase Storage 비공개 버킷 `marketing-state`에 동기화한다(`scripts/state_sync.py`).
+
+| cron (UTC) | KST | 처리되는 작업 |
+| :--- | :---: | :--- |
+| `30 18 * * *` | 03:30 | 성과 수집 · 토큰 점검 (04:00 / 04:10 작업은 유예 안에서 함께) |
+| `30 21 * * *` | 06:30 | Threads morning |
+| `30 23 * * *` | 08:30 | 인스타 카드뉴스 + 앱 커뮤니티 |
+| `10 0 * * 1` | 월 09:10 | 주간 리포트 |
+| `30 3 * * *` | 12:30 | Threads afternoon |
+| `30 8 * * *` | 17:30 | Threads evening |
+
+**처음 켜는 순서**
+1. Railway 서비스를 **먼저 중지**한다. 둘이 동시에 돌면 같은 글이 두 번 발행된다.
+2. 저장소 Settings → Secrets and variables → Actions의 **Secrets**에 `.env.example`의 값들을 같은 이름으로 등록한다(`GEMINI_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `INSTAGRAM_*`, `THREADS_*`, `CLOUDINARY_URL` 등). 빈 값은 등록하지 않아도 된다.
+3. (선택) 기존 상태를 이어가려면 Railway의 `state.db`를 내려받아 `SUPABASE_URL`·`SUPABASE_SERVICE_ROLE_KEY`를 설정한 셸에서 `python scripts/state_sync.py push --file 경로`로 올린다. 올리지 않으면 새로 시작하며, 이미 처리한 공고를 다시 추천할 수 있다.
+4. **Actions 탭 → marketing-bot → Run workflow**로 `mode=status`, `dry_run=true`를 실행해 설정을 확인한다. 이어서 `mode=tick`으로 DRY_RUN 동작을 본다.
+5. 문제가 없으면 저장소 **Variables**에 `MARKETING_DRY_RUN=false`를 등록해 실제 발행을 켠다. 이 변수가 없으면 예약 실행은 항상 DRY_RUN이다.
+6. 이 파일이 **기본 브랜치(main)**에 있어야 `schedule`이 동작한다.
+
+**알아둘 점**
+- GitHub cron은 수 분~수십 분 늦게 시작할 수 있다. 발행은 120분, 유지보수는 360분 유예 안에서 따라잡는다.
+- 텔레그램 승인 버튼·수동 제보는 실행 시점에만 처리된다(기본 하루 6회). 더 빠르게 처리하려면 워크플로의 주석 처리된 30분 cron을 켠다.
+- 상태 동기화가 실패하면 그 실행은 시작하지 않는다(중복 발행 방지). 이 경우 GitHub가 실패 메일을 보낸다.
+- 로컬 상시 실행은 기존처럼 `python main.py --bot`을 쓴다.
+
+---
+
 ## 🧱 구조
 
 ```
