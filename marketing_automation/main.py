@@ -10,6 +10,7 @@ if sys.platform == "win32":
         pass
 
 from datetime import datetime
+from dataclasses import replace
 from typing import List, Optional
 from zoneinfo import ZoneInfo
 
@@ -19,7 +20,7 @@ from crawlers.hospital_crawler import HospitalCrawler
 from pipeline.content_planner import ContentPlanner
 from pipeline.card_renderer import CardRenderer
 from pipeline.threads_viral_engine import SLOT_LABELS, ThreadsViralEngine
-from scheduling import build_schedule, configured_slots, execute, is_due, parse_hhmm, with_grace
+from scheduling import ScheduledItem, build_schedule, configured_slots, execute, is_due, parse_hhmm, with_grace
 
 RETRY_INTERVAL_MIN = 15  # 실패한 발행을 다시 시도하는 간격(분)
 
@@ -201,6 +202,20 @@ def run_bot_daemon():
 TICK_PUBLISH_GRACE_MIN = 120      # GitHub cron 지연을 감안한 발행 작업 유예
 TICK_MAINTENANCE_GRACE_MIN = 360  # 유지보수 작업(성과 수집·토큰 점검·주간 리포트) 유예
 PUBLISH_PREFIXES = ("daily_dispatch", "threads_")
+THREADS_LAST_SLOT_GRACE_MIN = 360  # 마지막 Threads 슬롯(저녁)은 다음 슬롯이 없으므로 이 시간까지 늦게라도 발행
+
+
+def extend_threads_grace(schedule: List[ScheduledItem]) -> List[ScheduledItem]:
+    """Threads 슬롯의 유예를 '다음 슬롯 시작 전까지'로 늘린다. cron이 누락·지연돼도 늦게나마 발행되고,
+    여러 슬롯이 한꺼번에 몰려 발행되지는 않는다. 중복은 슬롯 DB claim이 막고, 실패한 슬롯은 같은 claim이 횟수 내 재선점한다."""
+    slot_names = {f"threads_{slot}" for slot in configured_slots()}
+    threads = sorted((i for i in schedule if i.name in slot_names), key=lambda i: i.hour * 60 + i.minute)
+    grace = {}
+    for idx, item in enumerate(threads):
+        start = item.hour * 60 + item.minute
+        nxt = threads[idx + 1].hour * 60 + threads[idx + 1].minute if idx + 1 < len(threads) else None
+        grace[item.name] = (nxt - start) if nxt is not None else THREADS_LAST_SLOT_GRACE_MIN
+    return [replace(i, grace_min=max(i.grace_min, grace[i.name])) if i.name in grace else i for i in schedule]
 
 
 def run_tick(bot=None, now: Optional[datetime] = None) -> List[str]:
@@ -215,7 +230,7 @@ def run_tick(bot=None, now: Optional[datetime] = None) -> List[str]:
 
     bot.poll_updates_once()  # 승인 버튼·수동 제보. 오프셋은 DB에 저장되어 다음 실행에서 이어진다.
 
-    schedule = with_grace(build_schedule(bot), TICK_PUBLISH_GRACE_MIN, TICK_MAINTENANCE_GRACE_MIN)
+    schedule = extend_threads_grace(with_grace(build_schedule(bot), TICK_PUBLISH_GRACE_MIN, TICK_MAINTENANCE_GRACE_MIN))
     ran: List[str] = []
     for item in schedule:
         if is_due(item, now) and execute(item, bot.storage, now):
@@ -224,9 +239,10 @@ def run_tick(bot=None, now: Optional[datetime] = None) -> List[str]:
     if not ran:
         print("[tick] 지금 시각에 실행할 예약 작업이 없습니다.")
 
-    # 발행 작업이 이번 실행에서 돌았다면 FAILED 재시도는 다음 실행으로 미룬다(같은 실행에서 시도 횟수를 연달아 소진하지 않도록).
-    if not any(name.startswith(PUBLISH_PREFIXES) for name in ran):
-        bot.retry_failed_jobs()
+    # 일일 발행이 이번 실행에서 돌았다면 FAILED 재시도는 다음 실행으로 미룬다(같은 실행에서 시도 횟수를 연달아 소진하지 않도록).
+    # Threads 슬롯은 유예가 길어 하루 종일 'ran'에 잡히므로 일일 발행만 판단하고, 이번 실행에서 이미 시도한 슬롯만 재시도에서 뺀다.
+    if "daily_dispatch" not in ran:
+        bot.retry_failed_jobs(skip_threads_slots={slot for slot in configured_slots() if f"threads_{slot}" in ran})
     return ran
 
 
