@@ -3,7 +3,7 @@ import re
 import threading
 import time
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 from zoneinfo import ZoneInfo
 
 import requests
@@ -323,13 +323,15 @@ class TelegramApprovalBot:
                 f"⚠️ [일일 자동 발행] 오늘 발행이 완료되지 않았습니다. 당일 최대 {Config.MAX_RETRY_ATTEMPTS}회까지 자동 재시도합니다.",
             )
 
-    def retry_failed_jobs(self):
+    def retry_failed_jobs(self, skip_threads_slots: Optional[Set[str]] = None):
         """FAILED로 끝난 오늘의 일일 발행/쓰레드 슬롯을 시도 횟수 한도 내에서 다시 실행한다. (주기 스케줄러가 호출)"""
         today = datetime.now(ZoneInfo(Config.TIMEZONE)).strftime("%Y-%m-%d")
         try:
             if self.storage.daily_dispatch_retryable(today):
                 self.run_daily_dispatch()
             for slot in self.storage.retryable_threads_slots(today):
+                if skip_threads_slots and slot in skip_threads_slots:
+                    continue  # 이번 tick에서 이미 시도했다(같은 실행에서 시도 횟수를 연달아 소진하지 않는다)
                 self.run_scheduled_threads_slot(slot)
         except Exception as e:
             print(f"[재시도 오류] {type(e).__name__}: {redact_secrets(e)}")

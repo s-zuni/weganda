@@ -50,8 +50,9 @@ class FakeBot:
     def check_instagram_health(self):
         self.calls.append("ig_health")
 
-    def retry_failed_jobs(self):
+    def retry_failed_jobs(self, skip_threads_slots=None):
         self.calls.append("retry")
+        self.retry_skip = skip_threads_slots
 
 
 class WithGrace(unittest.TestCase):
@@ -76,7 +77,7 @@ class RunTick(unittest.TestCase):
         bot = FakeBot()
         ran = main.run_tick(bot, kst(6, 40))  # 06:30 슬롯이 10분 늦게 시작
         self.assertEqual(ran, ["threads_morning", "collect_insights", "threads_token_refresh", "instagram_health"])
-        self.assertNotIn("retry", bot.calls)  # 발행이 돌았으면 재시도는 다음 실행으로
+        self.assertEqual(bot.retry_skip, {"morning"})  # 이번에 시도한 슬롯은 재시도에서 제외(시도 횟수 연달아 소진 방지)
         self.assertEqual(bot.calls[0], "poll")
 
         bot.calls.clear()
@@ -85,10 +86,19 @@ class RunTick(unittest.TestCase):
 
     def test_nothing_due_runs_retry(self):
         bot = FakeBot()
-        # 화요일 11:00: 모든 작업이 유예를 지났고 다음 슬롯(12:30) 전이라 실행할 것이 없다
+        # 화요일 11:00: 일일 발행(08:30)·유지보수는 유예가 지났고, Threads 아침 슬롯만 다음 슬롯(12:30) 전까지 늦게라도 시도 대상이다
         ran = main.run_tick(bot, kst(11, 0, (2026, 11, 17)))
-        self.assertEqual(ran, [])
-        self.assertEqual(bot.calls, ["poll", "retry"])
+        self.assertEqual(ran, ["threads_morning"])
+        self.assertEqual(bot.calls, ["poll", "threads_morning", "retry"])
+
+    def test_threads_slot_catches_up_late_but_never_bursts(self):
+        bot = FakeBot()
+        ran = main.run_tick(bot, kst(12, 40, (2026, 11, 17)))  # 아침 슬롯은 만료, 점심 슬롯만 대상(몰아서 발행하지 않음)
+        self.assertEqual([n for n in ran if n.startswith("threads_")], ["threads_afternoon"])
+        late_evening = main.run_tick(FakeBot(), kst(22, 0, (2026, 11, 17)))  # 저녁 슬롯은 23:30까지
+        self.assertEqual([n for n in late_evening if n.startswith("threads_")], ["threads_evening"])
+        too_late = main.run_tick(FakeBot(), kst(23, 45, (2026, 11, 17)))
+        self.assertEqual([n for n in too_late if n.startswith("threads_")], [])
 
     def test_weekly_items_only_on_monday(self):
         bot = FakeBot()
