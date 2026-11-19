@@ -20,8 +20,9 @@ on:
     - cron: "10 0 * * 1"    # 월 09:10 KST  주간 성과 리포트
     - cron: "30 3 * * *"    # 12:30 KST  Threads afternoon
     - cron: "30 8 * * *"    # 17:30 KST  Threads evening
-    # 텔레그램 승인 버튼·수동 제보를 더 빨리 처리하고 싶다면 아래 줄의 주석을 풀 것(30분마다 실행, 실행 시간이 늘어난다).
-    # - cron: "7,37 * * * *"
+    # GitHub cron은 누락·수 시간 지연이 잦다. tick은 선점 기록으로 멱등이라 매시간 실행해도 중복 발행되지 않으며,
+    # 위 정시 슬롯이 누락/지연돼도 유예 시간 안에서 따라잡는다.
+    - cron: "7 * * * *"
   workflow_dispatch:
     inputs:
       mode:
