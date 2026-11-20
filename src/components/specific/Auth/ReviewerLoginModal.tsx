@@ -59,9 +59,11 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
 
       if (isTestUser) {
         // 1. Supabase 실제 계정 세션 동기화 시도 (존재 시)
+        let resolvedUserId = '00000000-0000-0000-0000-000000000001';
         try {
           const authRes = await authService.signInWithPassword('testuser@weganda.com', trimmedPw);
           if (authRes?.session) {
+            resolvedUserId = authRes.session.user.id;
             await syncUserFromSession(authRes.session);
           }
         } catch (authErr) {
@@ -69,8 +71,9 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
         }
 
         // 2. 심사관/테스터 풀 액세스 관리자 권한 보장 (동의/온보딩 리다이렉트 방지)
+        // Postgres UUID 타입(22P02) 오류를 방지하기 위해 실제 Auth UUID 또는 유효한 RFC4122 Mock UUID 부여
         setUser({
-          id: 'reviewer_admin_account',
+          id: resolvedUserId,
           email: 'testuser@weganda.com',
           name: '테스터(Admin)',
           nickname: '테스터',
