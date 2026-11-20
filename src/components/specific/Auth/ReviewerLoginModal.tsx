@@ -68,7 +68,7 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
           console.log('Supabase testuser login fallback mode:', authErr);
         }
 
-        // 2. 심사관/테스터 풀 액세스 관리자 권한 보장
+        // 2. 심사관/테스터 풀 액세스 관리자 권한 보장 (동의/온보딩 리다이렉트 방지)
         setUser({
           id: 'reviewer_admin_account',
           email: 'testuser@weganda.com',
@@ -81,6 +81,8 @@ export const ReviewerLoginModal: React.FC<ReviewerLoginModalProps> = ({
           isPremium: true,
           isAuthenticated: true,
           isGuest: false,
+          isLoading: false,
+          needsConsent: false,
           isVerified: true,
           verificationStatus: 'verified',
           verificationRole: 'nurse',

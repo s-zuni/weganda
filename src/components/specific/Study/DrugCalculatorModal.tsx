@@ -1,22 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Alert,
   Linking,
 } from 'react-native';
-import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme';
-import { useDrugStore, CustomDrugPreset } from '../../../store/useDrugStore';
-import { useUserStore } from '../../../store/useUserStore';
+import { COLORS, NEUTRAL, useAppTheme, type ThemeColors } from '../../../constants/theme';
 import { OFFICIAL_MEDICAL_CITATIONS, MEDICAL_DISCLAIMER_TEXT } from '../../../constants/medicalCitations';
-import { FREE_LIMITS } from '../../../constants/membership';
-import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
-import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
-import { CalculatorIcon } from '../../common/Icon';
+import { BookOpenIcon } from '../../common/Icon';
 import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 
 interface DrugCalculatorModalProps {
@@ -24,131 +16,55 @@ interface DrugCalculatorModalProps {
   onClose: () => void;
 }
 
+const UNIT_CONVERSION_ROWS = [
+  { from: '1 kg', to: '1,000 g', note: '질량 기본 단위' },
+  { from: '1 g', to: '1,000 mg', note: '밀리그램 환산' },
+  { from: '1 mg', to: '1,000 mcg (μg)', note: '마이크로그램 환산' },
+  { from: '1 L', to: '1,000 mL (cc)', note: '부피 기본 단위' },
+  { from: '1 hr', to: '60 min (3,600 sec)', note: '시간 단위 환산' },
+];
+
+const FORMULA_CARDS = [
+  {
+    title: '1. 비례식(Ratio & Proportion) 기본 원리',
+    formula: 'A : B = C : x  →  x = (B × C) ÷ A',
+    desc: '국가시험 기초 간호 산수 문제 풀이 시, 양변의 단위(g, mg, mL)를 먼저 통일한 후 내항의 곱과 외항의 곱이 같음을 이용합니다.',
+  },
+  {
+    title: '2. 시간당 유량(Flow Rate) 교과서 개념',
+    formula: '시간당 유량(mL/hr) = 총 부피(mL) ÷ 총 시간(hr)',
+    desc: '일정한 부피를 정해진 시간 동안 균등하게 나눌 때 사용하는 기본 나눗셈 공식입니다.',
+  },
+  {
+    title: '3. 수액 세트 점적계수(Drop Factor) 정의',
+    formula: '표준 세트: 20 gtt/mL  |  미세 세트: 60 gtt/mL',
+    desc: '1 mL를 구성하는 방울 수(gtt)를 뜻하는 규격 상수입니다. 분당 방울수를 이해할 때는 시간당 유량(mL/hr)에 점적계수를 곱한 뒤 60분으로 나누어 개념을 학습합니다.',
+  },
+  {
+    title: '4. 교대근무 수면·휴식 시간 배분 팁',
+    formula: '권장 최소 수면: 7시간 이상 | 나이트 전 낮잠: 90~120분',
+    desc: '3교대 근무 시 퇴근 직후 햇빛 노출을 최소화하고 일정한 수면 블록을 확보하면 생체 리듬 회복에 도움이 됩니다.',
+  },
+];
+
+/**
+ * Guideline 1.4.2 준수 (전략 A):
+ * 약물 투여량(Drug Dosage)을 계산하는 대화형 계산기 기능을 완전히 제거하고,
+ * 간호학 기초 SI 단위 환산표 및 국가고시 대비 학습 공식 노트(정적 레퍼런스)로 제공한다.
+ */
 export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
   visible,
   onClose,
 }) => {
   const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const { presets, addPreset, deletePreset, togglePinPreset } = useDrugStore();
-  const { isPremium, dailyDrugCalcCount, incrementDailyDrugCalcCount } = useUserStore();
-  const [paywallVisible, setPaywallVisible] = useState(false);
-  const [membershipVisible, setMembershipVisible] = useState(false);
-
-  // 핀 고정된 프리셋을 앞으로 정렬
-  const sortedPresets = useMemo(() => {
-    return [...presets].sort((a, b) => {
-      if (a.isPinned === b.isPinned) return 0;
-      return a.isPinned ? -1 : 1;
-    });
-  }, [presets]);
-
-  const [selectedPreset, setSelectedPreset] = useState<CustomDrugPreset>(sortedPresets[0] || {
-    id: 'default',
-    name: '커스텀 약물',
-    drugTotalMg: 400,
-    fluidTotalMl: 200,
-    defaultDose: 5,
-    unit: 'mcg/kg/min',
-    dropFactor: 20,
-    description: '수동 입력 모드',
-    isPinned: false,
-  });
-
-  const [weight, setWeight] = useState('60'); // kg
-  const [dose, setDose] = useState(String(selectedPreset.defaultDose)); // mcg/kg/min
-  const [drugMg, setDrugMg] = useState(String(selectedPreset.drugTotalMg)); // mg
-  const [fluidMl, setFluidMl] = useState(String(selectedPreset.fluidTotalMl)); // mL
-  const [dropFactor, setDropFactor] = useState<20 | 60>(selectedPreset.dropFactor || 20);
-
-  // 병동 커스텀 약물 추가 모드
-  const [isAddingDrug, setIsAddingDrug] = useState(false);
-  const [newDrugName, setNewDrugName] = useState('');
-  const [newDrugMg, setNewDrugMg] = useState('');
-  const [newFluidMl, setNewFluidMl] = useState('');
-  const [newDefaultDose, setNewDefaultDose] = useState('');
-  const [newUnit, setNewUnit] = useState('mcg/kg/min');
-  const [newDescription, setNewDescription] = useState('');
-  const [newDrugPinned, setNewDrugPinned] = useState(true);
-
-  const handleSelectPreset = (preset: CustomDrugPreset) => {
-    if (!isPremium && dailyDrugCalcCount >= FREE_LIMITS.maxDailyDrugCalculations) {
-      setPaywallVisible(true);
-      return;
-    }
-    setSelectedPreset(preset);
-    setDose(String(preset.defaultDose));
-    setDrugMg(String(preset.drugTotalMg));
-    setFluidMl(String(preset.fluidTotalMl));
-    setDropFactor(preset.dropFactor);
-    if (!isPremium) {
-      incrementDailyDrugCalcCount();
-    }
-  };
-
-  const handleSaveCustomDrug = () => {
-    const mg = parseFloat(newDrugMg);
-    const ml = parseFloat(newFluidMl);
-    const d = parseFloat(newDefaultDose);
-
-    if (!newDrugName.trim() || isNaN(mg) || isNaN(ml) || ml <= 0) {
-      Alert.alert('알림', '약물명과 올바른 희석 용량(mg 및 mL)을 입력해주세요.');
-      return;
-    }
-
-    addPreset({
-      name: newDrugName.trim(),
-      drugTotalMg: mg,
-      fluidTotalMl: ml,
-      defaultDose: isNaN(d) ? 5 : d,
-      unit: newUnit as any,
-      dropFactor: 20,
-      description: newDescription.trim() || '사용자 등록 프로토콜',
-      isPinned: newDrugPinned,
-    });
-
-    setIsAddingDrug(false);
-    setNewDrugName('');
-    setNewDrugMg('');
-    setNewFluidMl('');
-    setNewDefaultDose('');
-    setNewDescription('');
-    Alert.alert('등록 완료', '내 병동 맞춤 약물 프로토콜이 저장되었습니다.');
-  };
-
-  // 실시간 계산 로직
-  const numWeight = parseFloat(weight) || 0;
-  const numDose = parseFloat(dose) || 0;
-  const numDrugMg = parseFloat(drugMg) || 0;
-  const numFluidMl = parseFloat(fluidMl) || 1;
-
-  // 농도 (mcg/mL) = (약물 mg * 1000) / 수액 mL
-  const concentrationMcgPerMl = numFluidMl > 0 ? (numDrugMg * 1000) / numFluidMl : 0;
-
-  // 시간당 주입량 (cc/hr) = (처방mcg * 체중kg * 60분) / 농도(mcg/mL)
-  const ccPerHour =
-    concentrationMcgPerMl > 0
-      ? (numDose * numWeight * 60) / concentrationMcgPerMl
-      : 0;
-
-  // 분당 방울수 (gtt/min) = (cc/hr * dropFactor) / 60
-  const gttPerMin = (ccPerHour * dropFactor) / 60;
-
-  // 방울 주기 (초당 1방울) = 60 / gttPerMin
-  const secPerDrop = gttPerMin > 0 ? 60 / gttPerMin : 0;
 
   return (
     <SwipeableBottomSheet visible={visible} onClose={onClose} height="92%">
-      {/* 헤더 */}
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <CalculatorIcon size={20} color={theme.primary} />
-          <Text style={styles.headerTitle}>🧮 간호 산수 & 수액 단위 환산기</Text>
-          {!isPremium && (
-            <View style={styles.limitBadge}>
-              <Text style={styles.limitBadgeText}>{dailyDrugCalcCount}/3회</Text>
-            </View>
-          )}
+          <BookOpenIcon size={20} color={theme.primary} />
+          <Text style={styles.headerTitle}>기초 단위 환산 & 공식 노트</Text>
         </View>
 
         <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -158,662 +74,269 @@ export const DrugCalculatorModal: React.FC<DrugCalculatorModalProps> = ({
 
       <BottomSheetScrollView
         style={styles.scroll}
-        keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        {/* 병동 맞춤 약물 프로토콜 헤더 */}
-        <View style={styles.presetHeaderRow}>
-          <Text style={styles.sectionLabel}>📋 수액 및 기본 단위 변환 프로토콜</Text>
-          <TouchableOpacity
-            style={styles.addDrugToggleBtn}
-            onPress={() => setIsAddingDrug((p) => !p)}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Text style={styles.addDrugToggleText}>
-              {isAddingDrug ? '닫기' : '+ 병원 약물 추가'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* 직접 약물 등록 폼 */}
-        {isAddingDrug && (
-          <View style={styles.addDrugCard}>
-            <Text style={styles.addDrugCardTitle}>새 병원 희석 프로토콜 등록</Text>
-            <TextInput
-              style={styles.addDrugInput}
-              placeholder="약물명 (예: 노르에피네프린 8mg/50mL D5W)"
-              placeholderTextColor={COLORS.textMuted}
-              value={newDrugName}
-              onChangeText={setNewDrugName}
-            />
-            <View style={styles.addDrugRow}>
-              <TextInput
-                style={[styles.addDrugInput, { flex: 1 }]}
-                placeholder="약물 총량 (mg)"
-                placeholderTextColor={COLORS.textMuted}
-                keyboardType="numeric"
-                value={newDrugMg}
-                onChangeText={setNewDrugMg}
-              />
-              <TextInput
-                style={[styles.addDrugInput, { flex: 1 }]}
-                placeholder="수액량 (mL)"
-                placeholderTextColor={COLORS.textMuted}
-                keyboardType="numeric"
-                value={newFluidMl}
-                onChangeText={setNewFluidMl}
-              />
-              <TextInput
-                style={[styles.addDrugInput, { flex: 1 }]}
-                placeholder="기준 처방량"
-                placeholderTextColor={COLORS.textMuted}
-                keyboardType="numeric"
-                value={newDefaultDose}
-                onChangeText={setNewDefaultDose}
-              />
-            </View>
-            <TextInput
-              style={[styles.addDrugInput, { marginTop: 8 }]}
-              placeholder="병원별 희석 지침 메모 (예: D5W 50mL 믹스, C-line 전용)"
-              placeholderTextColor={COLORS.textMuted}
-              value={newDescription}
-              onChangeText={setNewDescription}
-            />
-            <View style={styles.pinToggleRow}>
-              <TouchableOpacity
-                style={styles.pinCheckBtn}
-                onPress={() => setNewDrugPinned((p) => !p)}
-              >
-                <Text style={styles.pinCheckIcon}>{newDrugPinned ? '📌' : '▫️'}</Text>
-                <Text style={styles.pinCheckLabel}>상단에 고정하기 (Pin)</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.saveDrugBtn}
-                onPress={handleSaveCustomDrug}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.saveDrugBtnText}>약물 저장</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {/* 프리셋 선택 칩 */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.presetScroll}>
-          {sortedPresets.map((p) => {
-            const isSelected = selectedPreset.id === p.id;
-            return (
-              <TouchableOpacity
-                key={p.id}
-                style={[styles.presetChip, isSelected && styles.presetChipActive]}
-                onPress={() => handleSelectPreset(p)}
-                onLongPress={() => {
-                  Alert.alert(
-                    `${p.name}`,
-                    '이 약물 프로토콜을 관리하시겠습니까?',
-                    [
-                      {
-                        text: p.isPinned ? '📌 고정 해제' : '📌 상단 고정',
-                        onPress: () => togglePinPreset(p.id),
-                      },
-                      {
-                        text: '삭제',
-                        style: 'destructive',
-                        onPress: () => deletePreset(p.id),
-                      },
-                      { text: '취소', style: 'cancel' },
-                    ]
-                  );
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={styles.presetChipHeader}>
-                  <Text style={[styles.presetChipText, isSelected && styles.presetChipTextActive]}>
-                    {p.name}
-                  </Text>
-                  {p.isPinned && <Text style={styles.pinBadge}>📌</Text>}
-                </View>
-                <Text style={[styles.presetChipDose, isSelected && styles.presetChipDoseActive]}>
-                  {p.drugTotalMg}mg / {p.fluidTotalMl}mL
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-
-        {/* 프리셋 설명 */}
-        <View style={styles.presetDescBox}>
-          <Text style={styles.presetDescText}>
-            💡 {selectedPreset.description || '병원 지침에 맞춰 용량과 수액량을 조정하세요.'}
+        <View style={styles.introBanner}>
+          <Text style={styles.introTitle}>간호국가고시 대비 기초 학습 레퍼런스</Text>
+          <Text style={styles.introDesc}>
+            기초 SI 단위 환산표와 비례식 개념을 복습할 수 있는 학습용 요약 노트입니다. 실제 임상 업무에서는 반드시 소속 기관의 공식 지침을 확인하세요.
           </Text>
         </View>
 
-        {/* 실시간 계산 결과 카드 (Primary Highlight) */}
-        <View style={styles.resultCard}>
-          <Text style={styles.resultCardLabel}>⚡ 인퓨전 펌프 설정 주입 속도</Text>
-          <View style={styles.mainRateRow}>
-            <Text style={styles.mainRateValue}>{ccPerHour.toFixed(1)}</Text>
-            <Text style={styles.mainRateUnit}>cc / hr (mL/h)</Text>
+        <Text style={styles.sectionLabel}>📐 SI 기본 단위 환산표</Text>
+        <View style={styles.tableCard}>
+          {UNIT_CONVERSION_ROWS.map((row, idx) => (
+            <View
+              key={row.from}
+              style={[
+                styles.tableRow,
+                idx < UNIT_CONVERSION_ROWS.length - 1 && styles.tableRowBorder,
+              ]}
+            >
+              <Text style={styles.tableFrom}>{row.from}</Text>
+              <Text style={styles.tableEq}>=</Text>
+              <Text style={styles.tableTo}>{row.to}</Text>
+              <Text style={styles.tableNote}>{row.note}</Text>
+            </View>
+          ))}
+        </View>
+
+        <Text style={styles.sectionLabel}>📖 핵심 학습 공식 정리</Text>
+        {FORMULA_CARDS.map((card) => (
+          <View key={card.title} style={styles.formulaCard}>
+            <Text style={styles.formulaTitle}>{card.title}</Text>
+            <View style={styles.formulaBox}>
+              <Text style={styles.formulaText}>{card.formula}</Text>
+            </View>
+            <Text style={styles.formulaDesc}>{card.desc}</Text>
           </View>
+        ))}
 
-          <View style={styles.resultDivider} />
+        {/* 공식 의학 출처 및 면책 조항 */}
+        <View style={styles.citationSection}>
+          <Text style={styles.citationSectionTitle}>공식 학습 지침 및 출처</Text>
+          <Text style={styles.disclaimerText}>{MEDICAL_DISCLAIMER_TEXT}</Text>
 
-
-            <View style={styles.subResultGrid}>
-              <View style={styles.subResultItem}>
-                <Text style={styles.subResultLabel}>분당 방울수</Text>
-                <Text style={styles.subResultValue}>{gttPerMin.toFixed(1)} gtt/min</Text>
-              </View>
-              <View style={styles.subResultItem}>
-                <Text style={styles.subResultLabel}>점적 간격</Text>
-                <Text style={styles.subResultValue}>
-                  {secPerDrop > 0 ? `${secPerDrop.toFixed(1)}초마다 1방울` : '-'}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* 환자 및 처방 인풋 그리드 */}
-          <View style={styles.inputSection}>
-            <Text style={styles.sectionLabel}>처방 및 조제 정보 입력</Text>
-
-            <View style={styles.inputRow}>
-              <View style={styles.inputCol}>
-                <Text style={styles.inputFieldLabel}>환자 체중 (kg)</Text>
-                <TextInput
-                  style={styles.numericInput}
-                  value={weight}
-                  onChangeText={setWeight}
-                  keyboardType="numeric"
-                />
-              </View>
-
-              <View style={styles.inputCol}>
-                <Text style={styles.inputFieldLabel}>처방 용량 ({selectedPreset.unit})</Text>
-                <TextInput
-                  style={styles.numericInput}
-                  value={dose}
-                  onChangeText={setDose}
-                  keyboardType="numeric"
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputRow}>
-              <View style={styles.inputCol}>
-                <Text style={styles.inputFieldLabel}>믹스 약물 총량 (mg)</Text>
-                <TextInput
-                  style={styles.numericInput}
-                  value={drugMg}
-                  onChangeText={setDrugMg}
-                  keyboardType="numeric"
-                />
-              </View>
-
-              <View style={styles.inputCol}>
-                <Text style={styles.inputFieldLabel}>총 수액량 (mL)</Text>
-                <TextInput
-                  style={styles.numericInput}
-                  value={fluidMl}
-                  onChangeText={setFluidMl}
-                  keyboardType="numeric"
-                />
-              </View>
-            </View>
-
-            {/* 점적기 선택 (20gtt vs 60gtt) */}
-            <Text style={styles.inputFieldLabel}>수액 세트 점적계수 (Drop Factor)</Text>
-            <View style={styles.factorToggleRow}>
+          <View style={styles.citationList}>
+            {OFFICIAL_MEDICAL_CITATIONS.filter(
+              (c) => c.category === '약물' || c.category === '간호술기'
+            ).map((cit) => (
               <TouchableOpacity
-                style={[styles.factorBtn, dropFactor === 20 && styles.factorBtnActive]}
-                onPress={() => setDropFactor(20)}
-                activeOpacity={0.8}
+                key={cit.id}
+                style={styles.citationCard}
+                onPress={() => Linking.openURL(cit.url)}
+                activeOpacity={0.7}
               >
-                <Text style={[styles.factorBtnText, dropFactor === 20 && styles.factorBtnTextActive]}>
-                  일반 수액세트 (20 gtt/mL)
-                </Text>
+                <View style={styles.citationBadge}>
+                  <Text style={styles.citationBadgeText}>{cit.agency}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.citationTitle}>{cit.title}</Text>
+                  <Text style={styles.citationDesc}>{cit.description}</Text>
+                  <Text style={styles.citationUrl}>{cit.url} ↗</Text>
+                </View>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.factorBtn, dropFactor === 60 && styles.factorBtnActive]}
-                onPress={() => setDropFactor(60)}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.factorBtnText, dropFactor === 60 && styles.factorBtnTextActive]}>
-                  정밀 마이크로세트 (60 gtt/mL)
-                </Text>
-              </TouchableOpacity>
-            </View>
+            ))}
           </View>
-
-          {/* 주의사항 배너 */}
-          <View style={styles.cautionBanner}>
-            <Text style={styles.cautionTitle}>수액 계산 확인 수칙 (Double Check)</Text>
-            <Text style={styles.cautionText}>
-              • 계산된 주입 속도는 참고용이며, 반드시 동료 간호사 2인 교차 확인 후 주입하세요.{'\n'}
-              • 계산된 주입 속도는 학습 및 참고용이며, 실제 투약 시 공식 지침 및 처방을 반드시 재확인하세요.
-            </Text>
-          </View>
-
-          {/* 공식 의학 출처 및 계산 공식 근거 (Guideline 1.4.1 준수) */}
-          <View style={styles.citationSection}>
-            <Text style={styles.citationSectionTitle}>공식 계산 공식 및 의학 지침 출처</Text>
-            <Text style={styles.disclaimerText}>{MEDICAL_DISCLAIMER_TEXT}</Text>
-
-            <View style={styles.citationList}>
-              {OFFICIAL_MEDICAL_CITATIONS.filter((c) => c.category === '약물' || c.category === '간호술기').map((cit) => (
-                <TouchableOpacity
-                  key={cit.id}
-                  style={styles.citationCard}
-                  onPress={() => Linking.openURL(cit.url)}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.citationBadge}>
-                    <Text style={styles.citationBadgeText}>{cit.agency}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.citationItemTitle}>{cit.title}</Text>
-                    <Text style={styles.citationItemDesc}>{cit.description}</Text>
-                    <Text style={styles.citationItemUrl}>{cit.url} ↗</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </BottomSheetScrollView>
-
-        <PaywallBottomSheet
-          visible={paywallVisible}
-          onClose={() => setPaywallVisible(false)}
-          onSubscribe={() => {
-            setPaywallVisible(false);
-            setTimeout(() => setMembershipVisible(true), 250);
-          }}
-          onLearnMore={() => {
-            setPaywallVisible(false);
-            setTimeout(() => setMembershipVisible(true), 250);
-          }}
-          featureTitle="약물 계산기 무제한 이용"
-          featureDescription="무료 일일 3회 초과 시 weganda+로 무제한 임상 약물 계산기를 이용하세요"
-        />
-
-        <MembershipScreen
-          visible={membershipVisible}
-          onClose={() => setMembershipVisible(false)}
-        />
+        </View>
+      </BottomSheetScrollView>
     </SwipeableBottomSheet>
   );
 };
 
-const createStyles = (theme: ThemeColors) => StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  closeText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: COLORS.textMuted,
-  },
-  headerTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-  },
-  limitBadge: {
-    backgroundColor: theme.primaryTint,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginLeft: 6,
-  },
-  limitBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: theme.primary,
-  },
-  presetHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  addDrugToggleBtn: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-  addDrugToggleText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: theme.primary,
-  },
-  addDrugCard: {
-    backgroundColor: theme.primaryTint,
-    borderRadius: 14,
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: theme.primaryTintBorder,
-  },
-  addDrugCardTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: theme.primary,
-    marginBottom: 8,
-  },
-  addDrugRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 8,
-  },
-  addDrugInput: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 13,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    color: COLORS.textPrimary,
-  },
-  pinToggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  pinCheckBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  pinCheckIcon: {
-    fontSize: 14,
-  },
-  pinCheckLabel: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    fontWeight: '600',
-  },
-  saveDrugBtn: {
-    backgroundColor: theme.primary,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  saveDrugBtnText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  presetChipHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 4,
-  },
-  pinBadge: {
-    fontSize: 11,
-  },
-  presetChipDose: {
-    fontSize: 10,
-    color: COLORS.textMuted,
-    marginTop: 2,
-  },
-  presetChipDoseActive: {
-    color: theme.primary,
-  },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  sectionLabel: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-    marginBottom: 10,
-  },
-  presetScroll: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  presetChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: '#F3F4F6',
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  presetChipActive: {
-    backgroundColor: theme.primaryTint,
-    borderColor: theme.primary,
-  },
-  presetChipText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  presetChipTextActive: {
-    color: theme.primary,
-    fontWeight: '700',
-  },
-  presetDescBox: {
-    backgroundColor: '#F9FAFB',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  presetDescText: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
-  },
-  resultCard: {
-    backgroundColor: theme.primary,
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  resultCardLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.85)',
-    marginBottom: 6,
-  },
-  mainRateRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 8,
-  },
-  mainRateValue: {
-    fontSize: 40,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    letterSpacing: -1,
-  },
-  mainRateUnit: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: 'rgba(255, 255, 255, 0.9)',
-  },
-  resultDivider: {
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    marginVertical: 14,
-  },
-  subResultGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  subResultItem: {
-    flex: 1,
-  },
-  subResultLabel: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.85)',
-    marginBottom: 4,
-  },
-  subResultValue: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  inputSection: {
-    marginBottom: 20,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
-  },
-  inputCol: {
-    flex: 1,
-  },
-  inputFieldLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    marginBottom: 6,
-  },
-  numericInput: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  factorToggleRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 4,
-  },
-  factorBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    backgroundColor: '#F9FAFB',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  factorBtnActive: {
-    backgroundColor: theme.primaryTint,
-    borderColor: theme.primary,
-  },
-  factorBtnText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  factorBtnTextActive: {
-    color: theme.primary,
-    fontWeight: '700',
-  },
-  cautionBanner: {
-    backgroundColor: theme.primaryTint,
-    borderRadius: 14,
-    padding: 14,
-    borderLeftWidth: 4,
-    borderLeftColor: theme.primary,
-  },
-  cautionTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: theme.primary,
-    marginBottom: 4,
-  },
-  cautionText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    lineHeight: 19,
-  },
-  citationSection: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 14,
-    padding: 14,
-    marginTop: 14,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  citationSectionTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    marginBottom: 4,
-  },
-  disclaimerText: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    lineHeight: 17,
-    marginBottom: 10,
-  },
-  citationList: {
-    gap: 8,
-  },
-  citationCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  citationBadge: {
-    backgroundColor: '#EEF2FF',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  citationBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#4F46E5',
-  },
-  citationItemTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-    marginBottom: 2,
-  },
-  citationItemDesc: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    lineHeight: 14,
-    marginBottom: 2,
-  },
-  citationItemUrl: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#2563EB',
-  },
-});
+const createStyles = (theme: ThemeColors) =>
+  StyleSheet.create({
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingTop: 6,
+      paddingBottom: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: '#F3F4F6',
+    },
+    headerTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    headerTitle: {
+      fontSize: 17,
+      fontWeight: '800',
+      color: COLORS.textPrimary,
+    },
+    closeText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: COLORS.textMuted,
+    },
+    scroll: {
+      flex: 1,
+    },
+    scrollContent: {
+      padding: 20,
+      paddingBottom: 40,
+    },
+    introBanner: {
+      backgroundColor: theme.primaryTint,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 20,
+      borderWidth: 1,
+      borderColor: theme.primaryTintBorder,
+    },
+    introTitle: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: theme.primary,
+      marginBottom: 4,
+    },
+    introDesc: {
+      fontSize: 12.5,
+      color: COLORS.textSecondary,
+      lineHeight: 18,
+    },
+    sectionLabel: {
+      fontSize: 15,
+      fontWeight: '800',
+      color: COLORS.textPrimary,
+      marginBottom: 10,
+      marginTop: 4,
+    },
+    tableCard: {
+      backgroundColor: '#FFFFFF',
+      borderRadius: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 6,
+      marginBottom: 22,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    },
+    tableRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 11,
+      gap: 8,
+    },
+    tableRowBorder: {
+      borderBottomWidth: 1,
+      borderBottomColor: '#F3F4F6',
+    },
+    tableFrom: {
+      width: 48,
+      fontSize: 13,
+      fontWeight: '700',
+      color: COLORS.textPrimary,
+    },
+    tableEq: {
+      fontSize: 13,
+      color: COLORS.textMuted,
+    },
+    tableTo: {
+      flex: 1,
+      fontSize: 13.5,
+      fontWeight: '800',
+      color: theme.primary,
+    },
+    tableNote: {
+      fontSize: 11.5,
+      color: COLORS.textMuted,
+    },
+    formulaCard: {
+      backgroundColor: NEUTRAL.gray50,
+      borderRadius: 16,
+      padding: 15,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    },
+    formulaTitle: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: COLORS.textPrimary,
+      marginBottom: 8,
+    },
+    formulaBox: {
+      backgroundColor: '#FFFFFF',
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: '#E5E7EB',
+    },
+    formulaText: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: theme.primary,
+    },
+    formulaDesc: {
+      fontSize: 12.5,
+      color: COLORS.textSecondary,
+      lineHeight: 18,
+    },
+    citationSection: {
+      marginTop: 14,
+      backgroundColor: '#F8FAFC',
+      borderRadius: 16,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+    },
+    citationSectionTitle: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: COLORS.textPrimary,
+      marginBottom: 6,
+    },
+    disclaimerText: {
+      fontSize: 11.5,
+      color: COLORS.textSecondary,
+      lineHeight: 17,
+      marginBottom: 12,
+    },
+    citationList: {
+      gap: 8,
+    },
+    citationCard: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: '#FFFFFF',
+      padding: 11,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+      gap: 10,
+    },
+    citationBadge: {
+      backgroundColor: '#EFF6FF',
+      paddingHorizontal: 7,
+      paddingVertical: 3,
+      borderRadius: 6,
+    },
+    citationBadgeText: {
+      fontSize: 10.5,
+      fontWeight: '700',
+      color: '#2563EB',
+    },
+    citationTitle: {
+      fontSize: 12.5,
+      fontWeight: '700',
+      color: COLORS.textPrimary,
+      marginBottom: 2,
+    },
+    citationDesc: {
+      fontSize: 11,
+      color: COLORS.textSecondary,
+      marginBottom: 3,
+    },
+    citationUrl: {
+      fontSize: 11,
+      color: '#2563EB',
+      fontWeight: '600',
+    },
+  });
 
 export default DrugCalculatorModal;
-

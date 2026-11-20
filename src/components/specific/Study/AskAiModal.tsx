@@ -18,6 +18,7 @@ import { useUserStore } from '../../../store/useUserStore';
 import { OFFICIAL_MEDICAL_CITATIONS } from '../../../constants/medicalCitations';
 import { FREE_LIMITS } from '../../../constants/membership';
 import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
+import { AiDataConsentModal } from '../../common/AiDataConsentModal';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { BotIcon, SendIcon } from '../../common/Icon';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
@@ -30,10 +31,10 @@ interface AskAiModalProps {
 }
 
 const QUICK_QUESTIONS = [
-  '도파민 gtt 점적 계산 공식 알려줘',
-  'K-ACLS 심폐소생술 약물 타이밍',
-  '수혈 간호 핵심 3원칙',
-  'SBAR 인수인계 작성 요령',
+  '기초 단위 환산(mg, mcg, mL) 원리 알려줘',
+  'K-ACLS 심폐소생술 핵심 프로토콜',
+  '수혈 간호 핵심 5R 원칙',
+  'SBAR 의사소통 작성 요령',
 ];
 
 const getCitationUrl = (agency: string) => {
@@ -56,22 +57,33 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const insets = useSafeAreaInsets();
   const { aiMessages, askAi } = useStudyStore();
-  const { isPremium, dailyAiCount, incrementDailyAiCount } = useUserStore();
+  const { isPremium, dailyAiCount, incrementDailyAiCount, hasAiDataConsent, setAiDataConsent } = useUserStore();
   const [inputText, setInputText] = useState('');
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
+  const [aiConsentVisible, setAiConsentVisible] = useState(false);
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
 
-  // 검색창에서 전달된 질문이 있을 경우 자동 질문 전송
+  const executeAskAi = (questionText: string) => {
+    askAi(questionText);
+    if (!isPremium) {
+      incrementDailyAiCount();
+    }
+  };
+
+  // 검색창에서 전달된 질문이 있을 경우 자동 질문 전송 (AI 데이터 전송 동의 확인)
   React.useEffect(() => {
     if (visible && initialQuestion && initialQuestion.trim()) {
       if (!isPremium && dailyAiCount >= FREE_LIMITS.maxDailyAiQueries) {
         setPaywallVisible(true);
         return;
       }
-      askAi(initialQuestion.trim());
-      if (!isPremium) {
-        incrementDailyAiCount();
+      if (!hasAiDataConsent) {
+        setPendingQuestion(initialQuestion.trim());
+        setAiConsentVisible(true);
+        return;
       }
+      executeAskAi(initialQuestion.trim());
     }
   }, [visible, initialQuestion]);
 
@@ -84,10 +96,13 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
       return;
     }
 
-    askAi(text.trim());
-    if (!isPremium) {
-      incrementDailyAiCount();
+    if (!hasAiDataConsent) {
+      setPendingQuestion(text.trim());
+      setAiConsentVisible(true);
+      return;
     }
+
+    executeAskAi(text.trim());
     setInputText('');
   };
 
@@ -257,6 +272,24 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({
         <MembershipScreen
           visible={membershipVisible}
           onClose={() => setMembershipVisible(false)}
+        />
+
+        <AiDataConsentModal
+          visible={aiConsentVisible}
+          featureName="학습 AI 어시스턴트"
+          onAccept={() => {
+            setAiDataConsent(true);
+            setAiConsentVisible(false);
+            if (pendingQuestion) {
+              executeAskAi(pendingQuestion);
+              setPendingQuestion(null);
+              setInputText('');
+            }
+          }}
+          onDecline={() => {
+            setAiConsentVisible(false);
+            setPendingQuestion(null);
+          }}
         />
       </KeyboardAvoidingView>
     </SwipeDismissModal>

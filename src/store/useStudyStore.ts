@@ -34,7 +34,7 @@ export const useStudyStore = create<StudyState>((set, get) => ({
     {
       id: 'ai_init',
       sender: 'ai',
-      text: '안녕하세요! 우간다 임상 간호 AI 멘토(OpenAI)입니다. 🩺\n약물 점적 계산(gtt), ACLS 프로토콜, ABGA 판독, SBAR 인수인계 공식 등 임상 실무에 대해 무엇이든 물어보세요!',
+      text: '안녕하세요! 우간다 간호 학습 AI 어시스턴트입니다. 🩺\n기초 단위 환산 원리, K-ACLS 프로토콜, ABGA 판독, SBAR 의사소통 등 간호 학습 내용에 대해 무엇이든 물어보세요!',
       time: '오전 09:00',
     },
   ],

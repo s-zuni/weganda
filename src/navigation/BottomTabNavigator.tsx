@@ -142,7 +142,7 @@ export const BottomTabNavigator: React.FC = () => {
         component={StudyScreen}
         options={{
           tabBarLabel: '학습',
-          tabBarAccessibilityLabel: '간호 학습 및 약물 계산',
+          tabBarAccessibilityLabel: '간호 학습 및 지침서',
           tabBarIcon: ({ focused }) => (
             <StudyIcon size={24} focused={focused} color={focused ? theme.primary : '#6B7280'} />
           ),

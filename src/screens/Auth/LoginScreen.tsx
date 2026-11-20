@@ -226,6 +226,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       <ReviewerLoginModal
         visible={reviewerModalVisible}
         onClose={() => setReviewerModalVisible(false)}
+        onSuccess={goAfterLogin}
       />
     </SafeAreaView>
   );

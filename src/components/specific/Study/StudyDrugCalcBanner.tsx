@@ -6,7 +6,6 @@ interface StudyDrugCalcBannerProps {
   onPress: () => void;
 }
 
-import { WegandaPlusTag } from '../../common/WegandaPlusTag';
 import Svg, { Path, Rect } from 'react-native-svg';
 
 export const StudyDrugCalcBanner: React.FC<StudyDrugCalcBannerProps> = ({ onPress }) => {
@@ -28,14 +27,13 @@ export const StudyDrugCalcBanner: React.FC<StudyDrugCalcBannerProps> = ({ onPres
         </View>
         <View style={styles.calcTexts}>
           <View style={styles.titleRow}>
-            <Text style={styles.calcTitle}>임상 약물 gtt / cc 계산기</Text>
-            <WegandaPlusTag />
+            <Text style={styles.calcTitle}>기초 단위 환산 & 공식 노트</Text>
           </View>
-          <Text style={styles.calcSub}>승압제 · 수액 처방 용량(mcg) ↔ 주입 속도 환산</Text>
+          <Text style={styles.calcSub}>간호국가고시 기초 산수 공식 · SI 단위 환산표</Text>
         </View>
       </View>
       <View style={styles.calcGoBadge}>
-        <Text style={styles.calcGoText}>계산하기 ›</Text>
+        <Text style={styles.calcGoText}>공식 보기 ›</Text>
       </View>
     </TouchableOpacity>
   );

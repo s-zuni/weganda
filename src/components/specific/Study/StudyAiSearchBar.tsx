@@ -15,10 +15,10 @@ interface StudyAiSearchBarProps {
 }
 
 const AI_SUGGESTION_TAGS = [
-  { label: '💊 도파민 gtt 계산', query: '도파민 gtt 점적 계산 공식 알려줘' },
+  { label: '📐 기초 단위 환산법', query: '간호국가고시 기초 단위 환산(g, mg, mcg, mL) 원리 알려줘' },
   { label: '⚡ K-ACLS 프로토콜', query: 'K-ACLS 심폐소생술 핵심 프로토콜과 약물 타이밍' },
   { label: '🩸 수혈 간호 5R', query: '수혈 간호 핵심 5R과 부작용 대처법' },
-  { label: '📋 SBAR 인수인계', query: 'SBAR 임상 의사소통 및 인수인계 작성 요령' },
+  { label: '📋 SBAR 의사소통', query: 'SBAR 임상 의사소통 및 인수인계 작성 요령' },
   { label: '🧪 ABGA 판독', query: 'ABGA 동맥혈가스분석 단계별 판독법' },
 ];
 
@@ -43,7 +43,7 @@ export const StudyAiSearchBar: React.FC<StudyAiSearchBarProps> = ({ onSearch }) 
       <View style={styles.titleRow}>
         <View style={styles.titleLeft}>
           <BotIcon size={18} color={theme.primary} />
-          <Text style={styles.titleText}>간호 AI</Text>
+          <Text style={styles.titleText}>간호 학습 AI</Text>
         </View>
       </View>
 
@@ -52,7 +52,7 @@ export const StudyAiSearchBar: React.FC<StudyAiSearchBarProps> = ({ onSearch }) 
         <SearchIcon size={18} color={theme.primary} />
         <TextInput
           style={styles.input}
-          placeholder="약물 계산, 응급 지침, 술기를 AI에게 검색해보세요..."
+          placeholder="간호 이론, 응급 지침, 술기 개념을 AI에게 물어보세요..."
           placeholderTextColor={COLORS.textMuted}
           value={query}
           onChangeText={setQuery}

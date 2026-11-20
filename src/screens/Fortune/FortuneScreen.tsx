@@ -28,6 +28,7 @@ import {
 } from '../../components/specific/Fortune';
 
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
+import { AiDataConsentModal } from '../../components/common/AiDataConsentModal';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
 import { SajuCategoryId } from '../../mocks/sajuCategories';
 import { FREE_LIMITS } from '../../constants/membership';
@@ -44,8 +45,9 @@ export const FortuneScreen: React.FC = () => {
     setSelectedCategory,
     checkDailyRefresh,
   } = useFortuneStore();
-  const { isPremium, monthlyFortuneCount, incrementFortuneCount } = useUserStore();
+  const { isPremium, monthlyFortuneCount, incrementFortuneCount, hasAiDataConsent, setAiDataConsent } = useUserStore();
   const tabBarHeight = useTabBarHeight();
+  const [aiConsentVisible, setAiConsentVisible] = useState(false);
 
   // 오늘 날짜 동적 계산
   const today = new Date();
@@ -54,10 +56,10 @@ export const FortuneScreen: React.FC = () => {
 
   useEffect(() => {
     checkDailyRefresh();
-    if (birthInfo.isRegistered && !currentFortune) {
+    if (birthInfo.isRegistered && !currentFortune && hasAiDataConsent) {
       fetchAiFortune('daily');
     }
-  }, [birthInfo.isRegistered, currentFortune, fetchAiFortune, checkDailyRefresh]);
+  }, [birthInfo.isRegistered, currentFortune, hasAiDataConsent, fetchAiFortune, checkDailyRefresh]);
 
   // 모달 상태 관리
   const [birthModalVisible, setBirthModalVisible] = useState(false);
@@ -69,15 +71,23 @@ export const FortuneScreen: React.FC = () => {
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
 
+  const executeRefreshDaily = () => {
+    fetchAiFortune('daily');
+    if (!isPremium) {
+      incrementFortuneCount();
+    }
+  };
+
   const handleRefreshDaily = () => {
     if (!isPremium && monthlyFortuneCount >= FREE_LIMITS.maxMonthlyFortune) {
       setPaywallVisible(true);
       return;
     }
-    fetchAiFortune('daily');
-    if (!isPremium) {
-      incrementFortuneCount();
+    if (!hasAiDataConsent) {
+      setAiConsentVisible(true);
+      return;
     }
+    executeRefreshDaily();
   };
 
   const handleBack = () => {
@@ -200,6 +210,17 @@ export const FortuneScreen: React.FC = () => {
       <MembershipScreen
         visible={membershipVisible}
         onClose={() => setMembershipVisible(false)}
+      />
+
+      <AiDataConsentModal
+        visible={aiConsentVisible}
+        featureName="AI 워크스타일 & 컨디션 리포트"
+        onAccept={() => {
+          setAiDataConsent(true);
+          setAiConsentVisible(false);
+          executeRefreshDaily();
+        }}
+        onDecline={() => setAiConsentVisible(false)}
       />
     </SafeAreaView>
   );
