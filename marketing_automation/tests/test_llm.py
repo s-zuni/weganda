@@ -84,6 +84,52 @@ class GenerateJson(unittest.TestCase):
                 llm.generate_json("p", Sample, client=client)
 
 
+class TemperatureFallback(unittest.TestCase):
+    """temperature를 거부하는 모델: 빼고 한 번 재시도하고, 이후 호출은 처음부터 빼서 보낸다."""
+
+    class Reject400(Exception):
+        status_code = 400
+
+    def setUp(self):
+        self._model = Config.OPENAI_MODEL
+        Config.OPENAI_MODEL = "picky-model"
+        llm._NO_TEMPERATURE_MODELS.discard("picky-model")
+
+    def tearDown(self):
+        Config.OPENAI_MODEL = self._model
+        llm._NO_TEMPERATURE_MODELS.discard("picky-model")
+
+    def _picky_client(self):
+        calls = []
+
+        def create(**kwargs):
+            calls.append(dict(kwargs))
+            if "temperature" in kwargs:
+                raise self.Reject400("Unsupported value: 'temperature' does not support 0.9 with this model.")
+            msg = SimpleNamespace(content='{"title": "ok"}', refusal=None)
+            return SimpleNamespace(choices=[SimpleNamespace(message=msg, finish_reason="stop")])
+
+        return SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))), calls
+
+    def test_retries_without_temperature_then_remembers(self):
+        client, calls = self._picky_client()
+        self.assertEqual(llm.generate_json("p", Sample, temperature=0.9, client=client).title, "ok")
+        self.assertEqual(len(calls), 2)
+        self.assertNotIn("temperature", calls[1])
+
+        llm.generate_json("p", Sample, temperature=0.9, client=client)
+        self.assertEqual(len(calls), 3)  # 두 번째 호출부터는 처음부터 temperature 없이 한 번만 보낸다
+
+    def test_other_400_errors_are_not_swallowed(self):
+        def create(**kwargs):
+            raise self.Reject400("invalid model")
+
+        client = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+        with self.assertRaises(self.Reject400):
+            llm.generate_json("p", Sample, temperature=0.9, client=client)
+        self.assertNotIn("picky-model", llm._NO_TEMPERATURE_MODELS)
+
+
 class Configured(unittest.TestCase):
     def test_placeholder_keys_are_not_configured(self):
         original = Config.OPENAI_API_KEY

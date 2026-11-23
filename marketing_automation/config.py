@@ -84,7 +84,7 @@ def redact_secrets(text: object) -> str:
 class Config:
     # OpenAI (글 생성·공고 분석). 모델은 JSON 모드와 이미지·PDF 입력을 지원해야 한다.
     OPENAI_API_KEY: str = clean_token(os.getenv("OPENAI_API_KEY", ""))
-    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-6-luna")
 
     # Telegram (보안 핵심: ADMIN_CHAT_ID 화이트리스트)
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")

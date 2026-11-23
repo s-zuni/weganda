@@ -9,7 +9,7 @@
 - 실패(네트워크·형식·검증 오류)는 예외로 올린다. 재시도/폴백은 호출자가 정한다.
 """
 import base64
-from typing import Any, Optional, Sequence, Tuple, Type, TypeVar
+from typing import Any, Optional, Sequence, Set, Tuple, Type, TypeVar
 
 from pydantic import BaseModel
 
@@ -21,8 +21,15 @@ REQUEST_TIMEOUT_SEC = 60
 SDK_MAX_RETRIES = 2  # 429/5xx/연결 오류에 대한 SDK 자체 재시도
 
 
+_NO_TEMPERATURE_MODELS: Set[str] = set()  # temperature 지정을 거부한 모델 (프로세스 동안 기억)
+
+
 class LLMError(RuntimeError):
     """모델이 거절했거나 응답이 잘렸거나 비어 있을 때."""
+
+
+def _is_temperature_error(e: Exception) -> bool:
+    return getattr(e, "status_code", None) == 400 and "temperature" in str(e).lower()
 
 
 def is_configured() -> bool:
@@ -69,7 +76,18 @@ def generate_json(
     if temperature is not None:
         kwargs["temperature"] = temperature
 
-    resp = (client or _new_client()).chat.completions.create(**kwargs)
+    client = client or _new_client()
+    if Config.OPENAI_MODEL in _NO_TEMPERATURE_MODELS:
+        kwargs.pop("temperature", None)
+    try:
+        resp = client.chat.completions.create(**kwargs)
+    except Exception as e:
+        # 일부 모델은 temperature를 기본값(1) 외에는 거부한다 → 빼고 한 번만 재시도하고 모델별로 기억한다.
+        if "temperature" not in kwargs or not _is_temperature_error(e):
+            raise
+        _NO_TEMPERATURE_MODELS.add(Config.OPENAI_MODEL)
+        kwargs.pop("temperature")
+        resp = client.chat.completions.create(**kwargs)
     choice = resp.choices[0]
     if getattr(choice.message, "refusal", None):
         raise LLMError("모델이 요청을 거절했습니다")
