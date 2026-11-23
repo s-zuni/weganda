@@ -91,6 +91,7 @@ workflows:
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create \
+            --delete-stale-profiles \
             --certificate-key "@file:/tmp/certificate_private_key"
 
           # 4. 인증서를 키체인에 등록
@@ -105,6 +106,8 @@ workflows:
               security cms -D -i "$p" > /tmp/profile.plist 2>/dev/null || true
               /usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile.plist 2>/dev/null || true
               /usr/libexec/PlistBuddy -c "Print :Type" /tmp/profile.plist 2>/dev/null || true
+              echo "Profile Entitlements:"
+              /usr/libexec/PlistBuddy -c "Print :Entitlements" /tmp/profile.plist 2>/dev/null || true
               if /usr/libexec/PlistBuddy -c "Print :ProvisionedDevices" /tmp/profile.plist 2>/dev/null; then
                 echo "⚠️ WARNING: This profile contains ProvisionedDevices! It is an AD HOC profile, NOT App Store!"
               else
@@ -114,7 +117,9 @@ workflows:
           done
           echo "=== Applying Provisioning Profiles to Xcode Project ==="
           xcode-project use-profiles \
-            --project "ios/weganda.xcodeproj"
+            --project "ios/weganda.xcodeproj" \
+            --archive-method="app-store" \
+            --code-signing-setup-verbose-logging
       - name: 5. Build iOS IPA (App Store Distribution)
         script: |
           WORKSPACE=$(find ios -maxdepth 2 -name "*.xcworkspace" -not -path "*/Pods/*" -not -path "*.xcodeproj/*" | head -n 1)
@@ -130,7 +135,7 @@ workflows:
             TARGET_ARG="--project $PROJECT"
           fi
 
-          if ! xcode-project build-ipa $TARGET_ARG --scheme "$SCHEME" --archive-xcargs "ENABLE_USER_SCRIPT_SANDBOXING=NO"; then
+          if ! xcode-project build-ipa $TARGET_ARG --scheme "$SCHEME" --config "Release" --archive-xcargs "ENABLE_USER_SCRIPT_SANDBOXING=NO"; then
             echo "=========================================================="
             echo "❌ xcodebuild failed! Showing root cause error..."
             echo "=========================================================="

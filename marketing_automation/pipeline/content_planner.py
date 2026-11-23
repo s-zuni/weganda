@@ -1,9 +1,9 @@
-import json
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-from config import Config
+from config import redact_secrets
 from crawlers.hospital_crawler import RawJobPosting
+from pipeline import llm
 
 
 # 1. 인스타그램 카드뉴스 슬라이드 구조체
@@ -32,7 +32,7 @@ class CommunityPlan(BaseModel):
     content: str = Field(..., description="마크다운 서식의 상세 모집요강 및 지원 가이드")
 
 
-# 통합 마케팅 패키지 모델 (Gemini 응답 스키마)
+# 통합 마케팅 패키지 모델 (LLM 응답 스키마)
 class LLMContentPackage(BaseModel):
     hospital_name: str
     d_day: str
@@ -49,19 +49,16 @@ class ContentPackage(LLMContentPackage):
 
 class ContentPlanner:
     """
-    Gemini AI 기반 옴니채널 마케팅 콘텐츠 기획기
+    LLM(OpenAI) 기반 옴니채널 마케팅 콘텐츠 기획기
     - Instagram Carousel
     - Threads 타래
     - weganda 앱 커뮤니티 [채용/취업 정보] 게시글
     """
 
     def plan_job_package(self, job: RawJobPosting) -> ContentPackage:
-        # Gemini API 키가 정상 등록되어 있는 경우 LLM 호출 시도
-        if Config.GEMINI_API_KEY and not Config.GEMINI_API_KEY.startswith("your_"):
+        # OpenAI API 키가 정상 등록되어 있는 경우 LLM 호출 시도
+        if llm.is_configured():
             try:
-                from google import genai
-                client = genai.Client(api_key=Config.GEMINI_API_KEY)
-
                 prompt = f"""
 당신은 간호사를 위한 3교대 캘린더·채용 정보 앱 '우간다(weganda)'의 마케팅 에디터입니다. (순위·최고·1위 같은 근거 없는 최상급 표현은 쓰지 마세요.)
 아래 병원 채용 공고를 바탕으로 3개 채널(인스타그램 카드뉴스, 쓰레드 타래, 앱 커뮤니티 게시글)의 콘텐츠를 작성해주세요.
@@ -97,19 +94,10 @@ class ContentPlanner:
 3. 커뮤니티 게시글: 마크다운 서식의 정갈하고 상세한 요강과 공식 접수 링크 안내
 반드시 유효한 JSON 형식으로만 응답하세요.
 """
-                response = client.models.generate_content(
-                    model=Config.GEMINI_MODEL,
-                    contents=prompt,
-                    config={
-                        "response_mime_type": "application/json",
-                        "response_schema": LLMContentPackage,
-                    },
-                )
-                if response.text:
-                    parsed = json.loads(response.text)
-                    return self._finalize(ContentPackage.model_validate(parsed), job)
+                generated = llm.generate_json(prompt, LLMContentPackage)
+                return self._finalize(ContentPackage.model_validate(generated.model_dump()), job)
             except Exception as e:
-                print(f"[Gemini 에디터 안내] API 호출 중 오류 발생 ({e}). 고품질 내장 템플릿으로 안전하게 생성합니다.")
+                print(f"[LLM 에디터 안내] API 호출 중 오류 발생 ({redact_secrets(e)}). 고품질 내장 템플릿으로 안전하게 생성합니다.")
 
         # API 미설정 또는 오류 시 고품질 Fallback 템플릿 생성 (무중단 보장)
         return self._finalize(self._generate_fallback_package(job), job)

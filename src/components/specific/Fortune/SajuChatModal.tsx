@@ -15,6 +15,7 @@ import { useUserStore } from '../../../store/useUserStore';
 import { useFortuneChatStore } from '../../../store/useFortuneChatStore';
 import { FREE_LIMITS } from '../../../constants/membership';
 import { PaywallBottomSheet } from '../../common/PaywallBottomSheet';
+import { AiDataConsentModal } from '../../common/AiDataConsentModal';
 import { MembershipScreen } from '../../../screens/MyPage/MembershipScreen';
 import { SparklesIcon, SendIcon } from '../../common/Icon';
 import { useKeyboardOffset } from '../../../hooks/useKeyboardOffset';
@@ -50,16 +51,25 @@ export const SajuChatModal: React.FC<SajuChatModalProps> = ({
   const keyboardOffset = useKeyboardOffset(Platform.OS === 'ios' ? 10 : 0);
   const insets = useSafeAreaInsets();
   const { messages, isThinking, startChatForTopic, askAboutTopic } = useFortuneChatStore();
-  const { isPremium, dailyFortuneChatCount, incrementDailyFortuneChatCount } = useUserStore();
+  const { isPremium, dailyFortuneChatCount, incrementDailyFortuneChatCount, hasAiDataConsent, setAiDataConsent } = useUserStore();
   const [inputText, setInputText] = useState('');
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
+  const [aiConsentVisible, setAiConsentVisible] = useState(false);
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
 
   useEffect(() => {
     if (visible) {
       startChatForTopic(topic);
     }
   }, [visible, topic.id]);
+
+  const executeSend = (questionText: string) => {
+    askAboutTopic({ question: questionText, topic, userSaju, mbti, reportContext });
+    if (!isPremium) {
+      incrementDailyFortuneChatCount();
+    }
+  };
 
   const handleSend = (textToSend?: string) => {
     const text = textToSend || inputText;
@@ -70,10 +80,13 @@ export const SajuChatModal: React.FC<SajuChatModalProps> = ({
       return;
     }
 
-    askAboutTopic({ question: text.trim(), topic, userSaju, mbti, reportContext });
-    if (!isPremium) {
-      incrementDailyFortuneChatCount();
+    if (!hasAiDataConsent) {
+      setPendingQuestion(text.trim());
+      setAiConsentVisible(true);
+      return;
     }
+
+    executeSend(text.trim());
     setInputText('');
   };
 
@@ -188,6 +201,24 @@ export const SajuChatModal: React.FC<SajuChatModalProps> = ({
         <MembershipScreen
           visible={membershipVisible}
           onClose={() => setMembershipVisible(false)}
+        />
+
+        <AiDataConsentModal
+          visible={aiConsentVisible}
+          featureName="AI 워크스타일 상담"
+          onAccept={() => {
+            setAiDataConsent(true);
+            setAiConsentVisible(false);
+            if (pendingQuestion) {
+              executeSend(pendingQuestion);
+              setPendingQuestion(null);
+              setInputText('');
+            }
+          }}
+          onDecline={() => {
+            setAiConsentVisible(false);
+            setPendingQuestion(null);
+          }}
         />
       </KeyboardAvoidingView>
     </SwipeDismissModal>

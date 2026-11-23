@@ -15,7 +15,7 @@ import types
 from pathlib import Path
 
 os.environ["DATA_DIR"] = tempfile.mkdtemp(prefix="weganda_test_")
-os.environ["GEMINI_API_KEY"] = ""
+os.environ["OPENAI_API_KEY"] = ""
 os.environ["APP_DOWNLOAD_URL"] = ""
 os.environ["TELEGRAM_BOT_TOKEN"] = ""
 

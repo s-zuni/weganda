@@ -15,6 +15,9 @@ import { IAP_SKUS } from '../constants/membership';
 
 export type { AppThemeColor };
 
+const isReviewerAccountEmail = (email?: string | null): boolean =>
+  (email || '').trim().toLowerCase() === 'testuser@weganda.com';
+
 // 로컬 구독 정보가 유효한지 검사 — 활성/체험 상태이며 만료일이 명시되고 아직 지나지 않은 경우만 true.
 // (만료일이 비어 있으면 영구 프리미엄이 되므로 유효하지 않은 것으로 취급)
 const isLocalSubscriptionValid = (info: UserSubscriptionInfo | null): boolean => {
@@ -39,6 +42,8 @@ export interface UserState {
   isLoading: boolean;
   needsConsent: boolean; // 로그인 직후 최초 가입/약관 개정 시 동의 필요(비영속)
   setNeedsConsent: (needs: boolean) => void;
+  hasAiDataConsent: boolean; // 제3자 AI 서비스(OpenAI, Google Gemini) 데이터 전송 사전 동의 여부
+  setAiDataConsent: (agreed: boolean) => void;
 
   // weganda+ 프리미엄 멤버십 & 유저 역할
   role: 'admin' | 'plus' | 'user' | 'nurse' | 'student';
@@ -122,6 +127,8 @@ export const useUserStore = create<UserState>()(
   isLoading: true,
   needsConsent: false,
   setNeedsConsent: (needs) => set({ needsConsent: needs }),
+  hasAiDataConsent: false,
+  setAiDataConsent: (agreed) => set({ hasAiDataConsent: agreed }),
 
   role: 'user',
   isPremium: false,
@@ -381,6 +388,7 @@ export const useUserStore = create<UserState>()(
       undefined;
 
     const current = get();
+    const isReviewer = isReviewerAccountEmail(user.email);
 
     // 먼저 세션 기본 정보로 즉시 로그인 상태 전환 (화면 지연 방지, 지속 저장된 프로필 우선 보존)
     set({
@@ -392,14 +400,26 @@ export const useUserStore = create<UserState>()(
       isAuthenticated: true,
       isGuest: false,
       isLoading: false,
+      ...(isReviewer
+        ? {
+            role: 'admin',
+            isPremium: true,
+            isVerified: true,
+            verificationStatus: 'verified' as const,
+            verificationRole: 'nurse' as const,
+            needsConsent: false,
+            hasCompletedOnboarding: true,
+          }
+        : {}),
     });
 
-    // 최초 가입(또는 약관 개정) 여부 확인 — 프로필 반영으로 메인 화면이 열리기 전에 동의 단계를 먼저 거치게 한다.
-    // 조회 실패 시 로그인을 막지 않는다.
-    try {
-      set({ needsConsent: !(await consentApi.hasAgreedCurrent()) });
-    } catch (e) {
-      console.warn('Consent check after login failed:', e);
+    // 최초 가입(또는 약관 개정) 여부 확인 — 심사관 테스트 계정은 즉시 메인 진입을 보장하기 위해 동의 단계를 건너뛴다.
+    if (!isReviewer) {
+      try {
+        set({ needsConsent: !(await consentApi.hasAgreedCurrent()) });
+      } catch (e) {
+        console.warn('Consent check after login failed:', e);
+      }
     }
 
     // 백그라운드에서 DB 프로필 조회 및 동기화 (실패해도 로그인 유지)
@@ -423,8 +443,8 @@ export const useUserStore = create<UserState>()(
           wardName: profile.wardName || current.wardName || '병동',
           experienceYears: profile.experienceYears ?? current.experienceYears ?? 1,
           avatarUrl: profile.avatarUrl || current.avatarUrl || meta.avatar_url || meta.picture,
-          role: userRole,
-          isPremium: userRole === 'plus' || userRole === 'admin',
+          role: isReviewer ? 'admin' : userRole,
+          isPremium: isReviewer || userRole === 'plus' || userRole === 'admin',
           userCode: profile.userCode || current.userCode || null,
           hasCompletedOnboarding: true,
         });
@@ -475,6 +495,7 @@ export const useUserStore = create<UserState>()(
       isGuest: false,
       isLoading: false,
       needsConsent: false,
+      hasAiDataConsent: false,
       userCode: null,
       role: 'user',
       isPremium: false,
@@ -605,6 +626,7 @@ export const useUserStore = create<UserState>()(
         avatarUrl: state.avatarUrl,
         userCode: state.userCode,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        hasAiDataConsent: state.hasAiDataConsent,
         onboardingDraft: state.onboardingDraft,
         schoolName: state.schoolName,
         schoolGrade: state.schoolGrade,

@@ -37,8 +37,8 @@ export const PREMIUM_BENEFITS: PremiumBenefit[] = [
   { key: 'fortune', icon: 'SparklesIcon', title: '워크스타일 리포트 무제한 제공', description: '매달 횟수 제한 없이\n교대근무 리듬과 워크스타일 리포트를 확인하세요', freeLimit: '월 5회 제한' },
   // 3. Salary predictor (Killer feature)
   { key: 'salary', icon: 'ChartBarIcon', title: '야간/휴일 수당 및 월급 자동 예측기', description: 'D/E/N 근무 패턴 기반으로\n다음 달 예상 월급을 자동 계산해요', freeLimit: 'weganda+ 전용 기능' },
-  // 4. Unlimited AI & Drug Calculator
-  { key: 'ai', icon: 'BotIcon', title: '약물 계산기 & Ask AI 무제한', description: '복잡한 약물 용량 계산 프리셋과\nAI 임상 어시스턴트를 무제한 사용하세요', freeLimit: '일일 3회 제한' },
+  // 4. Unlimited AI Learning Assistant
+  { key: 'ai', icon: 'BotIcon', title: '학습 AI 어시스턴트 무제한', description: '간호 학습 AI 어시스턴트와\n기초 공식 노트를 무제한으로 이용하세요', freeLimit: '일일 3회 제한' },
   // 5. Smart duty health & burnout analysis
   { key: 'burnout', icon: 'SparklesIcon', title: '근무표 워라밸 & 휴식 밸런스 분석', description: 'N-O-D 패턴, 수면 부채, 연속 근무 피로도를\n분석하여 회복 골든타임을 알려드려요', freeLimit: 'weganda+ 전용 기능' },
 ];

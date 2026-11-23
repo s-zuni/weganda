@@ -85,7 +85,7 @@ export function generateRealClinicalNotifications(): NotificationItem[] {
       id: 'real_notif_premium',
       type: 'comment',
       title: 'weganda+ 프리미엄 활성화',
-      message: '50년 명인 5대 정밀 사주, 바이오리듬 분석, 약물 계산기 무제한 혜택이 적용 중입니다.',
+      message: '워크스타일 리포트, 근무 워라밸 분석, 학습 AI 어시스턴트 무제한 혜택이 적용 중입니다.',
       timeAgo: '1일 전',
       isRead: true,
     });

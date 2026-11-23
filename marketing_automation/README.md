@@ -27,6 +27,18 @@ APScheduler가 설치돼 있지 않아도 메인 루프가 같은 표를 처리�
 
 ---
 
+## 🗓 월간 쓰레드 콘텐츠 캘린더
+
+쓰레드 글은 미리 기획한 30일치(하루 3슬롯 = 90편) 주제를 **구글 시트 순서대로** 올립니다. 30일 안에 같은 제목은 나오지 않습니다.
+
+- **데이터 원천**: 구글 시트(`THREADS_CALENDAR_SHEET_ID`) → 읽지 못하면 저장소의 `data/threads_content_calendar.csv`.
+  시트를 읽으려면 공유를 **'링크가 있는 모든 사용자 - 뷰어'**로 바꿔야 합니다(비공개면 HTTP 401, 시드 CSV로 대체).
+- **시트 열**: 순번 · 날짜 · 슬롯(morning/afternoon/evening) · 필라 · 제목 · 도입(` / `=줄바꿈) · 포인트1~3(`항목|설명`) · 마무리질문 · 트렌드근거 · 상태(`건너뜀`/`보류`/`중단`이면 제외)
+- **선택 규칙**: 오늘 날짜·슬롯의 행 → 없으면 밀린 행을 날짜순으로 → 모두 소진되면 기존 자동 생성 로직으로 전환하고 텔레그램으로 알림.
+- **생성 방식**: 제목(첫 줄)은 항상 시트 그대로. 본문은 OpenAI 모델이 시트 내용으로 다듬고, 실패하면 시트 내용만으로 만든 템플릿을 씁니다. 품질 게이트는 동일하게 적용됩니다.
+- **중복 방지**: 발행 성공한 제목은 `bot_settings.threads_calendar_done`에 기록해 다시 올리지 않습니다(DRY_RUN은 기록하지 않음). 시트에서 중복 제목은 로드 시 제거됩니다.
+- **다음 달 갱신**: 새 달 행을 시트 아래에 추가하면 됩니다. 시드 CSV도 함께 갱신해 두면 시트 장애 때 안전합니다.
+
 ## ☁️ GitHub Actions 스케줄 실행 (Railway 대체)
 
 `.github/workflows/marketing-bot.yml`이 정해진 시각에 `python main.py --tick`을 실행한다. 상시 서버가 없으므로 상태(`state.db`)는 실행 전후로 Supabase Storage 비공개 버킷 `marketing-state`에 동기화한다(`scripts/state_sync.py`).
@@ -42,7 +54,7 @@ APScheduler가 설치돼 있지 않아도 메인 루프가 같은 표를 처리�
 
 **처음 켜는 순서**
 1. Railway 서비스를 **먼저 중지**한다. 둘이 동시에 돌면 같은 글이 두 번 발행된다.
-2. 저장소 Settings → Secrets and variables → Actions의 **Secrets**에 `.env.example`의 값들을 같은 이름으로 등록한다(`GEMINI_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `INSTAGRAM_*`, `THREADS_*`, `CLOUDINARY_URL` 등). 빈 값은 등록하지 않아도 된다.
+2. 저장소 Settings → Secrets and variables → Actions의 **Secrets**에 `.env.example`의 값들을 같은 이름으로 등록한다(`OPENAI_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `INSTAGRAM_*`, `THREADS_*`, `CLOUDINARY_URL` 등). 빈 값은 등록하지 않아도 된다.
 3. (선택) 기존 상태를 이어가려면 Railway의 `state.db`를 내려받아 `SUPABASE_URL`·`SUPABASE_SERVICE_ROLE_KEY`를 설정한 셸에서 `python scripts/state_sync.py push --file 경로`로 올린다. 올리지 않으면 새로 시작하며, 이미 처리한 공고를 다시 추천할 수 있다.
 4. **Actions 탭 → marketing-bot → Run workflow**로 `mode=status`, `dry_run=true`를 실행해 설정을 확인한다. 이어서 `mode=tick`으로 DRY_RUN 동작을 본다.
 5. 문제가 없으면 저장소 **Variables**에 `MARKETING_DRY_RUN=false`를 등록해 실제 발행을 켠다. 이 변수가 없으면 예약 실행은 항상 DRY_RUN이다.

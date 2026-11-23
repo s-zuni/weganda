@@ -188,7 +188,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
 
     Alert.alert(
       'weganda+ 구독 관리 및 해지',
-      `${isTrial ? '현재 1개월 무료 체험 기간을 이용 중입니다.' : '현재 평생 얼리버드 특가 멤버십을 이용 중입니다.'}\n\n지금 해지하시더라도 ${subscriptionInfo?.nextBillingDate || '체험 만료일'}까지는 모든 프리미엄 기능(사주 무제한, 월급 예측기, 약물 계산기 등)을 위약금 없이 그대로 이용하실 수 있습니다.`,
+      `${isTrial ? '현재 1개월 무료 체험 기간을 이용 중입니다.' : '현재 평생 얼리버드 특가 멤버십을 이용 중입니다.'}\n\n지금 해지하시더라도 ${subscriptionInfo?.nextBillingDate || '체험 만료일'}까지는 모든 프리미엄 기능(워크스타일 리포트 무제한, 월급 예측기, 학습 AI 등)을 위약금 없이 그대로 이용하실 수 있습니다.`,
       [
         { text: '닫기', style: 'cancel' },
         {

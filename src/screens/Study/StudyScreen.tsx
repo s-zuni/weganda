@@ -51,7 +51,7 @@ export const StudyScreen: React.FC = () => {
 
   const categories = [
     '전체',
-    '약물계산/투약',
+    '기초 단위/이론',
     '응급/ACLS',
     '간호술기',
     '바이탈/중재',
@@ -62,7 +62,7 @@ export const StudyScreen: React.FC = () => {
   const filteredGuides = studyGuides.filter((guide) => {
     if (selectedCategory === '북마크 보관함') {
       if (!guide.isBookmarked) return false;
-    } else if (selectedCategory === '약물계산/투약') {
+    } else if (selectedCategory === '기초 단위/이론') {
       if (guide.category !== '약물계산/투약' && (guide.category as string) !== '약물 계산') return false;
     } else if (selectedCategory === '응급/ACLS') {
       if (guide.category !== '응급/ACLS' && (guide.category as string) !== '응급 간호') return false;
@@ -122,7 +122,7 @@ export const StudyScreen: React.FC = () => {
             <SearchIcon size={16} color={COLORS.textMuted} />
             <TextInput
               style={styles.searchInput}
-              placeholder="임상 술기, 약물 계산, 지침서 검색"
+              placeholder="간호 술기, 학습 가이드, 지침서 검색"
               placeholderTextColor={COLORS.textMuted}
               value={searchText}
               onChangeText={setSearchText}

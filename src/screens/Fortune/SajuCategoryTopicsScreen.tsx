@@ -21,6 +21,7 @@ import { SajuTopicInputModal } from '../../components/specific/Fortune/SajuTopic
 import { useUserStore } from '../../store/useUserStore';
 import { FREE_LIMITS } from '../../constants/membership';
 import { PaywallBottomSheet } from '../../components/common/PaywallBottomSheet';
+import { AiDataConsentModal } from '../../components/common/AiDataConsentModal';
 import { MembershipScreen } from '../MyPage/MembershipScreen';
 
 type RouteParams = {
@@ -45,6 +46,13 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [membershipVisible, setMembershipVisible] = useState(false);
+  const [aiConsentVisible, setAiConsentVisible] = useState(false);
+  const [pendingSubmitData, setPendingSubmitData] = useState<{
+    birthInfo: BirthInfo;
+    partnerData?: PartnerBirthData;
+  } | null>(null);
+  const hasAiDataConsent = useUserStore((s) => s.hasAiDataConsent);
+  const setAiDataConsent = useUserStore((s) => s.setAiDataConsent);
 
   const handleSelectTopic = (topic: SajuTopicItem) => {
     const { isPremium, monthlyFortuneCount } = useUserStore.getState();
@@ -56,7 +64,7 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleAnalysisSubmit = async (data: {
+  const executeAnalysisSubmit = async (data: {
     birthInfo: BirthInfo;
     partnerData?: PartnerBirthData;
   }) => {
@@ -84,6 +92,19 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
         topicId: selectedTopic.id,
       });
     }
+  };
+
+  const handleAnalysisSubmit = async (data: {
+    birthInfo: BirthInfo;
+    partnerData?: PartnerBirthData;
+  }) => {
+    if (!selectedTopic) return;
+    if (!hasAiDataConsent) {
+      setPendingSubmitData(data);
+      setAiConsentVisible(true);
+      return;
+    }
+    await executeAnalysisSubmit(data);
   };
 
   return (
@@ -168,7 +189,7 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
                 {/* 액션 버튼 유도 영역 */}
                 <View style={styles.cardFooter}>
                   <Text style={[styles.actionBtnText, { color: category.themeColor }]}>
-                    정밀 사주 감정 받기
+                    워크스타일 리포트 받기
                   </Text>
                   <Ionicons name="arrow-forward-circle" size={20} color={category.themeColor} />
                 </View>
@@ -198,13 +219,31 @@ export const SajuCategoryTopicsScreen: React.FC = () => {
           setPaywallVisible(false);
           setTimeout(() => setMembershipVisible(true), 250);
         }}
-        featureTitle="사주 서비스"
-        featureDescription="매달 횟수 제한 없이 간호 운세와 정밀 사주를 확인하세요"
+        featureTitle="워크스타일 리포트"
+        featureDescription="매달 횟수 제한 없이 근무 리듬과 워크스타일 리포트를 확인하세요"
       />
 
       <MembershipScreen
         visible={membershipVisible}
         onClose={() => setMembershipVisible(false)}
+      />
+
+      <AiDataConsentModal
+        visible={aiConsentVisible}
+        featureName="AI 워크스타일 리포트"
+        onAccept={() => {
+          setAiDataConsent(true);
+          setAiConsentVisible(false);
+          if (pendingSubmitData) {
+            const data = pendingSubmitData;
+            setPendingSubmitData(null);
+            executeAnalysisSubmit(data);
+          }
+        }}
+        onDecline={() => {
+          setAiConsentVisible(false);
+          setPendingSubmitData(null);
+        }}
       />
     </SafeAreaView>
   );

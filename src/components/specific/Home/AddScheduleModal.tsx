@@ -15,6 +15,7 @@ import { COLORS, useAppTheme, type ThemeColors } from '../../../constants/theme'
 import { useShiftScheduleStore } from '../../../store/useShiftScheduleStore';
 import { useUserStore } from '../../../store/useUserStore';
 import { ocrApi } from '../../../services/ocrApi';
+import { AiDataConsentModal } from '../../common/AiDataConsentModal';
 import { CustomShiftCode } from '../../../types/shift';
 import { SwipeableBottomSheet, BottomSheetScrollView } from '../../common/SwipeableBottomSheet';
 import {
@@ -76,8 +77,22 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
   const month = currentDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+  const hasAiDataConsent = useUserStore((s) => s.hasAiDataConsent);
+  const setAiDataConsent = useUserStore((s) => s.setAiDataConsent);
+  const [aiConsentVisible, setAiConsentVisible] = useState(false);
+  const [pendingOcrSource, setPendingOcrSource] = useState<'camera' | 'library' | null>(null);
+
   // 실제 카메라/갤러리 이미지 선택 및 OCR 연동
   const handlePickImage = async (source: 'camera' | 'library') => {
+    if (!hasAiDataConsent) {
+      setPendingOcrSource(source);
+      setAiConsentVisible(true);
+      return;
+    }
+    await executePickImage(source);
+  };
+
+  const executePickImage = async (source: 'camera' | 'library') => {
     try {
       let result: ImagePicker.ImagePickerResult;
       if (source === 'camera') {
@@ -310,6 +325,24 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
               />
             )}
           </BottomSheetScrollView>
+
+      <AiDataConsentModal
+        visible={aiConsentVisible}
+        featureName="근무표 이미지 AI 인식(OCR)"
+        onAccept={() => {
+          setAiDataConsent(true);
+          setAiConsentVisible(false);
+          if (pendingOcrSource) {
+            const src = pendingOcrSource;
+            setPendingOcrSource(null);
+            executePickImage(src);
+          }
+        }}
+        onDecline={() => {
+          setAiConsentVisible(false);
+          setPendingOcrSource(null);
+        }}
+      />
     </SwipeableBottomSheet>
   );
 };

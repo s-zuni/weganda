@@ -42,7 +42,7 @@ def run_test_pipeline():
     job = jobs[0]
     print(f"✅ 수집 완료: [{job.hospital_name}] {job.title}")
 
-    print("\n✍️ [2/3] Gemini 옴니채널 콘텐츠 기획 중...")
+    print("\n✍️ [2/3] LLM 옴니채널 콘텐츠 기획 중...")
     planner = ContentPlanner()
     package = planner.plan_job_package(job)
     print(

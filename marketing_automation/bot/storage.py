@@ -210,6 +210,21 @@ class Storage:
         recent = [main_post] + [p for p in self.get_recent_threads_posts() if p != main_post]
         self.set_setting("threads_recent_posts", json.dumps(recent[:15], ensure_ascii=False))
 
+    # 월간 콘텐츠 캘린더에서 이미 발행한 제목 (같은 제목을 두 번 올리지 않기 위한 기록)
+    def get_calendar_done(self) -> List[str]:
+        try:
+            data = json.loads(self.get_setting("threads_calendar_done", "[]"))
+        except ValueError:
+            return []
+        return [t for t in data if isinstance(t, str)] if isinstance(data, list) else []
+
+    def mark_calendar_done(self, title: str):
+        if not title:
+            return
+        done = self.get_calendar_done()
+        if title not in done:
+            self.set_setting("threads_calendar_done", json.dumps(done + [title], ensure_ascii=False))
+
     def pick_daily_cta_slot(self, date_str: str) -> str:
         """하루 3개 쓰레드 슬롯 중 단 1개에만 CTA 답글이 붙도록 고정 (기본: evening 우선 또는 당일 고정)."""
         key = f"threads_cta_slot:{date_str}"
