@@ -70,11 +70,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # 값이 있는 설정만 환경변수로 내보낸다. 빈 문자열을 그대로 넘기면 config.py 의 기본값(예: GEMINI_MODEL)을 덮어쓴다.
+      # 값이 있는 설정만 환경변수로 내보낸다. 빈 문자열을 그대로 넘기면 config.py 의 기본값(예: OPENAI_MODEL)을 덮어쓴다.
       - name: Export config
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ADMIN_CHAT_ID: ${{ secrets.TELEGRAM_ADMIN_CHAT_ID }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -99,7 +99,7 @@ jobs:
           # 수동 실행은 입력값, 예약 실행은 저장소 변수(기본 true = 실제 발행 안 함)
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || (vars.MARKETING_DRY_RUN || 'true') }}
         run: |
-          for name in GEMINI_API_KEY GEMINI_MODEL TELEGRAM_BOT_TOKEN TELEGRAM_ADMIN_CHAT_ID \
+          for name in OPENAI_API_KEY OPENAI_MODEL TELEGRAM_BOT_TOKEN TELEGRAM_ADMIN_CHAT_ID \
                       SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY OFFICIAL_BOT_AUTHOR_ID \
                       INSTAGRAM_ACCOUNT_ID INSTAGRAM_ACCESS_TOKEN THREADS_USER_ID THREADS_ACCESS_TOKEN \
                       FB_APP_ID FB_APP_SECRET THREADS_APP_SECRET CLOUDINARY_URL \

@@ -16,6 +16,7 @@ from crawlers.hospital_crawler import HospitalCrawler
 from crawlers.models import RawJobPosting
 from pipeline.content_planner import ContentPlanner, ContentPackage
 from pipeline.card_renderer import CardRenderer
+from pipeline.content_calendar import CalendarEntry, ContentCalendar
 from pipeline.content_pillars import PILLAR_JOB
 from pipeline.job_extractor import ExtractionError, JobExtractor, find_urls
 from pipeline.media_host import MediaHost, MediaUploadError
@@ -150,8 +151,11 @@ class TelegramApprovalBot:
         label = SLOT_LABELS.get(slot, slot)
         print(f"[Threads 스케줄러] {label} 바이럴 타래 생성 시작...")
 
+        # 월간 콘텐츠 캘린더에 오늘 슬롯 주제가 있으면 그 주제로 쓴다 (없으면 기존 생성 로직)
+        plan = self._pick_calendar_entry(today, slot)
+
         jobs: List[RawJobPosting] = []
-        if slot == "morning":
+        if slot == "morning" and plan is None:
             try:
                 jobs = self.crawler.fetch_latest_jobs(limit=3, exclude_ids=self.storage.handled_job_ids())
             except Exception as e:
@@ -167,6 +171,7 @@ class TelegramApprovalBot:
                 recent_posts=recent,
                 with_cta=with_cta,
                 choice=self.analytics.choose_for_slot(slot, has_jobs=bool(jobs)),
+                plan=plan,
             )
         except Exception as e:
             self.storage.update_threads_slot(today, slot, "FAILED")
@@ -182,6 +187,10 @@ class TelegramApprovalBot:
             for i, p in enumerate(viral_res.posts)
         )
 
+        calendar_note = (
+            f"📅 캘린더 #{viral_res.calendar_seq}: {viral_res.calendar_title}\n" if viral_res.calendar_title else ""
+        )
+
         review_note = (
             "\n⚠️ 품질 게이트: 사람 확인 필요\n" + "\n".join(f"  - {r}" for r in viral_res.review_reasons) + "\n"
             if viral_res.needs_review else ""
@@ -194,6 +203,7 @@ class TelegramApprovalBot:
                 self.admin_id,
                 f"🧪 [DRY_RUN · Threads 자동 슬롯 미리보기]\n"
                 f"슬롯: {label}\n"
+                f"{calendar_note}"
                 f"토픽 태그: #{viral_res.topic_tag} | CTA 포함: {'예' if viral_res.has_cta else '아니오'}\n"
                 f"{review_note}\n"
                 f"{preview_block}",
@@ -214,13 +224,33 @@ class TelegramApprovalBot:
             }
             self.send_message(
                 self.admin_id,
-                f"🧵 [Threads {label} 초안 — 승인 대기]\n토픽: #{viral_res.topic_tag}\n{review_note}\n{preview_block}",
+                f"🧵 [Threads {label} 초안 — 승인 대기]\n{calendar_note}토픽: #{viral_res.topic_tag}\n{review_note}\n{preview_block}",
                 reply_markup=markup,
             )
             return
 
         # 승인 없이 즉시 무인 게시
         self._publish_viral_thread(today, slot, viral_res)
+
+    def _pick_calendar_entry(self, today: str, slot: str) -> Optional[CalendarEntry]:
+        """캘린더에서 오늘 슬롯의 아직 안 올린 주제를 고른다. 어떤 오류도 발행을 막지 않도록 None으로 대체한다."""
+        if not Config.THREADS_CALENDAR_ENABLED:
+            return None
+        try:
+            calendar = ContentCalendar.load()
+            plan = calendar.pick(today, slot, self.storage.get_calendar_done())
+        except Exception as e:
+            print(f"[Threads 캘린더] 주제 선택 오류 → 기존 생성 로직으로 대체: {type(e).__name__}: {redact_secrets(e)}")
+            return None
+
+        if plan is None and slot == "morning":  # 하루 한 번만 알림
+            reason = "읽을 수 있는 캘린더가 없습니다" if not calendar.entries else "남은 주제가 없습니다(30일 소진)"
+            self.send_message(
+                self.admin_id,
+                f"📅 [Threads 캘린더] {reason}. 기존 자동 생성 로직으로 발행합니다.\n"
+                "구글 시트에 다음 달 주제를 추가하세요.",
+            )
+        return plan
 
     def _publish_viral_thread(self, today: str, slot: str, viral_res: ViralThreadResult):
         label = SLOT_LABELS.get(slot, slot)
@@ -235,6 +265,7 @@ class TelegramApprovalBot:
             permalink = res.get("permalink") or (res.get("thread_ids") or [""])[0]
             self._record_threads_post(today, slot, viral_res, res)
             self.storage.remember_threads_post(viral_res.posts[0])
+            self.storage.mark_calendar_done(viral_res.calendar_title)
             self.storage.update_threads_slot(today, slot, "PUBLISHED", permalink=permalink)
             self.storage.record_publish(today, f"thr_{slot}_{int(time.time())}", "threads", "success", permalink)
             cta_badge = " · 🎯CTA포함" if viral_res.has_cta else ""
@@ -253,6 +284,7 @@ class TelegramApprovalBot:
                 permalink = res.get("permalink") or res["thread_ids"][0]
                 self._record_threads_post(today, slot, viral_res, res)
                 self.storage.remember_threads_post(viral_res.posts[0])
+                self.storage.mark_calendar_done(viral_res.calendar_title)
                 self.storage.update_threads_slot(today, slot, "PARTIAL", permalink=permalink)
                 self.storage.record_publish(today, f"thr_{slot}_{int(time.time())}", "threads", "partial", err)
                 self.send_message(

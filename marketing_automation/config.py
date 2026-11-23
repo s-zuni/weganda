@@ -74,7 +74,7 @@ def redact_secrets(text: object) -> str:
         Config.SUPABASE_SERVICE_ROLE_KEY,
         Config.THREADS_ACCESS_TOKEN,
         Config.INSTAGRAM_ACCESS_TOKEN,
-        Config.GEMINI_API_KEY,
+        Config.OPENAI_API_KEY,
     ):
         if secret and len(secret) >= 8:
             out = out.replace(secret, "***")
@@ -82,9 +82,9 @@ def redact_secrets(text: object) -> str:
 
 
 class Config:
-    # Google Gemini
-    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
+    # OpenAI (글 생성·공고 분석). 모델은 JSON 모드와 이미지·PDF 입력을 지원해야 한다.
+    OPENAI_API_KEY: str = clean_token(os.getenv("OPENAI_API_KEY", ""))
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
     # Telegram (보안 핵심: ADMIN_CHAT_ID 화이트리스트)
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
@@ -116,6 +116,10 @@ class Config:
     MAX_RETRY_ATTEMPTS: int = _env_int("MAX_RETRY_ATTEMPTS", 3)  # 실패한 슬롯/일일 발행의 당일 총 시도 횟수(최초 포함)
     DAILY_AUTO_PUBLISH: bool = _env_bool("DAILY_AUTO_PUBLISH", True)  # 08:30 인스타 카드뉴스+앱 커뮤니티 무인 자동 발행
     THREADS_AUTO_POST: bool = _env_bool("THREADS_AUTO_POST", True)    # 06:30 / 12:30 / 17:30 쓰레드 무인 자동 발행
+    # 월간 쓰레드 콘텐츠 캘린더: 구글 시트(링크 공개 필요) → 실패 시 data/threads_content_calendar.csv 사용
+    THREADS_CALENDAR_ENABLED: bool = _env_bool("THREADS_CALENDAR_ENABLED", True)
+    THREADS_CALENDAR_SHEET_ID: str = os.getenv("THREADS_CALENDAR_SHEET_ID", "1LOElEMQcnSYOAwo-Kg5vU1VSFUc69vd3JNOjCRAcLP8")
+    THREADS_CALENDAR_SHEET_GID: str = os.getenv("THREADS_CALENDAR_SHEET_GID", "0")
     DATA_GO_KR_SERVICE_KEY: str = os.getenv("DATA_GO_KR_SERVICE_KEY", "")  # 잡알리오(공공기관 채용) API
     WORKNET_API_KEY: str = os.getenv("WORKNET_API_KEY", "")  # 고용24 채용정보 API (기업회원 키 필요)
     APP_DOWNLOAD_URL: str = os.getenv("APP_DOWNLOAD_URL", "")
@@ -142,8 +146,8 @@ class Config:
     def validate_essential(cls) -> None:
         """기본 필수 환경변수 검증"""
         missing = []
-        if not cls.GEMINI_API_KEY:
-            missing.append("GEMINI_API_KEY")
+        if not cls.OPENAI_API_KEY:
+            missing.append("OPENAI_API_KEY")
         if not cls.TELEGRAM_BOT_TOKEN:
             missing.append("TELEGRAM_BOT_TOKEN")
         if cls.TELEGRAM_ADMIN_CHAT_ID == 0:
@@ -159,7 +163,7 @@ class Config:
         print("=" * 50)
         print("🔒 weganda 마케팅 자동화 보안 환경 상태")
         print("=" * 50)
-        print(f"• Gemini Model        : {cls.GEMINI_MODEL} ({mask_secret(cls.GEMINI_API_KEY)})")
+        print(f"• OpenAI Model        : {cls.OPENAI_MODEL} ({mask_secret(cls.OPENAI_API_KEY)})")
         print(f"• Telegram Admin ID   : {cls.TELEGRAM_ADMIN_CHAT_ID} (화이트리스트 보호)")
         print(f"• Telegram Bot Token  : {mask_secret(cls.TELEGRAM_BOT_TOKEN)}")
         print(f"• Supabase URL        : {cls.SUPABASE_URL}")

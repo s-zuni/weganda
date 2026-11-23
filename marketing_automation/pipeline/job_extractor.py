@@ -5,8 +5,8 @@ from typing import List, Optional, Tuple
 import requests
 from pydantic import BaseModel, Field
 
-from config import Config, is_placeholder
 from crawlers.models import RawJobPosting, d_day_label, days_left_from, parse_date
+from pipeline import llm
 from security.safe_fetch import UnsafeURLError, safe_get
 from security.sanitizer import clean_html_to_plain_text, validate_and_sanitize_url
 
@@ -71,7 +71,7 @@ def _render_with_browser(url: str) -> str:
 
 
 class JobExtractor:
-    """URL / 붙여넣은 텍스트 / 이미지·PDF 에서 RawJobPosting 을 추출 (Gemini 멀티모달)."""
+    """URL / 붙여넣은 텍스트 / 이미지·PDF 에서 RawJobPosting 을 추출 (OpenAI 멀티모달)."""
 
     def _gather(self, text: str, url: Optional[str], files: List[Tuple[bytes, str]]) -> Tuple[str, List[Tuple[bytes, str]], str]:
         """(텍스트, [(바이트, mime)], 최종 URL) 로 자료를 모은다."""
@@ -98,27 +98,17 @@ class JobExtractor:
         return combined[:MAX_TEXT_CHARS], files, final_url
 
     def extract(self, text: str = "", url: Optional[str] = None, files: Optional[List[Tuple[bytes, str]]] = None) -> RawJobPosting:
-        if is_placeholder(Config.GEMINI_API_KEY):
-            raise ExtractionError("GEMINI_API_KEY가 설정되지 않아 공고를 분석할 수 없습니다.")
+        if not llm.is_configured():
+            raise ExtractionError("OPENAI_API_KEY가 설정되지 않아 공고를 분석할 수 없습니다.")
         combined, files, final_url = self._gather(text or "", url, files or [])
         if len(combined) < 30 and not files:
             raise ExtractionError(
                 "페이지에서 읽을 수 있는 내용이 거의 없습니다. 이미지로 된 공고라면 캡처 이미지나 PDF, 또는 본문 텍스트를 보내주세요."
             )
 
-        from google import genai
-        from google.genai import types
-
-        parts: list = [EXTRACT_PROMPT, "\n[공고 자료 - 텍스트]\n<<<\n" + (combined or "(텍스트 없음)") + "\n>>>"]
-        parts += [types.Part.from_bytes(data=data, mime_type=mime) for data, mime in files]
+        prompt = EXTRACT_PROMPT + "\n[공고 자료 - 텍스트]\n<<<\n" + (combined or "(텍스트 없음)") + "\n>>>"
         try:
-            client = genai.Client(api_key=Config.GEMINI_API_KEY)
-            resp = client.models.generate_content(
-                model=Config.GEMINI_MODEL,
-                contents=parts,
-                config={"response_mime_type": "application/json", "response_schema": ExtractedJob},
-            )
-            extracted = ExtractedJob.model_validate_json(resp.text or "{}")
+            extracted = llm.generate_json(prompt, ExtractedJob, files=files)
         except Exception as e:
             raise ExtractionError(f"AI 분석 중 오류가 발생했습니다 ({type(e).__name__}).") from e
 
